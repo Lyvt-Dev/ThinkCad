@@ -139,7 +139,7 @@ MainWindow::MainWindow(bool smokeTest) : interpreter_(this),updater_(this),smoke
     connect(save,&QAction::triggered,this,[this]{saveSketch();});connect(run_,&QAction::triggered,this,[this]{if(interpreter_.active())interpreter_.stop();else runSketch();});
     connect(reset,&QAction::triggered,this,[this,button,adc]{interpreter_.stop();simulator_.reset();board_.reset();oled_.reset();button->setChecked(false);adc->setValue(0);refreshScene();});
     connect(&interpreter_,&CodeInterpreter::log,this,&MainWindow::appendLog);connect(&interpreter_,&CodeInterpreter::protocol,this,&MainWindow::process);
-    connect(&interpreter_,&CodeInterpreter::activeChanged,this,[this](bool active){run_->setText(active?"■ Simulation stoppen":"▶ Simulation starten");});
+    connect(&interpreter_,&CodeInterpreter::activeChanged,this,[this](bool active){run_->setText(active?"■ Simulation stoppen":"▶ Simulation starten");if(smokeTest_&&!active&&!smokeDone_)QCoreApplication::exit(1);});
     connect(&updater_,&Updater::message,this,&MainWindow::appendLog);
     connect(&updater_,&Updater::updateReady,this,[this,help](const QString& version){appendLog("Version "+version+" ist geprüft und bereit. Zum Installieren neu starten.");auto* restart=help->addAction("Update installieren und neu starten");connect(restart,&QAction::triggered,this,[this]{if(!maybeSave())return;interpreter_.stop();if(updater_.restartAndInstall())QApplication::quit();});});
     status_=new QLabel;statusBar()->addWidget(status_);refreshScene();
@@ -148,7 +148,7 @@ MainWindow::MainWindow(bool smokeTest) : interpreter_(this),updater_(this),smoke
     if(smokeTest_){QTimer::singleShot(0,this,&MainWindow::runSketch);QTimer::singleShot(20000,this,[]{std::cerr<<"Desktop smoke timed out\n";QCoreApplication::exit(1);});}
     else QTimer::singleShot(3000,&updater_,&Updater::check);
 }
-void MainWindow::appendLog(const QString& message){console_->appendPlainText(message);}
+void MainWindow::appendLog(const QString& message){console_->appendPlainText(message);if(smokeTest_)std::cerr<<message.toStdString()<<'\n';}
 void MainWindow::runSketch(){
     simulator_.reset();oled_.reset();writes_=0;
     std::map<int,Level> external;

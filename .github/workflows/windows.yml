@@ -58,7 +58,8 @@ jobs:
           Copy-Item packaging/windows/THIRD_PARTY.md out/stage/licenses/
           Copy-Item packaging/windows/LGPL-3.txt out/stage/licenses/
           $env:QT_QPA_PLATFORM = 'offscreen'
-          $smoke = Start-Process -FilePath "$pwd/out/stage/ThinkerCad.exe" -ArgumentList '--smoke-test' -Wait -PassThru
+          $smoke = Start-Process -FilePath "$pwd/out/stage/ThinkerCad.exe" -ArgumentList '--smoke-test' -RedirectStandardOutput "$pwd/out/stage-smoke.stdout.txt" -RedirectStandardError "$pwd/out/stage-smoke.stderr.txt" -Wait -PassThru
+          Get-Content out/stage-smoke.stdout.txt, out/stage-smoke.stderr.txt | Write-Host
           if ($smoke.ExitCode) { throw "Installed desktop smoke failed: $($smoke.ExitCode)" }
       - name: Create installer
         shell: pwsh
@@ -77,8 +78,9 @@ jobs:
           $install = Start-Process -FilePath $installer -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$installDir") -Wait -PassThru
           if ($install.ExitCode) { throw "Installer failed: $($install.ExitCode)" }
           $env:QT_QPA_PLATFORM = 'offscreen'
-          $app = Start-Process -FilePath "$installDir/ThinkerCad.exe" -ArgumentList '--smoke-test' -PassThru
+          $app = Start-Process -FilePath "$installDir/ThinkerCad.exe" -ArgumentList '--smoke-test' -RedirectStandardOutput "$pwd/out/installer-smoke.stdout.txt" -RedirectStandardError "$pwd/out/installer-smoke.stderr.txt" -PassThru
           if (-not $app.WaitForExit(30000)) { $app.Kill(); throw 'Installed app smoke timed out.' }
+          Get-Content out/installer-smoke.stdout.txt, out/installer-smoke.stderr.txt | Write-Host
           if ($app.ExitCode) { throw "Installed app failed: $($app.ExitCode)" }
           $uninstall = Start-Process -FilePath "$installDir/unins000.exe" -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -Wait -PassThru
           if ($uninstall.ExitCode -or (Test-Path "$installDir/ThinkerCad.exe")) { throw 'Uninstaller failed.' }
