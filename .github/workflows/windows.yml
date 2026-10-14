@@ -103,11 +103,11 @@ jobs:
           $name = Split-Path $installer -Leaf
           [IO.File]::WriteAllText("$installer.sha256", "$hash  $name`n", [Text.UTF8Encoding]::new($false))
       - name: Collect corresponding compiler sources
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name != 'pull_request'
         shell: msys2 {0}
         run: bash packaging/windows/collect-toolchain-sources.sh
       - name: Collect matching Qt sources
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name != 'pull_request'
         shell: pwsh
         run: |
           $name = 'qt-everywhere-src-6.8.3.tar.xz'
