@@ -29,8 +29,7 @@ nur eigenen bzw. vertrauenswürdigen Code und Bibliotheken ausführen.
 
 ## Windows bauen
 
-Benötigt werden CMake ≥3.24, Qt ≥6.5 (getestet: Linux Qt 6.8.2; Windows-CI konfiguriert:
-Qt 6.8.3 MSVC2022), Visual Studio 2022 C++ Build Tools und für die Laufzeit-Sketches
+Benötigt werden CMake ≥3.24, Qt ≥6.5 (getestet: Linux Qt 6.8.2 und Windows Qt 6.8.3/MSVC2022), Visual Studio 2022 C++ Build Tools und für die Laufzeit-Sketches
 MinGW-w64/UCRT64 GCC mit vollständigen Headern/Standardbibliotheken.
 Die GUI kann mit MSVC gebaut werden; Sketches laufen als eigenständige MinGW-Prozesse.
 
@@ -109,8 +108,10 @@ die erste Version unterstützt nur einen. Proxy-Zugriff muss `api.github.com`,
 Zum Release die CMake-Projektversion erhöhen und einen passenden `vX.Y.Z`-Tag pushen.
 Der vorbereitete Workflow baut/testet/paketiert und veröffentlicht
 `ThinkerCad-Setup-X.Y.Z.exe` + `.sha256`. Ohne Signierkonfiguration wird ein unsignierter Installer gebaut; automatische
-Updates bleiben in dieser Version deaktiviert. Hier wurden weder Workflow noch Release noch Windows-Installer
-ausgeführt oder veröffentlicht. Vor Produktivvertrieb außerdem die Lizenz-/Source-
+Updates bleiben in dieser Version deaktiviert. Version [0.1.0](https://github.com/Lyvt-Dev/ThinkerCad/releases/tag/v0.1.0) ist veröffentlicht.
+Der Windows-Build, alle vier Tests sowie Installation, App-Start und Deinstallation
+des Installers wurden erfolgreich geprüft. Der erste Installer ist unsigniert;
+automatische Update-Installation bleibt deaktiviert. Vor Produktivvertrieb außerdem die Lizenz-/Source-
 Anforderungen in `packaging/windows/THIRD_PARTY.md` erfüllen.
 
 Architektur, Ausführungspfad, Modellgrenzen und Ausbauplan: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

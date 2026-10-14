@@ -195,7 +195,9 @@ dass der Code vorbereitet ist. Zertifikatsrotation, Rollback, Delta-Updates,
 Installationsfehlerdiagnose und eine robuste Neuaufnahme bereits gecachter Downloads
 sind weitere Produktivschritte. Zum Release gehören Windows-Tests für Signaturfehler,
 Unterbrechung, Downgrade, gesperrte Dateien, unsaved Sketch, Installer/Uninstaller
-und tatsächlich erfolgreiches Wiederstarten; diese sind hier noch nicht ausgeführt.
+und tatsächlich erfolgreiches Wiederstarten. Installer-Installation, Start und
+Deinstallation wurden für 0.1.0 unter Windows geprüft; die zusätzlichen
+Update-/Signaturtests stehen noch aus.
 
 ## Ausbau in prüfbaren Etappen
 
