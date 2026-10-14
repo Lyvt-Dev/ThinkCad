@@ -37,14 +37,22 @@ void CodeInterpreter::stop() {
     for (auto* p : {&compiler_,&worker_}) if (p->state()!=QProcess::NotRunning) { p->kill(); p->waitForFinished(1000); }
     pending_.clear();
 }
-void CodeInterpreter::start(const QString& sketch,const QString& compiler,const QString& sdk,const QStringList& libraries) {
+void CodeInterpreter::start(const QString& sketch,const QString& compiler,const QString& sdk,const QStringList& libraries,const QMap<QString,QString>& projectFiles) {
     stop(); temp_=std::make_unique<QTemporaryDir>();
     if (!temp_->isValid() || !QFileInfo::exists(sdk+"/runner.cpp")) { emit log("Temporäres Verzeichnis oder Simulator-SDK fehlt."); return; }
     QFile file(temp_->filePath("sketch.ino"));
     if (!file.open(QIODevice::WriteOnly) || file.write(sketch.toUtf8()) < 0) {emit log("Sketch konnte nicht gespeichert werden."); return;} file.close();
     QString source=QDir::fromNativeSeparators(file.fileName());
     QStringList args{"-std=c++20","-O0","-g","-pthread","-I"+sdk,"-DTHINKERCAD_SKETCH=\""+source+"\"",sdk+"/runner.cpp"};
+    args << "-I"+temp_->path() << "-I"+temp_->filePath("src") << "-I"+temp_->filePath("include");
     int sources=0;
+    for(auto it=projectFiles.begin();it!=projectFiles.end();++it) {
+        const auto name=it.key();const auto clean=QDir::cleanPath(name);
+        if(name.isEmpty()||name.startsWith('/')||name.contains('\\')||name.contains(':')||name.split('/').contains("..")||clean!=name||++sources>100||it.value().toUtf8().size()>2*1024*1024){emit log("Ungültige Projektdateien.");return;}
+        const auto path=temp_->filePath(name);QDir().mkpath(QFileInfo(path).absolutePath());QFile auxiliary(path);
+        const auto bytes=it.value().toUtf8();if(!auxiliary.open(QIODevice::WriteOnly)||auxiliary.write(bytes)!=bytes.size()){emit log("Projektdatei konnte nicht vorbereitet werden.");return;}auxiliary.close();
+        if(QStringList{"cpp","cc","cxx"}.contains(QFileInfo(name).suffix().toLower()))args<<path;
+    }
     for (const auto& lib : libraries) {
         const QString root=QFileInfo::exists(lib+"/src")?lib+"/src":lib;
         args << "-I"+root << "-I"+lib;
@@ -86,9 +94,12 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
 }
 void CodeInterpreter::answer(int value) {worker_.write(QByteArray::number(value)+'\n');}
 void CodeInterpreter::readProtocol() {
-    watchdog_.start(10000); pending_+=worker_.readAllStandardOutput();
+    if(!active_)return;
+    const auto received=worker_.readAllStandardOutput();if(!received.isEmpty())watchdog_.start(10000);pending_+=received;
     if (pending_.size()>1048576) {emit log("Sketch-Protokoll überschreitet das Pufferlimit.");stop();return;}
+    int dispatched=0;
     while (true) {
+        if(dispatched++>=64){QTimer::singleShot(0,this,&CodeInterpreter::readProtocol);break;}
         const auto newline=pending_.indexOf('\n'); if(newline<0) break;
         if (++linesThisSecond_>5000 || newline>4096) {emit log("Sketch-Protokoll überlastet. delay() oder yield() verwenden.");stop();return;}
         auto line=pending_.left(newline).trimmed(); pending_.remove(0,newline+1);

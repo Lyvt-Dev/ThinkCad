@@ -16,6 +16,7 @@ constexpr int LOW = 0, HIGH = 1, INPUT = 0, OUTPUT = 1, INPUT_PULLUP = 2;
 constexpr int D0=16, D1=5, D2=4, D3=0, D4=2, D5=14, D6=12, D7=13, D8=15, A0=17, LED_BUILTIN=2;
 namespace thinker {
 inline std::uint64_t clockUs = 0;
+inline bool standalone = false;
 inline std::array<int,17> modes{};
 inline void validatePin(int pin) {
     if (pin < 0 || pin > 16 || (pin >= 6 && pin <= 11)) throw std::invalid_argument("Unavailable ESP8266 GPIO");
@@ -31,6 +32,7 @@ inline void advance(std::uint64_t us) {
 }
 inline int request(const std::string& line) {
     std::cout << line << std::endl;
+    if(standalone){if(line.starts_with("OLED_BEGIN "))return 1;return 0;}
     int answer = 0;
     if (!(std::cin >> answer)) throw std::runtime_error("Simulation host disconnected");
     return answer;

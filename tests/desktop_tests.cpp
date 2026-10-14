@@ -1,0 +1,47 @@
+#include "mainwindow.hpp"
+#include "codeeditor.hpp"
+#include <QApplication>
+#include <QAction>
+#include <QDir>
+#include <QFileInfo>
+#include <QCheckBox>
+#include <QFile>
+#include <QGraphicsItem>
+#include <QGraphicsScene>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QScreen>
+#include <QTabWidget>
+#include <QTemporaryDir>
+#include <QtTest>
+#ifdef Q_OS_WIN
+#define NOMINMAX
+#include <windows.h>
+#endif
+using namespace thinkercad;
+class DesktopTests final:public QObject{
+    Q_OBJECT
+    static bool write(const QString& path,const QString& text){QFile f(path);return f.open(QIODevice::WriteOnly)&&f.write(text.toUtf8())==text.toUtf8().size();}
+    static QPoint port(CircuitCanvas* canvas,const QString& part,const QString& pin){for(auto* item:canvas->scene()->items())if(item->parentItem()&&item->parentItem()->data(1).toString()==part&&item->toolTip().startsWith(pin+" —"))return canvas->mapFromScene(item->scenePos());return {-1000,-1000};}
+    static void stop(MainWindow& window){if(window.simulationActive())window.findChild<QAction*>("runSimulation")->trigger();}
+private slots:
+    void initTestCase(){QApplication::setQuitOnLastWindowClosed(false);}
+    void normalWindowControls(){MainWindow window;window.show();QTest::qWait(60);const auto flags=window.windowFlags();QVERIFY(flags&Qt::WindowCloseButtonHint);QVERIFY(flags&Qt::WindowMinimizeButtonHint);QVERIFY(flags&Qt::WindowMaximizeButtonHint);QVERIFY(!(flags&Qt::FramelessWindowHint));QVERIFY(!window.windowIcon().isNull());window.showMinimized();QTRY_VERIFY(window.isMinimized());window.showMaximized();QTRY_VERIFY(window.isMaximized());window.showNormal();QTRY_VERIFY(!window.isMaximized()&&!window.isMinimized());QVERIFY(window.close());QVERIFY(!window.isVisible());}
+    void nativeWindowChrome(){
+#ifdef Q_OS_WIN
+        if(QApplication::platformName()!="windows")QSKIP("Native chrome is checked separately with QPA=windows.");MainWindow window;window.show();QTest::qWait(150);const auto hwnd=reinterpret_cast<HWND>(window.winId());const auto style=GetWindowLongPtrW(hwnd,GWL_STYLE);QVERIFY((style&WS_CAPTION)==WS_CAPTION);QVERIFY(style&WS_SYSMENU);QVERIFY(style&WS_MINIMIZEBOX);QVERIFY(style&WS_MAXIMIZEBOX);QVERIFY(style&WS_THICKFRAME);const auto available=window.screen()->availableGeometry();QVERIFY(window.frameGeometry().width()<=available.width());QVERIFY(window.frameGeometry().height()<=available.height());SendMessageW(hwnd,WM_SYSCOMMAND,SC_MINIMIZE,0);QTRY_VERIFY(window.isMinimized());SendMessageW(hwnd,WM_SYSCOMMAND,SC_MAXIMIZE,0);QTRY_VERIFY(window.isMaximized());SendMessageW(hwnd,WM_SYSCOMMAND,SC_RESTORE,0);QTRY_VERIFY(!window.isMinimized()&&!window.isMaximized());SendMessageW(hwnd,WM_SYSCOMMAND,SC_CLOSE,0);QTRY_VERIFY(!window.isVisible());
+#else
+        QSKIP("Win32 window chrome requires Windows.");
+#endif
+    }
+    void mouseWiringAndUndo(){MainWindow window;window.show();QTest::qWait(80);auto* canvas=window.canvas();canvas->addPart(PartKind::Oled);const auto oled=window.circuit().parts().back().id;canvas->fitCircuit();QTest::qWait(30);QTest::mouseClick(canvas->viewport(),Qt::LeftButton,Qt::NoModifier,port(canvas,"board","3V3"));QTest::mouseClick(canvas->viewport(),Qt::LeftButton,Qt::NoModifier,port(canvas,QString::fromStdString(oled),"VCC"));QTRY_COMPARE(window.circuit().wires().size(),std::size_t(1));QVERIFY(window.circuit().connected({"board","3V3"},{oled,"VCC"}));for(auto* item:canvas->scene()->items())if(item->data(0)=="wire")item->setSelected(true);canvas->setFocus();QTest::keyClick(canvas,Qt::Key_Delete);QTRY_COMPARE(window.circuit().wires().size(),std::size_t(0));canvas->history()->undo();QCOMPARE(window.circuit().wires().size(),std::size_t(1));canvas->history()->redo();QCOMPARE(window.circuit().wires().size(),std::size_t(0));}
+    void importInoTabsAndPortableProject(){QTemporaryDir temporary;QDir root(temporary.path());root.mkdir("Blink");const auto dir=root.filePath("Blink");const auto primary=dir+"/Blink.ino";const QString original="#include \"Counter.h\"\nvoid setup(){pinMode(D5,OUTPUT);}\nvoid loop(){digitalWrite(D5,stateFor(21));delay(20);}\n";QVERIFY(write(primary,original));QVERIFY(write(dir+"/helpers.ino","int stateFor(int value){return doubled(value)==42?HIGH:LOW;}\n"));QVERIFY(write(dir+"/Counter.h","#pragma once\nint doubled(int value);\n"));QVERIFY(write(dir+"/Counter.cpp","#include \"Counter.h\"\nint doubled(int value){return value*2;}\n"));MainWindow window;window.show();QVERIFY(window.openPath(primary));QCOMPARE(window.findChild<QTabWidget*>("codeTabs")->count(),4);window.startSimulation();QTRY_VERIFY_WITH_TIMEOUT(window.circuitState().level({"board","GPIO14"})==Level::High,15000);stop(window);QFile unchanged(primary);QVERIFY(unchanged.open(QIODevice::ReadOnly));QCOMPARE(QString::fromUtf8(unchanged.readAll()),original);unchanged.close();const auto saved=root.filePath("Blink.thinkercad");QVERIFY(window.saveProjectTo(saved));QVERIFY(QDir(dir).removeRecursively());QVERIFY(window.openPath(saved));QCOMPARE(window.findChild<QTabWidget*>("codeTabs")->count(),4);window.startSimulation();QTRY_VERIFY_WITH_TIMEOUT(window.circuitState().level({"board","GPIO14"})==Level::High,15000);stop(window);}
+    void wiredButtonChangesLed(){QTemporaryDir dir;const auto path=dir.filePath("button.ino");QVERIFY(write(path,"void setup(){pinMode(D6,INPUT_PULLUP);pinMode(D5,OUTPUT);}\nvoid loop(){digitalWrite(D5,digitalRead(D6)==LOW?HIGH:LOW);delay(40);}\n"));MainWindow window;window.show();QVERIFY(window.openPath(path));std::string led,resistor,button;window.canvas()->mutate("Test circuit",[&](auto& doc){led=doc.addPart(PartKind::Led,430,150);resistor=doc.addPart(PartKind::Resistor,270,150);button=doc.addPart(PartKind::Button,270,300);doc.connect({"board","GPIO14"},{resistor,"1"});doc.connect({resistor,"2"},{led,"A"});doc.connect({led,"K"},{"board","GND"});doc.connect({button,"1"},{"board","GPIO12"});doc.connect({button,"2"},{"board","GND"});});window.startSimulation();auto* output=window.findChild<QPlainTextEdit*>("consoleOutput");QTRY_VERIFY_WITH_TIMEOUT(output->toPlainText().contains("setup() abgeschlossen"),15000);QTRY_VERIFY(window.circuitState().ledCurrent.at(led)<1e-6);window.canvas()->selectPart(button);auto* pressed=window.findChild<QCheckBox*>();QVERIFY(pressed&&pressed->isVisible());QTest::mouseClick(pressed,Qt::LeftButton);QTRY_VERIFY_WITH_TIMEOUT(window.circuitState().ledCurrent.at(led)>0.005,3000);QTest::mouseClick(pressed,Qt::LeftButton);QTRY_VERIFY_WITH_TIMEOUT(window.circuitState().ledCurrent.at(led)<1e-6,3000);stop(window);}
+    void closeDuringSimulation(){MainWindow window;window.loadDemo();window.show();window.startSimulation();QTRY_VERIFY_WITH_TIMEOUT(window.circuitState().level({"board","GPIO2"})==Level::High,15000);QElapsedTimer timer;timer.start();QVERIFY(window.close());QVERIFY(!window.simulationActive());QVERIFY(!window.isVisible());QVERIFY(timer.elapsed()<2500);}
+    void disconnectedOledFailsBegin(){QTemporaryDir dir;const auto path=dir.filePath("oled.ino");QVERIFY(write(path,"#include <Adafruit_SSD1306.h>\nAdafruit_SSD1306 display(128,64,&Wire,-1);\nvoid setup(){Wire.begin(D2,D1);if(!display.begin(SSD1306_SWITCHCAPVCC,0x3c))Serial.println(\"missing OLED\");}\nvoid loop(){delay(30);}\n"));MainWindow window;window.show();QVERIFY(window.openPath(path));window.startSimulation();auto* console=window.findChild<QPlainTextEdit*>("consoleOutput");QTRY_VERIFY_WITH_TIMEOUT(console->toPlainText().contains("missing OLED"),15000);QVERIFY(console->toPlainText().contains("OLED nicht erreichbar"));stop(window);}
+    void circuitProjectRoundTrip(){QTemporaryDir dir;SavedProject p;p.sketch.name="Wiring";p.sketch.order={"Wiring.ino"};p.sketch.files["Wiring.ino"]="void setup(){} void loop(){delay(20);}";const auto resistor=p.circuit.addPart(PartKind::Resistor,310,170);p.circuit.part(resistor).value=470;p.circuit.connect({"board","GPIO14"},{resistor,"1"},"#ec5967");const auto path=dir.filePath("Wiring.thinkercad");ProjectIO::save(path,p);const auto loaded=ProjectIO::load(path);QCOMPARE(loaded.circuit.parts().size(),p.circuit.parts().size());QCOMPARE(loaded.circuit.part(resistor).x,310.0);QCOMPARE(loaded.circuit.part(resistor).value,470.0);QVERIFY(loaded.circuit.connected({"board","GPIO14"},{resistor,"1"}));QCOMPARE(QString::fromStdString(loaded.circuit.wires().front().color),QString("#ec5967"));QCOMPARE(loaded.sketch.files,p.sketch.files);}
+    void rejectUnsafeProjectPaths(){QTemporaryDir dir;SavedProject p;p.sketch.order={"sketch.ino"};p.sketch.files["sketch.ino"]="void setup(){} void loop(){}";const auto path=dir.filePath("safe.thinkercad");ProjectIO::save(path,p);QFile file(path);QVERIFY(file.open(QIODevice::ReadOnly));auto json=QJsonDocument::fromJson(file.readAll()).object();file.close();auto files=json["files"].toArray();files.append(QJsonObject{{"name","../escaped.cpp"},{"text",""}});json["files"]=files;QVERIFY(write(path,QString::fromUtf8(QJsonDocument(json).toJson())));QVERIFY_EXCEPTION_THROWN(ProjectIO::load(path),std::runtime_error);QVERIFY(!QFileInfo::exists(dir.filePath("../escaped.cpp")));}
+};
+QTEST_MAIN(DesktopTests)
+#include "desktop_tests.moc"

@@ -1,205 +1,118 @@
 #include "mainwindow.hpp"
-#include <QApplication>
-#include <QDateTime>
-#include <QFileInfo>
-#include <QPainterPath>
-#include <QTextCursor>
-#include <cmath>
+#include "codeeditor.hpp"
 #include <QAction>
+#include <QApplication>
 #include <QCheckBox>
 #include <QCloseEvent>
-#include <QDialog>
-#include <QDialogButtonBox>
+#include <QColorDialog>
+#include <QComboBox>
+#include <QDateTime>
 #include <QDockWidget>
+#include <QDialogButtonBox>
+#include <QDir>
+#include <QMenu>
+#include <QDoubleSpinBox>
 #include <QFileDialog>
-#include <QGraphicsItem>
-#include <QGraphicsScene>
-#include <QGraphicsView>
+#include <QFileInfo>
+#include <QFormLayout>
+#include <QIcon>
 #include <QImage>
+#include <QInputDialog>
 #include <QLabel>
 #include <QListWidget>
 #include <QMenuBar>
 #include <QMessageBox>
-#include <QPainter>
-#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QSaveFile>
+#include <QScreen>
 #include <QSettings>
-#include <QSlider>
-#include <QStandardPaths>
+#include <QSignalBlocker>
 #include <QStatusBar>
+#include <QStyle>
+#include <QTabWidget>
 #include <QTextDocument>
 #include <QTimer>
 #include <QToolBar>
+#include <QToolButton>
 #include <QVBoxLayout>
+#include <cmath>
 #include <iostream>
 using namespace thinkercad;
-class CircuitItem final : public QGraphicsItem {
-public:
-    enum Kind { Board, Oled };
-    Kind kind;
-    const Esp8266Board* board;
-    const OledDisplay* display;
-    CircuitItem(Kind kind,const Esp8266Board* board,const OledDisplay* display) : kind(kind),board(board),display(display) {
-        setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges);
-        setCursor(Qt::OpenHandCursor);
-    }
-    QRectF boundingRect() const override {return kind==Board?QRectF(-4,-4,218,360):QRectF(-4,-4,300,210);}
-    QVariant itemChange(GraphicsItemChange change,const QVariant& value) override {
-        if(change==ItemPositionHasChanged && scene()) scene()->update();
-        return QGraphicsItem::itemChange(change,value);
-    }
-    void paint(QPainter* p,const QStyleOptionGraphicsItem*,QWidget*) override {
-        p->setRenderHint(QPainter::Antialiasing);
-        p->setPen(QPen(isSelected()?QColor("#2563eb"):QColor("#263747"),isSelected()?3:1));
-        p->setBrush(kind==Board?QColor("#183c3b"):QColor("#16395b"));
-        p->drawRoundedRect(kind==Board?QRectF(0,0,210,346):QRectF(0,0,292,202),12,12);
-        if(kind==Board) {
-            p->setBrush(QColor("#c4cbd1"));p->setPen(Qt::NoPen);p->drawRoundedRect(40,28,130,90,5,5);
-            p->setPen(QColor("#263747"));p->setFont(QFont("Segoe UI",13,QFont::Bold));p->drawText(QRectF(40,45,130,30),Qt::AlignCenter,"ESP8266");
-            p->setFont(QFont("Segoe UI",9));p->drawText(QRectF(40,80,130,24),Qt::AlignCenter,"ESP-12E / 3.3 V");
-            p->setBrush(QColor("#202b32"));p->drawRoundedRect(65,145,80,70,4,4);
-            p->setPen(QColor("#cce0df"));p->drawText(QRectF(65,162,80,25),Qt::AlignCenter,"Wi-Fi MCU");
-            const QStringList left{"3V3","GND","D0 · 16","D1 · 5","D2 · 4","D3 · 0","D4 · 2","A0"};
-            const QStringList right{"VIN*","GND","D5 · 14","D6 · 12","D7 · 13","D8 · 15","RX · 3","TX · 1"};
-            for(int i=0;i<8;++i) {
-                p->setBrush(QColor("#d9cba7"));p->setPen(Qt::NoPen);p->drawEllipse(QPointF(12,137+i*23),4,4);p->drawEllipse(QPointF(198,137+i*23),4,4);
-                p->setPen(QColor("#dbe9e7"));p->setFont(QFont("Segoe UI",8));p->drawText(QRectF(21,129+i*23,62,18),left[i]);p->drawText(QRectF(134,129+i*23,58,18),Qt::AlignRight,right[i]);
-            }
-            p->setPen(Qt::NoPen);p->setBrush(QColor("#acb6bf"));p->drawRoundedRect(84,321,42,25,2,2);
-            const bool on=board->digitalRead(2)==Level::Low;
-            p->setBrush(on?QColor("#36b5ff"):QColor("#123a52"));p->drawEllipse(QPointF(105,245),5,5);
-            p->setPen(QColor("#d4e3e2"));p->drawText(QRectF(50,278,110,22),Qt::AlignCenter,"NodeMCU · ESP8266");
-        } else {
-            p->setBrush(QColor("#050c14"));p->setPen(QColor("#6a8293"));p->drawRect(QRectF(17,20,256,128));
-            p->setPen(Qt::NoPen);p->setBrush(QColor("#9aebff"));
-            const auto& f=display->frame();
-            for(int y=0;y<64;++y)for(int x=0;x<128;++x)if(f.pixel(x,y))p->drawRect(QRectF(17+x*2,20+y*2,1.8,1.8));
-            p->setPen(QColor("#d4e7fb"));p->setFont(QFont("Segoe UI",10));p->drawText(QRectF(15,156,260,22),Qt::AlignCenter,"SSD1306 · 128 × 64 · I²C 0x3C");
-            p->setFont(QFont("Segoe UI",8));p->drawText(QRectF(15,181,260,18),Qt::AlignCenter,"GND        VCC        SCL        SDA");
-        }
-    }
-};
-class CircuitScene final : public QGraphicsScene {
-public:
-    CircuitItem *board=nullptr,*oled=nullptr;
-    using QGraphicsScene::QGraphicsScene;
-    void drawBackground(QPainter* p,const QRectF& r) override {
-        p->fillRect(r,QColor("#f2f5f8"));p->setPen(QPen(QColor("#dbe1e8"),1));
-        for(double x=std::floor(r.left()/20)*20;x<r.right();x+=20)
-            for(double y=std::floor(r.top()/20)*20;y<r.bottom();y+=20)p->drawPoint(QPointF(x,y));
-    }
-    void drawForeground(QPainter* p,const QRectF&) override {
-        if(!board || !oled) return;
-        const QColor colors[]{QColor("#3a4553"),QColor("#d54a51"),QColor("#d6a128"),QColor("#368ac9")};
-        const int boardRows[]{1,0,3,4};
-        for(int i=0;i<4;++i) {
-            auto a=board->mapToScene(QPointF(12,137+boardRows[i]*23));auto b=oled->mapToScene(QPointF(70+i*50,200));
-            QPainterPath path(a);path.cubicTo(a+QPointF(-65,110+i*12),b+QPointF(0,85+i*12),b);
-            p->setPen(QPen(colors[i],2.5));p->setBrush(Qt::NoBrush);p->drawPath(path);
-        }
-    }
-};
-MainWindow::MainWindow(bool smokeTest) : interpreter_(this),updater_(this),smokeTest_(smokeTest) {
-    setWindowTitle("ThinkerCad — ESP8266 Studio");resize(1440,860);
-    auto* toolbar=addToolBar("Werkzeuge");toolbar->setMovable(false);
-    auto* open=toolbar->addAction("Sketch öffnen");auto* save=toolbar->addAction("Speichern");toolbar->addSeparator();
-    run_=toolbar->addAction("▶ Simulation starten");auto* reset=toolbar->addAction("Zurücksetzen");
-    auto* view=new QGraphicsView(this);auto* circuit=new CircuitScene(this);scene_=circuit;view->setScene(scene_);
-    scene_->setSceneRect(-150,-70,1000,610);view->setRenderHint(QPainter::Antialiasing);view->setDragMode(QGraphicsView::RubberBandDrag);setCentralWidget(view);
-    boardItem_=new CircuitItem(CircuitItem::Board,&board_,&oled_);oledItem_=new CircuitItem(CircuitItem::Oled,&board_,&oled_);
-    scene_->addItem(boardItem_);scene_->addItem(oledItem_);boardItem_->setPos(25,25);oledItem_->setPos(380,55);circuit->board=boardItem_;circuit->oled=oledItem_;
-    auto* zoomIn=toolbar->addAction("＋");auto* zoomOut=toolbar->addAction("−");connect(zoomIn,&QAction::triggered,this,[view]{if(view->transform().m11()<4)view->scale(1.2,1.2);});connect(zoomOut,&QAction::triggered,this,[view]{if(view->transform().m11()>.3)view->scale(1/1.2,1/1.2);});
-    auto* codeDock=new QDockWidget("Arduino C++",this);editor_=new QPlainTextEdit(codeDock);editor_->setFont(QFont("Consolas",10));editor_->setTabStopDistance(28);codeDock->setWidget(editor_);codeDock->setMinimumWidth(420);addDockWidget(Qt::RightDockWidgetArea,codeDock);
-    QFile example(QCoreApplication::applicationDirPath()+"/examples/animation.ino");
-    if(example.open(QIODevice::ReadOnly))editor_->setPlainText(QString::fromUtf8(example.readAll()));
-    else editor_->setPlainText("#include <Arduino.h>\nvoid setup() { pinMode(LED_BUILTIN, OUTPUT); }\nvoid loop() { digitalWrite(LED_BUILTIN, LOW); delay(500); digitalWrite(LED_BUILTIN, HIGH); delay(500); }\n");
-    editor_->document()->setModified(false);
-    auto* consoleDock=new QDockWidget("Compiler / Serial Monitor",this);console_=new QPlainTextEdit;console_->setReadOnly(true);console_->setMaximumBlockCount(1000);console_->setMinimumHeight(100);consoleDock->setWidget(console_);addDockWidget(Qt::BottomDockWidgetArea,consoleDock);
-    auto* components=new QDockWidget("Bauteile und Eingänge",this);auto* panel=new QWidget;auto* layout=new QVBoxLayout(panel);
-    auto* info=new QLabel("ESP8266 · 3,3 V\nSSD1306 OLED · 128 × 64\n\nVorverdrahteter Demo-Aufbau:\nSDA = D2 / GPIO4\nSCL = D1 / GPIO5\nVCC = 3V3, GND = GND\n\nBauteile im Arbeitsbereich\nmit der Maus verschieben.");info->setWordWrap(true);layout->addWidget(info);
-    auto* button=new QCheckBox("Taster D6 / GPIO12 gedrückt");layout->addWidget(button);
-    connect(button,&QCheckBox::toggled,this,[this](bool down){board_.driveInput(12,down?Level::Low:Level::Floating);refreshScene();});
-    auto* adcLabel=new QLabel("A0: 0,000 V (roher ESP8266 ADC)");auto* adc=new QSlider(Qt::Horizontal);adc->setRange(0,1000);layout->addWidget(adcLabel);layout->addWidget(adc);
-    connect(adc,&QSlider::valueChanged,this,[this,adcLabel](int v){board_.setAdcVoltage(v/1000.0);adcLabel->setText(QString("A0: %1 V · ADC %2").arg(v/1000.0,0,'f',3).arg(board_.analogRead()));});
-    auto* libButton=new QPushButton("Bibliotheken verwalten…");layout->addWidget(libButton);layout->addStretch();components->setWidget(panel);addDockWidget(Qt::LeftDockWidgetArea,components);connect(libButton,&QPushButton::clicked,this,&MainWindow::libraries);
-    auto* settings=menuBar()->addMenu("Einstellungen");auto* compilerAction=settings->addAction("Sketch-Compiler wählen…");
-    connect(compilerAction,&QAction::triggered,this,[this]{auto path=QFileDialog::getOpenFileName(this,"g++ wählen (MinGW-w64 unter Windows)");if(!path.isEmpty())QSettings().setValue("compiler",path);});
-    auto* imageAction=settings->addAction("Bild als Frame-Array einfügen…");
-    connect(imageAction,&QAction::triggered,this,[this]{
-        auto path=QFileDialog::getOpenFileName(this,"Monochromes Frame importieren",{},"Bilder (*.png *.bmp *.jpg)");if(path.isEmpty())return;
-        QImage image(path);if(image.isNull()){appendLog("Bild konnte nicht gelesen werden.");return;}image=image.scaled(128,64,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
-        const auto name=QString("frame_%1").arg(QDateTime::currentMSecsSinceEpoch());QString code="\n#include <Arduino.h>\nconst uint8_t "+name+"[1024] PROGMEM = {\n";
-        for(int y=0;y<64;++y){code+="    ";for(int bx=0;bx<16;++bx){unsigned b=0;for(int bit=0;bit<8;++bit){auto color=image.pixelColor(bx*8+bit,y);if(color.alpha()>127 && qGray(color.rgb())>=128)b|=0x80u>>bit;}code+=QString("0x%1,").arg(b,2,16,QChar('0'));}code+='\n';}
-        code+="};\n// In loop(): display.drawBitmap(0, 0, "+name+", 128, 64, SSD1306_WHITE);\n";editor_->moveCursor(QTextCursor::Start);editor_->insertPlainText(code);appendLog("Frame-Array vor dem Sketch eingefügt. drawBitmap-Aufruf in loop() ergänzen.");
-    });
-    auto* help=menuBar()->addMenu("Hilfe");auto* update=help->addAction("Nach Updates suchen");connect(update,&QAction::triggered,&updater_,&Updater::check);
-    auto* about=help->addAction("Über ThinkerCad");connect(about,&QAction::triggered,this,[this]{QMessageBox::information(this,"ThinkerCad " THINKERCAD_VERSION,"C++20 / Qt 6 · ESP8266 2D-Prototyp\n\nNative Sketch-Ausführung mit Arduino-API-Teilmenge. Keine Xtensa-CPU-Emulation. Nur vertrauenswürdigen Code und Bibliotheken ausführen.\n\nOLED-Frames, digitale Pegel und virtuelle Zeit sind implementiert. Freie Verdrahtung, PWM, Wi-Fi und vollständige Analogsimulation sind Ausbauziele.");});
-    connect(open,&QAction::triggered,this,[this]{if(!maybeSave())return;auto path=QFileDialog::getOpenFileName(this,"Arduino-Sketch öffnen",{},"Arduino (*.ino);;C++ (*.cpp)");if(path.isEmpty())return;QFile file(path);if(file.open(QIODevice::ReadOnly)){editor_->setPlainText(QString::fromUtf8(file.readAll()));currentFile_=path;editor_->document()->setModified(false);}else appendLog("Sketch konnte nicht geöffnet werden.");});
-    connect(save,&QAction::triggered,this,[this]{saveSketch();});connect(run_,&QAction::triggered,this,[this]{if(interpreter_.active())interpreter_.stop();else runSketch();});
-    connect(reset,&QAction::triggered,this,[this,button,adc]{interpreter_.stop();simulator_.reset();board_.reset();oled_.reset();button->setChecked(false);adc->setValue(0);refreshScene();});
-    connect(&interpreter_,&CodeInterpreter::log,this,&MainWindow::appendLog);connect(&interpreter_,&CodeInterpreter::protocol,this,&MainWindow::process);
-    connect(&interpreter_,&CodeInterpreter::activeChanged,this,[this](bool active){run_->setText(active?"■ Simulation stoppen":"▶ Simulation starten");if(smokeTest_&&!active&&!smokeDone_)QCoreApplication::exit(1);});
-    connect(&updater_,&Updater::message,this,&MainWindow::appendLog);
-    connect(&updater_,&Updater::updateReady,this,[this,help](const QString& version){appendLog("Version "+version+" ist geprüft und bereit. Zum Installieren neu starten.");auto* restart=help->addAction("Update installieren und neu starten");connect(restart,&QAction::triggered,this,[this]{if(!maybeSave())return;interpreter_.stop();if(updater_.restartAndInstall())QApplication::quit();});});
-    status_=new QLabel;statusBar()->addWidget(status_);refreshScene();
-    resizeDocks({consoleDock},{130},Qt::Vertical);
-    QTimer::singleShot(0,this,[this,view]{view->fitInView(scene_->itemsBoundingRect().adjusted(-80,-35,35,100),Qt::KeepAspectRatio);});
-    if(smokeTest_){QTimer::singleShot(0,this,&MainWindow::runSketch);QTimer::singleShot(20000,this,[]{std::cerr<<"Desktop smoke timed out\n";QCoreApplication::exit(1);});}
-    else QTimer::singleShot(3000,&updater_,&Updater::check);
+namespace {
+QString title(PartKind kind){switch(kind){case PartKind::Esp8266:return "ESP8266";case PartKind::Oled:return "OLED SSD1306";case PartKind::Led:return "LED";case PartKind::Resistor:return "Widerstand";case PartKind::Button:return "Taster";case PartKind::AnalogSource:return "Analogquelle 0–1 V";}return {};}
+SketchProject blink(){SketchProject p;p.order={"sketch.ino"};p.files["sketch.ino"]="// ESP8266: Die eingebaute LED an GPIO2 ist aktiv-low.\nvoid setup() {\n    pinMode(LED_BUILTIN, OUTPUT);\n}\n\nvoid loop() {\n    digitalWrite(LED_BUILTIN, LOW);\n    delay(500);\n    digitalWrite(LED_BUILTIN, HIGH);\n    delay(500);\n}\n";return p;}
 }
-void MainWindow::appendLog(const QString& message){console_->appendPlainText(message);if(smokeTest_)std::cerr<<message.toStdString()<<'\n';}
-void MainWindow::runSketch(){
-    simulator_.reset();oled_.reset();writes_=0;
-    std::map<int,Level> external;
-    for(int pin:Esp8266Board::nodeMcuGpio) external.emplace(pin,board_.pin(pin).external);
-    external.emplace(1,board_.pin(1).external);external.emplace(3,board_.pin(3).external);
-    const auto voltage=board_.adcVoltage();board_.reset();board_.setAdcVoltage(voltage);
-    for(const auto& [pin,level]:external)board_.driveInput(pin,level);
-    QSettings settings;const auto bundled=QCoreApplication::applicationDirPath()+"/toolchain/bin/g++.exe";
-    const auto compiler=settings.value("compiler",QFileInfo::exists(bundled)?bundled:"g++").toString();
-    interpreter_.start(editor_->toPlainText(),compiler,QCoreApplication::applicationDirPath()+"/sdk",settings.value("libraries").toStringList());refreshScene();
+MainWindow::MainWindow(bool smokeTest):interpreter_(this),updater_(this),smokeTest_(smokeTest){
+    setObjectName("mainWindow");
+    setWindowFlags(Qt::Window|Qt::WindowTitleHint|Qt::WindowSystemMenuHint|Qt::WindowMinimizeButtonHint|Qt::WindowMaximizeButtonHint|Qt::WindowCloseButtonHint);
+    setWindowIcon(QIcon(":/brand/logo.png"));setMinimumSize(600,420);
+    canvas_=new CircuitCanvas(circuit_,this);setCentralWidget(canvas_);
+    auto* bar=addToolBar("Arbeitsbereich");bar->setObjectName("commandBar");bar->setMovable(false);bar->setIconSize({18,18});
+    auto* logo=new QLabel;logo->setPixmap(QPixmap(":/brand/logo.png").scaled(38,38,Qt::KeepAspectRatio,Qt::SmoothTransformation));logo->setContentsMargins(8,0,3,0);bar->addWidget(logo);
+    auto* brand=new QLabel("ThinkerCad");brand->setObjectName("brandName");brand->setContentsMargins(3,0,18,0);bar->addWidget(brand);bar->addSeparator();
+    auto* file=menuBar()->addMenu("Datei");
+    auto action=[this](QMenu* menu,const QString& name,const QKeySequence& key,std::function<void()> callback){auto* a=menu->addAction(name);a->setShortcut(key);connect(a,&QAction::triggered,this,std::move(callback));return a;};
+    auto* fresh=action(file,"Neues Projekt",QKeySequence::New,[this]{if(maybeSave())newProject();});fresh->setIcon(style()->standardIcon(QStyle::SP_FileIcon));bar->addAction(fresh);
+    auto* open=action(file,"Projekt / .ino öffnen…",QKeySequence::Open,[this]{openDialog();});open->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));bar->addAction(open);
+    auto* save=action(file,"Projekt speichern",QKeySequence::Save,[this]{saveProject();});save->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));bar->addAction(save);
+    action(file,"Projekt speichern unter…",QKeySequence::SaveAs,[this]{const auto old=projectFile_;projectFile_.clear();if(!saveProject())projectFile_=old;});
+    action(file,"Arduino-Sketch exportieren…",{},[this]{exportSketch();});file->addSeparator();
+    action(file,"Beispielschaltung laden",{},[this]{if(maybeSave())loadDemo();});
+    action(file,"Beenden",QKeySequence::Quit,[this]{close();});
+    auto* edit=menuBar()->addMenu("Bearbeiten");undo_=canvas_->history()->createUndoAction(canvas_,"Rückgängig");redo_=canvas_->history()->createRedoAction(canvas_,"Wiederholen");undo_->setShortcut(QKeySequence::Undo);redo_->setShortcut(QKeySequence::Redo);undo_->setShortcutContext(Qt::WidgetWithChildrenShortcut);redo_->setShortcutContext(Qt::WidgetWithChildrenShortcut);canvas_->addAction(undo_);canvas_->addAction(redo_);edit->addAction(undo_);edit->addAction(redo_);
+    action(edit,"Ausgewählte Bauteile / Kabel löschen",{},[this]{canvas_->removeSelected();});
+    bar->addSeparator();auto* wire=bar->addAction("Kabel verbinden");wire->setCheckable(true);wire->setToolTip("Startpin und Zielpin anklicken · Esc: abbrechen");connect(wire,&QAction::toggled,canvas_,&CircuitCanvas::setWireMode);
+    auto* color=bar->addAction("Kabelfarbe");connect(color,&QAction::triggered,this,[this]{auto selected=QColorDialog::getColor(QColor("#0d9488"),this,"Kabelfarbe");if(selected.isValid())canvas_->setWireColor(selected);});
+    auto* space=new QWidget;space->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);bar->addWidget(space);
+    run_=bar->addAction(style()->standardIcon(QStyle::SP_MediaPlay),"Simulation starten");run_->setShortcut(Qt::Key_F5);run_->setObjectName("runSimulation");connect(run_,&QAction::triggered,this,[this]{if(interpreter_.active())interpreter_.stop();else startSimulation();});if(auto* button=qobject_cast<QToolButton*>(bar->widgetForAction(run_))){button->setObjectName("runButton");button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);}
+    auto* reset=bar->addAction("Reset");connect(reset,&QAction::triggered,this,[this]{interpreter_.stop();simulator_.reset();board_.reset();for(auto& [id,display]:displays_){(void)id;display.reset();}updateCircuit();});
+    auto* partsDock=new QDockWidget("Bauteile",this);partsDock->setObjectName("partsDock");auto* panel=new QWidget;auto* panelLayout=new QVBoxLayout(panel);panelLayout->setContentsMargins(14,14,14,14);panelLayout->setSpacing(9);
+    auto* intro=new QLabel("Schaltung aufbauen");intro->setObjectName("sectionTitle");panelLayout->addWidget(intro);auto* hint=new QLabel("Bauteil hinzufügen, verschieben und seine Pins verbinden.");hint->setWordWrap(true);hint->setObjectName("muted");panelLayout->addWidget(hint);
+    for(const auto kind:{PartKind::Oled,PartKind::Led,PartKind::Resistor,PartKind::Button,PartKind::AnalogSource}){auto* button=new QPushButton("＋  "+title(kind));button->setObjectName("componentCard");button->setProperty("kind",static_cast<int>(kind));panelLayout->addWidget(button);connect(button,&QPushButton::clicked,this,[this,kind]{canvas_->addPart(kind);});}
+    panelLayout->addSpacing(10);selectionLabel_=new QLabel("Bauteil auswählen");selectionLabel_->setWordWrap(true);selectionLabel_->setTextFormat(Qt::PlainText);selectionLabel_->setObjectName("sectionTitle");panelLayout->addWidget(selectionLabel_);
+    propertyValue_=new QDoubleSpinBox;propertyValue_->setObjectName("componentValue");propertyValue_->setMaximum(1e6);propertyValue_->hide();panelLayout->addWidget(propertyValue_);
+    propertyAddress_=new QComboBox;propertyAddress_->addItem("I²C-Adresse 0x3C",60);propertyAddress_->addItem("I²C-Adresse 0x3D",61);propertyAddress_->hide();panelLayout->addWidget(propertyAddress_);
+    propertyPressed_=new QCheckBox("Taster gedrückt");propertyPressed_->hide();panelLayout->addWidget(propertyPressed_);
+    panelLayout->addStretch();auto* libs=new QPushButton("Bibliotheken…");panelLayout->addWidget(libs);connect(libs,&QPushButton::clicked,this,&MainWindow::libraries);partsDock->setWidget(panel);partsDock->setMinimumWidth(160);addDockWidget(Qt::LeftDockWidgetArea,partsDock);
+    auto* codeDock=new QDockWidget("Arduino-Sketch",this);codeDock->setObjectName("codeDock");auto* codePanel=new QWidget;auto* codeLayout=new QVBoxLayout(codePanel);codeLayout->setContentsMargins(0,0,0,0);codeTabs_=new QTabWidget;codeTabs_->setObjectName("codeTabs");codeTabs_->setDocumentMode(true);codeTabs_->setUsesScrollButtons(true);codeLayout->addWidget(codeTabs_);auto* newTab=new QPushButton("＋ Registerkarte");codeLayout->addWidget(newTab);connect(newTab,&QPushButton::clicked,this,[this]{const auto name=QInputDialog::getText(this,"Neue Registerkarte","Dateiname (.ino, .h oder .cpp)");if(name.isEmpty())return;if(!ProjectIO::validFileName(name)||sketch_.files.contains(name)){appendLog("Dateiname ist ungültig oder bereits vorhanden.");return;}auto p=currentSketch();p.order<<name;p.files[name]="";setSketch(p);codeTabs_->setCurrentIndex(codeTabs_->count()-1);static_cast<CodeEditor*>(codeTabs_->currentWidget())->document()->setModified(true);});codeDock->setWidget(codePanel);codeDock->setMinimumWidth(260);addDockWidget(Qt::RightDockWidgetArea,codeDock);
+    auto* consoleDock=new QDockWidget("Ausgabe",this);consoleDock->setObjectName("consoleDock");console_=new QPlainTextEdit;console_->setObjectName("consoleOutput");console_->setReadOnly(true);console_->setMaximumBlockCount(1000);console_->setFont(QFont("Consolas",9));console_->setMinimumHeight(70);consoleDock->setWidget(console_);addDockWidget(Qt::BottomDockWidgetArea,consoleDock);
+    auto* view=menuBar()->addMenu("Ansicht");view->addAction(partsDock->toggleViewAction());view->addAction(codeDock->toggleViewAction());view->addAction(consoleDock->toggleViewAction());view->addSeparator();action(view,"Schaltung einpassen",QKeySequence(Qt::CTRL|Qt::Key_0),[this]{canvas_->fitCircuit();});action(view,"Vergrößern",QKeySequence::ZoomIn,[this]{canvas_->zoom(1.2);});action(view,"Verkleinern",QKeySequence::ZoomOut,[this]{canvas_->zoom(1/1.2);});
+    auto* window=menuBar()->addMenu("Fenster");action(window,"Minimieren",{},[this]{showMinimized();});action(window,"Maximieren",{},[this]{showMaximized();});action(window,"Wiederherstellen",{},[this]{showNormal();});
+    auto* settings=menuBar()->addMenu("Einstellungen");action(settings,"Sketch-Compiler wählen…",{},[this]{auto path=QFileDialog::getOpenFileName(this,"g++ wählen");if(!path.isEmpty())QSettings().setValue("compiler",path);});
+    action(settings,"Bild als Frame importieren…",{},[this]{auto path=QFileDialog::getOpenFileName(this,"Frame importieren",{},"Bilder (*.png *.bmp *.jpg)");if(path.isEmpty())return;QImage image(path);if(image.isNull()){appendLog("Bild konnte nicht geöffnet werden.");return;}image=image.scaled(128,64,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);const auto name=QString("frame_%1").arg(QDateTime::currentMSecsSinceEpoch());QString code="\n#include <Arduino.h>\nconst uint8_t "+name+"[1024] PROGMEM = {\n";for(int y=0;y<64;++y){code+="    ";for(int bx=0;bx<16;++bx){unsigned b=0;for(int bit=0;bit<8;++bit){auto c=image.pixelColor(bx*8+bit,y);if(c.alpha()>127&&qGray(c.rgb())>=128)b|=0x80u>>bit;}code+=QString("0x%1,").arg(b,2,16,QChar('0'));}code+='\n';}code+="};\n// In loop(): display.drawBitmap(0, 0, "+name+", 128, 64, SSD1306_WHITE);\n";if(auto* editor=qobject_cast<QPlainTextEdit*>(codeTabs_->currentWidget())){editor->moveCursor(QTextCursor::Start);editor->insertPlainText(code);}});
+    auto* help=menuBar()->addMenu("Hilfe");action(help,"Nach Updates suchen",{},[this]{updater_.check();});action(help,"Über ThinkerCad",{},[this]{QMessageBox::information(this,"ThinkerCad " THINKERCAD_VERSION,"ESP8266 Circuit Studio\n\nPins anklicken, um Kabel zu verbinden. Bauteile verschieben; Entf löscht die Auswahl. Strg+Mausrad zoomt. Taster per Doppelklick betätigen.\n\nArduino-API-Teilmenge mit GPIO, ADC und SSD1306. Keine vollständige ESP8266-Firmware-, WLAN- oder PWM-Emulation. Nur vertrauenswürdige Sketches und Bibliotheken ausführen.");});
+    projectLabel_=new QLabel;projectLabel_->setTextFormat(Qt::PlainText);projectLabel_->setMinimumWidth(0);projectLabel_->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);status_=new QLabel;statusBar()->addWidget(projectLabel_,1);statusBar()->addPermanentWidget(status_);
+    connect(canvas_,&CircuitCanvas::notice,this,[this](const QString& text){statusBar()->showMessage(text,8000);});connect(canvas_,&CircuitCanvas::selectionChanged,this,&MainWindow::updateInspector);connect(canvas_,&CircuitCanvas::documentChanged,this,[this]{updateCircuit();refreshTitle();});connect(canvas_,&CircuitCanvas::runtimeInputChanged,this,[this]{updateCircuit(true);updateInspector();});connect(canvas_->history(),&QUndoStack::cleanChanged,this,[this]{refreshTitle();});
+    connect(propertyValue_,qOverload<double>(&QDoubleSpinBox::valueChanged),this,[this](double value){auto id=canvas_->selectedPart().toStdString();if(!id.empty())canvas_->mutate("Bauteilwert ändern",[&](auto& doc){doc.part(id).value=value;});});
+    connect(propertyAddress_,qOverload<int>(&QComboBox::currentIndexChanged),this,[this](int index){auto id=canvas_->selectedPart().toStdString();if(!id.empty())canvas_->mutate("I²C-Adresse ändern",[&](auto& doc){doc.part(id).value=propertyAddress_->itemData(index).toInt();});});
+    connect(propertyPressed_,&QCheckBox::toggled,this,[this](bool pressed){const auto id=canvas_->selectedPart().toStdString();if(!id.empty()&&circuit_.part(id).pressed!=pressed)canvas_->toggleButton(id);});
+    connect(&interpreter_,&CodeInterpreter::log,this,&MainWindow::appendLog);connect(&interpreter_,&CodeInterpreter::protocol,this,&MainWindow::process);connect(&interpreter_,&CodeInterpreter::activeChanged,this,[this](bool active){canvas_->setEditingEnabled(!active);run_->setText(active?"Simulation stoppen":"Simulation starten");run_->setIcon(style()->standardIcon(active?QStyle::SP_MediaStop:QStyle::SP_MediaPlay));undo_->setEnabled(!active&&canvas_->history()->canUndo());redo_->setEnabled(!active&&canvas_->history()->canRedo());updateInspector();if(smokeTest_&&!active&&!smokeDone_)QCoreApplication::exit(1);});
+    connect(&updater_,&Updater::message,this,&MainWindow::appendLog);connect(&updater_,&Updater::updateReady,this,[this,help](const QString& version){appendLog("Version "+version+" ist bereit.");auto* restart=help->addAction("Update installieren und neu starten");connect(restart,&QAction::triggered,this,[this]{if(!maybeSave())return;interpreter_.stop();if(updater_.restartAndInstall())QApplication::quit();});});
+    auto* rendering=new QTimer(this);rendering->setInterval(33);connect(rendering,&QTimer::timeout,this,[this]{if(renderDirty_){canvas_->updateSimulation(circuitState_,displays_);status_->setText(QString("%1 ms · %2 Kabel").arg(simulator_.now()/1000).arg(circuit_.wires().size()));renderDirty_=false;}});rendering->start();
+    newProject();resizeDocks({partsDock,codeDock},{200,400},Qt::Horizontal);resizeDocks({consoleDock},{120},Qt::Vertical);
+    QTimer::singleShot(0,this,[this,partsDock,codeDock,consoleDock]{const auto area=screen()?screen()->availableGeometry():QRect(0,0,1280,800);const auto size=QSize(std::max(600,std::min(1360,area.width()-60)),std::max(420,std::min(850,area.height()-70)));resize(size);move(area.center()-rect().center());if(area.width()<1000&&!smokeTest_)codeDock->hide();if(smokeTest_&&QCoreApplication::arguments().join(' ').contains("--screenshot="))resize(1440,880);resizeDocks({partsDock,codeDock},{200,430},Qt::Horizontal);resizeDocks({consoleDock},{120},Qt::Vertical);QTimer::singleShot(0,canvas_,&CircuitCanvas::fitCircuit);});
+    if(smokeTest_){loadDemo();QTimer::singleShot(0,this,&MainWindow::startSimulation);QTimer::singleShot(20000,this,[]{std::cerr<<"Desktop smoke timed out\n";QCoreApplication::exit(1);});}else QTimer::singleShot(3000,&updater_,&Updater::check);
 }
-void MainWindow::process(const QByteArray& line){
-    if(smokeDone_)return;
-    try {
-        const auto parts=line.split(' ');auto integer=[&](int index){if(index>=parts.size())throw std::invalid_argument("Missing protocol field");bool ok=false;int v=parts[index].toInt(&ok);if(!ok)throw std::invalid_argument("Invalid protocol integer");return v;};
-        if(parts[0]=="TIME" && parts.size()==2){bool ok=false;const auto at=parts[1].toULongLong(&ok);if(!ok)throw std::invalid_argument("Invalid time");simulator_.runUntil(at);}
-        else if(parts[0]=="MODE" && parts.size()==3){const auto mode=integer(2);if(mode<0||mode>2)throw std::invalid_argument("Invalid mode");board_.pinMode(integer(1),mode==1?PinMode::Output:mode==2?PinMode::InputPullup:PinMode::Input);}
-        else if(parts[0]=="WRITE" && parts.size()==3){const auto value=integer(2);if(value!=0 && value!=1)throw std::invalid_argument("Invalid digital value");board_.digitalWrite(integer(1),value!=0);++writes_;}
-        else if(parts[0]=="READ" && parts.size()==2){auto level=board_.digitalRead(integer(1));if(level==Level::Contention || level==Level::Floating)throw std::runtime_error("digitalRead: Pin schwebt oder hat widersprüchliche Treiber");interpreter_.answer(level==Level::High?1:0);}
-        else if(parts[0]=="ADC" && parts.size()==1)interpreter_.answer(board_.analogRead());
-        else if(parts[0]=="FRAME" && parts.size()==2){
-            if(parts[1].size()!=2048)throw std::invalid_argument("Invalid frame size");for(char c:parts[1])if(!((c>='0'&&c<='9')||(c>='a'&&c<='f')))throw std::invalid_argument("Invalid frame bytes");
-            const auto packed=QByteArray::fromHex(parts[1]);Frame frame;for(int y=0;y<64;++y)for(int x=0;x<128;++x)frame.setPixel(x,y,(static_cast<unsigned char>(packed[x+(y/8)*128])>>(y%8))&1);
-            simulator_.schedule(simulator_.now(),[this,frame=std::move(frame)]{oled_.present(frame);});simulator_.runUntil(simulator_.now());
-        }
-        else if(parts[0]=="I2C" && parts.size()==3){if(integer(1)!=4 || integer(2)!=5)throw std::runtime_error("Demo-Verdrahtung erfordert SDA=GPIO4, SCL=GPIO5");}
-        else if(parts[0]=="READY" && parts.size()==1)appendLog("setup() abgeschlossen.");
-        else throw std::invalid_argument("Unbekannte Simulatornachricht");
-        refreshScene();
-        if(smokeTest_ && oled_.revision()>=2 && writes_>=1 && simulator_.now()>=100000){
-            smokeDone_=true;
-            const auto& f=oled_.frame();
-            const bool correct=f.pixel(15,28) && !f.pixel(3,28) && f.pixel(8,52) && f.pixel(119,53) && simulator_.now()==123170;
-            std::cout<<(correct?"Desktop smoke passed: compiled sketch, GPIO, I2C timing, moving OLED pixels\n":"Desktop smoke failed: unexpected pixels or timing\n");
-            for(const auto& argument:QCoreApplication::arguments())
-                if(argument.startsWith("--screenshot=")) grab().save(argument.mid(13));
-            interpreter_.stop();QCoreApplication::exit(correct?0:1);
-        }
-    } catch(const std::exception& e){appendLog(QString("Simulation angehalten: ")+e.what());interpreter_.stop();if(smokeTest_)QCoreApplication::exit(1);}
-}
-void MainWindow::refreshScene(){scene_->update();status_->setText(QString("ESP8266 · %1 ms · OLED: %2 Frames").arg(simulator_.now()/1000).arg(oled_.revision()));}
-void MainWindow::libraries(){
-    QDialog dialog(this);dialog.setWindowTitle("Lokale Arduino/C++-Bibliotheken");dialog.resize(600,320);QVBoxLayout layout(&dialog);
-    QLabel notice("Header und portable C++-Quellen werden mitkompiliert. ESP8266-Register, WLAN und nicht implementierte Arduino-APIs werden noch nicht unterstützt.");notice.setWordWrap(true);layout.addWidget(&notice);
-    QListWidget list;list.addItems(QSettings().value("libraries").toStringList());layout.addWidget(&list);
-    QPushButton add("Ordner hinzufügen"),remove("Aus Liste entfernen");layout.addWidget(&add);layout.addWidget(&remove);
-    connect(&add,&QPushButton::clicked,&dialog,[&]{auto dir=QFileDialog::getExistingDirectory(&dialog,"Bibliotheksordner");if(!dir.isEmpty() && list.findItems(dir,Qt::MatchExactly).isEmpty())list.addItem(dir);});
-    connect(&remove,&QPushButton::clicked,&dialog,[&]{delete list.takeItem(list.currentRow());});
-    QDialogButtonBox buttons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);layout.addWidget(&buttons);connect(&buttons,&QDialogButtonBox::accepted,&dialog,&QDialog::accept);connect(&buttons,&QDialogButtonBox::rejected,&dialog,&QDialog::reject);
-    if(dialog.exec()==QDialog::Accepted){QStringList paths;for(int i=0;i<list.count();++i)paths<<list.item(i)->text();QSettings().setValue("libraries",paths);}
-}
-bool MainWindow::saveSketch(){auto path=currentFile_;if(path.isEmpty())path=QFileDialog::getSaveFileName(this,"Sketch speichern",{},"Arduino (*.ino)");if(path.isEmpty())return false;QSaveFile file(path);const auto bytes=editor_->toPlainText().toUtf8();if(!file.open(QIODevice::WriteOnly)||file.write(bytes)!=bytes.size()||!file.commit()){appendLog("Speichern fehlgeschlagen.");return false;}currentFile_=path;editor_->document()->setModified(false);return true;}
-bool MainWindow::maybeSave(){if(!editor_->document()->isModified())return true;const auto answer=QMessageBox::question(this,"Ungespeicherter Sketch","Sketch vor dem Fortfahren speichern?",QMessageBox::Save|QMessageBox::Discard|QMessageBox::Cancel);if(answer==QMessageBox::Cancel)return false;return answer==QMessageBox::Discard||saveSketch();}
-void MainWindow::closeEvent(QCloseEvent* event){if(maybeSave()){interpreter_.stop();event->accept();}else event->ignore();}
+MainWindow::~MainWindow(){for(auto* child:findChildren<QObject*>())child->disconnect(this);interpreter_.disconnect(this);interpreter_.stop();delete takeCentralWidget();}
+SketchProject MainWindow::currentSketch()const{auto p=sketch_;for(int i=0;i<codeTabs_->count();++i){auto* editor=static_cast<CodeEditor*>(codeTabs_->widget(i));p.files[editor->property("fileName").toString()]=editor->toPlainText();}return p;}
+QString MainWindow::sketchText()const{return currentSketch().combinedSource();}
+void MainWindow::setSketch(const SketchProject& sketch){sketch_=sketch;while(codeTabs_->count()){auto* widget=codeTabs_->widget(0);codeTabs_->removeTab(0);delete widget;}for(const auto& name:sketch_.order){auto* editor=new CodeEditor;editor->setProperty("fileName",name);editor->setPlainText(sketch_.files.value(name));editor->document()->setModified(false);codeTabs_->addTab(editor,QFileInfo(name).fileName());editor->setToolTip(name);connect(editor->document(),&QTextDocument::modificationChanged,this,[this,editor,name](bool modified){auto index=codeTabs_->indexOf(editor);if(index>=0)codeTabs_->setTabText(index,QFileInfo(name).fileName()+(modified?" •":""));refreshTitle();});}refreshTitle();}
+bool MainWindow::dirty()const{if(!canvas_->history()->isClean())return true;for(int i=0;i<codeTabs_->count();++i)if(static_cast<CodeEditor*>(codeTabs_->widget(i))->document()->isModified())return true;return false;}
+void MainWindow::refreshTitle(){const auto name=projectFile_.isEmpty()?sketch_.name:QFileInfo(projectFile_).completeBaseName();setWindowTitle(name+(dirty()?" *":"")+" — ThinkerCad " THINKERCAD_VERSION);projectLabel_->setText(name+(dirty()?" · ungespeichert":"")+"  |  Pin → Pin verbindet ein Kabel");}
+void MainWindow::appendLog(const QString& text){console_->appendPlainText(text);if(smokeTest_)std::cerr<<text.toStdString()<<'\n';}
+void MainWindow::newProject(){interpreter_.stop();circuit_=CircuitDocument{};canvas_->rebuild();canvas_->resetHistory();board_.reset();simulator_.reset();displays_.clear();displayBindings_.clear();projectFile_.clear();setSketch(blink());updateCircuit();canvas_->fitCircuit();}
+void MainWindow::loadDemo(){newProject();const auto oled=circuit_.addPart(PartKind::Oled,390,80);circuit_.connect({"board","3V3"},{oled,"VCC"},"#ec5967");circuit_.connect({"board","GND"},{oled,"GND"},"#64748b");circuit_.connect({"board","GPIO5"},{oled,"SCL"},"#e9ad33");circuit_.connect({"board","GPIO4"},{oled,"SDA"},"#378bcb");auto p=blink();p.name="animation";p.order={"animation.ino"};QFile example(QCoreApplication::applicationDirPath()+"/examples/animation.ino");if(example.open(QIODevice::ReadOnly))p.files={{"animation.ino",QString::fromUtf8(example.readAll())}};else p.files={{"animation.ino",p.files.value("sketch.ino")}};setSketch(p);canvas_->rebuild();canvas_->resetHistory();updateCircuit();canvas_->fitCircuit();}
+bool MainWindow::openPath(const QString& path){try{if(QFileInfo(path).suffix().toLower()=="thinkercad"){auto p=ProjectIO::load(path);interpreter_.stop();circuit_=std::move(p.circuit);canvas_->rebuild();canvas_->resetHistory();board_.reset();simulator_.reset();displays_.clear();displayBindings_.clear();setSketch(p.sketch);projectFile_=path;}else{auto p=SketchProject::openIno(path);interpreter_.stop();setSketch(p);projectFile_.clear();}for(auto* dock:findChildren<QDockWidget*>())if(dock->objectName()=="codeDock")dock->show();updateCircuit();refreshTitle();canvas_->fitCircuit();appendLog("Geöffnet: "+QFileInfo(path).fileName());return true;}catch(const std::exception& e){appendLog(QString::fromUtf8(e.what()));return false;}}
+void MainWindow::openDialog(){if(!maybeSave())return;const auto path=QFileDialog::getOpenFileName(this,"Projekt oder Arduino-Sketch öffnen",{},"ThinkerCad / Arduino (*.thinkercad *.ino);;ThinkerCad (*.thinkercad);;Arduino (*.ino)");if(!path.isEmpty())openPath(path);}
+bool MainWindow::saveProjectTo(const QString& path){try{ProjectIO::save(path,{circuit_,currentSketch()});projectFile_=path;canvas_->history()->setClean();for(int i=0;i<codeTabs_->count();++i)static_cast<CodeEditor*>(codeTabs_->widget(i))->document()->setModified(false);refreshTitle();return true;}catch(const std::exception& e){appendLog(QString::fromUtf8(e.what()));return false;}}
+bool MainWindow::saveProject(){auto path=projectFile_;if(path.isEmpty())path=QFileDialog::getSaveFileName(this,"Schaltung und Sketch speichern",sketch_.name+".thinkercad","ThinkerCad (*.thinkercad)");if(path.isEmpty())return false;if(!path.endsWith(".thinkercad",Qt::CaseInsensitive))path+=".thinkercad";return saveProjectTo(path);}
+bool MainWindow::exportSketch(){try{auto p=currentSketch();auto primary=*std::find_if(p.order.begin(),p.order.end(),[](const auto& n){return n.endsWith(".ino",Qt::CaseInsensitive);});auto target=QFileDialog::getSaveFileName(this,"Arduino-Projekt exportieren",p.sourceFolder.isEmpty()?primary:QDir(p.sourceFolder).filePath(primary),"Arduino (*.ino)");if(target.isEmpty())return false;if(!target.endsWith(".ino",Qt::CaseInsensitive))target+=".ino";QDir root(QFileInfo(target).absolutePath());bool overwrite=false;for(const auto& name:p.order)if(QFileInfo::exists(root.filePath(name==primary?QFileInfo(target).fileName():name)))overwrite=true;if(overwrite&&QMessageBox::question(this,"Vorhandene Dateien","Bestehende Sketch-Dateien in diesem Ordner überschreiben?",QMessageBox::Yes|QMessageBox::No)!=QMessageBox::Yes)return false;for(const auto& name:p.order){const auto output=root.filePath(name==primary?QFileInfo(target).fileName():name);QDir().mkpath(QFileInfo(output).absolutePath());QSaveFile f(output);const auto data=p.files.value(name).toUtf8();if(!f.open(QIODevice::WriteOnly)||f.write(data)!=data.size()||!f.commit())throw std::runtime_error("Export fehlgeschlagen.");}appendLog("Arduino-Projekt exportiert.");return true;}catch(const std::exception& e){appendLog(QString::fromUtf8(e.what()));return false;}}
+bool MainWindow::maybeSave(){if(!dirty())return true;const auto result=QMessageBox::question(this,"Ungespeicherte Änderungen","Schaltung und Sketch vor dem Fortfahren speichern?",QMessageBox::Save|QMessageBox::Discard|QMessageBox::Cancel);return result==QMessageBox::Discard||(result==QMessageBox::Save&&saveProject());}
+void MainWindow::closeEvent(QCloseEvent* event){interpreter_.stop();if(maybeSave())event->accept();else event->ignore();}
+void MainWindow::updateInspector(){const auto id=canvas_->selectedPart();propertyValue_->hide();propertyAddress_->hide();propertyPressed_->hide();if(id.isEmpty()){selectionLabel_->setText("Bauteil auswählen");return;}const auto& p=circuit_.part(id.toStdString());selectionLabel_->setText(title(p.kind)+"\n"+id);if(p.kind==PartKind::Resistor||p.kind==PartKind::AnalogSource){QSignalBlocker block(propertyValue_);propertyValue_->setDecimals(p.kind==PartKind::AnalogSource?3:0);propertyValue_->setRange(p.kind==PartKind::AnalogSource?0:1,p.kind==PartKind::AnalogSource?1:1e6);propertyValue_->setSuffix(p.kind==PartKind::AnalogSource?" V":" Ω");propertyValue_->setValue(p.value);propertyValue_->setEnabled(!interpreter_.active());propertyValue_->show();}if(p.kind==PartKind::Oled){QSignalBlocker block(propertyAddress_);propertyAddress_->setCurrentIndex(propertyAddress_->findData(static_cast<int>(p.value)));propertyAddress_->setEnabled(!interpreter_.active());propertyAddress_->show();}if(p.kind==PartKind::Button){QSignalBlocker block(propertyPressed_);propertyPressed_->setChecked(p.pressed);propertyPressed_->show();}if(p.kind==PartKind::Esp8266)selectionLabel_->setText("ESP8266 · 3,3 V\nA0: roher ADC, 0–1 V\nD-Pins sind GPIO-Aliasse.");}
+void MainWindow::updateCircuit(bool stopOnError){for(const auto& part:circuit_.parts())if(part.kind==PartKind::Oled&&!displays_.contains(part.id))displays_.emplace(part.id,OledDisplay{});std::erase_if(displays_,[this](const auto& pair){return std::none_of(circuit_.parts().begin(),circuit_.parts().end(),[&](const auto& p){return p.id==pair.first;});});try{circuitState_=circuit_.solve(board_);if(stopOnError&&!circuitState_.errors.empty()){appendLog(QString::fromStdString(circuitState_.errors.front()));interpreter_.stop();if(smokeTest_)QCoreApplication::exit(1);}renderDirty_=true;}catch(const std::exception& e){appendLog(QString::fromUtf8(e.what()));interpreter_.stop();}}
+void MainWindow::startSimulation(){board_.reset();simulator_.reset();displayBindings_.clear();busStarted_=false;writes_=0;for(auto& [id,display]:displays_){(void)id;display.reset();}updateCircuit();if(!circuitState_.errors.empty()){appendLog(QString::fromStdString(circuitState_.errors.front()));return;}auto p=currentSketch();QSettings settings;const auto bundled=QCoreApplication::applicationDirPath()+"/toolchain/bin/g++.exe";const auto compiler=settings.value("compiler",QFileInfo::exists(bundled)?bundled:"g++").toString();interpreter_.start(p.combinedSource(),compiler,QCoreApplication::applicationDirPath()+"/sdk",settings.value("libraries").toStringList(),p.auxiliaryFiles());}
+void MainWindow::process(const QByteArray& line){if(smokeDone_)return;try{const auto parts=line.split(' ');auto number=[&](int i){bool ok=false;if(i>=parts.size())throw std::runtime_error("Fehlende Protokolldaten");int v=parts[i].toInt(&ok);if(!ok)throw std::runtime_error("Ungültige Protokolldaten");return v;};if(parts[0]=="TIME"&&parts.size()==2){bool ok=false;auto at=parts[1].toULongLong(&ok);if(!ok)throw std::runtime_error("Ungültige Zeit");simulator_.runUntil(at);renderDirty_=true;}else if(parts[0]=="MODE"&&parts.size()==3){int m=number(2);if(m<0||m>2)throw std::runtime_error("Ungültiger Pinmodus");board_.pinMode(number(1),m==1?PinMode::Output:m==2?PinMode::InputPullup:PinMode::Input);updateCircuit(true);}else if(parts[0]=="WRITE"&&parts.size()==3){int v=number(2);if(v!=0&&v!=1)throw std::runtime_error("Ungültiger GPIO-Pegel");board_.digitalWrite(number(1),v!=0);++writes_;updateCircuit(true);}else if(parts[0]=="READ"&&parts.size()==2){(void)board_.pin(number(1));updateCircuit(true);if(!interpreter_.active())return;const auto level=circuitState_.level({"board","GPIO"+std::to_string(number(1))});if(level==Level::Floating)throw std::runtime_error("Eingang ist unbeschaltet oder zwischen HIGH und LOW. Pullup / Verdrahtung prüfen.");interpreter_.answer(level==Level::High?1:0);}else if(parts[0]=="ADC"&&parts.size()==1){updateCircuit(true);const auto voltage=circuitState_.voltage.at({"board","A0"});if(!voltage||*voltage<0||*voltage>1.0+1e-6)throw std::runtime_error("A0 benötigt eine angeschlossene Spannung zwischen 0 und 1 V.");board_.setAdcVoltage(std::clamp(*voltage,0.0,1.0));interpreter_.answer(board_.analogRead());}else if(parts[0]=="I2C"&&parts.size()==3){busSda_=number(1);busScl_=number(2);if(busSda_==busScl_)throw std::runtime_error("SDA und SCL müssen verschieden sein.");board_.pinMode(busSda_,PinMode::Input);board_.pinMode(busScl_,PinMode::Input);busStarted_=true;updateCircuit(true);}else if(parts[0]=="OLED_BEGIN"&&parts.size()==2){updateCircuit(true);const int address=number(1);std::vector<std::string> found;for(const auto& p:circuit_.parts())if(p.kind==PartKind::Oled&&static_cast<int>(p.value)==address&&busStarted_&&circuit_.oledReady(p.id,busSda_,busScl_,circuitState_))found.push_back(p.id);const bool ready=found.size()==1;if(ready)displayBindings_[address]=found[0];else appendLog("OLED nicht erreichbar: VCC, GND, SDA/SCL und I²C-Adresse prüfen.");interpreter_.answer(ready?1:0);}else if(parts[0]=="FRAME"&&parts.size()==3){const int address=number(1);if(!displayBindings_.contains(address)||!circuit_.oledReady(displayBindings_.at(address),busSda_,busScl_,circuitState_))throw std::runtime_error("Display ist nicht korrekt verbunden oder versorgt.");if(parts[2].size()!=2048)throw std::runtime_error("Ungültige Displaydaten");for(char c:parts[2])if(!((c>='0'&&c<='9')||(c>='a'&&c<='f')))throw std::runtime_error("Ungültige Displaydaten");const auto data=QByteArray::fromHex(parts[2]);Frame frame;for(int y=0;y<64;++y)for(int x=0;x<128;++x)frame.setPixel(x,y,(static_cast<unsigned char>(data[x+y/8*128])>>(y%8))&1);displays_.at(displayBindings_.at(address)).present(frame);renderDirty_=true;}else if(parts[0]=="READY"&&parts.size()==1)appendLog("setup() abgeschlossen. Simulation läuft.");else throw std::runtime_error("Unbekannte Simulatornachricht");
+    if(smokeTest_&&displayBindings_.contains(60)){const auto& display=displays_.at(displayBindings_.at(60));if(display.revision()>=2&&writes_>=1){smokeDone_=true;const auto& f=display.frame();const bool correct=f.pixel(15,28)&&!f.pixel(3,28)&&f.pixel(8,52)&&f.pixel(119,53)&&simulator_.now()==123170;canvas_->updateSimulation(circuitState_,displays_);for(const auto& arg:QCoreApplication::arguments())if(arg.startsWith("--screenshot="))grab().save(arg.mid(13));std::cout<<(correct?"Desktop smoke passed: wired OLED and moving pixels\n":"Desktop smoke failed\n");interpreter_.stop();QCoreApplication::exit(correct?0:1);}}
+}catch(const std::exception& e){appendLog(QString("Simulation angehalten: ")+e.what());interpreter_.stop();if(smokeTest_)QCoreApplication::exit(1);}}
+void MainWindow::libraries(){QDialog dialog(this);dialog.setWindowTitle("Lokale C++-/Arduino-Bibliotheken");dialog.resize(580,330);QVBoxLayout layout(&dialog);QLabel hint("Portable C++-Bibliotheken und unterstützte Arduino-APIs werden eingebunden. WLAN, Registerzugriffe und weitere Hardware benötigen eigene Simulationsmodelle.");hint.setWordWrap(true);layout.addWidget(&hint);QListWidget list;list.addItems(QSettings().value("libraries").toStringList());layout.addWidget(&list);QPushButton add("Ordner hinzufügen…"),remove("Aus Liste entfernen");layout.addWidget(&add);layout.addWidget(&remove);connect(&add,&QPushButton::clicked,&dialog,[&]{auto path=QFileDialog::getExistingDirectory(&dialog,"Bibliothek wählen");if(!path.isEmpty()&&list.findItems(path,Qt::MatchExactly).isEmpty())list.addItem(path);});connect(&remove,&QPushButton::clicked,&dialog,[&]{delete list.takeItem(list.currentRow());});QDialogButtonBox buttons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);layout.addWidget(&buttons);connect(&buttons,&QDialogButtonBox::accepted,&dialog,&QDialog::accept);connect(&buttons,&QDialogButtonBox::rejected,&dialog,&QDialog::reject);if(dialog.exec()==QDialog::Accepted){QStringList paths;for(int i=0;i<list.count();++i)paths<<list.item(i)->text();QSettings().setValue("libraries",paths);}}

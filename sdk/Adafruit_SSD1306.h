@@ -9,9 +9,10 @@ public:
         if (w != 128 || h != 64 || !wire) throw std::invalid_argument("Only SSD1306 128x64 supported");
     }
     bool begin(int, unsigned char address = 0x3c, bool = true, bool periphBegin = true) {
-        if (address != 0x3c) return false;
+        if (address != 0x3c && address != 0x3d) return false;
+        address_ = address;
         if (periphBegin && !wire_->ready()) wire_->begin();
-        begun_ = wire_->ready(); return begun_;
+        begun_ = wire_->ready() && thinker::request("OLED_BEGIN "+std::to_string(address_))==1; return begun_;
     }
     void clearDisplay() { pixels_.fill(0); }
     void drawPixel(int x, int y, unsigned color) {
@@ -43,12 +44,13 @@ public:
         if (!begun_) throw std::logic_error("Call display.begin first");
         thinker::advance((1026ull*9*1000000 + wire_->clock()-1)/wire_->clock());
         constexpr char hex[]="0123456789abcdef";
-        std::string line="FRAME "; line.reserve(2054);
+        std::string line="FRAME "+std::to_string(address_)+" "; line.reserve(2054);
         for (auto b : pixels_) { line += hex[b>>4]; line += hex[b&15]; }
         std::cout << line << std::endl;
     }
 private:
     TwoWire* wire_;
     bool begun_ = false;
+    unsigned char address_ = 0x3c;
     std::array<unsigned char,1024> pixels_{};
 };

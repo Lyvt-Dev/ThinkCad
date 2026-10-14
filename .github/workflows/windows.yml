@@ -2,7 +2,6 @@ name: Windows desktop and installer
 on:
   push:
     branches: [main]
-    tags: ['v*']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -119,25 +118,11 @@ jobs:
           if ($expected -ne $actual) { throw 'Qt source SHA-256 mismatch.' }
       - name: Include release notes
         shell: pwsh
-        run: Copy-Item docs/RELEASE_NOTES_0.1.0.md out/installer/RELEASE_NOTES.md
+        run: |
+          $version = (Select-String -Path CMakeLists.txt -Pattern 'project\(ThinkerCad VERSION ([0-9.]+)').Matches.Groups[1].Value
+          Copy-Item "docs/RELEASE_NOTES_$version.md" out/installer/RELEASE_NOTES.md
       - uses: actions/upload-artifact@v4
         with:
           name: ThinkerCad-Windows
           retention-days: 1
           path: out/installer/*
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: ThinkerCad-Windows
-          retention-days: 1
-          path: installer
-      - name: Publish release assets
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" installer/* --repo "$GITHUB_REPOSITORY" --title "ThinkerCad $GITHUB_REF_NAME" --notes-file installer/RELEASE_NOTES.md --verify-tag

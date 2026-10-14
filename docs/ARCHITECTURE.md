@@ -14,8 +14,8 @@ Das Gesamtsystem hat zwei klar getrennte Ausführungsziele:
    eine kleine SSD1306-API. Die virtuelle Zeit zählt explizite Wartezeiten und
    modellierte I²C-Transfers. Maschineninstruktionen verbrauchen dabei keine
    simulierte Xtensa-Zeit. Unverändert nutzbar sind nur Sketches/Bibliotheken,
-   die diese API-Teilmenge verwenden. Auch `.ino`-Automatikprototypen fehlen:
-   Funktionen vor Benutzung definieren oder deklarieren.
+   die diese API-Teilmenge verwenden. Einfache globale Funktionen erhalten `.ino`-Vorwärtsdeklarationen. Komplexe
+   Templates, Defaultargumente und Präprozessorfälle brauchen explizite Deklarationen.
 2. **Zukünftiger Firmware-Backend:** Original ESP8266 Arduino Core mit Xtensa
    cross-kompilieren; Firmware in einem Xtensa-LX106-Backend mit ROM, Flash,
    MMIO, Interrupts, Timern und modellierten Peripheriegeräten ausführen.
@@ -54,7 +54,10 @@ flowchart LR
 | `Simulator` | Monotone Mikrosekundenzeit und Ereigniswarteschlange | dieselbe Datei |
 | `CodeInterpreter` | Übersetzung, Worker-Lebenszyklus, IPC, Watchdog | `src/gui/codeinterpreter.*` |
 | Arduino-/SSD1306-Adapter | Unterstützte Sketch-APIs und Frame-Protokoll | `sdk/` |
-| `MainWindow`, `CircuitScene`, `CircuitItem` | UI, Eingänge, Rendering, Protokollvalidierung | `src/gui/mainwindow.*` |
+| `CircuitDocument`, `CircuitState` | Bauteile, Kabel, resistiver DC-Netzlöser, Strom und Pegel | `include/thinkercad/circuit.hpp`, `src/core/circuit.cpp` |
+| `CircuitCanvas` | Pin-Auswahl, Leitungen, Verschieben, Löschen, Undo/Redo, Rendering | `src/gui/circuitcanvas.*` |
+| `SketchProject`, `ProjectIO` | Arduino-Tabs, portable JSON-Projekte, atomisches Speichern | `src/gui/projectio.*` |
+| `MainWindow`, `CodeEditor` | UI, Eingänge, Syntaxfarben, Protokollvalidierung | `src/gui/` |
 | `Updater` | Release-Discovery, Download, Hash, Signatur, Neustart | `src/gui/updater.*` |
 
 Der Kern hat **keine Qt-Abhängigkeit**. Der gegenwärtige kleine GUI-Prototyp bindet
@@ -68,7 +71,7 @@ Fabriken verwenden; Plugin-ABI und fremde DLLs später isolieren und versioniere
 NodeMCU-Zuordnung: D0→GPIO16, D1→5, D2→4, D3→0, D4→2, D5→14,
 D6→12, D7→13, D8→15; RX→3, TX→1. GPIO6–11 sind für Flash reserviert
 und werden zurückgewiesen. 3V3/GND erscheinen im Demo-Aufbau als feste Versorgung.
-VIN ist in der Darstellung nur beschriftet und nicht simuliert.
+VIN wird nicht angeboten; die simulierte Versorgung ist ideal und konstant.
 
 - Ausgänge treiben 0 oder 3,3 V; starke High/Low-Treiber am selben Netz erzeugen
   einen diagnostizierbaren Konflikt. Ein Pullup ist schwach und verliert gegen Low.
@@ -81,19 +84,28 @@ VIN ist in der Darstellung nur beschriftet und nicht simuliert.
   Widerstandsteiler; diese müssen als Boardprofil statt globaler Annahme ergänzt werden.
 - Die eingebaute LED auf GPIO2 ist aktiv-low. Das unabhängige LED-Modell berechnet
   `I = max(0, (Vanode − Vkathode − Vf) / R)`; es ist ein einfaches Serienmodell,
-  keine komplette Halbleiterkennlinie. Der GUI-Aufbau besitzt noch keine externe LED.
+  keine komplette Halbleiterkennlinie. Der GUI-Aufbau bietet externe LEDs mit
+  separatem Vorwiderstand und diagnostiziert mehr als 20 mA.
 
-Für freie Verdrahtung wird ein `CircuitDocument` gebraucht: Bauteil-Instanzen,
-Pins, Nets, Leitungswege, Verbindungspunkte und Boardprofil. UI-Positionen ändern
-keine elektrischen Verbindungen. Versorgung und I²C-Pins sind derzeit fest verbunden;
-sie dürfen später nur bei gültiger Verdrahtung aktiv sein.
+`CircuitDocument` enthält stabile Bauteil-IDs, Pins, ideal leitende Kabel, Positionen und
+Bauteilwerte. UI-Positionen ändern keine elektrische Verbindung. Undo/Redo speichert
+Dokument-Snapshots. `.thinkercad`-Dateien enthalten Schaltung und eingebettete Sketch-Tabs;
+`QSaveFile` schreibt atomar. Projektgröße, Komponentenanzahl, Endpunkte und relative
+Quelldateinamen werden vor Übernahme validiert. Gedrückte Taster sind ein flüchtiger Eingang.
 
-Für analoge Realistik ist ein Netzlöser als separates Modul vorgesehen:
-Modified Nodal Analysis mit G/C-Matrizen, resistiven/kapazitiven Zweigen,
-zeitlicher Diskretisierung und Newton-Iteration für nichtlineare Bauteile.
-An jeder Analog/Digital-Grenze sind Spannungsbereich, VIH/VIL, Hysterese,
-Pullwiderstände und Fehlerdiagnosen zu definieren. Schwebende Netze und
-kurzgeschlossene ideale Quellen dürfen nicht stillschweigend numerisch repariert werden.
+Der DC-Netzlöser verbindet Kabel und geschlossene Taster mit Union-Find und löst
+verankerte resistive Netzwerke per Gauß-Elimination. Unbeschaltete Netzwerke bleiben
+schwebend. GPIO-Pullups werden mit 47 kΩ, OLED-SDA/SCL-Pullups mit 4,7 kΩ modelliert.
+LEDs verwenden eine stückweise lineare Kennlinie mit 2 V Vorwärtsspannung und 10 Ω
+dynamischem Widerstand; die aktive Menge wird iteriert. Das Modell eignet sich für
+einfache LED-/Widerstandsschaltungen und ist kein allgemeiner nichtlinearer SPICE-Solver.
+Netze ohne Spannungsreferenz, widersprüchliche ideale Quellen und ausbleibende
+LED-Konvergenz werden explizit behandelt. Kapazitäten, Transienten, GPIO-Ausgangsimpedanz
+und beliebige komplexe Diodennetze bleiben Ausbauarbeit.
+
+Ein OLED bestätigt `begin()` nur bei gültiger Versorgung, Masse, SDA/SCL-Verkabelung,
+getrennten Busleitungen, High-Idle-Pegeln und eindeutiger I²C-Adresse. Frame-Nachrichten
+tragen die Zieladresse, damit mehrere Displays zugeordnet werden können.
 
 ## Zeit und Display
 
@@ -133,12 +145,13 @@ diese Implementierung mit SSD1306. HD44780/PCF8574 benötigen eigene Komponenten
 
 ## Sketch-Ausführung
 
-1. Der Editorinhalt wird in ein temporäres Verzeichnis geschrieben.
+1. Die `.ino`-Tabs werden kombiniert; einfache Funktionsprototypen werden ergänzt.
+   Die aktuellen Tabs, Header und lokalen C++-Quellen werden in ein temporäres Verzeichnis geschrieben.
 2. `g++ -std=c++20` kompiliert `sdk/runner.cpp`, den eingebundenen Sketch und
    portable Bibliotheksquellen. Argumente werden ohne Shell übergeben.
 3. Der Runner ruft `setup()` genau einmal auf und danach `loop()` wiederholt.
 4. Arduino-Aufrufe erzeugen validierte Nachrichten `MODE`, `WRITE`, `READ`,
-   `ADC`, `I2C`, `TIME`, `FRAME`. Eingabelesen wartet auf eine Host-Antwort.
+   `ADC`, `I2C`, `OLED_BEGIN`, `TIME`, `FRAME`. Eingabelesen wartet auf eine Host-Antwort.
 5. Virtuelle `delay()`/I²C-Zeit wird in ≤50-ms-Schritten an den Host gemeldet
    und ungefähr in Echtzeit gepaced. GUI-Rendering und Compiler sind asynchron;
    reale Betriebssystemlatenz verändert keine protokollierten Zeitstempel.
@@ -204,9 +217,9 @@ Update-/Signaturtests stehen noch aus.
 | Etappe | Ergebnis | Abnahmekriterium |
 |---|---|---|
 | A – dieser Stand | GPIO-/Zeitkern, OLED-Animation, Qt-Prototyp | Kern und GUI-Smoke bestehen |
-| B | `CircuitDocument`, freie Netze, LED/Widerstand/Taster, Projektdateien | Edit/Undo/Save/Load erhält Netlist; Kurzschluss wird erkannt |
+| B – 0.2.0 | `CircuitDocument`, freie Netze, LED/Widerstand/Taster, Projektdateien | Edit/Undo/Save/Load erhält Netlist; Kurzschluss wird erkannt |
 | C | I²C-Busmodell, SSD1306-Decoder, HD44780/PCF8574, Library-Pakete | Referenzsketches gegen echte kompatible Libraries |
-| D | PWM, Interrupts, SPI, UART, analoger Netzlöser | Messbare Frequenzen, Pegel und Schaltvorgänge |
+| D | PWM, Interrupts, SPI, UART, dynamischer analoger Netzlöser | Messbare Frequenzen, Pegel und Schaltvorgänge |
 | E | begrenzte Worker, gehärtete Installer/Updater | Windows-Sicherheits-/Update-/Uninstall-Tests |
 | F | originaler ESP8266-Firmware-Backend | dokumentierte CPU-/Peripherie-Konformitätstests |
 

@@ -3,6 +3,7 @@
 #include <QProcess>
 #include <QTemporaryDir>
 #include <QTimer>
+#include <QMap>
 #include <memory>
 // A compiler-backed runner. Native sketch code executes in a child process, never in the GUI.
 // Process isolation is NOT a security sandbox: run only trusted code/libraries.
@@ -11,7 +12,7 @@ class CodeInterpreter final : public QObject {
 public:
     explicit CodeInterpreter(QObject* parent = nullptr);
     ~CodeInterpreter() override;
-    void start(const QString& sketch, const QString& compiler, const QString& sdk, const QStringList& libraries);
+    void start(const QString& sketch, const QString& compiler, const QString& sdk, const QStringList& libraries,const QMap<QString,QString>& projectFiles = {});
     void stop();
     void answer(int value);
     bool active() const { return active_; }

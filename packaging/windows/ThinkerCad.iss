@@ -1,5 +1,5 @@
 #ifndef Version
-  #define Version "0.1.0"
+  #define Version "0.2.0"
 #endif
 #ifndef StagingDir
   #define StagingDir "..\..\out\stage"
@@ -21,6 +21,7 @@ OutputBaseFilename=ThinkerCad-Setup-{#Version}
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=..\..\assets\thinkercad.ico
 UninstallDisplayIcon={app}\ThinkerCad.exe
 AppMutex=ThinkerCadDesktopMain
 CloseApplications=yes

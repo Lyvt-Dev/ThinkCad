@@ -1,26 +1,32 @@
 # ThinkerCad
 
 Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, mit Windows als Zielplattform.
-Dieser erste, ausführbare Entwicklungsstand enthält einen ESP8266/NodeMCU-Demo-Aufbau,
-einen SSD1306-OLED, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
+Version 0.2.0 bietet einen frei verdrahtbaren ESP8266-Arbeitsbereich, SSD1306-OLED,
+LEDs, Widerstände, Taster, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
 ![Native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
 
 ## Was bereits funktioniert
 
-- Verschiebbare Board-/Display-Darstellung, Zoom, Start/Stop und Reset.
+- Normale Windows-Titelleiste mit Schließen, Minimieren, Maximieren und Größenänderung.
+- Neues Logo, moderne helle Oberfläche, andockbare Bauteil-, Code- und Ausgabefenster.
+- Bauteile verschieben, Pins durch Kabel verbinden, Kabelfarbe, Löschen, Undo/Redo und Zoom.
+- `.ino`-Projekte mit weiteren Sketch-Tabs, Headern und C++-Quellen öffnen.
+- Schaltung und Code gemeinsam als portable `.thinkercad`-Datei speichern und wieder öffnen.
 - Eigener zeitbasierter Simulationskern mit deterministischer Ereignisreihenfolge.
 - GPIO-Pinmodi, externe Eingänge, schwebende Pegel und Treiberkonflikte.
 - A0 mit 10-Bit-Quantisierung, **0–1 V am nackten ESP8266**; NodeMCU-Spannungsteiler noch nicht modelliert.
-- LED-Modell mit Serienwiderstand und Vorwärtsspannung im Simulationskern.
+- Resistives Gleichspannungsnetz mit schwebenden Netzen, Pullups, LED-Vorwärtsspannung,
+  Überstrom- und Kurzschlussdiagnosen; Taster während der Simulation betätigen.
+- OLED funktioniert nur mit angeschlossener Versorgung und korrekter I²C-Verkabelung.
 - 128×64 monochrome OLED-Frames, Bitmap-Arrays, Bildimport und Animation.
 - I²C-Übertragungszeit: etwa 23,085 ms für 1026 Bytes bei 400 kHz.
 - Echter C++-Compiler für `setup()` / `loop()` in einem separaten Sketch-Prozess.
 - Lokale portable Bibliotheken: Include-Pfade und C++-Quelldateien werden eingebunden.
 - Windows-Installerdefinition, Build-Workflow und vorbereiteter GitHub-Release-Updater.
 
-**Aktuelle Grenzen:** Die Schaltung ist vorverdrahtet. Es gibt keine freie Verdrahtung,
-kein Breadboard, keinen analogen Netzlöser, keine Xtensa-CPU-Emulation und keine vollständige
+**Aktuelle Grenzen:** Kein Breadboard, kein dynamischer SPICE-Netzlöser, keine
+Xtensa-CPU-Emulation und keine vollständige
 ESP8266-Arduino-Core-Kompatibilität. Wi-Fi, Timerinterrupts, PWM, UART-Peripherie,
 HD44780/LCD1602 und beliebige I²C-Bibliotheken sind noch nicht implementiert.
 Die mitgelieferten Adafruit-Header sind ausdrücklich **Simulatoradapter**, nicht die
@@ -50,7 +56,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=0.1.0 /DStagingDir=C:\Pfad\ThinkerCad\out\stage packaging/windows/ThinkerCad.iss
+ISCC.exe /DVersion=0.2.0 /DStagingDir=C:\Pfad\ThinkerCad\out\stage packaging/windows/ThinkerCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkerCad`,
@@ -67,11 +73,15 @@ ctest --test-dir build-core --output-on-failure
 ./build-core/sketch_example --iterations 2
 ```
 
-`core_tests` führt 27 fachliche Prüfungen aus. `sketch_example` kompiliert die echte
+`core_tests` und `circuit_tests` prüfen Timing, GPIO und elektrische Netzwerke. `sketch_example` kompiliert die echte
 Datei `examples/animation.ino` mit dem Simulator-SDK. `desktop_smoke` kompiliert den
 Sketch nochmals aus dem GUI-Editor und prüft GPIO, virtuelle Zeit und tatsächliche
 OLED-Pixeländerungen. `library_and_ipc` prüft externe Header/Quellen und
-GPIO-/ADC-Anfragen mit Host-Antworten. Qt verwendet dafür `QT_QPA_PLATFORM=offscreen`.
+GPIO-/ADC-Anfragen mit Host-Antworten. `desktop_interactions` prüft Mausverdrahtung,
+Undo/Redo, portable Projekte, `.ino`-Import mit lokalen Quellen, Taster/LED,
+fehlende Display-Verbindungen und Schließen während laufender Simulation. Qt verwendet
+dafür `QT_QPA_PLATFORM=offscreen`. `windows_native_chrome` prüft unter Windows
+die echten Win32-Fensterstile sowie Minimieren, Maximieren, Wiederherstellen und Schließen.
 
 ## Bibliotheken und Frames
 
@@ -105,13 +115,35 @@ in den Build. Zertifikatswechsel brauchen einen geplanten Übergang mit mehreren
 die erste Version unterstützt nur einen. Proxy-Zugriff muss `api.github.com`,
 `github.com` und `release-assets.githubusercontent.com` erlauben.
 
-Zum Release die CMake-Projektversion erhöhen und einen passenden `vX.Y.Z`-Tag pushen.
-Der vorbereitete Workflow baut/testet/paketiert und veröffentlicht
-`ThinkerCad-Setup-X.Y.Z.exe` + `.sha256`. Ohne Signierkonfiguration wird ein unsignierter Installer gebaut; automatische
-Updates bleiben in dieser Version deaktiviert. Version [0.1.0](https://github.com/Lyvt-Dev/ThinkerCad/releases/tag/v0.1.0) ist veröffentlicht.
-Der Windows-Build, alle vier Tests sowie Installation, App-Start und Deinstallation
-des Installers wurden erfolgreich geprüft. Der erste Installer ist unsigniert;
-automatische Update-Installation bleibt deaktiviert. Vor Produktivvertrieb außerdem die Lizenz-/Source-
-Anforderungen in `packaging/windows/THIRD_PARTY.md` erfüllen.
+Zum Release die CMake-Projektversion erhöhen und die passenden Release Notes hinzufügen.
+Der Windows-Workflow baut/testet/paketiert bei einem Push auf `main`. Nach bestandenem
+Build einen passenden `vX.Y.Z`-Tag auf genau diesem Commit erstellen und den Workflow
+**Publish verified Windows build** mit Build-Run-ID und Tag starten. Er prüft erfolgreiche
+Build-Provenienz, identischen Tag-Commit und Payload-Checksummen, bevor er den bereits
+getesteten Installer veröffentlicht. Release-Assets enthalten Installer, SHA-256 und
+zugehörige Qt-/Compilerquellen. Unsigned Installer können manuell installiert werden;
+automatische Update-Installation bleibt ohne Signierkonfiguration deaktiviert.
+
+## Schaltung und Arduino-Projekt benutzen
+
+1. **Datei → Projekt / .ino öffnen** lädt das Arduino-Projekt als bearbeitbare Kopie.
+   Originaldateien werden nicht automatisch überschrieben. Der ordnernamengleiche Sketch
+   kommt zuerst, danach weitere `.ino`-Tabs alphabetisch sowie Header und C++-Dateien
+   im Projektroot und unter `src/` / `include/`.
+2. Links Bauteile hinzufügen und im Arbeitsbereich verschieben. Startpin und Zielpin
+   anklicken, um ein Kabel anzulegen. **Esc** bricht ab, **Entf** löscht die Auswahl;
+   die mittlere Maustaste verschiebt die Ansicht und **Strg + Mausrad** zoomt.
+3. OLED: `VCC → 3V3`, `GND → GND`, `SDA → D2/GPIO4`, `SCL → D1/GPIO5`;
+   Sketch: `Wire.begin(D2, D1)` und Displayadresse `0x3C` bzw. `0x3D`.
+   Widerstands-/Spannungswerte und Displayadresse stehen in der Bauteil-Auswahl.
+4. **Simulation starten** / **F5** kompiliert den Code und startet `setup()` / `loop()`.
+   Taster per Doppelklick oder Auswahl-Checkbox betätigen. Topologie erst nach Stop ändern.
+5. **Strg+S** speichert Code und Schaltung zusammen. **Arduino-Sketch exportieren**
+   schreibt die bearbeiteten Tabs ausdrücklich in einen Arduino-Projektordner.
+
+Einfache globale Funktionen erhalten automatische Vorwärtsdeklarationen. Für komplexe
+Templates, Defaultargumente, bedingte Präprozessorblöcke oder spezielle Typdeklarationen
+explizite Funktionsprototypen bzw. Header verwenden. Das ist kein vollständiger Ersatz
+für den Arduino-Build-Preprocessor. Die unterstützte API-Teilmenge gilt auch für importierte Projekte.
 
 Architektur, Ausführungspfad, Modellgrenzen und Ausbauplan: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
