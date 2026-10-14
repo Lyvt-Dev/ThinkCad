@@ -1,0 +1,51 @@
+name: Publish verified Windows build
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful Windows build run
+        required: true
+        type: string
+      tag:
+        description: Existing release tag
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RUN_ID: ${{ inputs.run_id }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - name: Validate build provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          gh api "repos/$GH_REPO/actions/runs/$RUN_ID" > run.json
+          test "$(jq -r '.conclusion' run.json)" = success
+          test "$(jq -r '.name' run.json)" = 'Windows desktop and installer'
+          build_sha=$(jq -r '.head_sha' run.json)
+          tag_sha=$(gh api "repos/$GH_REPO/commits/$TAG" --jq .sha)
+          test "$build_sha" = "$tag_sha"
+      - name: Retrieve verified installer and corresponding sources
+        run: gh run download "$RUN_ID" --repo "$GH_REPO" --name ThinkerCad-Windows --dir installer
+      - name: Verify published payload checksums
+        working-directory: installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum --check "ThinkerCad-Setup-${TAG#v}.exe.sha256"
+          sha256sum --check qt-everywhere-src-6.8.3.tar.xz.sha256
+          test -s ThinkerCad-Toolchain-Sources.tar
+      - name: Publish release
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" installer/* --repo "$GH_REPO" --title "ThinkerCad ${TAG#v}" --notes-file installer/RELEASE_NOTES.md --verify-tag
