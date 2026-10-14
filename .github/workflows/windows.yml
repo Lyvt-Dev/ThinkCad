@@ -48,14 +48,11 @@ jobs:
         env:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DTHINKERCAD_PUBLISHER_SHA256=$env:PUBLISHER_SHA256"
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          cmake --build build --parallel 2
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          ctest --test-dir build --output-on-failure
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          cmake --install build --prefix "$pwd/out/stage"
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          . .github/scripts/Invoke-Checked.ps1
+          Invoke-Checked cmake @('-S', '.', '-B', 'build', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_CXX_COMPILER=cl', "-DTHINKERCAD_PUBLISHER_SHA256=$env:PUBLISHER_SHA256")
+          Invoke-Checked cmake @('--build', 'build', '--parallel', '2')
+          Invoke-Checked ctest @('--test-dir', 'build', '--output-on-failure')
+          Invoke-Checked cmake @('--install', 'build', '--prefix', "$pwd/out/stage")
           Copy-Item "$env:MSYS2_LOCATION\ucrt64" out/stage/toolchain -Recurse
           New-Item out/stage/licenses -ItemType Directory -Force | Out-Null
           Copy-Item packaging/windows/THIRD_PARTY.md out/stage/licenses/
