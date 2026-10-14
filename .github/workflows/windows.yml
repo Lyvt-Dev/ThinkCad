@@ -69,6 +69,19 @@ jobs:
           if ($env:GITHUB_REF -like 'refs/tags/*' -and $env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag must match the CMake project version.' }
           & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DVersion=$version" "/DStagingDir=$pwd\out\stage" packaging/windows/ThinkerCad.iss
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Test installer and uninstaller
+        shell: pwsh
+        run: |
+          $installer = (Get-ChildItem out/installer/*.exe).FullName
+          $installDir = Join-Path $env:RUNNER_TEMP 'ThinkerCad-Installer-Smoke'
+          $install = Start-Process -FilePath $installer -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$installDir") -Wait -PassThru
+          if ($install.ExitCode) { throw "Installer failed: $($install.ExitCode)" }
+          $env:QT_QPA_PLATFORM = 'offscreen'
+          $app = Start-Process -FilePath "$installDir/ThinkerCad.exe" -ArgumentList '--smoke-test' -PassThru
+          if (-not $app.WaitForExit(30000)) { $app.Kill(); throw 'Installed app smoke timed out.' }
+          if ($app.ExitCode) { throw "Installed app failed: $($app.ExitCode)" }
+          $uninstall = Start-Process -FilePath "$installDir/unins000.exe" -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -Wait -PassThru
+          if ($uninstall.ExitCode -or (Test-Path "$installDir/ThinkerCad.exe")) { throw 'Uninstaller failed.' }
       - name: Sign and checksum installer
         shell: pwsh
         env:
