@@ -54,6 +54,7 @@ jobs:
           Invoke-Checked ctest @('--test-dir', 'build', '--output-on-failure')
           Invoke-Checked cmake @('--install', 'build', '--prefix', "$pwd/out/stage")
           Copy-Item "$env:MSYS2_LOCATION\ucrt64" out/stage/toolchain -Recurse
+          if (-not (Test-Path out/stage/toolchain/include/stdlib.h)) { throw 'Bundled toolchain is missing native C headers.' }
           New-Item out/stage/licenses -ItemType Directory -Force | Out-Null
           Copy-Item packaging/windows/THIRD_PARTY.md out/stage/licenses/
           Copy-Item packaging/windows/LGPL-3.txt out/stage/licenses/

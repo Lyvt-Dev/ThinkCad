@@ -14,7 +14,7 @@ CodeInterpreter::CodeInterpreter(QObject* parent) : QObject(parent) {
     connect(&compiler_, &QProcess::errorOccurred, this, [this](QProcess::ProcessError e) { if (e==QProcess::FailedToStart) { emit log("Compiler konnte nicht gestartet werden. Unter Einstellungen einen g++-Compiler wählen."); stop(); } });
     connect(&compiler_, qOverload<int,QProcess::ExitStatus>(&QProcess::finished), this, [this](int code,QProcess::ExitStatus status) {
         if (!active_) return;
-        if (code || status!=QProcess::NormalExit) { emit log("Kompilierung fehlgeschlagen."); stop(); return; }
+        if (code || status!=QProcess::NormalExit) { emit log(QString("Kompilierung fehlgeschlagen (Exit %1).").arg(code)); stop(); return; }
         emit log("Kompiliert. Starte setup() und loop().");
         watchdog_.start(10000); rateWindow_.start();
         worker_.start(temp_->filePath(
@@ -59,6 +59,12 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
         }
     }
 #ifdef Q_OS_WIN
+    // MSYS2's native headers live below the toolchain sysroot. Explicitly relocate
+    // it when using an absolute compiler path (including the bundled compiler).
+    if(QFileInfo(compiler).isAbsolute()) {
+        const auto root=QDir(QFileInfo(compiler).absolutePath()+"/..").absolutePath();
+        if(QFileInfo::exists(root+"/include/stdlib.h"))args<<"--sysroot="+QDir::fromNativeSeparators(root);
+    }
     args << "-static-libgcc" << "-static-libstdc++";
 #endif
     args << "-o" << temp_->filePath(
