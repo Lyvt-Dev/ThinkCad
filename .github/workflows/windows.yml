@@ -89,6 +89,21 @@ jobs:
           $hash = (Get-FileHash $installer -Algorithm SHA256).Hash.ToLower()
           $name = Split-Path $installer -Leaf
           [IO.File]::WriteAllText("$installer.sha256", "$hash  $name`n", [Text.UTF8Encoding]::new($false))
+      - name: Collect corresponding compiler sources
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: msys2 {0}
+        run: bash packaging/windows/collect-toolchain-sources.sh
+      - name: Collect matching Qt sources
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $name = 'qt-everywhere-src-6.8.3.tar.xz'
+          $url = "https://download.qt.io/archive/qt/6.8/6.8.3/single/$name"
+          Invoke-WebRequest "$url.sha256" -OutFile "out/installer/$name.sha256"
+          Invoke-WebRequest $url -OutFile "out/installer/$name"
+          $expected = ((Get-Content "out/installer/$name.sha256" -Raw).Trim() -split '\s+')[0].ToLower()
+          $actual = (Get-FileHash "out/installer/$name" -Algorithm SHA256).Hash.ToLower()
+          if ($expected -ne $actual) { throw 'Qt source SHA-256 mismatch.' }
       - name: Include release notes
         shell: pwsh
         run: Copy-Item docs/RELEASE_NOTES_0.1.0.md out/installer/RELEASE_NOTES.md

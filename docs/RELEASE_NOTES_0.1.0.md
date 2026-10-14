@@ -14,7 +14,8 @@ Native Windows desktop prototype built with C++20 and Qt 6.
 ## Installation
 
 Download `ThinkerCad-Setup-0.1.0.exe` and run it on Windows 10/11 x64.
-The `.sha256` asset provides its SHA-256 checksum.
+The `.sha256` asset provides its SHA-256 checksum. Matching Qt and compiler
+source archives are provided as separate release assets for third-party licensing.
 
 This initial installer may be unsigned. Windows SmartScreen may show an unknown
 publisher warning. Builds without a configured publisher certificate have automatic

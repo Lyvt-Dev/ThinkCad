@@ -11,9 +11,10 @@ reverse engineering for debugging modifications to these libraries.
 The Windows installer also includes the MSYS2 UCRT64 GCC toolchain. Preserve its
 share/licenses directory. GCC and binutils have GPL licenses; the GCC runtime
 exception applies to qualifying runtime linkage, not to distribution of the
-compiler itself. Before publicly distributing installers, provide corresponding
-source for the EXACT compiler/binutils packages and all other copyleft packages
-you bundle, with a durable source-download location or a valid source offer.
+compiler itself. The release workflow collects source packages matching the installed compiler,
+binutils and dependency versions into ThinkerCad-Toolchain-Sources.tar. It also
+publishes Qt 6.8.3 corresponding sources alongside the installer. Keep these release
+assets available with the installer.
 MSYS2 package source recipes: https://github.com/msys2/MINGW-packages.
 Recipes alone do not replace the complete corresponding-source obligation.
 
@@ -21,6 +22,6 @@ The simulator's Arduino, Wire and SSD1306 headers are small compatibility adapte
 written for this project. They do not contain the original Adafruit libraries.
 Externally added libraries retain their respective licenses.
 
-Release checklist: record exact binary package versions, archive corresponding
-sources, include each license/notice, and define the project's own license before
-public distribution. Code signing and an installer do not settle licensing.
+Package versions and source hashes are included in the toolchain source archive.
+The project's own source currently has no additional license grant; third-party
+licenses and user rights for Qt/toolchain components remain as described above. Code signing and an installer do not settle licensing.
