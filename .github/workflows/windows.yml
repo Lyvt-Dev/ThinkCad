@@ -1,0 +1,113 @@
+name: Windows desktop and installer
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          arch: win64_msvc2022_64
+          cache: true
+      - uses: msys2/setup-msys2@v2
+        id: msys2
+        with:
+          msystem: UCRT64
+          location: D:\ThinkerCad-msys2
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc
+      - name: Configure signing identity
+        shell: pwsh
+        env:
+          SIGNING_PFX_BASE64: ${{ secrets.SIGNING_PFX_BASE64 }}
+          SIGNING_PFX_PASSWORD: ${{ secrets.SIGNING_PFX_PASSWORD }}
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+        run: |
+          $fingerprint = ''
+          if ($env:SIGNING_PFX_BASE64) {
+            $pfx = Join-Path $env:RUNNER_TEMP 'thinkercad-signing.pfx'
+            [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:SIGNING_PFX_BASE64))
+            $cert = [Security.Cryptography.X509Certificates.X509Certificate2]::new($pfx, $env:SIGNING_PFX_PASSWORD)
+            $fingerprint = $cert.GetCertHashString([Security.Cryptography.HashAlgorithmName]::SHA256)
+          } else {
+            Write-Host 'Building an unsigned installer; automatic updates remain disabled.'
+          }
+          "PUBLISHER_SHA256=$fingerprint" >> $env:GITHUB_ENV
+          "$env:MSYS2_LOCATION\ucrt64\bin" >> $env:GITHUB_PATH
+      - name: Build and test
+        shell: pwsh
+        env:
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DTHINKERCAD_PUBLISHER_SHA256=$env:PUBLISHER_SHA256"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          cmake --build build --parallel 2
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          ctest --test-dir build --output-on-failure
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          cmake --install build --prefix "$pwd/out/stage"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Copy-Item "$env:MSYS2_LOCATION\ucrt64" out/stage/toolchain -Recurse
+          New-Item out/stage/licenses -ItemType Directory -Force | Out-Null
+          Copy-Item packaging/windows/THIRD_PARTY.md out/stage/licenses/
+          Copy-Item packaging/windows/LGPL-3.txt out/stage/licenses/
+          $env:QT_QPA_PLATFORM = 'offscreen'
+          $smoke = Start-Process -FilePath "$pwd/out/stage/ThinkerCad.exe" -ArgumentList '--smoke-test' -Wait -PassThru
+          if ($smoke.ExitCode) { throw "Installed desktop smoke failed: $($smoke.ExitCode)" }
+      - name: Create installer
+        shell: pwsh
+        run: |
+          choco install innosetup --yes --no-progress
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $version = (Select-String -Path CMakeLists.txt -Pattern 'project\(ThinkerCad VERSION ([0-9.]+)').Matches.Groups[1].Value
+          if ($env:GITHUB_REF -like 'refs/tags/*' -and $env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag must match the CMake project version.' }
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DVersion=$version" "/DStagingDir=$pwd\out\stage" packaging/windows/ThinkerCad.iss
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Sign and checksum installer
+        shell: pwsh
+        env:
+          SIGNING_PFX_PASSWORD: ${{ secrets.SIGNING_PFX_PASSWORD }}
+        run: |
+          $installer = (Get-ChildItem out/installer/*.exe).FullName
+          if ($env:PUBLISHER_SHA256) {
+            $signtool = (Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' | Sort-Object FullName -Descending | Select-Object -First 1).FullName
+            & $signtool sign /fd SHA256 /tr https://timestamp.digicert.com /td SHA256 /f "$env:RUNNER_TEMP\thinkercad-signing.pfx" /p "$env:SIGNING_PFX_PASSWORD" $installer
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+            & $signtool verify /pa $installer
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+            Remove-Item "$env:RUNNER_TEMP\thinkercad-signing.pfx"
+          }
+          $hash = (Get-FileHash $installer -Algorithm SHA256).Hash.ToLower()
+          $name = Split-Path $installer -Leaf
+          [IO.File]::WriteAllText("$installer.sha256", "$hash  $name`n", [Text.UTF8Encoding]::new($false))
+      - name: Include release notes
+        shell: pwsh
+        run: Copy-Item docs/RELEASE_NOTES_0.1.0.md out/installer/RELEASE_NOTES.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ThinkerCad-Windows
+          path: out/installer/*
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ThinkerCad-Windows
+          path: installer
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" installer/* --repo "$GITHUB_REPOSITORY" --title "ThinkerCad $GITHUB_REF_NAME" --notes-file installer/RELEASE_NOTES.md --verify-tag
