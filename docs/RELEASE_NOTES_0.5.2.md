@@ -26,9 +26,10 @@ Verkabelung, Sketch und Temporegler bleiben erhalten.
 
 ## Enthaltene gemeinsame Änderungen
 
-Die Änderungen für 0.5.0 und 0.5.1 bleiben enthalten: Komponentensuche,
+Die gemeinsam entwickelten Änderungen für 0.5.0 bleiben enthalten: Komponentensuche,
 Arduino Uno/Nano, mehrere platzierbare Boards mit einem aktiven Simulationsboard,
 Deutsch/Englisch, gerade Kabelsegmente, Strg+R/F5 für Start/Stopp und R für Drehungen.
+Auch die neuen Bauteildarstellungen „Blocks“ und „Realistic“ sind enthalten.
 
 Windows und Linux einschließlich des Gentoo-Overlays werden weiter unterstützt.
 Kein macOS-Support. Die bestehenden Grenzen der Host-API-Simulation gelten weiterhin.

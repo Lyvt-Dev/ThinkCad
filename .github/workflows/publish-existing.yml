@@ -78,4 +78,12 @@ jobs:
         run: |
           set -euo pipefail
           mapfile -d '' files < <(find installer -maxdepth 1 -type f -print0)
-          gh release create "$TAG" "${files[@]}" --repo "$GH_REPO" --title "ThinkCad ${TAG#v}" --notes-file installer/RELEASE_NOTES.md --verify-tag
+          if gh release view "$TAG" --repo "$GH_REPO" --json assets > existing-release.json; then
+            # A manually created source-only release can receive the verified builds.
+            # Never overwrite an existing downloadable payload implicitly.
+            test "$(jq '.assets | length' existing-release.json)" -eq 0
+            gh release upload "$TAG" "${files[@]}" --repo "$GH_REPO"
+            gh release edit "$TAG" --repo "$GH_REPO" --title "ThinkCad ${TAG#v}" --notes-file installer/RELEASE_NOTES.md
+          else
+            gh release create "$TAG" "${files[@]}" --repo "$GH_REPO" --title "ThinkCad ${TAG#v}" --notes-file installer/RELEASE_NOTES.md --verify-tag
+          fi

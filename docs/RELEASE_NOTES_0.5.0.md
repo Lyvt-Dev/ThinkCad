@@ -2,6 +2,21 @@
 
 ## Neue Funktionen
 
+- Einstellungen → Komponenten Design (Englisch: Component Design) schaltet
+  zwischen Blocks für die bisherige Planungsansicht und Realistic mit
+  skalierbaren 2D-Gehäusen, Platinen, Kontakten und Beschriftungen um. Alle
+  vorhandenen Bauteiltypen, die fünf Mikrocontrollerprofile und beide
+  SSD1306-Größen haben passende Darstellungen. Die Auswahl wird gespeichert.
+  Der Wechsel verändert weder die elektrische Schaltung noch den Sketch und
+  ist auch während einer laufenden Simulation möglich.
+
+- Strg+R startet oder stoppt die Simulation; F5 bleibt ebenfalls verfügbar.
+- R dreht ausgewählte Bauteile im Arbeitsbereich jeweils um 90° im Uhrzeigersinn.
+  Mehrfachauswahl, Rückgängig/Wiederholen und das Speichern der Drehung im Projekt
+  werden unterstützt. Kabelenden folgen den gedrehten Pins, manuelle Kabelknicke
+  behalten ihre Position. Im Sketch-Editor und in Suchfeldern bleibt R eine normale
+  Texteingabe. Während der Simulation kann die Schaltung nicht gedreht werden.
+
 - Eine gemeinsame Komponentensuche ersetzt die Mikrocontroller-Auswahlliste.
   ESP-Boards und Arduino-Boards lassen sich wie andere Bauteile hinzufügen,
   verschieben und löschen.

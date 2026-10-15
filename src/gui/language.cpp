@@ -28,6 +28,7 @@ const QMap<QString,QString>& translations(){static const QMap<QString,QString> v
     {"Simulation zurücksetzen · laufenden Sketch neu starten","Reset simulation · restart the running sketch"},
     {"Projekt konnte nicht geöffnet werden. Siehe Ausgabe im Editor.","Could not open project. See the output in the editor."},
     {"Bauteile rotieren","Rotate components"},
+    {"Komponenten Design","Component Design"},
     {"Arbeitsbereich","Workspace"},
     {"Datei","File"},
     {"Neues Projekt","New project"},

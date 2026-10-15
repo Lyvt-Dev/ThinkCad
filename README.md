@@ -20,6 +20,7 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 - Arduino Uno R3 und klassischer Arduino Nano (ATmega328P): 5-V-GPIO, 10-Bit-ADC mit 5-V-Referenz, D0–D13 und A0–A5; Nano zusätzlich A6/A7 als reine Analogeingänge. Host-API-Simulation, keine AVR-CPU- oder vollständige Peripherieemulation.
 - Kabel vom Startpin zum Zielpin ziehen: Jeder weitere Klick setzt einen Knick. Gerade Segmente in beliebige Richtungen einschließlich diagonaler Verbindungen; keine automatisch eingefügten Knicke. Knicke verschieben, Kabelfarbe, Löschen, Undo/Redo und Zoom.
 - **Strg+R** oder **F5** startet/stoppt die Simulation. **R** dreht ausgewählte Bauteile im Arbeitsbereich um 90° im Uhrzeigersinn; Drehungen unterstützen Undo/Redo und werden mitgespeichert.
+- Einstellungen → **Komponenten Design** (Englisch: **Component Design**): **Blocks** für die bisherige Planungsansicht, **Realistic** für 2D-Darstellungen mit typischen Gehäusen, Platinen und Kontakten. Alle Bauteiltypen und Boardvarianten werden dargestellt; die Auswahl wird gespeichert. Die Darstellung ändert die elektrische Simulation nicht.
 - Einstellungen → Sprache: Dropdown für Deutsch/Englisch, sofortiger Wechsel und gespeicherte Auswahl.
 - `.ino`-Projekte mit weiteren Sketch-Tabs, Headern und C++-Quellen öffnen.
 - Schaltung und Code gemeinsam als portable `.thinkcad`-Datei (ältere `.thinkercad`-Dateien bleiben lesbar) speichern und wieder öffnen.
