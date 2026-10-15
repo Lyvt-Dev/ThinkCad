@@ -21,6 +21,9 @@ int main(int argc,char** argv){
 #else
     app.setStyle(QStyleFactory::create("Fusion"));
 #endif
+#ifdef Q_OS_LINUX
+    app.setDesktopFileName("io.github.LyvtDev.ThinkCad");
+#endif
     Theme::apply(QSettings().value("darkMode",false).toBool());
     MainWindow window(app.arguments().contains("--smoke-test"));window.show();
     if(!app.arguments().contains("--smoke-test"))for(const auto& argument:app.arguments().mid(1))if(QFileInfo(argument).isFile())QTimer::singleShot(0,&window,[&window,argument]{window.openPath(argument);});

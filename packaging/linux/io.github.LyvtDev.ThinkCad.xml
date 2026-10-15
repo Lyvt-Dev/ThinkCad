@@ -4,4 +4,9 @@
   <comment>ThinkCad circuit project</comment>
   <glob pattern="*.thinkcad"/><glob pattern="*.thinkercad"/>
  </mime-type>
+ <mime-type type="text/x-arduino">
+  <comment>Arduino sketch</comment>
+  <sub-class-of type="text/x-c++src"/>
+  <glob pattern="*.ino"/>
+ </mime-type>
 </mime-info>

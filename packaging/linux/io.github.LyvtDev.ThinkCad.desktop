@@ -9,6 +9,6 @@ Exec=thinkcad %f
 Icon=thinkcad
 Terminal=false
 Categories=Education;Electronics;Development;
-MimeType=application/x-thinkcad;application/x-arduino;
+MimeType=application/x-thinkcad;application/x-arduino;text/x-arduino;
 StartupNotify=true
 StartupWMClass=thinkcad
