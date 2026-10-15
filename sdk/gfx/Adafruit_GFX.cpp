@@ -2659,7 +2659,11 @@ void GFXcanvas16::byteSwap(void) {
   if (buffer) {
     uint32_t i, pixels = WIDTH * HEIGHT;
     for (i = 0; i < pixels; i++)
+#ifdef _MSC_VER
+      buffer[i] = static_cast<uint16_t>((buffer[i] >> 8) | (buffer[i] << 8));
+#else
       buffer[i] = __builtin_bswap16(buffer[i]);
+#endif
   }
 }
 

@@ -21,7 +21,7 @@ Recipes alone do not replace the complete corresponding-source obligation.
 The simulator's Arduino, Wire and SSD1306 headers are small compatibility adapters
 written for this project. The drawing core in sdk/gfx is Adafruit GFX 1.12.4
 (BSD license, preserved in sdk/gfx/license.txt); its unused Adafruit BusIO includes
-were removed for the host adapter. The included bitmap font retains its notices.
+were removed for the host adapter, and byteSwap uses a portable expression on MSVC. The included bitmap font retains its notices.
 The installer bundles GitHub CLI 2.102.0 (MIT, verifier/GITHUB_CLI_LICENSE.txt)
 and statically links zlib (zlib license, https://zlib.net/zlib_license.html).
 Externally added libraries retain their respective licenses.
