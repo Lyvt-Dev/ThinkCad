@@ -51,18 +51,29 @@ void Esp8266Board::pinMode(int gpio, PinMode mode) {
     if ((profile_.id=="esp8266"&&gpio==16&&mode==PinMode::InputPullup)||(mode!=PinMode::Input&&std::find(profile_.inputOnly.begin(),profile_.inputOnly.end(),gpio)!=profile_.inputOnly.end())) throw std::invalid_argument("Pin mode unsupported by selected GPIO");
     pins_.at(gpio).mode = mode;
     pins_.at(gpio).frequency = 0;
+    pins_.at(gpio).pwm = false;
 }
 void Esp8266Board::digitalWrite(int gpio, bool high) {
     (void)pin(gpio);
     if (pins_.at(gpio).mode != PinMode::Output) throw std::logic_error("digitalWrite requires OUTPUT in this model");
     pins_.at(gpio).output = high;
     pins_.at(gpio).frequency = 0;
+    pins_.at(gpio).pwm = false;
 }
 void Esp8266Board::tone(int gpio, unsigned frequency) {
     if(frequency>20000)throw std::invalid_argument("Tone frequency outside 0..20000 Hz");
     pinMode(gpio,PinMode::Output);
     pins_.at(gpio).output=frequency!=0;
     pins_.at(gpio).frequency=frequency;
+    pins_.at(gpio).pwm=false;pins_.at(gpio).duty=0.5;
+}
+void Esp8266Board::servoWrite(int gpio,unsigned pulse){if(pulse<500||pulse>2500)throw std::invalid_argument("Servo pulse outside 500..2500 us");pinMode(gpio,PinMode::Output);auto& pin=pins_.at(gpio);pin.output=true;pin.pwm=true;pin.duty=double(pulse)/20000;pin.frequency=50;}
+void Esp8266Board::analogWrite(int gpio,unsigned value,unsigned range,unsigned frequency){
+    if(!range||range>65535||value>range||!frequency||frequency>20000)throw std::invalid_argument("Invalid PWM value/range/frequency");
+    pinMode(gpio,PinMode::Output);
+    if(profile_.arduino()&&gpio!=3&&gpio!=5&&gpio!=6&&gpio!=9&&gpio!=10&&gpio!=11){digitalWrite(gpio,value*2>=range);return;}
+    if(value==0||value==range){digitalWrite(gpio,value!=0);return;}
+    auto& pin=pins_.at(gpio);pin.output=true;pin.pwm=true;pin.duty=double(value)/range;pin.frequency=profile_.arduino()?(gpio==5||gpio==6?980:490):frequency;
 }
 Level Esp8266Board::digitalRead(int gpio) const {
     const auto& p = pin(gpio);

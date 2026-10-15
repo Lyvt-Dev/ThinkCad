@@ -2,12 +2,32 @@
 
 Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, für **Windows und Linux**. **macOS wird nicht unterstützt.**
 ThinkCad bietet ESP8266-, ESP32-, ESP32-S3-,
-Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, 25 Bauteiltypen,
+Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, 58 Bauteiltypen,
 SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
 ![ThinkCad: native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
+
+## Neu in 1.0.0
+
+Version 1.0.0 ergänzt Editor-Funktionen (Zwischenablage,
+Ausrichten/Verteilen, Raster, Netzlabel und Abzweigungen), Autosave/Wiederherstellung,
+portable Bibliothekspakete, analoge Simulation und Messinstrumente. Dazu kommen
+16×2-/20×4-LCDs mit LiquidCrystal/4-Bit/I²C, Logikgatter, Servo-/DC-Motor-Modelle,
+serieller Monitor/Plotter und echte Sketch-Kompilierung mit Upload über Arduino CLI.
+Neu: IR-LED/38-kHz-Empfänger/NEC-TV-Fernbedienung, PN532 mit synthetischer
+NFC-Testkarte, nRF24L01+ und 433-MHz-ASK-Sender/-Empfänger mit verdrahteten Beispielen.
+[Anschlüsse, unterstützte APIs und Grenzen](docs/WIRELESS_MODULES.de.md).
+
+- [Aus dem Quellcode auf Gentoo/Windows bauen](docs/LOCAL_REVIEW.de.md)
+- [Screenshots und vollständiger Funktionsrundgang](docs/V1_REVIEW.md)
+- [Deutsches Handbuch](docs/V1_GUIDE.de.md) · [English manual](docs/V1_GUIDE.en.md)
+- [Analoge Modelle und Grenzen](docs/ANALOG_SIMULATION.md)
+
+[Release Notes 1.0.0](docs/RELEASE_NOTES_1.0.0.md) beschreiben Funktionen, Prüfungen
+und verbleibende Modellgrenzen. Die Installations- und Updatebefehle unten laden
+das neueste stabile GitHub-Release.
 
 ## Update 0.5.4
 
@@ -63,10 +83,10 @@ Projekte werden mit Board-Sketches im Format 2 gespeichert; Format 1 bleibt lesb
 - Arduino-Bibliothekskatalog mit Suche, SHA-256-geprüfter Installation und Abhängigkeiten; lokale Ordner bleiben unterstützt. Nur tatsächlich verwendete Bibliotheken werden kompiliert.
 - Windows-Installerdefinition, Build-Workflow und GitHub-Release-Updater mit Prüfung der Build-Attestierung.
 
-**Aktuelle Grenzen:** Kein dynamischer SPICE-Netzlöser, keine
-Xtensa-CPU-Emulation und keine vollständige
-ESP8266-Arduino-Core-Kompatibilität. Wi-Fi, Timerinterrupts, PWM, UART-Peripherie,
-HD44780/LCD1602 und beliebige I²C-Bibliotheken sind noch nicht implementiert.
+**Grenzen:** Keine vollständige SPICE-Engine, Xtensa-CPU-Emulation oder
+ESP8266-Arduino-Core-Kompatibilität. Wi-Fi, Timerinterrupts und vollständige
+UART-/SPI-/I²C-Peripherie fehlen. PWM, LCDs und die oben genannten neuen Module
+sind seit 1.0.0 implementiert; im älteren Release 0.5.4 fehlen sie.
 Der Zeichenkern verwendet Adafruit GFX 1.12.4; der SSD1306-Treiber ist ein
 Simulatoradapter. Nicht jede Arduino-Hardwarebibliothek funktioniert durch Installation.
 Die tatsächlichen Bauteilmodelle und Grenzen stehen in [COMPONENT_SUPPORT.md](docs/COMPONENT_SUPPORT.md). Native Sketches sind nicht sicher sandboxed;
@@ -84,7 +104,7 @@ prüft es und baut die Anwendung.
 
 Diese Anleitung setzt einen vorhandenen **Gentoo-Desktop auf amd64** mit
 eingerichtetem Gentoo-Repository, funktionierendem Internetzugang und einer X11-
-oder Wayland-Sitzung voraus. Das Ebuild für 0.5.4 benötigt **Qt ≥6.11**,
+oder Wayland-Sitzung voraus. Das Ebuild für 1.0.0 benötigt **Qt ≥6.11**,
 **GCC ≥12 mit C++-Unterstützung**, CMake, Ninja und zlib. Die folgenden Befehle
 aktivieren Beispielsketches, beide Anzeige-Backends und die Testsuite.
 Für die Anwendung muss derzeit die Lizenz `all-rights-reserved` akzeptiert werden;
@@ -113,6 +133,7 @@ append_portage_config() {
 append_portage_config package.accept_keywords 'media-gfx/thinkcad ~amd64'
 append_portage_config package.accept_keywords 'dev-qt/qtbase ~amd64'
 append_portage_config package.accept_keywords 'dev-qt/qtmultimedia ~amd64'
+append_portage_config package.accept_keywords 'dev-qt/qtserialport ~amd64'
 append_portage_config package.use 'dev-qt/qtbase gui network ssl widgets X wayland'
 append_portage_config package.use 'media-gfx/thinkcad examples test X wayland'
 append_portage_config package.use 'sys-libs/zlib minizip'
@@ -124,7 +145,7 @@ append_portage_config package.license 'media-gfx/thinkcad all-rights-reserved'
 emerge --noreplace --ask \
     '>=sys-devel/gcc-12[cxx]' '>=dev-build/cmake-3.24' dev-build/ninja \
     '>=dev-qt/qtbase-6.11:6[gui,network,ssl,widgets,X,wayland]' \
-    '>=dev-qt/qtmultimedia-6.11:6' virtual/zlib \
+    '>=dev-qt/qtmultimedia-6.11:6' '>=dev-qt/qtserialport-6.11:6' virtual/zlib \
     media-fonts/dejavu net-misc/curl app-arch/tar app-arch/xz-utils \
     sys-apps/coreutils </dev/tty
 
@@ -270,7 +291,7 @@ Weitere Linux- und USE-Flag-Details: [docs/LINUX.md](docs/LINUX.md).
 
 ## Windows bauen
 
-Benötigt werden CMake ≥3.24, Qt ≥6.4 mit Widgets, Network und Multimedia (getestet: Linux Qt 6.8.2 und Windows Qt 6.8.3/MSVC2022), Visual Studio 2022 C++ Build Tools und für die Laufzeit-Sketches
+Benötigt werden CMake ≥3.24, Qt ≥6.4 mit Widgets, Network, Multimedia und SerialPort (hier geprüft: Linux Qt 6.8.2; Windows-CI-Konfiguration: Qt 6.8.3/MSVC2022), Visual Studio 2022 C++ Build Tools und für die Laufzeit-Sketches
 MinGW-w64/UCRT64 GCC mit vollständigen Headern/Standardbibliotheken.
 Die GUI kann mit MSVC gebaut werden; Sketches laufen als eigenständige MinGW-Prozesse.
 
@@ -291,7 +312,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=0.5.4 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=1.0.0 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

@@ -24,7 +24,7 @@ CodeInterpreter::CodeInterpreter(QObject* parent) : QObject(parent) {
 CodeInterpreter::~CodeInterpreter() { stop(); }
 void CodeInterpreter::setActive(bool active) { if (active_ != active) {active_=active; emit activeChanged(active);} }
 void CodeInterpreter::stop() {
-    prepared_=false;setActive(false); watchdog_.stop(); rateWindow_.stop();
+    paused_=false;waitingForSpeed_=false;stepping_=false;protocolTime_=0;prepared_=false;setActive(false); watchdog_.stop(); rateWindow_.stop();
     for (auto* p : {&compiler_,&worker_}) if (p->state()!=QProcess::NotRunning) { p->kill(); p->waitForFinished(1000); }
     pending_.clear();
 }
@@ -49,7 +49,7 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
         if(libraries_.size()>=500){emit log("Zu viele registrierte Bibliotheken.");return;}
         const auto root=QFileInfo::exists(lib+"/src")?lib+"/src":lib;args<<"-I"+root<<"-I"+lib;
         QFile metadata(lib+"/library.properties");QString name;if(metadata.open(QIODevice::ReadOnly)){auto match=QRegularExpression("(?:^|\\n)name\\s*=\\s*([^\\r\\n]+)").match(QString::fromUtf8(metadata.readAll()));name=match.captured(1).trimmed();}
-        const bool builtin=QStringList{"Adafruit GFX Library","Adafruit SSD1306","Adafruit BusIO"}.contains(name,Qt::CaseInsensitive);
+        const bool builtin=QStringList{"Adafruit GFX Library","Adafruit SSD1306","Adafruit BusIO","LiquidCrystal","LiquidCrystal I2C","LiquidCrystal_I2C","Servo","IRremote","Adafruit PN532","RF24","rc-switch"}.contains(name,Qt::CaseInsensitive);
         LibraryUnit unit{QDir::fromNativeSeparators(QFileInfo(root).absoluteFilePath()),QDir::fromNativeSeparators(QFileInfo(lib).absoluteFilePath()),{},builtin};
         if(!builtin){const auto flags=root.endsWith("/src")?QDirIterator::Subdirectories:QDirIterator::NoIteratorFlags;QDirIterator files(root,{"*.cpp","*.cc","*.cxx"},QDir::Files,flags);while(files.hasNext()){unit.sources<<files.next();if(unit.sources.size()>200){emit log("Bibliothek enthält zu viele Quelldateien.");return;}}
             if(root==lib&&QDir(lib+"/utility").exists()){args<<"-I"+lib+"/utility";QDirIterator files(lib+"/utility",{"*.cpp","*.cc","*.cxx"},QDir::Files,QDirIterator::Subdirectories);while(files.hasNext()){unit.sources<<files.next();if(unit.sources.size()>200){emit log("Bibliothek enthält zu viele Quelldateien.");return;}}}}
@@ -87,7 +87,7 @@ void CodeInterpreter::setSimulationSpeed(double multiplier) {
 void CodeInterpreter::answer(int value) {worker_.write(QByteArray::number(value)+'\n');}
 void CodeInterpreter::readProtocol() {
     if(!active_)return;
-    const auto received=worker_.readAllStandardOutput();if(!received.isEmpty())watchdog_.start(10000);pending_+=received;
+    const auto received=worker_.readAllStandardOutput();if(!received.isEmpty()&&!waitingForSpeed_)watchdog_.start(10000);pending_+=received;
     if (pending_.size()>1048576) {emit log("Sketch-Protokoll überschreitet das Pufferlimit.");stop();return;}
     int dispatched=0;
     while (true) {
@@ -95,7 +95,7 @@ void CodeInterpreter::readProtocol() {
         const auto newline=pending_.indexOf('\n'); if(newline<0) break;
         if (++linesThisSecond_>5000 || newline>4096) {emit log("Sketch-Protokoll überlastet. delay() oder yield() verwenden.");stop();return;}
         auto line=pending_.left(newline).trimmed(); pending_.remove(0,newline+1);
-        if(line=="SPEED")answer(speedPermille_);else emit protocol(line); if(!active_) break;
+        if(line=="SPEED"){if(paused_&&!stepping_){waitingForSpeed_=true;watchdog_.stop();}else answer(speedPermille_);}else{if(line.startsWith("TIME ")){bool ok=false;auto time=line.mid(5).toULongLong(&ok);if(ok){protocolTime_=time;if(stepping_&&time>stepStart_)stepping_=false;}}emit protocol(line);} if(!active_) break;
     }
 }
 
@@ -119,3 +119,6 @@ void CodeInterpreter::compilationFinished(int code,QProcess::ExitStatus status){
 }
 
 void CodeInterpreter::runPrepared(){if(!active_||!prepared_)return;prepared_=false;emit log("Kompiliert. Starte setup() und loop().");watchdog_.start(10000);rateWindow_.start();worker_.start(outputPath_);}
+
+void CodeInterpreter::setPaused(bool paused){paused_=paused;if(!paused_)stepping_=false;if(!paused_&&waitingForSpeed_){waitingForSpeed_=false;watchdog_.start(10000);answer(speedPermille_);}}
+void CodeInterpreter::stepOnce(){paused_=true;stepping_=true;stepStart_=protocolTime_;if(waitingForSpeed_){waitingForSpeed_=false;watchdog_.start(10000);answer(speedPermille_);}}

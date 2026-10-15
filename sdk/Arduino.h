@@ -114,6 +114,18 @@ inline void tone(int pin, unsigned int frequency, unsigned long duration=0) {
     if(duration)thinker::toneDeadlines[pin]=thinker::clockUs+std::uint64_t(duration)*1000;
     std::cout << "TONE " << pin << ' ' << frequency << std::endl;
 }
+// Host PWM model: AVR pin frequencies match the default Arduino timer setup.
+namespace thinker {inline unsigned pwmRange=255,pwmFrequency=1000;}
+inline void analogWrite(int pin,int value){
+    thinker::validatePin(pin);
+    if(value<0||static_cast<unsigned>(value)>thinker::pwmRange)throw std::invalid_argument("PWM value outside configured range");
+    pinMode(pin,OUTPUT);
+    std::cout<<"PWM "<<pin<<' '<<value<<' '<<thinker::pwmRange<<' '<<thinker::pwmFrequency<<std::endl;
+}
+#if !defined(THINKERCAD_ARDUINO_UNO) && !defined(THINKERCAD_ARDUINO_NANO)
+inline void analogWriteRange(unsigned range){if(!range||range>65535)throw std::invalid_argument("PWM range outside 1..65535");thinker::pwmRange=range;}
+inline void analogWriteFreq(unsigned frequency){if(!frequency||frequency>20000)throw std::invalid_argument("PWM frequency outside 1..20000 Hz");thinker::pwmFrequency=frequency;}
+#endif
 inline int digitalRead(int pin) { thinker::validatePin(pin); return thinker::request("READ " + std::to_string(pin)); }
 inline int analogRead(int pin) {
 #if defined(THINKERCAD_ARDUINO_UNO) || defined(THINKERCAD_ARDUINO_NANO)
@@ -142,6 +154,11 @@ inline void yield() { delayMicroseconds(0); }
 struct SerialPort : Print {
     using Print::write;
     void begin(unsigned long) {} explicit operator bool()const{return true;}
-    std::size_t write(std::uint8_t value)override{std::cerr.put(static_cast<char>(value));return 1;}
+    int available(){return thinker::request("SERIAL_AVAILABLE");}
+    int read(){return thinker::request("SERIAL_READ");}
+    int peek(){return thinker::request("SERIAL_PEEK");}
+    void end(){}
+    std::size_t write(std::uint8_t value)override{return write(&value,1);}
+    std::size_t write(const std::uint8_t* data,std::size_t size)override{constexpr char hex[]="0123456789abcdef";for(std::size_t start=0;start<size;start+=512){std::string encoded;for(std::size_t i=start;i<std::min(size,start+512);++i){encoded+=hex[data[i]>>4];encoded+=hex[data[i]&15];}std::cout<<"SERIAL "<<encoded<<std::endl;}std::cerr.write(reinterpret_cast<const char*>(data),size);return size;}
 };
 inline SerialPort Serial;

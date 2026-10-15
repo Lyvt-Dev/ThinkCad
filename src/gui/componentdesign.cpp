@@ -153,6 +153,8 @@ void ComponentDesign::set(const QString& design){preference()=design=="realistic
 bool ComponentDesign::realistic(){return current()=="realistic";}
 namespace {
 QRectF artBounds(const CircuitPart& part){
+    if(part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd)return {-10,-10,250,160};
+    if(part.kind==PartKind::Junction)return {-12,-12,24,24};if(part.kind==PartKind::NetLabel)return {-8,-26,150,42};
     if(part.kind==PartKind::Esp8266){const auto profile=BoardProfile::get(part.model);
         if(profile.id=="arduino-uno")return {-14,-12,328,250};if(profile.id=="arduino-nano")return {-12,-12,124,310};
         return {-12,-12,174,static_cast<double>(std::max(330,70+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*16))};
@@ -160,7 +162,12 @@ QRectF artBounds(const CircuitPart& part){
     if(part.kind==PartKind::Breadboard30)return {-12,-12,594,284};
     if(part.kind==PartKind::Oled)return {-12,-12,316,CircuitDocument::displayHeight(part)==32?160.0:228.0};
     switch(part.kind){
-    case PartKind::Led:case PartKind::RGBLed:return {30,-2,100,150};
+    case PartKind::Capacitor:case PartKind::Inductor:return {28,8,104,136};
+    case PartKind::NpnTransistor:case PartKind::PnpTransistor:case PartKind::NMosfet:case PartKind::PMosfet:return {30,5,100,140};
+    case PartKind::OpAmp:return {0,0,160,130};
+    case PartKind::Ground:return {20,20,120,100};
+    case PartKind::FunctionGenerator:case PartKind::Oscilloscope:case PartKind::LogicAnalyzer:case PartKind::CurrentProbe:return {-4,0,168,150};
+    case PartKind::InfraredLed:case PartKind::Led:case PartKind::RGBLed:return {30,-2,100,150};
     case PartKind::PiezoBuzzer:case PartKind::Speaker:return {22,5,116,140};
     case PartKind::TemperatureSensor:return {38,10,84,135};
     case PartKind::BatteryAA:return {30,2,100,150};
@@ -179,12 +186,24 @@ QRectF artBounds(const CircuitPart& part){
     }
 }
 QPointF artPin(const CircuitPart& part,const std::string& pin){
+    if(part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd){const auto names=CircuitDocument::pins(part);auto i=std::find(names.begin(),names.end(),pin)-names.begin();return {10.+i*(part.kind==PartKind::CharacterLcd?14.:60.),140};}
+    if(part.kind==PartKind::Junction||part.kind==PartKind::NetLabel)return {0,0};
     if(part.kind==PartKind::Esp8266)return boardPin(part,pin);
     const auto names=CircuitDocument::pins(part);const int i=static_cast<int>(std::find(names.begin(),names.end(),pin)-names.begin());
     switch(part.kind){
     case PartKind::Breadboard30:{const int column=std::stoi(pin.substr(1))-1,row=pin[0]-'a';return {20.0+column*18,40.0+row*18+(row>=5?25:0)};}
     case PartKind::Oled:return {47.0+i*66,CircuitDocument::displayHeight(part)==32?132.0:200.0};
-    case PartKind::Led:return {i?100.0:60.0,i?118.0:140.0};
+    case PartKind::Capacitor:case PartKind::Inductor:return {i?100.0:60.0,136};
+    case PartKind::NpnTransistor:case PartKind::PnpTransistor:case PartKind::NMosfet:case PartKind::PMosfet:return {50.0+i*30,138};
+    case PartKind::OpAmp:return i==0?QPointF(8,45):i==1?QPointF(8,85):i==2?QPointF(80,8):i==3?QPointF(80,122):QPointF(152,65);
+    case PartKind::Ground:return {80,26};
+    case PartKind::FunctionGenerator:case PartKind::CurrentProbe:return {i?115.0:45.0,138};
+    case PartKind::Oscilloscope:return {40.0+i*40,138};
+    case PartKind::LogicAnalyzer:return {16.0+i*16,138};
+    case PartKind::InfraredLed:case PartKind::Led:return {i?100.0:60.0,i?118.0:140.0};
+    case PartKind::InfraredReceiver:return {50.+i*30,145};
+    case PartKind::RadioTransceiver:return {25.+(i%4)*36,130.+(i/4)*20};
+    case PartKind::RadioTransmitter:case PartKind::RadioReceiver:return {40.+i*40,145};
     case PartKind::PiezoBuzzer:case PartKind::Speaker:return {i?105.0:55.0,138};
     case PartKind::TemperatureSensor:return {50.0+i*30,138};
     case PartKind::BatteryAA:return {80,i?145.0:8.0};
@@ -197,7 +216,7 @@ QPointF artPin(const CircuitPart& part,const std::string& pin){
     case PartKind::PowerSupply:case PartKind::AnalogSource:return {i?110.0:50.0,102};
     case PartKind::Voltmeter:return {i?105.0:55.0,186};
     case PartKind::SevenSegment:{const int half=static_cast<int>((names.size()+1)/2);return {i<half?22.0:138.0,28.0+(i%half)*20};}
-    default:return {i?160.0:0.0,58};
+    default:if(names.size()>2){int half=(names.size()+1)/2;return {i<half?0.:160.,35.+(i%half)*22};}return {i?160.0:0.0,58};
     }
 }
 // Shared scene scale: six scene units per millimetre. Dimensions describe
@@ -205,10 +224,27 @@ QPointF artPin(const CircuitPart& part,const std::string& pin){
 QTransform physicalTransform(const CircuitPart& part){
     QSizeF drawing(1,1),millimetres(1,1);
     switch(part.kind){
+    case PartKind::InfraredRemote:drawing={90,155};millimetres={45,140};break;
+    case PartKind::NfcTestCard:drawing={160,120};millimetres={85.6,54};break;
+    case PartKind::NfcReader:drawing={160,160};millimetres={43,41};break;
+    case PartKind::RadioTransceiver:drawing={160,160};millimetres={18,29};break;
+    case PartKind::RadioTransmitter:drawing={160,160};millimetres={19,19};break;
+    case PartKind::RadioReceiver:drawing={160,160};millimetres={30,14};break;
+    case PartKind::InfraredReceiver:drawing={160,160};millimetres={7,9};break;
+    case PartKind::ServoMotor:case PartKind::DcMotor:drawing={160,130};millimetres={25,20};break;
+    case PartKind::AndGate:case PartKind::NandGate:case PartKind::OrGate:case PartKind::NorGate:case PartKind::XorGate:case PartKind::XnorGate:case PartKind::NotGate:drawing={160,130};millimetres={18,14};break;
+    case PartKind::CharacterLcd:case PartKind::I2cCharacterLcd:drawing={6,6};millimetres={1,1};break;
+    case PartKind::Junction:case PartKind::NetLabel:drawing={6,6};millimetres={1,1};break;
     case PartKind::Esp8266:{const auto id=BoardProfile::get(part.model).id;
         if(id=="arduino-uno"){drawing={300,220};millimetres={85.75,66.75};}
         else if(id=="arduino-nano"){drawing={100,272};millimetres={22.5,56.25};}
         else{drawing={150,artBounds(part).height()-24};millimetres=id=="esp8266"?QSizeF(31,58):id=="esp32-s3"?QSizeF(25.4,69):QSizeF(25.4,54.6);}break;}
+    case PartKind::Capacitor:case PartKind::Inductor:drawing={100,130};millimetres={8,12};break;
+    case PartKind::NpnTransistor:case PartKind::PnpTransistor:drawing={100,130};millimetres={5,10};break;
+    case PartKind::NMosfet:case PartKind::PMosfet:drawing={100,130};millimetres={10,20};break;
+    case PartKind::OpAmp:drawing={160,130};millimetres={18,14};break;
+    case PartKind::Ground:drawing={120,100};millimetres={15,12};break;
+    case PartKind::FunctionGenerator:case PartKind::Oscilloscope:case PartKind::LogicAnalyzer:case PartKind::CurrentProbe:drawing={168,150};millimetres={45,40};break;
     case PartKind::PiezoBuzzer:drawing={100,100};millimetres={12,12};break;
     case PartKind::Speaker:drawing={100,100};millimetres={15,11};break;
     case PartKind::TemperatureSensor:drawing={64,70};millimetres={4.6,5};break;
@@ -216,7 +252,7 @@ QTransform physicalTransform(const CircuitPart& part){
     case PartKind::ToggleSwitch:drawing={100,75};millimetres={12,8};break;
     case PartKind::Oled:drawing={292,CircuitDocument::displayHeight(part)==32?136.0:204.0};millimetres=CircuitDocument::displayHeight(part)==32?QSizeF(38,12):QSizeF(27.3,27.8);break;
     case PartKind::Breadboard30:drawing={570,260};millimetres={83.8,35.6};break;
-    case PartKind::Led:case PartKind::RGBLed:drawing={60,66};millimetres={5,8.6};break;
+    case PartKind::InfraredLed:case PartKind::Led:case PartKind::RGBLed:drawing={60,66};millimetres={5,8.6};break;
     case PartKind::Resistor:drawing={86,30};millimetres={6.3,2.3};break;
     case PartKind::Button:drawing={76,76};millimetres={6,6};break;
     case PartKind::Potentiometer:drawing={88,65};millimetres={9.5,9.5};break;
@@ -242,6 +278,36 @@ void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitSta
     const auto current=[&](const std::string& channel){auto it=state.ledCurrent.find(part.id+channel);return it==state.ledCurrent.end()?0.0:it->second;};
     switch(part.kind){
     case PartKind::Esp8266:board(p,part,state);break;
+    case PartKind::InfraredRemote:{body(p,{35,0,90,155},QColor("#2d3540"),8);label(p,{40,130,80,16},"NEC · TV",Qt::white,10);p.setBrush(part.pressed?QColor("#fb923c"):QColor("#dc4545"));p.setPen(Qt::NoPen);p.drawEllipse(QPointF(60,24),10,10);for(int row=0;row<4;++row)for(int col=0;col<3;++col){p.setBrush(QColor("#c1c8d0"));p.drawRoundedRect(QRectF(45+col*23,48+row*18,16,11),3,3);}break;}
+    case PartKind::NfcTestCard:{body(p,{0,15,160,120},part.pressed?QColor("#225f9b"):QColor("#738194"),8);body(p,{15,43,30,28},QColor("#d6b35e"),4);label(p,{50,30,98,24},"NFC TEST",Qt::white,16);label(p,{10,90,140,25},"SYNTHETIC TAG",Qt::white,10);p.setPen(QPen(Qt::white,2));for(int i=0;i<3;++i)p.drawArc(QRectF(102-i*6,55-i*6,24+i*12,24+i*12),-60*16,120*16);break;}
+    case PartKind::InfraredReceiver:{for(const auto& pin:CircuitDocument::pins(part)){auto point=artPin(part,pin);lead(p,point,{point.x(),90});label(p,{point.x()-14,122,28,12},QString::fromStdString(pin),QColor("#334155"),6);}body(p,{23,13,114,93},QColor("#242729"),6);p.setBrush(QColor("#373c40"));p.setPen(Qt::NoPen);p.drawEllipse(QPointF(80,58),34,36);label(p,{35,90,90,12},"38 kHz",QColor("#c3c8cc"),8);break;}
+    case PartKind::RadioTransceiver:{body(p,{7,0,146,155},QColor("#215748"),2);p.setPen(QPen(QColor("#d6bd72"),3));QPainterPath antenna;antenna.moveTo(145,45);antenna.lineTo(135,45);antenna.lineTo(135,10);antenna.lineTo(113,10);antenna.lineTo(113,35);antenna.lineTo(91,35);antenna.lineTo(91,10);antenna.lineTo(69,10);antenna.lineTo(69,35);antenna.lineTo(47,35);antenna.lineTo(47,10);antenna.lineTo(23,10);antenna.lineTo(23,49);p.drawPath(antenna);chip(p,{56,66,48,31},6,"nRF24");body(p,{19,67,23,16},QColor("#b8bec2"),2);for(int i=0;i<5;++i){p.setBrush(QColor("#b9a274"));p.drawRect(QRectF(112,61+i*10,13,5));}for(const auto& name:CircuitDocument::pins(part)){auto point=artPin(part,name);p.setBrush(QColor("#b8a56a"));p.setPen(QPen(QColor("#161e23"),3));p.drawEllipse(point,4,4);label(p,{point.x()-17,point.y()-15,34,12},QString::fromStdString(name),Qt::white,6);}break;}
+    case PartKind::RadioTransmitter:case PartKind::RadioReceiver:{const bool tx=part.kind==PartKind::RadioTransmitter;body(p,{8,15,144,103},QColor("#28714c"),2);for(const auto& name:CircuitDocument::pins(part)){auto point=artPin(part,name);lead(p,point,{point.x(),113});label(p,{point.x()-18,119,36,12},QString::fromStdString(name),QColor("#334155"),6);}if(tx){body(p,{37,35,52,38},QColor("#bec6c9"),12);label(p,{34,42,58,20},"433",QColor("#4b555b"),12);chip(p,{99,61,21,27},3,"TX");}else{chip(p,{62,62,46,29},5,"RX");p.setPen(QPen(QColor("#c28c4a"),3));for(int i=0;i<5;++i){p.drawArc(QRectF(26+i*8,33,13,17),0,300*16);p.drawArc(QRectF(91+i*8,33,13,17),0,300*16);}}break;}
+    case PartKind::NfcReader:{for(const auto& name:CircuitDocument::pins(part)){auto point=artPin(part,name);lead(p,point,{point.x()<80?25.:135.,point.y()});label(p,{point.x()<80?0.:136.,point.y()-16,24,14},QString::fromStdString(name),QColor("#334155"),6);}body(p,{23,10,114,135},QColor("#a03639"),4);p.setPen(QPen(QColor("#e0b960"),1.5));p.setBrush(Qt::NoBrush);for(int i=0;i<4;++i)p.drawRoundedRect(QRectF(30+i*5,18+i*5,100-i*10,112-i*10),7,7);chip(p,{57,56,46,40},6,"PN532");break;}
+
+    case PartKind::ServoMotor:case PartKind::DcMotor:{for(const auto& name:CircuitDocument::pins(part)){auto point=artPin(part,name);lead(p,point,{80,90});label(p,{point.x()<80?0.:130.,point.y()-18,30,14},QString::fromStdString(name));}const bool servo=part.kind==PartKind::ServoMotor;body(p,{25,15,110,100},servo?QColor("#28639c"):QColor("#b4bbc0"),servo?3:20);p.setBrush(QColor("#e4e7eb"));p.setPen(QPen(QColor("#52616c"),1));p.drawEllipse(QPointF(80,50),20,20);double value=state.partValues.contains(part.id)?state.partValues.at(part.id):0;if(servo){p.save();p.translate(80,50);p.rotate(value-90);p.setPen(QPen(QColor("#e5e7eb"),9,Qt::SolidLine,Qt::RoundCap));p.drawLine(QPointF(-30,0),QPointF(30,0));p.restore();}label(p,{35,85,90,20},QString::number(value,'f',1)+(servo?"°":" rpm"));break;}
+
+    case PartKind::AndGate:case PartKind::NandGate:case PartKind::OrGate:case PartKind::NorGate:case PartKind::XorGate:case PartKind::XnorGate:case PartKind::NotGate:{for(const auto& name:CircuitDocument::pins(part)){auto point=artPin(part,name);lead(p,point,{point.x()<80?32.:128.,point.y()});label(p,{point.x()<80?0.:135.,point.y()-16,25,14},QString::fromStdString(name));}body(p,{30,15,100,115},QColor("#263844"),3);label(p,{40,48,80,28},QString::fromStdString(componentSpec(part.kind).label),Qt::white,18);break;}
+
+    case PartKind::Capacitor:{
+        lead(p,{60,80},{60,136});lead(p,{100,80},{100,136});body(p,{43,18,74,82},QColor("#277c9c"),8);p.setPen(Qt::NoPen);p.setBrush(QColor("#a8b7c5"));p.drawEllipse(QRectF(43,12,74,20));p.setPen(QPen(QColor("#66778a"),2));p.drawLine(QPointF(53,22),QPointF(107,22));label(p,{49,46,62,30},QString::number(part.value)+" µF",Qt::white,10);break;}
+    case PartKind::Inductor:{
+        lead(p,{60,70},{60,136});lead(p,{100,70},{100,136});body(p,{40,25,80,72},QColor("#3c454e"),12);p.setPen(QPen(QColor("#bc7538"),6));for(int i=0;i<6;++i)p.drawEllipse(QRectF(42+i*10,30,22,60));label(p,{35,102,90,16},QString::number(part.value)+" mH");break;}
+    case PartKind::NpnTransistor:case PartKind::PnpTransistor:case PartKind::NMosfet:case PartKind::PMosfet:{
+        const bool mos=part.kind==PartKind::NMosfet||part.kind==PartKind::PMosfet;
+        for(const auto& name:CircuitDocument::pins(part)){auto point=artPin(part,name);lead(p,{point.x(),70},point);label(p,{point.x()-12,115,24,15},QString::fromStdString(name));}
+        if(mos){body(p,{40,8,80,40},QColor("#acb5bd"),2);p.setBrush(QColor("#e4e8eb"));p.drawEllipse(QPointF(80,25),7,7);}body(p,{38,mos?40.0:20.0,84,58},QColor("#2d343a"),mos?2:14);label(p,{42,43,76,24},part.kind==PartKind::NpnTransistor?"NPN":part.kind==PartKind::PnpTransistor?"PNP":part.kind==PartKind::NMosfet?"N-MOS":"P-MOS",Qt::white,11);break;}
+    case PartKind::OpAmp:{
+        p.setPen(QPen(metal,3));for(const auto& name:CircuitDocument::pins(part))p.drawLine(artPin(part,name),QPointF(80,65));QPainterPath triangle;triangle.moveTo(25,20);triangle.lineTo(135,65);triangle.lineTo(25,110);triangle.closeSubpath();p.setBrush(QColor("#263844"));p.setPen(QPen(QColor("#97a6b7"),2));p.drawPath(triangle);label(p,{30,35,22,22},"+",Qt::white,16);label(p,{30,74,22,22},"−",Qt::white,16);label(p,{55,53,50,24},"OP",Qt::white,13);break;}
+    case PartKind::Ground:{
+        p.setPen(QPen(QColor("#526c79"),4));p.drawLine(QPointF(80,26),QPointF(80,60));for(int i=0;i<3;++i)p.drawLine(QPointF(45+i*12,60+i*13),QPointF(115-i*12,60+i*13));label(p,{30,100,100,15},"GND · 0 V");break;}
+    case PartKind::FunctionGenerator:case PartKind::Oscilloscope:case PartKind::LogicAnalyzer:case PartKind::CurrentProbe:{
+        body(p,{2,8,156,122},QColor("#c4ccd2"),6);body(p,{12,25,136,65},QColor("#132938"),3);
+        const bool gen=part.kind==PartKind::FunctionGenerator;label(p,{12,10,136,14},gen?"FUNCTION GENERATOR":part.kind==PartKind::Oscilloscope?"OSCILLOSCOPE":part.kind==PartKind::LogicAnalyzer?"LOGIC ANALYZER":"CURRENT PROBE",QColor("#283a48"),7);
+        // Front panel markings; acquired traces are displayed in the instrument dock.
+        label(p,{16,34,128,44},gen?QString::number(part.value)+" Hz":part.kind==PartKind::CurrentProbe?"I  + → −":part.kind==PartKind::LogicAnalyzer?"D0 … D7":"CH A / CH B",QColor("#4ade80"),13);
+        for(const auto& name:CircuitDocument::pins(part)){auto point=artPin(part,name);lead(p,{point.x(),122},point);label(p,{point.x()-10,103,20,15},QString::fromStdString(name),QColor("#334155"),6);}break;}
+
     case PartKind::Oled:{
         const bool small=CircuitDocument::displayHeight(part)==32;const double height=small?136:204;const auto scale=physicalTransform(part);const double screenHeight=244.0*CircuitDocument::displayHeight(part)/128.0*scale.m11()/scale.m22();
         body(p,{0,0,292,height},QColor("#145b89"),5);for(auto point:{QPointF(10,10),QPointF(282,10),QPointF(10,height-20),QPointF(282,height-20)})mountingHole(p,point);
@@ -264,7 +330,7 @@ void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitSta
         const int digits=std::clamp(static_cast<int>(std::round(part.value/std::pow(10.0,exponent))),10,99);
         const std::array<QColor,4> bands{colors[digits/10],colors[digits%10],exponent<0?QColor("#bda258"):colors[std::clamp(exponent,0,9)],QColor("#bda258")};
         p.setPen(Qt::NoPen);for(int i=0;i<4;++i){p.setBrush(bands[i]);p.drawRect(48+i*19,44,6,28);}break;}
-    case PartKind::Led:case PartKind::RGBLed:{
+    case PartKind::InfraredLed:case PartKind::Led:case PartKind::RGBLed:{
         for(const auto& name:CircuitDocument::pins(part)){
             const auto point=artPin(part,name);
             if(part.kind==PartKind::Led&&name=="A"){

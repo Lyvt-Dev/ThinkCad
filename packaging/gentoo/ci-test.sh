@@ -13,9 +13,11 @@ getuto
 mkdir -p /etc/portage/package.use
 printf 'sys-libs/zlib minizip\n' > /etc/portage/package.use/thinkcad-audio
 # Dependencies must come from signed Gentoo binary packages; the app is compiled below.
-emerge --getbinpkgonly --binpkg-respect-use=y --backtrack=100 --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase dev-qt/qtmultimedia virtual/zlib media-fonts/dejavu
+emerge --getbinpkgonly --binpkg-respect-use=y --backtrack=100 --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase dev-qt/qtmultimedia dev-qt/qtserialport virtual/zlib media-fonts/dejavu
+version=$(sed -n 's/project(ThinkCad VERSION \([0-9.]*\).*/\1/p' /src/CMakeLists.txt)
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 mkdir -p /var/db/repos/thinkcad
-tar -xJf /release/ThinkCad-0.5.4-Gentoo-overlay.tar.xz -C /var/db/repos/thinkcad --strip-components=1
+tar -xJf "/release/ThinkCad-${version}-Gentoo-overlay.tar.xz" -C /var/db/repos/thinkcad --strip-components=1
 cat > /etc/portage/repos.conf/thinkcad.conf <<'CONF'
 [thinkcad]
 location = /var/db/repos/thinkcad
@@ -23,7 +25,7 @@ masters = gentoo
 auto-sync = no
 CONF
 printf 'media-gfx/thinkcad ~amd64\n' > /etc/portage/package.accept_keywords/thinkcad
-cp /release/ThinkCad-0.5.4-Source.tar.xz /var/cache/distfiles/
+cp "/release/ThinkCad-${version}-Source.tar.xz" /var/cache/distfiles/
 export ACCEPT_LICENSE='*'
 # Build with examples and run the suite through the real cmake eclass.
 USE='examples test X wayland' FEATURES='test' emerge --oneshot --usepkg=n media-gfx/thinkcad

@@ -1,5 +1,6 @@
 #pragma once
 #include "thinkercad/circuit.hpp"
+#include "projectio.hpp"
 #include <QGraphicsView>
 #include <QUndoStack>
 #include <functional>
@@ -21,6 +22,18 @@ public:
     void addPart(thinkercad::PartKind kind);
     void removeSelected();
     void rotateSelected();
+    std::function<QMap<QString,SketchProject>()> clipboardSketches;
+    std::function<void(const QMap<QString,SketchProject>&)> importClipboardSketches;
+    void copySelected();
+    void paste();
+    void duplicateSelected();
+    void alignSelected(bool horizontal);
+    void distributeSelected(bool horizontal);
+    void highlightNet(const thinkercad::Endpoint& endpoint);
+    void setGrid(double size,bool snap){gridSize_=size;snap_=snap;viewport()->update();}
+    QPointF snapped(QPointF position)const;
+    void branchWire(const std::string& id,QPointF position);
+
     void fitCircuit();
     void zoom(double factor);
     void cancelWire();
@@ -58,6 +71,7 @@ private:
     QColor wireColor_{"#0d9488"};
     bool editingEnabled_=true,wireMode_=false,panning_=false;
     QPoint panOrigin_;
+    double gridSize_=10;bool snap_=true;
     std::vector<thinkercad::WirePoint> pendingBends_;
     QPointF lastPointer_;
     void refreshBendHandles();

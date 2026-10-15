@@ -1,4 +1,7 @@
-# Bauteilunterstützung in ThinkCad 0.5.4
+# Bauteilunterstützung in ThinkCad
+
+Version 1.0.0 enthält die unten genannten Modelle einschließlich der
+[Analog-Erweiterung](ANALOG_SIMULATION.md).
 
 Die Forderung nach sämtlichen Tinkercad-Bauteilen ist noch nicht vollständig umgesetzt.
 Diese Liste beschreibt die tatsächlich implementierten Modelle. Sie garantiert keine
@@ -6,11 +9,26 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 
 | Bauteil | Modell und Grenzen |
 | --- | --- |
-| ESP8266 | GPIO, Pullups, 10-Bit-ADC 0–1 V; keine Xtensa-CPU, WLAN oder PWM |
+| Kondensator / Spule | Zustandsbehaftete Backward-Euler-Modelle; µF bzw. mH, Spule standardmäßig 0,1 Ω Wicklungswiderstand |
+| NPN / PNP | Generisches Ebers-Moll-Modell mit einstellbarem β; keine Hersteller-/Temperaturparameter |
+| N-/P-MOSFET | Generisches quadratisches Level-1-Modell mit Bodydiode; einstellbare Schwellspannung |
+| Operationsverstärker | Generisches Verstärkermodell mit Versorgungsschienen, 50 Ω Ausgang und 50 mV Rail-Abstand; keine Bandbreiten-/Slew-Rate-Simulation |
+| Masse / Verbindungspunkt / Netzlabel | Gemeinsames 0-V-Potential, explizite Abzweigungen und case-sensitive benannte Netze |
+| Funktionsgenerator | Sinus, Rechteck, Dreieck, Sägezahn; 0,1–2000 Hz, Amplitude/Offset/Tastgrad |
+| Oszilloskop / Logikanalysator / Stromsonde | Live-Erfassung, Trigger, Cursor, RMS/Frequenz, CSV/PNG und UART/SPI/I²C-Decoder; endliche Sample-Auflösung |
+| LCD 16×2 / 20×4 | LiquidCrystal 4 Bit oder LiquidCrystal_I2C; 5-V-Versorgung und Verdrahtungsprüfung, Text/Custom-Glyphs; API-Adapter, keine HD44780-/PCF8574-Registeremulation |
+| AND/NAND/OR/NOR/XOR/XNOR/NOT | Versorgte generische Gatter, 1,8–5,5 V; keine Laufzeit-/Fan-out-/Gehäusemodelle |
+| Servo | Servo.h und gemessene 50-Hz-Pulse; 4,5–6-V-Versorgung, Winkelanzeige; keine mechanische Last-/Getriebesimulation |
+| IR-LED / 38-kHz-Empfänger / TV-Fernbedienung | Elektrische 1,2-V-IR-Diode mit Vorwiderstand; Arduino-IRremote-NEC-Adapter mit Adresse, Kommando, Repeat-Flag, decode/resume. Testfernbedienung per Doppelklick. Keine optische Ausbreitung oder Träger-/Pulsformsimulation |
+| PN532 / NFC-Testkarte | Verdrahteter I²C-Adapter, ISO14443A-Test-UID (4/7 Bytes), synthetischer Type-2-Tag mit lesbarem NDEF-Text. Kartenpräsenz, Testgruppe und Abstand. Keine EMV-/Zahlungsdaten, MIFARE-Authentifizierung oder NFC-Rohprotokolle |
+| nRF24L01+ | SPI-/CE-/CSN-Verdrahtung, 1,9–3,6 V, RF24-API, Kanal 0–125, 250/1000/2000 kbit/s, 5-Byte-Adressen, RX-Pipes, CRC-Konfiguration, ACK und 3-Paket-FIFO. Paketmodell, keine HF-/Störungs-/Registeremulation |
+| 433-MHz-ASK-Sender / -Empfänger | rc-switch-Protokoll 1, 1–32 Bit, Frequenzabgleich, DATA-Pins und Versorgung. Nachrichtenmodell, keine rohe Pulsfolge; eigene Komponente je Richtung |
+| DC-Motor | Ankerwiderstand/-induktivität, Gegen-EMK und Trägheit; keine integrierte H-Brücke oder Encoder |
+| ESP8266 | GPIO, Pullups, 10-Bit-ADC 0–1 V; PWM über analogWrite seit 1.0.0; keine Xtensa-CPU oder WLAN |
 | ESP32 / ESP32-S3 | Boardprofile mit GPIO-Auswahl, Eingangs-Pins und 12-Bit-ADC 0–3,3 V; keine CPU-/Peripherieemulation |
-| Arduino Uno R3 / klassischer Nano | ATmega328P-Boardprofile: D0–D13, A0–A5, 5-V-GPIO, 10-Bit-ADC 0–5 V; Nano zusätzlich A6/A7 nur analog. Keine AVR-CPU-, PWM-, Timer- oder vollständige Peripherieemulation |
+| Arduino Uno R3 / klassischer Nano | ATmega328P-Boardprofile: D0–D13, A0–A5, 5-V-GPIO, 10-Bit-ADC 0–5 V; Nano zusätzlich A6/A7 nur analog. PWM über analogWrite seit 1.0.0; keine AVR-CPU-, Timer- oder vollständige Peripherieemulation |
 | SSD1306 | I²C, 128×64/128×32, Adafruit-GFX-Zeichenkern, Text, Bitmaps, Invertierung, Helligkeit; Scrollen mit vereinfachtem 100-ms-Zeitraster |
-| Widerstand | Lineares Gleichstrommodell |
+| Widerstand | Lineares Widerstandsmodell (DC und transient) |
 | LED | Stückweise lineares Diodenmodell, 2 V Vorwärtsspannung; Überstromdiagnose |
 | Taster | Idealer Schließer; kein Kontaktprellen |
 | Analoge Quelle | Ideale, einstellbare Spannung mit gemeinsamer Masse |
@@ -20,7 +38,7 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 | Schiebeschalter | Idealer SPDT-Umschalter |
 | Neigungsschalter / Reedkontakt | Einstellbarer idealer Kontakt; keine Bewegung-/Magnetfeldsimulation |
 | Diode | Stückweise linear, 0,7 V und 1 Ω Durchlasswiderstand |
-| 3-V-/9-V-Batterie / Netzteil | Ideale Quelle; Minuspol muss an Board-GND liegen; keine Entladung oder Innenwiderstände |
+| 3-V-/9-V-Batterie / Netzteil | Ideale Quelle; Minuspol muss an Board-GND oder Masse liegen; keine Entladung oder Innenwiderstände |
 | RGB-LED | Gemeinsame Kathode, getrennte Dioden: Rot 2 V, Grün 2,2 V, Blau 3 V |
 | Siebensegmentanzeige | Gemeinsame Kathode, acht einzeln simulierte LED-Segmente |
 | Voltmeter | Idealer hochohmiger Spannungsmesser |
@@ -31,13 +49,14 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 | SPST-Ein-/Ausschalter | Rastender idealer Schließer; Doppelklick oder Zustands-Checkbox öffnet/schließt den Kontakt |
 | Breadboard | 300 Kontakte; a–e und f–j jeweils pro Spalte verbunden; keine Stromschienen |
 
-Das sind 25 Typen einschließlich des Board-Typs; Board- und OLED-Varianten zählen
-nicht nochmals als eigene Typen. RGB-LED und Siebensegmentanzeige brauchen pro Kanal
-einen externen Vorwiderstand. Der Netzlöser behandelt resistive Gleichstromnetze und
-vereinfachte Dioden. Kapazitive/induktive Übergänge, Transistoren, Motoren, Servos,
-Relais, komplexe ICs und weitere Sensoren sind noch nicht modelliert. Auch LCD1602,
-SPI-Displays und beliebige I²C-Geräte fehlen. Installation einer Bibliothek ergänzt
-keine fehlende Hardwarephysik.
+Release 0.5.4 enthält 25 Typen; Version 1.0.0 enthält
+58 Typen einschließlich des Board-Typs. Varianten zählen nicht zusätzlich.
+RGB-LED und Siebensegmentanzeige brauchen pro Kanal einen externen Vorwiderstand.
+Der Arbeitsstand erweitert den Netzlöser um transiente und nichtlineare Modelle;
+die Tabelle beschreibt deren Grenzen. Relais, komplexe weitere ICs, SPI-Displays
+und beliebige I²C-Geräte sind noch nicht modelliert. Eine Bibliotheksinstallation
+ergänzt keine fehlende Hardwarephysik. Die neuen Funk-/IR-/NFC-Modelle und ihre
+konkreten Anschlüsse stehen im [Modulhandbuch](WIRELESS_MODULES.de.md).
 
 Arduino-Sketches laufen als native C++-Hostprozesse mit einer Arduino-API-Teilmenge.
 Bibliotheksinstallation bedeutet daher keine vollständige ESP-Firmwarekompatibilität.

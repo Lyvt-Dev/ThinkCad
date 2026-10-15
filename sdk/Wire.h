@@ -14,6 +14,8 @@ public:
         hz_ = hz;
     }
     unsigned long clock() const { return hz_; }
+    int sda() const {return sda_;}
+    int scl() const {return scl_;}
     bool ready() const { return initialized_; }
 private:
     int sda_ = D2, scl_ = D1;

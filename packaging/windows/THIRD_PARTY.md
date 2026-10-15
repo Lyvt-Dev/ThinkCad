@@ -1,6 +1,6 @@
 # Distribution notices
 
-ThinkCad dynamically links Qt 6 (Qt Core, Gui, Widgets, Network, Multimedia and deployed plugins).
+ThinkCad dynamically links Qt 6 (Qt Core, Gui, Widgets, Network, Multimedia, SerialPort and deployed plugins).
 Qt is copyright The Qt Company Ltd. and its contributors. The selected open-source
 modules are available under LGPL v3; a copy is bundled as LGPL-3.txt. See
 https://www.qt.io/licensing/open-source-lgpl-obligations and the exact 6.8.3

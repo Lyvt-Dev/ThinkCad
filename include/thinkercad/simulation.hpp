@@ -11,7 +11,7 @@ namespace thinkercad {
 using Microseconds = std::uint64_t;
 enum class PinMode { Input, InputPullup, Output };
 enum class Level { Floating, Low, High, Contention };
-struct Pin { PinMode mode = PinMode::Input; bool output = false; Level external = Level::Floating; unsigned frequency = 0; };
+struct Pin { PinMode mode = PinMode::Input; bool output = false; Level external = Level::Floating; unsigned frequency = 0; double duty = 0.5; bool pwm = false; };
 
 class Component {
 public:
@@ -55,6 +55,8 @@ public:
     void digitalWrite(int gpio, bool high) override;
     Level digitalRead(int gpio) const override;
     void tone(int gpio, unsigned frequency);
+    void servoWrite(int gpio,unsigned pulse);
+    void analogWrite(int gpio,unsigned value,unsigned range=255,unsigned frequency=1000);
     void driveInput(int gpio, Level level);
     void setAdcVoltage(double volts); // Bare ESP8266 A0: 0..1 V, not NodeMCU divider.
     int analogRead() const;

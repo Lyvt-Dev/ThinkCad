@@ -10,9 +10,13 @@ struct SketchProject {
     QString combinedSource() const;
     QMap<QString,QString> auxiliaryFiles() const;
 };
-struct SavedProject {thinkercad::CircuitDocument circuit;SketchProject sketch;QMap<QString,SketchProject> boardSketches;};
+struct SavedProject {thinkercad::CircuitDocument circuit;SketchProject sketch;QMap<QString,SketchProject> boardSketches;QMap<QString,QByteArray> bundledLibraries;};
 class ProjectIO {
 public:
+    static QMap<QString,QByteArray> bundleLibraries(const QStringList& directories);
+    static QStringList extractLibraries(const QMap<QString,QByteArray>& files,const QString& destination);
+    static QByteArray serialize(const SavedProject& project);
+    static SavedProject deserialize(const QByteArray& data);
     static void save(const QString& path,const SavedProject& project);
     static SavedProject load(const QString& path);
     static bool validFileName(const QString& name);
