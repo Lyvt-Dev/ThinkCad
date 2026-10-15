@@ -112,13 +112,13 @@ private slots:
         QTest::qWait(100);design->setCurrentIndex(0);QVERIFY(window.simulationActive());stop(window);
     }
     void nativeIconsAndSettingsDialogs(){
-        MainWindow window;window.show();
+        MainWindow window;window.show();QTest::qWait(80);window.resize(1360,850);QTest::qWait(30);
         QCOMPARE(AppIcons::icon(AppIcons::Symbol::Save).pixmap(18,18).toImage(),window.style()->standardIcon(QStyle::SP_DialogSaveButton).pixmap(18,18).toImage());
         for(const auto& id:{"chooseLanguage","chooseComponentDesign"}){
             bool shown=false;QTimer::singleShot(30,&window,[&]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());shown=dialog&&dialog->findChild<QComboBox*>()&&dialog->findChild<QDialogButtonBox*>();if(dialog)dialog->reject();});
             auto* action=window.findChild<QAction*>(id);QVERIFY(action);action->trigger();QVERIFY(shown);
         }
-        auto* run=window.findChild<QToolButton*>("runButton");auto* reset=window.findChild<QToolButton*>("resetButton");QVERIFY(run&&reset);QVERIFY(reset->geometry().left()-run->geometry().right()>=10);QCOMPARE(run->height(),reset->height());
+        auto* run=window.findChild<QToolButton*>("runButton");auto* reset=window.findChild<QToolButton*>("resetButton");QVERIFY(run&&reset);QVERIFY(run->isVisible()&&reset->isVisible());QVERIFY2(reset->geometry().left()-run->geometry().right()>=10,qPrintable(QString("Run %1,%2 Reset %3,%4").arg(run->x()).arg(run->width()).arg(reset->x()).arg(reset->width())));QCOMPARE(run->height(),reset->height());
     }
     void pinNamesAndPhysicalScale(){
         for(const auto& design:{"blocks","realistic"}){
