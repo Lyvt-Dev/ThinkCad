@@ -13,6 +13,8 @@ class QDoubleSpinBox;
 class QComboBox;
 class QCheckBox;
 class QPushButton;
+class QStackedWidget;
+class StartPage;
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
@@ -22,6 +24,9 @@ public:
     void loadDemo();
     bool loadExample(const QString& id);
     void startSimulation();
+    void resetSimulation();
+    void showStartPage();
+    bool startPageVisible() const;
     bool saveProjectTo(const QString& path);
     CircuitCanvas* canvas(){return canvas_;}
     const thinkercad::CircuitDocument& circuit()const{return circuit_;}
@@ -40,6 +45,10 @@ private:
     CodeInterpreter interpreter_;
     Updater updater_;
     CircuitCanvas* canvas_;
+    QStackedWidget* workspace_;
+    StartPage* startPage_;
+    QByteArray editorLayout_;
+    void showEditor();
     QTabWidget* codeTabs_;
     QPlainTextEdit* console_;
     QLabel *status_,*projectLabel_,*selectionLabel_;

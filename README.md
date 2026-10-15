@@ -11,6 +11,9 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ## Was bereits funktioniert
 
+- Startseite mit zuletzt geöffneten Projekten, Neu/Öffnen, Einstellungen, Tutorial und Beispielen. Die Startseiten-Schaltfläche führt zurück; „Zum Editor“ erhält ungespeicherte Arbeit und die Editorfenster. Eine per Dateiparameter übergebene Datei öffnet direkt im Editor.
+- Eigene farbige Projekticons und einheitliche Start/Stopp-/Reset-Schaltflächen. Reset startet eine laufende Simulation erneut ab `setup()`; bei gestoppter Simulation löscht es nur die Laufzeitzustände.
+
 - Normale Windows-Titelleiste mit Schließen, Minimieren, Maximieren und Größenänderung.
 - Neues Logo, helle und dunkle Oberfläche, andockbare Bauteil-, Code- und Ausgabefenster.
 - Gemeinsame Komponentensuche für Mikrocontroller und weitere Bauteile; Boards hinzufügen, verschieben und löschen. Bei mehreren Boards im Bauteilinspektor „Dieses Board simulieren“ wählen: Ein Board führt den Sketch aus.
@@ -56,7 +59,7 @@ prüft es und baut die Anwendung.
 
 Diese Anleitung setzt einen vorhandenen **Gentoo-Desktop auf amd64** mit
 eingerichtetem Gentoo-Repository, funktionierendem Internetzugang und einer X11-
-oder Wayland-Sitzung voraus. Das Ebuild für 0.5.1 benötigt **Qt ≥6.11**,
+oder Wayland-Sitzung voraus. Das Ebuild für 0.5.2 benötigt **Qt ≥6.11**,
 **GCC ≥12 mit C++-Unterstützung**, CMake, Ninja und zlib. Die folgenden Befehle
 aktivieren Beispielsketches, beide Anzeige-Backends und die Testsuite.
 Für die Anwendung muss derzeit die Lizenz `all-rights-reserved` akzeptiert werden;
@@ -97,7 +100,7 @@ emerge --noreplace --ask \
     media-fonts/dejavu net-misc/curl app-arch/tar app-arch/xz-utils \
     sys-apps/coreutils </dev/tty
 
-version=0.5.1
+version=0.5.2
 archive="ThinkCad-${version}-Gentoo-overlay.tar.xz"
 release="https://github.com/Lyvt-Dev/ThinkCad/releases/download/v${version}"
 workdir=$(mktemp -d)
@@ -124,7 +127,7 @@ auto-sync = no
 CONF
 
 # Kompilieren, Tests ohne grafische Sitzung ausführen und die Anwendung installieren.
-FEATURES="${FEATURES-} test" emerge --ask '=media-gfx/thinkcad-0.5.1::thinkcad' </dev/tty
+FEATURES="${FEATURES-} test" emerge --ask '=media-gfx/thinkcad-0.5.2::thinkcad' </dev/tty
 GENTOO_INSTALL
 ```
 
@@ -178,7 +181,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=0.5.1 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=0.5.2 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

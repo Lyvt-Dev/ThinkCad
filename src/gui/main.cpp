@@ -26,7 +26,10 @@ int main(int argc,char** argv){
 #endif
     Theme::apply(QSettings().value("darkMode",false).toBool());
     MainWindow window(app.arguments().contains("--smoke-test"));window.show();
-    if(!app.arguments().contains("--smoke-test"))for(const auto& argument:app.arguments().mid(1))if(QFileInfo(argument).isFile())QTimer::singleShot(0,&window,[&window,argument]{window.openPath(argument);});
+    if(!app.arguments().contains("--smoke-test")){
+        QString path;for(const auto& argument:app.arguments().mid(1))if(QFileInfo(argument).isFile()){path=argument;break;}
+        QTimer::singleShot(0,&window,[&window,path]{if(path.isEmpty()||!window.openPath(path))window.showStartPage();});
+    }
     const int result=app.exec();
 #ifdef Q_OS_WIN
     CloseHandle(mutex);
