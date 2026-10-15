@@ -1,5 +1,8 @@
 #include "mainwindow.hpp"
 #include "language.hpp"
+#include "componentdesign.hpp"
+#include <QImage>
+#include <QPainter>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QPushButton>
@@ -43,7 +46,64 @@ class DesktopTests final:public QObject{
     static QPoint port(CircuitCanvas* canvas,const QString& part,const QString& pin){for(auto* item:canvas->scene()->items())if(item->parentItem()&&item->parentItem()->data(1).toString()==part&&item->toolTip().startsWith(pin+" —"))return canvas->mapFromScene(item->scenePos());return {-1000,-1000};}
     static void stop(MainWindow& window){if(window.simulationActive())window.findChild<QAction*>("runSimulation")->trigger();}
 private slots:
-    void initTestCase(){QApplication::setQuitOnLastWindowClosed(false);QCoreApplication::setOrganizationName("ThinkCadTests");QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settingsDirectory_.path());Language::set("de");}
+    void initTestCase(){QApplication::setQuitOnLastWindowClosed(false);QCoreApplication::setOrganizationName("ThinkCadTests");QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settingsDirectory_.path());Language::set("de");ComponentDesign::set("blocks");}
+    void cleanup(){ComponentDesign::set("blocks");Language::set("de");}
+    void componentDesignSelection(){
+        MainWindow window;window.show();QTest::qWait(70);auto* canvas=window.canvas();std::string resistor;
+        canvas->mutate("Design fixture",[&](auto& doc){resistor=doc.addPart(PartKind::Resistor,430,240);doc.part(resistor).rotation=90;doc.connect({"board","GPIO14"},{resistor,"1"});});
+        auto* design=window.findChild<QComboBox*>("componentDesignSelector");QVERIFY(design);QCOMPARE(design->count(),2);
+        QCOMPARE(design->itemText(0),QString("Blocks"));QCOMPARE(design->itemText(1),QString("Realistic"));
+        QCOMPARE(window.findChild<QLabel*>("componentDesignLabel")->text(),QString("Komponenten Design"));
+        QTemporaryDir temporary;const auto beforePath=temporary.filePath("before.thinkcad"),afterPath=temporary.filePath("after.thinkcad");
+        QVERIFY(window.saveProjectTo(beforePath));QFile before(beforePath);QVERIFY(before.open(QIODevice::ReadOnly));const auto original=before.readAll();
+        const auto count=canvas->history()->count();design->setCurrentIndex(design->findData("realistic"));
+        QCOMPARE(ComponentDesign::current(),QString("realistic"));QCOMPARE(QSettings().value("componentDesign").toString(),QString("realistic"));
+        QCOMPARE(canvas->history()->count(),count);QVERIFY(canvas->history()->isClean());
+        QCOMPARE(window.circuit().part(resistor).rotation,90);QVERIFY(window.saveProjectTo(afterPath));
+        QFile after(afterPath);QVERIFY(after.open(QIODevice::ReadOnly));QCOMPARE(after.readAll(),original);
+        for(auto* item:canvas->scene()->items())if(item->data(0)=="wire"){
+            const auto path=static_cast<QGraphicsPathItem*>(item)->path();QPointF end;
+            for(auto* pin:canvas->scene()->items())if(pin->parentItem()&&pin->parentItem()->data(1).toString()==QString::fromStdString(resistor)&&pin->toolTip().startsWith("1 —"))end=pin->scenePos();
+            QCOMPARE(QPointF(path.elementAt(path.elementCount()-1).x,path.elementAt(path.elementCount()-1).y),end);
+        }
+        window.findChild<QComboBox*>("languageSelector")->setCurrentIndex(1);
+        QCOMPARE(window.findChild<QLabel*>("componentDesignLabel")->text(),QString("Component Design"));
+        {MainWindow second;QCOMPARE(second.findChild<QComboBox*>("componentDesignSelector")->currentData().toString(),QString("realistic"));}
+        design->setCurrentIndex(0);QCOMPARE(ComponentDesign::current(),QString("blocks"));QVERIFY(window.circuitState().errors.empty());
+    }
+    void realisticComponentsRender(){
+        ComponentDesign::set("realistic");CircuitDocument document;document.removePart("board");int index=0;
+        auto add=[&](PartKind kind,const std::string& model,double x,double y){const auto id=document.addPart(kind,x,y);document.part(id).model=model;return id;};
+        for(const auto& model:{"esp8266","esp32","esp32-s3","arduino-uno","arduino-nano"})add(PartKind::Esp8266,model,index++*350,0);
+        index=0;for(const auto& spec:componentCatalog())if(spec.kind!=PartKind::Esp8266){add(spec.kind,{},(index%5)*350,470+(index/5)*240);++index;}
+        add(PartKind::Oled,"ssd1306-128x32",0,1450);
+        for(const auto& part:document.parts()){
+            const auto bounds=ComponentDesign::bounds(part);std::set<std::pair<double,double>> positions;
+            for(const auto& pin:CircuitDocument::pins(part)){
+                const auto point=ComponentDesign::pinPosition(part,pin);
+                QVERIFY2(bounds.contains(QRectF(point-QPointF(7,7),QSizeF(14,14))),part.id.c_str());
+                QVERIFY2(positions.emplace(point.x(),point.y()).second,pin.c_str());
+            }
+        }
+        CircuitCanvas canvas(document);CircuitState state;std::map<std::string,OledDisplay> displays;
+        for(const auto& part:document.parts()){
+            if(part.kind==PartKind::Led)state.ledCurrent[part.id]=0.01;
+            if(part.kind==PartKind::RGBLed){state.ledCurrent[part.id+":R"]=0.015;state.ledCurrent[part.id+":G"]=0.005;}
+            if(part.kind==PartKind::Oled){state.voltage[{part.id,"VCC"}]=3.3;state.voltage[{part.id,"GND"}]=0;Frame frame(128,CircuitDocument::displayHeight(part));
+                for(int y=4;y<frame.height-4;++y)for(int x=4;x<124;++x)frame.setPixel(x,y,(x/8+y/8)%2==0);
+                displays[part.id].present(frame);}
+        }
+        canvas.updateSimulation(state,displays);QImage image(2000,1750,QImage::Format_ARGB32);image.fill(QColor("#e9eef3"));
+        {QPainter painter(&image);canvas.scene()->render(&painter,QRectF(image.rect()),canvas.scene()->itemsBoundingRect().adjusted(-15,-15,15,15));}
+        const auto file=qEnvironmentVariable("THINKCAD_TEST_GALLERY");if(!file.isEmpty())QVERIFY(image.save(file));
+    }
+    void switchDesignDuringSimulation(){
+        MainWindow window;window.show();window.loadDemo();window.startSimulation();
+        QTRY_VERIFY_WITH_TIMEOUT(window.circuitState().level({"board","GPIO2"})==Level::High,15000);
+        auto* design=window.findChild<QComboBox*>("componentDesignSelector");
+        design->setCurrentIndex(1);QVERIFY(window.simulationActive());QVERIFY(window.circuitState().errors.empty());
+        QTest::qWait(100);design->setCurrentIndex(0);QVERIFY(window.simulationActive());stop(window);
+    }
     void runShortcut(){
         MainWindow window;window.show();window.loadDemo();QTest::qWait(80);
         auto* run=window.findChild<QAction*>("runSimulation");

@@ -17,6 +17,7 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 - Arduino Uno R3 und klassischer Arduino Nano (ATmega328P): 5-V-GPIO, 10-Bit-ADC mit 5-V-Referenz, D0–D13 und A0–A5; Nano zusätzlich A6/A7 als reine Analogeingänge. Host-API-Simulation, keine AVR-CPU- oder vollständige Peripherieemulation.
 - Kabel vom Startpin zum Zielpin ziehen: Jeder weitere Klick setzt einen Knick. Gerade Segmente in beliebige Richtungen einschließlich diagonaler Verbindungen; keine automatisch eingefügten Knicke. Knicke verschieben, Kabelfarbe, Löschen, Undo/Redo und Zoom.
 - **Strg+R** oder **F5** startet/stoppt die Simulation. **R** dreht ausgewählte Bauteile im Arbeitsbereich um 90° im Uhrzeigersinn; Drehungen unterstützen Undo/Redo und werden mitgespeichert.
+- Einstellungen → **Komponenten Design** (Englisch: **Component Design**): **Blocks** für die bisherige Planungsansicht, **Realistic** für 2D-Darstellungen mit typischen Gehäusen, Platinen und Kontakten. Alle Bauteiltypen und Boardvarianten werden dargestellt; die Auswahl wird gespeichert. Die Darstellung ändert die elektrische Simulation nicht.
 - Einstellungen → Sprache: Dropdown für Deutsch/Englisch, sofortiger Wechsel und gespeicherte Auswahl.
 - `.ino`-Projekte mit weiteren Sketch-Tabs, Headern und C++-Quellen öffnen.
 - Schaltung und Code gemeinsam als portable `.thinkcad`-Datei (ältere `.thinkercad`-Dateien bleiben lesbar) speichern und wieder öffnen.
@@ -56,7 +57,7 @@ prüft es und baut die Anwendung.
 
 Diese Anleitung setzt einen vorhandenen **Gentoo-Desktop auf amd64** mit
 eingerichtetem Gentoo-Repository, funktionierendem Internetzugang und einer X11-
-oder Wayland-Sitzung voraus. Das Ebuild für 0.5.1 benötigt **Qt ≥6.11**,
+oder Wayland-Sitzung voraus. Das Ebuild für 0.5.0 benötigt **Qt ≥6.11**,
 **GCC ≥12 mit C++-Unterstützung**, CMake, Ninja und zlib. Die folgenden Befehle
 aktivieren Beispielsketches, beide Anzeige-Backends und die Testsuite.
 Für die Anwendung muss derzeit die Lizenz `all-rights-reserved` akzeptiert werden;
@@ -97,7 +98,7 @@ emerge --noreplace --ask \
     media-fonts/dejavu net-misc/curl app-arch/tar app-arch/xz-utils \
     sys-apps/coreutils </dev/tty
 
-version=0.5.1
+version=0.5.0
 archive="ThinkCad-${version}-Gentoo-overlay.tar.xz"
 release="https://github.com/Lyvt-Dev/ThinkCad/releases/download/v${version}"
 workdir=$(mktemp -d)
@@ -124,7 +125,7 @@ auto-sync = no
 CONF
 
 # Kompilieren, Tests ohne grafische Sitzung ausführen und die Anwendung installieren.
-FEATURES="${FEATURES-} test" emerge --ask '=media-gfx/thinkcad-0.5.1::thinkcad' </dev/tty
+FEATURES="${FEATURES-} test" emerge --ask '=media-gfx/thinkcad-0.5.0::thinkcad' </dev/tty
 GENTOO_INSTALL
 ```
 
@@ -178,7 +179,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=0.5.1 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=0.5.0 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

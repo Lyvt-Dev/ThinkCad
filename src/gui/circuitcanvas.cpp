@@ -1,4 +1,6 @@
 #include "language.hpp"
+#include "componentdesign.hpp"
+#include <QStyleOptionGraphicsItem>
 #include "circuitcanvas.hpp"
 #include <QGraphicsEllipseItem>
 #include <QGraphicsScene>
@@ -17,7 +19,8 @@ namespace {
 QPainterPath wirePath(QPointF a,QPointF b) {QPainterPath p(a);p.lineTo(b);return p;}
 QString partName(PartKind kind){return Language::text(QString::fromStdString(componentSpec(kind).label));}
 bool switchable(PartKind kind){return kind==PartKind::Button||kind==PartKind::SlideSwitch||kind==PartKind::TiltSwitch||kind==PartKind::ReedSwitch;}
-QPointF localPin(const CircuitPart& part,const std::string& pin) {const auto kind=part.kind;
+QRectF blockBounds(const CircuitPart& part){return part.kind==PartKind::Esp8266?QRectF(-10,-10,230,std::max(370,202+static_cast<int>((CircuitDocument::pins(part).size()+1)/2-1)*24)):part.kind==PartKind::Oled?QRectF(-10,-10,310,224):part.kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*20));}
+QPointF localPin(const CircuitPart& part,const std::string& pin) {if(ComponentDesign::realistic())return ComponentDesign::pinPosition(part,pin);const auto kind=part.kind;
     const auto names=CircuitDocument::pins(part);const int index=static_cast<int>(std::find(names.begin(),names.end(),pin)-names.begin());
     if(kind==PartKind::Esp8266){const int half=(names.size()+1)/2;return index<half?QPointF(0,142+index*24):QPointF(210,142+(index-half)*24);}
     if(kind==PartKind::Oled)return {47.0+index*66,200};
@@ -45,8 +48,18 @@ public:
 };
 class PinItem final:public QGraphicsEllipseItem {
     CircuitCanvas* canvas_;Endpoint endpoint_;
+    bool realistic_=ComponentDesign::realistic();
 public:
-    PinItem(CircuitCanvas* c,Endpoint e,QGraphicsItem* parent):QGraphicsEllipseItem(-7,-7,14,14,parent),canvas_(c),endpoint_(std::move(e)){setBrush(QColor("#ffffff"));setPen(QPen(QColor("#0d9488"),2));setZValue(3);setCursor(Qt::CrossCursor);setToolTip(QString::fromStdString(endpoint_.pin)+Language::text(" — zum Verbinden klicken"));}
+    PinItem(CircuitCanvas* c,Endpoint e,QGraphicsItem* parent):QGraphicsEllipseItem(-7,-7,14,14,parent),canvas_(c),endpoint_(std::move(e)){setBrush(QColor("#ffffff"));setPen(QPen(QColor("#0d9488"),2));setZValue(3);setCursor(Qt::CrossCursor);setAcceptHoverEvents(true);setToolTip(QString::fromStdString(endpoint_.pin)+Language::text(" — zum Verbinden klicken"));}
+    void paint(QPainter* painter,const QStyleOptionGraphicsItem* option,QWidget* widget)override{
+        if(!realistic_){QGraphicsEllipseItem::paint(painter,option,widget);return;}
+        const auto kind=canvas_->document().part(endpoint_.part).kind;
+        const bool board=kind==PartKind::Esp8266||kind==PartKind::Oled;
+        painter->setPen(QPen(board?QColor("#c7ad6d"):QColor("#929da4"),1.2));
+        painter->setBrush(board?QColor("#c7ad6d"):QColor("#d4d9da"));painter->drawRoundedRect(QRectF(-4,-4,8,8),1,1);
+        painter->setPen(Qt::NoPen);painter->setBrush(QColor("#202830"));painter->drawEllipse(QRectF(-2,-2,4,4));
+        if(option->state&QStyle::State_MouseOver){painter->setPen(QPen(QColor("#14b8a6"),2));painter->setBrush(Qt::NoBrush);painter->drawEllipse(QRectF(-6,-6,12,12));}
+    }
     const Endpoint& endpoint()const{return endpoint_;}
     void mousePressEvent(QGraphicsSceneMouseEvent* e)override{if(e->button()==Qt::LeftButton){canvas_->connectPin(endpoint_);e->accept();}else QGraphicsEllipseItem::mousePressEvent(e);}
 };
@@ -55,10 +68,12 @@ class PartItem final:public QGraphicsItem {
     CircuitCanvas* canvas_;
     CircuitDocument before_;
     bool initializing_=true;
+    bool realistic_=ComponentDesign::realistic();
+    QRectF bounds_;
 public:
     std::string id;PartKind kind;CircuitState state;Frame visible;double brightness=1;
-    PartItem(CircuitCanvas* c,const CircuitPart& p):canvas_(c),id(p.id),kind(p.kind){setData(0,"part");setData(1,QString::fromStdString(id));setFlags(ItemIsSelectable|ItemIsMovable|ItemSendsGeometryChanges);setZValue(1);setPos(p.x,p.y);setTransformOriginPoint(boundingRect().center());setRotation(p.rotation);initializing_=false;setCursor(Qt::OpenHandCursor);for(const auto& pin:CircuitDocument::pins(p)){auto* port=new PinItem(c,{id,pin},this);port->setPos(localPin(p,pin));}}
-    QRectF boundingRect()const override{return kind==PartKind::Esp8266?QRectF(-10,-10,230,std::max(370,202+static_cast<int>((CircuitDocument::pins(canvas_->document().part(id)).size()+1)/2-1)*24)):kind==PartKind::Oled?QRectF(-10,-10,310,224):kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(kind).size()+1)/2)*20));}
+    PartItem(CircuitCanvas* c,const CircuitPart& p):canvas_(c),bounds_(realistic_?ComponentDesign::bounds(p):blockBounds(p)),id(p.id),kind(p.kind){setData(0,"part");setData(1,QString::fromStdString(id));setFlags(ItemIsSelectable|ItemIsMovable|ItemSendsGeometryChanges);setZValue(1);setPos(p.x,p.y);setTransformOriginPoint(boundingRect().center());setRotation(p.rotation);initializing_=false;setCursor(Qt::OpenHandCursor);for(const auto& pin:CircuitDocument::pins(p)){auto* port=new PinItem(c,{id,pin},this);port->setPos(localPin(p,pin));}}
+    QRectF boundingRect()const override{return bounds_;}
     QVariant itemChange(GraphicsItemChange change,const QVariant& v)override{
         if(change==ItemPositionChange&&!initializing_){auto pos=v.toPointF();return QPointF(std::clamp(std::round(pos.x()/10)*10,-9500.0,9500.0),std::clamp(std::round(pos.y()/10)*10,-9500.0,9500.0));}
         if(change==ItemPositionHasChanged&&!initializing_){try{auto& p=const_cast<CircuitDocument&>(canvas_->document()).part(id);p.x=pos().x();p.y=pos().y();}catch(const std::exception&){} }
@@ -69,6 +84,7 @@ public:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* e)override{if(switchable(kind)){canvas_->toggleButton(id);e->accept();}else QGraphicsItem::mouseDoubleClickEvent(e);}
     void paint(QPainter* p,const QStyleOptionGraphicsItem*,QWidget*)override{
         const auto& part=canvas_->document().part(id);p->setRenderHint(QPainter::Antialiasing);
+        if(realistic_){ComponentDesign::paint(*p,part,state,visible,brightness,isSelected());return;}
         p->setPen(QPen(isSelected()?QColor("#0d9488"):QColor("#cbd5e1"),isSelected()?2.5:1));p->setBrush(QColor("#ffffff"));
         if(kind==PartKind::Esp8266){
             const auto profile=BoardProfile::get(part.model);const auto names=CircuitDocument::pins(part);const int half=(names.size()+1)/2;const int boardHeight=std::max(346,182+(half-1)*24);p->setBrush(QColor(profile.arduino()?"#087b9b":"#143e3c"));p->drawRoundedRect(0,0,210,boardHeight,14,14);p->setPen(Qt::NoPen);p->setBrush(QColor("#dbe5ea"));p->drawRoundedRect(10,30,190,84,6,6);
