@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "mainwindow.hpp"
 #include "startpage.hpp"
 #include "appicons.hpp"

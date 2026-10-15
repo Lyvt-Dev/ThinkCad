@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "peripheralhub.hpp"
 #include "examples.hpp"
 #include "mainwindow.hpp"

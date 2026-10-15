@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "Arduino.h"
 #include <sstream>
 #include <iostream>

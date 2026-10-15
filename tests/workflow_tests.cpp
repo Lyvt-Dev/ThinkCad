@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "mainwindow.hpp"
 #include "hardwaretools.hpp"
 #include "recovery.hpp"

@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "language.hpp"
 #include "projectio.hpp"
 #include <QApplication>
