@@ -1,33 +1,38 @@
 #ifndef Version
-  #define Version "0.3.0"
+  #define Version "0.4.0"
 #endif
 #ifndef StagingDir
   #define StagingDir "..\..\out\stage"
 #endif
 [Setup]
 AppId={{D184B517-892D-48D8-A537-F54197762D2F}
-AppName=ThinkerCad
+AppName=ThinkCad
 AppVersion={#Version}
 AppPublisher=Lyvt-Dev
-AppPublisherURL=https://github.com/Lyvt-Dev/ThinkerCad
-AppSupportURL=https://github.com/Lyvt-Dev/ThinkerCad/issues
-DefaultDirName={localappdata}\Programs\ThinkerCad
-DefaultGroupName=ThinkerCad
+AppPublisherURL=https://github.com/Lyvt-Dev/ThinkCad
+AppSupportURL=https://github.com/Lyvt-Dev/ThinkCad/issues
+DefaultDirName={localappdata}\Programs\ThinkCad
+DefaultGroupName=ThinkCad
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=..\..\out\installer
-OutputBaseFilename=ThinkerCad-Setup-{#Version}
+OutputBaseFilename=ThinkCad-Setup-{#Version}
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 SetupIconFile=..\..\assets\thinkercad.ico
-UninstallDisplayIcon={app}\ThinkerCad.exe
+UninstallDisplayIcon={app}\ThinkCad.exe
 AppMutex=ThinkerCadDesktopMain
 CloseApplications=yes
-CloseApplicationsFilter=ThinkerCad.exe
+CloseApplicationsFilter=ThinkCad.exe,ThinkerCad.exe
 RestartApplications=no
 DisableProgramGroupPage=yes
+[InstallDelete]
+Type: files; Name: "{app}\ThinkerCad.exe"
+Type: files; Name: "{app}\ThinkerCadUpdater.exe"
+Type: files; Name: "{userprograms}\ThinkerCad\ThinkerCad.lnk"
+Type: files; Name: "{userdesktop}\ThinkerCad.lnk"
 [Languages]
 Name: "german"; MessagesFile: "compiler:Languages\German.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -36,11 +41,11 @@ Name: "desktopicon"; Description: "Desktop-Verknüpfung erstellen"; GroupDescrip
 [Files]
 Source: "{#StagingDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 [Icons]
-Name: "{group}\ThinkerCad"; Filename: "{app}\ThinkerCad.exe"
-Name: "{autodesktop}\ThinkerCad"; Filename: "{app}\ThinkerCad.exe"; Tasks: desktopicon
+Name: "{group}\ThinkCad"; Filename: "{app}\ThinkCad.exe"
+Name: "{autodesktop}\ThinkCad"; Filename: "{app}\ThinkCad.exe"; Tasks: desktopicon
 [Run]
-Filename: "{app}\ThinkerCad.exe"; Description: "ThinkerCad starten"; Flags: nowait postinstall skipifsilent
-Filename: "{app}\ThinkerCad.exe"; Flags: nowait; Check: UpdateRestartRequested
+Filename: "{app}\ThinkCad.exe"; Description: "ThinkCad starten"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\ThinkCad.exe"; Flags: nowait; Check: UpdateRestartRequested
 [Code]
 function UpdateRestartRequested: Boolean;
 begin

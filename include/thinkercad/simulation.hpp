@@ -35,9 +35,15 @@ public:
     virtual void digitalWrite(int gpio, bool high) = 0;
     virtual Level digitalRead(int gpio) const = 0;
 };
+struct BoardProfile {
+    std::string id,label;std::vector<int> gpio,adc,inputOnly;double adcMax=1;int adcBits=10,defaultAdc=17,sda=4,scl=5;
+    static BoardProfile get(const std::string& id);
+};
 class Esp8266Board final : public Board {
 public:
     Esp8266Board();
+    void configure(const std::string& model);
+    const BoardProfile& profile()const{return profile_;}
     static constexpr std::array<int, 9> nodeMcuGpio{16, 5, 4, 0, 2, 14, 12, 13, 15};
     static constexpr double supplyVoltage = 3.3;
     void reset() override;
@@ -50,6 +56,7 @@ public:
     double adcVoltage() const { return adcVoltage_; }
     const Pin& pin(int gpio) const;
 private:
+    BoardProfile profile_=BoardProfile::get("esp8266");
     std::map<int, Pin> pins_;
     double adcVoltage_ = 0;
 };
@@ -83,10 +90,13 @@ public:
     void present(const Frame& frame) override;
     const Frame& frame() const override { return visible_; }
     std::uint64_t revision() const { return revision_; }
+    double brightness()const{return brightness_;}
+    void setBrightness(double value);
     static Microseconds transferDuration(std::size_t bytes, unsigned busHz = 400000);
 private:
     Frame visible_;
     std::uint64_t revision_ = 0;
+    double brightness_=1;
 };
 class Simulator {
 public:

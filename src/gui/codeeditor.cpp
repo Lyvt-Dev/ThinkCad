@@ -1,5 +1,6 @@
 #include "codeeditor.hpp"
 #include <QPainter>
+#include <QApplication>
 #include <QRegularExpression>
 #include <QTextBlock>
 #include <QResizeEvent>
@@ -11,7 +12,7 @@ public:explicit LineArea(CodeEditor* e):QWidget(e),editor_(e){}QSize sizeHint()c
 class CppColors final:public QSyntaxHighlighter{
 public:explicit CppColors(QTextDocument* d):QSyntaxHighlighter(d){}
 protected:void highlightBlock(const QString& text)override{
-    auto apply=[&](const QString& pattern,const QColor& color){QTextCharFormat f;f.setForeground(color);auto m=QRegularExpression(pattern).globalMatch(text);while(m.hasNext()){auto found=m.next();setFormat(found.capturedStart(),found.capturedLength(),f);}};
+    auto apply=[&](const QString& pattern,const QColor& color){QTextCharFormat f;f.setForeground(qApp->property("darkMode").toBool()?color.lighter(150):color);auto m=QRegularExpression(pattern).globalMatch(text);while(m.hasNext()){auto found=m.next();setFormat(found.capturedStart(),found.capturedLength(),f);}};
     apply("\\b(?:void|bool|char|int|long|short|unsigned|const|static|struct|class|return|if|else|for|while|switch|case|break|continue|auto|template|typename|true|false|uint8_t|uint16_t|uint32_t)\\b",QColor("#7854b9"));
     apply("\\b(?:setup|loop|pinMode|digitalWrite|digitalRead|analogRead|delay|millis|micros|HIGH|LOW|INPUT|OUTPUT|INPUT_PULLUP|PROGMEM|Wire|Serial)\\b",QColor("#0d9488"));
     apply("\\b(?:0x[0-9a-fA-F]+|[0-9]+(?:\\.[0-9]+)?)\\b",QColor("#b46b16"));apply("\"(?:\\\\.|[^\"\\\\])*\"",QColor("#39749b"));apply("^\\s*#.*",QColor("#526a87"));apply("//.*",QColor("#8a97a9"));
@@ -24,4 +25,4 @@ CodeEditor::CodeEditor(QWidget* parent):QPlainTextEdit(parent),lineArea_(new Lin
 }
 int CodeEditor::lineAreaWidth()const{int digits=1,n=std::max(1,blockCount());while(n>=10){n/=10;++digits;}return 18+fontMetrics().horizontalAdvance('9')*digits;}
 void CodeEditor::resizeEvent(QResizeEvent* e){QPlainTextEdit::resizeEvent(e);lineArea_->setGeometry(contentsRect().left(),contentsRect().top(),lineAreaWidth(),contentsRect().height());}
-void CodeEditor::paintLineArea(QPaintEvent* event){QPainter p(lineArea_);p.fillRect(event->rect(),QColor("#f8fafc"));p.setPen(QColor("#9caabd"));auto block=firstVisibleBlock();int number=block.blockNumber();int top=qRound(blockBoundingGeometry(block).translated(contentOffset()).top());int bottom=top+qRound(blockBoundingRect(block).height());while(block.isValid()&&top<=event->rect().bottom()){if(block.isVisible()&&bottom>=event->rect().top())p.drawText(0,top,lineArea_->width()-8,fontMetrics().height(),Qt::AlignRight,QString::number(number+1));block=block.next();top=bottom;bottom=top+qRound(blockBoundingRect(block).height());++number;}}
+void CodeEditor::paintLineArea(QPaintEvent* event){QPainter p(lineArea_);p.fillRect(event->rect(),palette().color(QPalette::AlternateBase));p.setPen(palette().color(QPalette::PlaceholderText));auto block=firstVisibleBlock();int number=block.blockNumber();int top=qRound(blockBoundingGeometry(block).translated(contentOffset()).top());int bottom=top+qRound(blockBoundingRect(block).height());while(block.isValid()&&top<=event->rect().bottom()){if(block.isVisible()&&bottom>=event->rect().top())p.drawText(0,top,lineArea_->width()-8,fontMetrics().height(),Qt::AlignRight,QString::number(number+1));block=block.next();top=bottom;bottom=top+qRound(blockBoundingRect(block).height());++number;}}

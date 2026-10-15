@@ -14,6 +14,7 @@
 #include <QStandardPaths>
 #include <QVersionNumber>
 #include <QUuid>
+#include <QTimer>
 #include <memory>
 #ifdef Q_OS_WIN
 #define NOMINMAX
@@ -21,6 +22,7 @@
 #include <wintrust.h>
 #include <softpub.h>
 #include <wincrypt.h>
+#include "../../packaging/windows/verify_attestation.hpp"
 #endif
 #ifndef THINKERCAD_PUBLISHER_SHA256
 #define THINKERCAD_PUBLISHER_SHA256 ""
@@ -28,7 +30,7 @@
 namespace {
 QNetworkRequest request(const QString& url) {
     QNetworkRequest r{QUrl(url)};
-    r.setHeader(QNetworkRequest::UserAgentHeader,"ThinkerCad/" THINKERCAD_VERSION);
+    r.setHeader(QNetworkRequest::UserAgentHeader,"ThinkCad/" THINKERCAD_VERSION);
     r.setTransferTimeout(30000);
     r.setAttribute(QNetworkRequest::RedirectPolicyAttribute,QNetworkRequest::NoLessSafeRedirectPolicy);
     return r;
@@ -44,11 +46,8 @@ void Updater::check() {
 #ifndef Q_OS_WIN
     emit message("Automatische Installation ist nur unter Windows verfügbar."); return;
 #endif
-    if(QString(THINKERCAD_PUBLISHER_SHA256).size()!=64) {
-        emit message("Automatische Updates sind in diesem Entwicklungsbuild deaktiviert: kein Herausgeberzertifikat hinterlegt."); return;
-    }
     busy_=true;
-    auto* reply=network_.get(request("https://api.github.com/repos/Lyvt-Dev/ThinkerCad/releases/latest"));
+    auto* reply=network_.get(request("https://api.github.com/repos/Lyvt-Dev/ThinkCad/releases/latest"));
     connect(reply,&QNetworkReply::readyRead,reply,[reply]{ if(reply->bytesAvailable()>1048576) reply->abort(); });
     connect(reply,&QNetworkReply::finished,this,[this,reply]{
         reply->deleteLater();
@@ -58,18 +57,20 @@ void Updater::check() {
         const auto match=QRegularExpression("^v?(\\d+\\.\\d+\\.\\d+)$").match(release["tag_name"].toString());
         if(!match.hasMatch() || release["prerelease"].toBool() || release["draft"].toBool()) {busy_=false;emit message("Kein gültiges stabiles Release gefunden.");return;}
         const auto version=match.captured(1);
-        if(QVersionNumber::fromString(version)<=QVersionNumber::fromString(THINKERCAD_VERSION)) {busy_=false;emit message("ThinkerCad ist aktuell.");return;}
-        const auto filename="ThinkerCad-Setup-"+version+".exe";
-        QString installerUrl, checksumUrl;
+        if(QVersionNumber::fromString(version)<=QVersionNumber::fromString(THINKERCAD_VERSION)) {busy_=false;emit message("ThinkCad ist aktuell.");return;}
+        const auto filename="ThinkCad-Setup-"+version+".exe";
+        QString installerUrl,checksumUrl,attestationUrl;
         for(const auto& value:release["assets"].toArray()) {
             auto asset=value.toObject(); const auto name=asset["name"].toString(); const auto url=asset["browser_download_url"].toString();
-            if(!url.startsWith("https://github.com/Lyvt-Dev/ThinkerCad/releases/download/")) continue;
+            if(!url.startsWith("https://github.com/Lyvt-Dev/ThinkCad/releases/download/")) continue;
             if(name==filename && asset["size"].toDouble()>0 && asset["size"].toDouble()<512*1024*1024) installerUrl=url;
-            if(name==filename+".sha256") checksumUrl=url;
+            if(name==filename+".sha256")checksumUrl=url;if(name==filename+".sigstore.jsonl"&&asset["size"].toDouble()<5*1024*1024)attestationUrl=url;
         }
-        if(installerUrl.isEmpty() || checksumUrl.isEmpty()) {busy_=false;emit message("Release enthält keinen passenden Windows-Installer mit Prüfsumme.");return;}
+        if(installerUrl.isEmpty()||checksumUrl.isEmpty()||attestationUrl.isEmpty()) {busy_=false;emit message("Release enthält keinen Installer mit Prüfsumme und Buildnachweis.");return;}
         emit message("Neue Version "+version+" wird im Hintergrund heruntergeladen.");
-        fetchChecksum(checksumUrl,installerUrl,filename,version);
+        auto* commit=network_.get(request("https://api.github.com/repos/Lyvt-Dev/ThinkCad/commits/v"+version));
+        connect(commit,&QNetworkReply::readyRead,commit,[commit]{if(commit->bytesAvailable()>1048576)commit->abort();});
+        connect(commit,&QNetworkReply::finished,this,[this,commit,checksumUrl,installerUrl,filename,version,attestationUrl]{commit->deleteLater();const auto bytes=commit->readAll();expectedCommit_=QJsonDocument::fromJson(bytes).object()["sha"].toString();if(commit->error()!=QNetworkReply::NoError||!allowedResponse(commit)||bytes.size()>1048576||!QRegularExpression("^[a-f0-9]{40}$").match(expectedCommit_).hasMatch()){busy_=false;emit message("Release-Commit konnte nicht geprüft werden.");return;}Q_UNUSED(attestationUrl);fetchChecksum(checksumUrl,installerUrl,filename,version);});
     });
 }
 void Updater::fetchChecksum(const QString& url,const QString& installerUrl,const QString& filename,const QString& version) {
@@ -80,8 +81,11 @@ void Updater::fetchChecksum(const QString& url,const QString& installerUrl,const
         auto expression=QRegularExpression("^([a-fA-F0-9]{64})[ \\t]+\\*?"+QRegularExpression::escape(filename)+"(?:\\r?\\n)?$");
         auto match=expression.match(QString::fromLatin1(content));
         if(reply->error()!=QNetworkReply::NoError || !allowedResponse(reply) || content.size()>4096 || !match.hasMatch()) {busy_=false;emit message("Ungültige Update-Prüfsumme.");return;}
-        download(installerUrl,filename,version,QByteArray::fromHex(match.captured(1).toLatin1()));
+        fetchAttestation(installerUrl+".sigstore.jsonl",installerUrl,filename,version,QByteArray::fromHex(match.captured(1).toLatin1()));
     });
+}
+void Updater::fetchAttestation(const QString& url,const QString& installerUrl,const QString& filename,const QString& version,const QByteArray& expected){
+    auto* reply=network_.get(request(url));connect(reply,&QNetworkReply::readyRead,reply,[reply]{if(reply->bytesAvailable()>5*1024*1024)reply->abort();});connect(reply,&QNetworkReply::finished,this,[this,reply,installerUrl,filename,version,expected]{reply->deleteLater();const auto bytes=reply->readAll();if(reply->error()!=QNetworkReply::NoError||!allowedResponse(reply)||bytes.isEmpty()||bytes.size()>5*1024*1024){busy_=false;emit message("Buildnachweis konnte nicht geladen werden.");return;}const auto dir=QStandardPaths::writableLocation(QStandardPaths::CacheLocation)+"/updates";QDir().mkpath(dir);QSaveFile file(dir+"/"+filename+".sigstore.jsonl");if(!file.open(QIODevice::WriteOnly)||file.write(bytes)!=bytes.size()||!file.commit()){busy_=false;emit message("Buildnachweis konnte nicht gespeichert werden.");return;}download(installerUrl,filename,version,expected);});
 }
 void Updater::download(const QString& url,const QString& filename,const QString& version,const QByteArray& expected) {
     const auto dir=QStandardPaths::writableLocation(QStandardPaths::CacheLocation)+"/updates";
@@ -101,40 +105,26 @@ void Updater::download(const QString& url,const QString& filename,const QString&
         if(state->failed || !state->bytes || reply->error()!=QNetworkReply::NoError || !allowedResponse(reply) || state->hash.result()!=expected || !file->commit()) {
             file->cancelWriting(); emit message("Update verworfen: Download oder SHA-256-Prüfung fehlgeschlagen.");return;
         }
-        if(!verifyPublisher(file->fileName())) {QFile::remove(file->fileName());emit message("Update verworfen: Herausgebersignatur stimmt nicht oder ist nicht vertrauenswürdig.");return;}
-        installer_=file->fileName(); emit updateReady(version);
+        verifyDownload(file->fileName(),version);
     });
 }
-bool Updater::verifyPublisher(const QString& path) {
+void Updater::verifyDownload(const QString& path,const QString& version){
 #ifdef Q_OS_WIN
-    const auto native=QDir::toNativeSeparators(path).toStdWString();
-    WINTRUST_FILE_INFO file{}; file.cbStruct=sizeof(file); file.pcwszFilePath=native.c_str();
-    WINTRUST_DATA data{}; data.cbStruct=sizeof(data); data.dwUIChoice=WTD_UI_NONE;
-    data.fdwRevocationChecks=WTD_REVOKE_WHOLECHAIN; data.dwUnionChoice=WTD_CHOICE_FILE; data.pFile=&file; data.dwStateAction=WTD_STATEACTION_VERIFY;
-    GUID policy=WINTRUST_ACTION_GENERIC_VERIFY_V2;
-    const LONG status=WinVerifyTrust(nullptr,&policy,&data);
-    bool valid=false;
-    if(status==ERROR_SUCCESS) {
-        auto* provider=WTHelperProvDataFromStateData(data.hWVTStateData);
-        auto* signer=provider?WTHelperGetProvSignerFromChain(provider,0,FALSE,0):nullptr;
-        if(signer && signer->csCertChain>0) {
-            BYTE hash[32]{}; DWORD size=sizeof(hash);
-            if(CertGetCertificateContextProperty(signer->pasCertChain[0].pCert,CERT_SHA256_HASH_PROP_ID,hash,&size) && size==32)
-                valid=QByteArray(reinterpret_cast<const char*>(hash),32).toHex()==QByteArray(THINKERCAD_PUBLISHER_SHA256).toLower();
-        }
-    }
-    data.dwStateAction=WTD_STATEACTION_CLOSE; WinVerifyTrust(nullptr,&policy,&data);
-    return valid;
+    const auto verifier=QCoreApplication::applicationDirPath()+"/verifier/gh.exe",roots=QCoreApplication::applicationDirPath()+"/verifier/trusted_root.jsonl";if(!QFileInfo::exists(verifier)||!QFileInfo::exists(roots)){QFile::remove(path);emit message("Update-Verifizierer fehlt in dieser Installation.");return;}
+    busy_=true;auto* check=new QProcess(this);auto finished=std::make_shared<bool>(false);auto complete=[this,check,path,version,finished](bool ok){if(*finished)return;*finished=true;busy_=false;check->deleteLater();if(!ok){QFile::remove(path);emit message("Update verworfen: GitHub-Buildnachweis oder Release-Commit ungültig.");return;}installer_=path;emit updateReady(version);};
+    connect(check,qOverload<int,QProcess::ExitStatus>(&QProcess::finished),this,[complete](int code,QProcess::ExitStatus status){complete(code==0&&status==QProcess::NormalExit);});connect(check,&QProcess::errorOccurred,this,[complete](QProcess::ProcessError error){if(error==QProcess::FailedToStart)complete(false);});QTimer::singleShot(60000,check,[check]{if(check->state()!=QProcess::NotRunning)check->kill();});
+    check->start(verifier,{"attestation","verify",path,"--bundle",path+".sigstore.jsonl","--custom-trusted-root",roots,"--repo","Lyvt-Dev/ThinkCad","--signer-workflow","Lyvt-Dev/ThinkCad/.github/workflows/windows.yml","--source-ref","refs/heads/main","--source-digest",expectedCommit_,"--deny-self-hosted-runners"});
 #else
-    Q_UNUSED(path); return false;
+    Q_UNUSED(path);Q_UNUSED(version);
 #endif
 }
 bool Updater::restartAndInstall() {
-    if(!ready() || !verifyPublisher(installer_)) {emit message("Update ist nicht mehr gültig.");return false;}
+    if(!ready()||!QFileInfo::exists(installer_)) {emit message("Update ist nicht mehr gültig.");return false;}
 #ifdef Q_OS_WIN
-    const auto helper=QFileInfo(installer_).absolutePath()+"/ThinkerCadUpdater-"+QUuid::createUuid().toString(QUuid::WithoutBraces)+".exe";
-    if(!QFile::copy(QCoreApplication::applicationDirPath()+"/ThinkerCadUpdater.exe",helper)) {emit message("Update-Helfer konnte nicht bereitgestellt werden.");return false;}
-    if(!QProcess::startDetached(helper,{QString::number(QCoreApplication::applicationPid()),installer_,QCoreApplication::applicationDirPath()})) {QFile::remove(helper);emit message("Update-Helfer konnte nicht gestartet werden.");return false;}
+    const auto cache=QFileInfo(installer_).absolutePath();QDir().mkpath(cache+"/verifier");for(const auto& name:QStringList{"gh.exe","trusted_root.jsonl"}){QFile source(QCoreApplication::applicationDirPath()+"/verifier/"+name);QSaveFile target(cache+"/verifier/"+name);if(!source.open(QIODevice::ReadOnly)||!target.open(QIODevice::WriteOnly)){emit message("Update-Verifizierer fehlt.");return false;}const auto bytes=source.readAll();if(target.write(bytes)!=bytes.size()||!target.commit())return false;}
+    const auto helper=cache+"/ThinkCadUpdater-"+QUuid::createUuid().toString(QUuid::WithoutBraces)+".exe";
+    if(!QFile::copy(QCoreApplication::applicationDirPath()+"/ThinkCadUpdater.exe",helper)) {emit message("Update-Helfer konnte nicht bereitgestellt werden.");return false;}
+    if(!QProcess::startDetached(helper,{QString::number(QCoreApplication::applicationPid()),installer_,QCoreApplication::applicationDirPath(),expectedCommit_})) {QFile::remove(helper);emit message("Update-Helfer konnte nicht gestartet werden.");return false;}
     return true;
 #else
     return false;

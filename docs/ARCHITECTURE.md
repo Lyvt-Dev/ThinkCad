@@ -2,7 +2,7 @@
 
 ## Ziel und Genauigkeitsvertrag
 
-ThinkerCad ist eine native Windows-Anwendung, keine Web-Anwendung. C++20/Qt Widgets
+ThinkCad ist eine native Windows-Anwendung, keine Web-Anwendung. C++20/Qt Widgets
 und `QGraphicsScene` ermöglichen einen frei gestaltbaren 2D-Arbeitsbereich sowie
 angedockte Editor-, Bibliotheks- und Diagnosefenster. Das Referenzbild dient der
 Anordnung; Assets, Marken und proprietäre Tinkercad-Darstellungen werden nicht übernommen.

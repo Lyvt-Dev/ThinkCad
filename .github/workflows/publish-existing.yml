@@ -35,17 +35,20 @@ jobs:
           tag_sha=$(gh api "repos/$GH_REPO/commits/$TAG" --jq .sha)
           test "$build_sha" = "$tag_sha"
       - name: Retrieve verified installer and corresponding sources
-        run: gh run download "$RUN_ID" --repo "$GH_REPO" --name ThinkerCad-Windows --dir installer
+        run: gh run download "$RUN_ID" --repo "$GH_REPO" --name ThinkCad-Windows --dir installer
       - name: Verify published payload checksums
         working-directory: installer
         shell: bash
         run: |
           set -euo pipefail
-          sha256sum --check "ThinkerCad-Setup-${TAG#v}.exe.sha256"
+          sha256sum --check "ThinkCad-Setup-${TAG#v}.exe.sha256"
           sha256sum --check qt-everywhere-src-6.8.3.tar.xz.sha256
-          test -s ThinkerCad-Toolchain-Sources.tar
+          test -s ThinkCad-Toolchain-Sources.tar
+          test -s "ThinkCad-Setup-${TAG#v}.exe.sigstore.jsonl"
+          build_sha=$(gh api "repos/$GH_REPO/actions/runs/$RUN_ID" --jq .head_sha)
+          gh attestation verify "ThinkCad-Setup-${TAG#v}.exe" --bundle "ThinkCad-Setup-${TAG#v}.exe.sigstore.jsonl" --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/windows.yml" --source-ref refs/heads/main --source-digest "$build_sha" --deny-self-hosted-runners
       - name: Publish release
         shell: bash
         run: |
           set -euo pipefail
-          gh release create "$TAG" installer/* --repo "$GH_REPO" --title "ThinkerCad ${TAG#v}" --notes-file installer/RELEASE_NOTES.md --verify-tag
+          gh release create "$TAG" installer/* --repo "$GH_REPO" --title "ThinkCad ${TAG#v}" --notes-file installer/RELEASE_NOTES.md --verify-tag

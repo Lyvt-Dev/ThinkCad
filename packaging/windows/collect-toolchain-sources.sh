@@ -16,4 +16,4 @@ while read -r package version; do
     bsdtar -tf "out/toolchain-sources/$archive" > /dev/null
     sha256sum "out/toolchain-sources/$archive" >> out/toolchain-sources/SHA256SUMS.txt
 done < out/toolchain-sources/PACKAGES.txt
-tar -cf out/installer/ThinkerCad-Toolchain-Sources.tar -C out toolchain-sources
+tar -cf out/installer/ThinkCad-Toolchain-Sources.tar -C out toolchain-sources

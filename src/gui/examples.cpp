@@ -11,6 +11,9 @@ QList<CircuitExample> ExampleCatalog::entries(){return {
     {"traffic_light","Ampelschaltung","Drei LEDs an D5/D6/D7 mit eigenen Vorwiderständen: Rot, Rot/Gelb, Grün, Gelb."},
     {"led_chaser","Lauflicht","Vier LEDs an D1/D2/D5/D6 mit jeweils 220 Ω werden der Reihe nach eingeschaltet."},
     {"analog_threshold","Analoger Schwellwert","0–1-V-Quelle an A0. Ab ADC-Wert 512 leuchtet die LED. Simulation stoppen, Quelle auswählen und Spannung verändern."},
+    {"esp32_blink","ESP32: LED blinken","ESP32-Boardprofil, externe LED an GPIO5 mit Vorwiderstand."},
+    {"esp32_s3_adc","ESP32-S3: ADC","12-Bit-ADC an A0/GPIO1. Eine Quelle mit 1,65 V schaltet die LED an GPIO5 ein."},
+    {"oled_text_32","OLED-Text 128×32","setCursor, setTextColor und Textgröße auf einem korrekt verkabelten 128×32-SSD1306."},
     {"two_oleds","Zwei OLEDs am I²C-Bus","Zwei Displays teilen D2/SDA und D1/SCL. Adressen 0x3C und 0x3D; Flash-Bitmaps bewegen sich gegenläufig."}
 };}
 SavedProject ExampleCatalog::create(const QString& id){
@@ -23,7 +26,12 @@ SavedProject ExampleCatalog::create(const QString& id){
     };
     auto oled=[&](double x,double y,int address){const auto display=doc.addPart(PartKind::Oled,x,y);doc.part(display).value=address;
         doc.connect({"board","3V3"},{display,"VCC"},"#ec5967");doc.connect({"board","GND"},{display,"GND"},"#64748b");doc.connect({"board","GPIO5"},{display,"SCL"},"#e9ad33");doc.connect({"board","GPIO4"},{display,"SDA"},"#378bcb");};
-    if(id=="animation")oled(390,80,60);
+    if(id=="esp32_blink"||id=="esp32_s3_adc"){
+        doc.part("board").model=id=="esp32_blink"?"esp32":"esp32-s3";led("GPIO5",80,"#22c55e");
+        if(id=="esp32_s3_adc"){auto source=doc.addPart(PartKind::AnalogSource,430,270);doc.part(source).value=1.65;doc.connect({source,"OUT"},{"board","A0"});doc.connect({source,"GND"},{"board","GND"});}
+    }
+    else if(id=="oled_text_32"){oled(390,80,60);doc.part(doc.parts().back().id).model="ssd1306-128x32";}
+    else if(id=="animation")oled(390,80,60);
     else if(id=="two_oleds"){oled(430,0,60);oled(800,0,61);}
     else if(id=="traffic_light"){led("GPIO14",0,"#fb586b");led("GPIO12",140,"#e9ad33");led("GPIO13",280,"#22c55e");}
     else if(id=="led_chaser"){led("GPIO5",0,"#fb586b");led("GPIO4",140,"#e9ad33");led("GPIO14",280,"#22c55e");led("GPIO12",420,"#378bcb");}

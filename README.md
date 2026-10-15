@@ -1,20 +1,20 @@
-# ThinkerCad
+# ThinkCad
 
 Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, mit Windows als Zielplattform.
-Version 0.3.0 bietet einen frei verdrahtbaren ESP8266-Arbeitsbereich, SSD1306-OLED,
-LEDs, Widerstände, Taster, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
+Version 0.4.0 bietet ESP8266-, ESP32- und ESP32-S3-Boardprofile, 20 Bauteiltypen,
+SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
 ![Native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
 
 ## Was bereits funktioniert
 
 - Normale Windows-Titelleiste mit Schließen, Minimieren, Maximieren und Größenänderung.
-- Neues Logo, moderne helle Oberfläche, andockbare Bauteil-, Code- und Ausgabefenster.
-- Bauteile verschieben, Pins durch Kabel verbinden, Kabelfarbe, Löschen, Undo/Redo und Zoom.
+- Neues Logo, helle und dunkle Oberfläche, andockbare Bauteil-, Code- und Ausgabefenster.
+- Bauteile verschieben, Pins durch Kabel verbinden, frei gesetzte und verschiebbare Kabelknicke, Kabelfarbe, Löschen, Undo/Redo und Zoom.
 - `.ino`-Projekte mit weiteren Sketch-Tabs, Headern und C++-Quellen öffnen.
-- Schaltung und Code gemeinsam als portable `.thinkercad`-Datei speichern und wieder öffnen.
+- Schaltung und Code gemeinsam als portable `.thinkcad`-Datei (ältere `.thinkercad`-Dateien bleiben lesbar) speichern und wieder öffnen.
 - Live-Temporegler von 0,1× bis 10× mit 1×-Rücksetzung; virtuelle Sketch-Zeit bleibt korrekt.
-- Sieben fertige Beispielschaltungen mit passendem Sketch und vollständiger Verdrahtung.
+- Zehn fertige Beispielschaltungen mit passendem Sketch und vollständiger Verdrahtung.
 - `PROGMEM`-/Flash-Adapter einschließlich `pgmspace.h`, `avr/pgmspace.h`, `pgm_read_*`, `PSTR` und `F`.
 - Eigener zeitbasierter Simulationskern mit deterministischer Ereignisreihenfolge.
 - GPIO-Pinmodi, externe Eingänge, schwebende Pegel und Treiberkonflikte.
@@ -22,18 +22,19 @@ LEDs, Widerstände, Taster, einen Sketch-Editor und eine compilerbasierte Arduin
 - Resistives Gleichspannungsnetz mit schwebenden Netzen, Pullups, LED-Vorwärtsspannung,
   Überstrom- und Kurzschlussdiagnosen; Taster während der Simulation betätigen.
 - OLED funktioniert nur mit angeschlossener Versorgung und korrekter I²C-Verkabelung.
-- 128×64 monochrome OLED-Frames, Bitmap-Arrays, Bildimport und Animation.
+- 128×64 und 128×32 monochrome OLED-Frames, Bitmap-Arrays, Bildimport und Animation.
 - I²C-Übertragungszeit: etwa 23,085 ms für 1026 Bytes bei 400 kHz.
 - Echter C++-Compiler für `setup()` / `loop()` in einem separaten Sketch-Prozess.
-- Lokale portable Bibliotheken: Include-Pfade und C++-Quelldateien werden eingebunden.
-- Windows-Installerdefinition, Build-Workflow und vorbereiteter GitHub-Release-Updater.
+- Arduino-Bibliothekskatalog mit Suche, SHA-256-geprüfter Installation und Abhängigkeiten; lokale Ordner bleiben unterstützt. Nur tatsächlich verwendete Bibliotheken werden kompiliert.
+- Windows-Installerdefinition, Build-Workflow und GitHub-Release-Updater mit Prüfung der Build-Attestierung.
 
-**Aktuelle Grenzen:** Kein Breadboard, kein dynamischer SPICE-Netzlöser, keine
+**Aktuelle Grenzen:** Kein dynamischer SPICE-Netzlöser, keine
 Xtensa-CPU-Emulation und keine vollständige
 ESP8266-Arduino-Core-Kompatibilität. Wi-Fi, Timerinterrupts, PWM, UART-Peripherie,
 HD44780/LCD1602 und beliebige I²C-Bibliotheken sind noch nicht implementiert.
-Die mitgelieferten Adafruit-Header sind ausdrücklich **Simulatoradapter**, nicht die
-vollständigen upstream-Bibliotheken. Native Sketches sind nicht sicher sandboxed;
+Der Zeichenkern verwendet Adafruit GFX 1.12.4; der SSD1306-Treiber ist ein
+Simulatoradapter. Nicht jede Arduino-Hardwarebibliothek funktioniert durch Installation.
+Die tatsächlichen Bauteilmodelle und Grenzen stehen in [COMPONENT_SUPPORT.md](docs/COMPONENT_SUPPORT.md). Native Sketches sind nicht sicher sandboxed;
 nur eigenen bzw. vertrauenswürdigen Code und Bibliotheken ausführen.
 
 ## Windows bauen
@@ -59,10 +60,10 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=0.3.0 /DStagingDir=C:\Pfad\ThinkerCad\out\stage packaging/windows/ThinkerCad.iss
+ISCC.exe /DVersion=0.4.0 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
-Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkerCad`,
+Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,
 inklusive Deinstallation und optionaler Desktop-Verknüpfung. Sketches und Einstellungen
 liegen außerhalb des Installationsverzeichnisses und werden durch Updates erhalten.
 
@@ -118,18 +119,23 @@ pauschal gelöscht; nicht unterstützte Hardware-APIs werden weiterhin als Fehle
 **Datei → Beispielschaltungen** oder die gleichnamige Schaltfläche öffnet den Katalog:
 OLED-Animation, LED-Blinken, Taster/LED, Ampel, vierstufiges Lauflicht, analoger Schwellwert
 und zwei OLEDs am gemeinsamen I²C-Bus (0x3C/0x3D). Die Beschreibungen erklären Bedienung
-und Anschlüsse. Alle Beispiele sind frei bearbeitbar und als `.thinkercad` speicherbar.
+und Anschlüsse. Alle Beispiele sind frei bearbeitbar und als `.thinkcad` speicherbar.
 LED-Farben sind eine optische Kennzeichnung; das gemeinsame elektrische LED-Modell
 verwendet weiterhin 2 V Vorwärtsspannung.
 
 ## Bibliotheken und Frames
 
-Unter **Bibliotheken verwalten** einen lokalen Bibliotheksordner hinzufügen.
-Arduino-Bibliotheken mit `src/` werden rekursiv kompiliert; ältere Layouts verwenden
-Root und `utility/`. `.cpp`, `.cc`, `.cxx` sind unterstützt; C-Dateien, Assembly,
-`library.properties`-Abhängigkeitsauflösung und Online-Paketinstallation folgen später.
-Bibliotheken, die nur portable C++-Logik und unterstützte APIs brauchen, funktionieren.
-Hardwarezugriffe benötigen ein Peripheriemodell und einen expliziten Adapter.
+Unter **Bibliotheken verwalten** den offiziellen Arduino-Katalog laden, durchsuchen und
+ein Paket installieren. Versionierte ZIPs werden anhand der SHA-256-Prüfsumme des
+Katalogs geprüft; deklarierte Abhängigkeiten werden aufgelöst. Auch lokale Ordner
+können hinzugefügt werden. Nur benutzte Bibliotheken einschließlich ihrer transitiven
+Header-Abhängigkeiten werden kompiliert. Unterstützt sind C++-Quellen; hardwareabhängige
+Bibliotheken benötigen zusätzlich ein implementiertes Peripheriemodell.
+
+Der originale Adafruit-GFX-Zeichenkern unterstützt Text, `setCursor`, `setTextColor`,
+Zeichengröße, Umbruch, Schriften, Rotation, Bitmaps und Zeichenprimitive. Der SSD1306-
+Adapter simuliert I²C, Framepuffer, Invertierung, Helligkeit und zeitgesteuertes Scrollen.
+Unmodellierte Controllerbefehle melden einen Fehler.
 
 **Bild als Frame-Array einfügen** konvertiert ein Bild zu einem 128×64-Bitmap
 (Schwelle 128, MSB zuerst). Die erzeugte globale Deklaration wird an den Sketch-Anfang
@@ -143,30 +149,23 @@ und starten sämtliche Beispielschaltungen.
 
 ## Updates und Releases
 
-Die App fragt GitHub Releases ab, lädt neuere stabile Installer im Hintergrund herunter
-und prüft SHA-256 sowie **Windows Authenticode mit fest hinterlegtem Zertifikatsfingerabdruck**.
-Erst danach erscheint **Update installieren und neu starten**. Der Installer ersetzt
-die Dateien nach dem Beenden und startet die App anschließend wieder; es gibt keinen
-manuellen Browser-Download.
+Die App lädt neue stabile GitHub-Installer im Hintergrund und prüft SHA-256 sowie
+die GitHub/Sigstore-Build-Attestierung: Repository, Workflow, Hauptbranch und
+Quellcommit müssen übereinstimmen. Der gebündelte GitHub-CLI-Verifier prüft die
+Attestierung ohne Anmeldung anhand mitgelieferter Vertrauenswurzeln. Der separate
+Update-Helfer prüft sie vor dem Installieren erneut. Danach installiert Inno Setup
+und startet ThinkCad wieder. Ein Herausgeberzertifikat ist dafür nicht erforderlich;
+Authenticode kann zusätzlich konfiguriert werden.
 
-Unsigned Entwicklungsbuilds haben automatische Installation bewusst deaktiviert.
-Für signierte Releases sind die GitHub-Actions-Secrets `SIGNING_PFX_BASE64` und
-`SIGNING_PFX_PASSWORD` nötig: ein vertrauenswürdiges exportierbares Code-Signing-Zertifikat.
-Nicht exportierbare Hardware-/Cloud-Zertifikate benötigen eine Anpassung des Signierjobs.
-Secrets gehören ausschließlich in GitHub-Einstellungen, niemals in Quellcode/Chat.
-Der Workflow leitet den SHA-256-Fingerprint aus dem Zertifikat ab und integriert ihn
-in den Build. Zertifikatswechsel brauchen einen geplanten Übergang mit mehreren Pins;
-die erste Version unterstützt nur einen. Proxy-Zugriff muss `api.github.com`,
-`github.com` und `release-assets.githubusercontent.com` erlauben.
+**Wechsel von 0.3.0:** Der alte Client deaktiviert seinen Updater ohne Zertifikat.
+Deshalb muss 0.4.0 einmal manuell installiert werden. Bestehende Projekte und
+Einstellungen bleiben erhalten. Nachfolgende Updates verwenden die Attestierungsprüfung.
 
-Zum Release die CMake-Projektversion erhöhen und die passenden Release Notes hinzufügen.
-Der Windows-Workflow baut/testet/paketiert bei einem Push auf `main`. Nach bestandenem
-Build einen passenden `vX.Y.Z`-Tag auf genau diesem Commit erstellen und den Workflow
-**Publish verified Windows build** mit Build-Run-ID und Tag starten. Er prüft erfolgreiche
-Build-Provenienz, identischen Tag-Commit und Payload-Checksummen, bevor er den bereits
-getesteten Installer veröffentlicht. Release-Assets enthalten Installer, SHA-256 und
-zugehörige Qt-/Compilerquellen. Unsigned Installer können manuell installiert werden;
-automatische Update-Installation bleibt ohne Signierkonfiguration deaktiviert.
+Zum Release die CMake-Version erhöhen und Release Notes ergänzen. Der Windows-Workflow
+baut, testet und paketiert auf `main`, prüft den Installer und erzeugt dessen
+Attestierung. Danach einen passenden `vX.Y.Z`-Tag auf dem getesteten Commit erstellen
+und **Publish verified Windows build** mit Run-ID und Tag ausführen. Der Publish-Job
+prüft Commit, Checksummen und Attestierung, bevor er die getesteten Dateien veröffentlicht.
 
 ## Schaltung und Arduino-Projekt benutzen
 
@@ -174,8 +173,8 @@ automatische Update-Installation bleibt ohne Signierkonfiguration deaktiviert.
    Originaldateien werden nicht automatisch überschrieben. Der ordnernamengleiche Sketch
    kommt zuerst, danach weitere `.ino`-Tabs alphabetisch sowie Header und C++-Dateien
    im Projektroot und unter `src/` / `include/`.
-2. Links Bauteile hinzufügen und im Arbeitsbereich verschieben. Startpin und Zielpin
-   anklicken, um ein Kabel anzulegen. **Esc** bricht ab, **Entf** löscht die Auswahl;
+2. Links Bauteile hinzufügen und im Arbeitsbereich verschieben. Startpin anklicken, freie Stellen für Knicke wählen und am Zielpin abschließen.
+   Kabel auswählen und seine Knicke ziehen; Doppelklick ergänzt einen Knick. **Esc** bricht ab, **Entf** löscht die Auswahl;
    die mittlere Maustaste verschiebt die Ansicht und **Strg + Mausrad** zoomt.
 3. OLED: `VCC → 3V3`, `GND → GND`, `SDA → D2/GPIO4`, `SCL → D1/GPIO5`;
    Sketch: `Wire.begin(D2, D1)` und Displayadresse `0x3C` bzw. `0x3D`.

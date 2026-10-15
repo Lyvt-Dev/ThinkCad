@@ -2,6 +2,8 @@
 #ifndef THINKERCAD_SKETCH
 #error Define THINKERCAD_SKETCH as the absolute sketch filename
 #endif
+#include "gfx/Adafruit_GFX.cpp"
+#undef min
 #include THINKERCAD_SKETCH
 int main(int argc, char** argv) {
     try {

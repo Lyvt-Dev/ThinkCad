@@ -4,7 +4,10 @@
 #include <set>
 #include <tuple>
 namespace thinkercad {
-enum class PartKind { Esp8266, Oled, Led, Resistor, Button, AnalogSource };
+enum class PartKind { Esp8266, Oled, Led, Resistor, Button, AnalogSource, Potentiometer, Photoresistor, Thermistor, SlideSwitch, TiltSwitch, ReedSwitch, Diode, Battery3V, Battery9V, PowerSupply, RGBLed, SevenSegment, Voltmeter, Breadboard30 };
+struct ComponentSpec {PartKind kind;std::string label,unit;double initial,min,max;bool adjustable;};
+const std::vector<ComponentSpec>& componentCatalog();
+const ComponentSpec& componentSpec(PartKind kind);
 struct Endpoint {
     std::string part, pin;
     bool operator==(const Endpoint&) const = default;
@@ -17,8 +20,10 @@ struct CircuitPart {
     double value=220; // Ohms for a resistor, volts for an analog source.
     bool pressed=false;
     std::string color="#fb586b"; // Visual LED tint; electrical model still uses Vf=2 V.
+    std::string model;
 };
-struct CircuitWire { std::string id; Endpoint a,b; std::string color="#0d9488"; };
+struct WirePoint { double x=0,y=0; };
+struct CircuitWire { std::string id; Endpoint a,b; std::string color="#0d9488"; std::vector<WirePoint> points; };
 struct CircuitState {
     std::map<Endpoint,std::optional<double>> voltage;
     std::map<std::string,double> ledCurrent;
@@ -34,6 +39,8 @@ public:
     CircuitPart& part(const std::string& id);
     const CircuitPart& part(const std::string& id) const;
     static std::vector<std::string> pins(PartKind kind);
+    static std::vector<std::string> pins(const CircuitPart& part);
+    static int displayHeight(const CircuitPart& part){return part.model=="ssd1306-128x32"?32:64;}
     std::string addPart(PartKind kind,double x,double y);
     void insertPart(CircuitPart part);
     void removePart(const std::string& id);

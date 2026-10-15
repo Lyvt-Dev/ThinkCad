@@ -25,7 +25,10 @@ public:
     void cancelWire();
     void connectPin(const thinkercad::Endpoint& pin);
     void toggleButton(const std::string& id);
+    void changeValue(const std::string& id,double value);
     void recordMove(const thinkercad::CircuitDocument& before);
+    void moveBend(const std::string& id,std::size_t index,QPointF position);
+    void addBend(const std::string& id,QPointF position);
     void updateSimulation(const thinkercad::CircuitState& state,const std::map<std::string,thinkercad::OledDisplay>& displays);
     QString selectedPart() const;
     void selectPart(const std::string& id);
@@ -35,11 +38,13 @@ signals:
     void documentChanged();
     void selectionChanged();
     void runtimeInputChanged();
+    void inputValueChanged();
     void notice(const QString& text);
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
     void drawBackground(QPainter* painter,const QRectF& rect) override;
@@ -52,6 +57,10 @@ private:
     QColor wireColor_{"#0d9488"};
     bool editingEnabled_=true,wireMode_=false,panning_=false;
     QPoint panOrigin_;
+    std::vector<thinkercad::WirePoint> pendingBends_;
+    QPointF lastPointer_;
+    void refreshBendHandles();
+    QPainterPath previewPath(QPointF end)const;
     QPointF pinPosition(const thinkercad::Endpoint& pin) const;
     QPainterPath routedWire(const thinkercad::CircuitWire& wire) const;
     void redrawWires();

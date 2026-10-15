@@ -9,6 +9,10 @@ permissions:
 jobs:
   build:
     runs-on: windows-2022
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1
@@ -21,9 +25,15 @@ jobs:
         id: msys2
         with:
           msystem: UCRT64
-          location: D:\ThinkerCad-msys2
+          location: D:\ThinkCad-msys2
           update: true
           install: mingw-w64-ucrt-x86_64-gcc
+      - name: Prepare native compression dependency
+        shell: pwsh
+        run: |
+          & "$env:VCPKG_INSTALLATION_ROOT/vcpkg.exe" install zlib:x64-windows-static-md
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          "ZLIB_ROOT=$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static-md" >> $env:GITHUB_ENV
       - name: Configure signing identity
         shell: pwsh
         env:
@@ -38,7 +48,7 @@ jobs:
             $cert = [Security.Cryptography.X509Certificates.X509Certificate2]::new($pfx, $env:SIGNING_PFX_PASSWORD)
             $fingerprint = $cert.GetCertHashString([Security.Cryptography.HashAlgorithmName]::SHA256)
           } else {
-            Write-Host 'Building an unsigned installer; automatic updates remain disabled.'
+            Write-Host 'Building without Authenticode; automatic updates use verified GitHub build attestations.'
           }
           "PUBLISHER_SHA256=$fingerprint" >> $env:GITHUB_ENV
           "$env:MSYS2_LOCATION\ucrt64\bin" >> $env:GITHUB_PATH
@@ -48,42 +58,60 @@ jobs:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
           . .github/scripts/Invoke-Checked.ps1
-          Invoke-Checked cmake @('-S', '.', '-B', 'build', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_CXX_COMPILER=cl', "-DTHINKERCAD_PUBLISHER_SHA256=$env:PUBLISHER_SHA256")
+          Invoke-Checked cmake @('-S', '.', '-B', 'build', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_CXX_COMPILER=cl', "-DZLIB_ROOT=$env:ZLIB_ROOT", "-DTHINKERCAD_PUBLISHER_SHA256=$env:PUBLISHER_SHA256")
           Invoke-Checked cmake @('--build', 'build', '--parallel', '2')
           Invoke-Checked ctest @('--test-dir', 'build', '--output-on-failure')
+          Invoke-Checked "$pwd/build/library_tests.exe" @('--live')
           Invoke-Checked cmake @('--install', 'build', '--prefix', "$pwd/out/stage")
           Copy-Item "$env:MSYS2_LOCATION\ucrt64" out/stage/toolchain -Recurse
           if (-not (Test-Path out/stage/toolchain/include/stdlib.h)) { throw 'Bundled toolchain is missing native C headers.' }
           New-Item out/stage/licenses -ItemType Directory -Force | Out-Null
           Copy-Item packaging/windows/THIRD_PARTY.md out/stage/licenses/
           Copy-Item packaging/windows/LGPL-3.txt out/stage/licenses/
+          Copy-Item "$env:ZLIB_ROOT/share/zlib/copyright" out/stage/licenses/ZLIB_LICENSE.txt
           $env:QT_QPA_PLATFORM = 'offscreen'
-          $smoke = Start-Process -FilePath "$pwd/out/stage/ThinkerCad.exe" -ArgumentList '--smoke-test' -RedirectStandardOutput "$pwd/out/stage-smoke.stdout.txt" -RedirectStandardError "$pwd/out/stage-smoke.stderr.txt" -Wait -PassThru
+          $smoke = Start-Process -FilePath "$pwd/out/stage/ThinkCad.exe" -ArgumentList '--smoke-test' -RedirectStandardOutput "$pwd/out/stage-smoke.stdout.txt" -RedirectStandardError "$pwd/out/stage-smoke.stderr.txt" -Wait -PassThru
           Get-Content out/stage-smoke.stdout.txt, out/stage-smoke.stderr.txt | Write-Host
           if ($smoke.ExitCode) { throw "Installed desktop smoke failed: $($smoke.ExitCode)" }
+      - name: Bundle pinned GitHub attestation verifier
+        shell: pwsh
+        run: |
+          $version = '2.102.0'
+          $archive = "gh_${version}_windows_amd64.zip"
+          Invoke-WebRequest "https://github.com/cli/cli/releases/download/v$version/$archive" -OutFile "$env:RUNNER_TEMP/$archive"
+          Invoke-WebRequest "https://github.com/cli/cli/releases/download/v$version/gh_${version}_checksums.txt" -OutFile "$env:RUNNER_TEMP/gh-checksums.txt"
+          $line = Get-Content "$env:RUNNER_TEMP/gh-checksums.txt" | Where-Object { $_.Trim().EndsWith($archive) }
+          $expected = ($line -split '\s+')[0].ToLower()
+          if ((Get-FileHash "$env:RUNNER_TEMP/$archive" -Algorithm SHA256).Hash.ToLower() -ne $expected) { throw 'GitHub CLI checksum mismatch.' }
+          Expand-Archive "$env:RUNNER_TEMP/$archive" "$env:RUNNER_TEMP/thinkercad-gh"
+          New-Item out/stage/verifier -ItemType Directory -Force | Out-Null
+          Copy-Item (Get-ChildItem "$env:RUNNER_TEMP/thinkercad-gh" -Filter gh.exe -Recurse | Select-Object -First 1).FullName out/stage/verifier/
+          Copy-Item (Get-ChildItem "$env:RUNNER_TEMP/thinkercad-gh" -Filter LICENSE -Recurse | Select-Object -First 1).FullName out/stage/verifier/GITHUB_CLI_LICENSE.txt
+          & "$pwd/out/stage/verifier/gh.exe" attestation trusted-root | Out-File out/stage/verifier/trusted_root.jsonl -Encoding utf8NoBOM
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Create installer
         shell: pwsh
         run: |
           choco install innosetup --yes --no-progress
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          $version = (Select-String -Path CMakeLists.txt -Pattern 'project\(ThinkerCad VERSION ([0-9.]+)').Matches.Groups[1].Value
+          $version = (Select-String -Path CMakeLists.txt -Pattern 'project\(ThinkCad VERSION ([0-9.]+)').Matches.Groups[1].Value
           if ($env:GITHUB_REF -like 'refs/tags/*' -and $env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag must match the CMake project version.' }
-          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DVersion=$version" "/DStagingDir=$pwd\out\stage" packaging/windows/ThinkerCad.iss
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DVersion=$version" "/DStagingDir=$pwd\out\stage" packaging/windows/ThinkCad.iss
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Test installer and uninstaller
         shell: pwsh
         run: |
           $installer = (Get-ChildItem out/installer/*.exe).FullName
-          $installDir = Join-Path $env:RUNNER_TEMP 'ThinkerCad-Installer-Smoke'
+          $installDir = Join-Path $env:RUNNER_TEMP 'ThinkCad-Installer-Smoke'
           $install = Start-Process -FilePath $installer -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$installDir") -Wait -PassThru
           if ($install.ExitCode) { throw "Installer failed: $($install.ExitCode)" }
           $env:QT_QPA_PLATFORM = 'offscreen'
-          $app = Start-Process -FilePath "$installDir/ThinkerCad.exe" -ArgumentList '--smoke-test' -RedirectStandardOutput "$pwd/out/installer-smoke.stdout.txt" -RedirectStandardError "$pwd/out/installer-smoke.stderr.txt" -PassThru
+          $app = Start-Process -FilePath "$installDir/ThinkCad.exe" -ArgumentList '--smoke-test' -RedirectStandardOutput "$pwd/out/installer-smoke.stdout.txt" -RedirectStandardError "$pwd/out/installer-smoke.stderr.txt" -PassThru
           if (-not $app.WaitForExit(30000)) { $app.Kill(); throw 'Installed app smoke timed out.' }
           Get-Content out/installer-smoke.stdout.txt, out/installer-smoke.stderr.txt | Write-Host
           if ($app.ExitCode) { throw "Installed app failed: $($app.ExitCode)" }
           $uninstall = Start-Process -FilePath "$installDir/unins000.exe" -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -Wait -PassThru
-          if ($uninstall.ExitCode -or (Test-Path "$installDir/ThinkerCad.exe")) { throw 'Uninstaller failed.' }
+          if ($uninstall.ExitCode -or (Test-Path "$installDir/ThinkCad.exe")) { throw 'Uninstaller failed.' }
       - name: Sign and checksum installer
         shell: pwsh
         env:
@@ -101,6 +129,19 @@ jobs:
           $hash = (Get-FileHash $installer -Algorithm SHA256).Hash.ToLower()
           $name = Split-Path $installer -Leaf
           [IO.File]::WriteAllText("$installer.sha256", "$hash  $name`n", [Text.UTF8Encoding]::new($false))
+      - uses: actions/attest-build-provenance@v3
+        if: github.event_name != 'pull_request'
+        id: provenance
+        with:
+          subject-path: out/installer/ThinkCad-Setup-*.exe
+      - name: Verify installer provenance and rejection cases
+        if: github.event_name != 'pull_request'
+        shell: pwsh
+        run: |
+          . .github/scripts/Invoke-Checked.ps1
+          $installer = (Get-ChildItem out/installer/*.exe).FullName
+          Copy-Item '${{ steps.provenance.outputs.bundle-path }}' "$installer.sigstore.jsonl"
+          Invoke-Checked "$pwd/build/update_verifier_tests.exe" @("$pwd/out/stage/verifier", $installer, $env:GITHUB_SHA)
       - name: Collect corresponding compiler sources
         if: github.event_name != 'pull_request'
         shell: msys2 {0}
@@ -119,10 +160,10 @@ jobs:
       - name: Include release notes
         shell: pwsh
         run: |
-          $version = (Select-String -Path CMakeLists.txt -Pattern 'project\(ThinkerCad VERSION ([0-9.]+)').Matches.Groups[1].Value
+          $version = (Select-String -Path CMakeLists.txt -Pattern 'project\(ThinkCad VERSION ([0-9.]+)').Matches.Groups[1].Value
           Copy-Item "docs/RELEASE_NOTES_$version.md" out/installer/RELEASE_NOTES.md
       - uses: actions/upload-artifact@v4
         with:
-          name: ThinkerCad-Windows
+          name: ThinkCad-Windows
           retention-days: 1
           path: out/installer/*

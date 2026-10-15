@@ -48,6 +48,7 @@ private:
     QAction *run_,*undo_,*redo_;
     SketchProject sketch_;
     QString projectFile_;
+    bool inputDirty_=false;
     bool smokeTest_,smokeDone_=false,renderDirty_=true;
     int writes_=0;
     void process(const QByteArray& line);
