@@ -13,6 +13,7 @@ AppPublisherURL=https://github.com/Lyvt-Dev/ThinkCad
 AppSupportURL=https://github.com/Lyvt-Dev/ThinkCad/issues
 DefaultDirName={localappdata}\Programs\ThinkCad
 DefaultGroupName=ThinkCad
+UsePreviousGroup=no
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
