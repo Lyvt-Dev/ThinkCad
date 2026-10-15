@@ -161,7 +161,7 @@ QRectF artBounds(const CircuitPart& part){
     case PartKind::SlideSwitch:return {22,23,116,102};
     case PartKind::Battery3V:return {-5,6,170,113};
     case PartKind::Battery9V:return {34,-2,92,135};
-    case PartKind::Voltmeter:return {25,0,110,145};
+    case PartKind::Voltmeter:return {25,0,110,208};
     case PartKind::PowerSupply:case PartKind::AnalogSource:return {8,9,144,117};
     case PartKind::SevenSegment:return {15,5,130,128};
     default:return {-12,-12,184,174};
@@ -179,7 +179,7 @@ QPointF artPin(const CircuitPart& part,const std::string& pin){
     case PartKind::Button:return {i?130.0:30.0,44};
     case PartKind::Battery9V:return {i?98.0:62.0,12};
     case PartKind::PowerSupply:case PartKind::AnalogSource:return {i?110.0:50.0,102};
-    case PartKind::Voltmeter:return {i?105.0:55.0,123};
+    case PartKind::Voltmeter:return {i?105.0:55.0,186};
     case PartKind::SevenSegment:{const int half=static_cast<int>((names.size()+1)/2);return {i<half?22.0:138.0,28.0+(i%half)*20};}
     default:return {i?160.0:0.0,58};
     }
@@ -207,7 +207,7 @@ QTransform physicalTransform(const CircuitPart& part){
     case PartKind::Battery3V:drawing={88,88};millimetres={20,20};break;
     case PartKind::Battery9V:drawing={80,107};millimetres={26.5,48.5};break;
     case PartKind::PowerSupply:case PartKind::AnalogSource:drawing={132,105};millimetres={90,70};break;
-    case PartKind::Voltmeter:drawing={98,133};millimetres={75,150};break;
+    case PartKind::Voltmeter:drawing={98,196};millimetres={75,150};break;
     case PartKind::SevenSegment:drawing={84,116};millimetres={12.7,19};break;
     }
     return QTransform::fromScale(6*millimetres.width()/drawing.width(),6*millimetres.height()/drawing.height());
@@ -296,13 +296,13 @@ void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitSta
         body(p,{29,87,13,9},QColor("#3b4847"),0.7);label(p,{27,78,17,8},"ON",QColor("#424a4f"),4);
         terminal(p,{50,102},QColor("#a23737"));terminal(p,{110,102},QColor("#252b2f"));label(p,{64,95,30,12},supply?"OUTPUT":"OUT",QColor("#364047"),4);break;}
     case PartKind::Voltmeter:{
-        body(p,{31,6,98,133},QColor("#c79731"),6);body(p,{37,11,86,123},QColor("#2c3439"),4);label(p,{47,14,66,10},"DIGITAL MULTIMETER",QColor("#b7c1c3"),4);
+        body(p,{31,6,98,196},QColor("#c79731"),6);body(p,{37,11,86,186},QColor("#2c3439"),4);label(p,{47,14,66,10},"DIGITAL MULTIMETER",QColor("#b7c1c3"),4);
         body(p,{43,27,74,31},QColor("#14201c"),1);body(p,{46,30,68,25},QColor("#b1be9d"),0.5);
         const auto a=state.voltage.find({part.id,"+"}),b=state.voltage.find({part.id,"-"});const QString text=a!=state.voltage.end()&&b!=state.voltage.end()&&a->second&&b->second?QString::number(*a->second-*b->second,'f',2):"—";
         label(p,{48,31,64,22},text,QColor("#2d3b2b"),12);label(p,{95,48,15,6},"V DC",QColor("#3b4637"),3);
-        dial(p,{80,85},19,-25);
-        for(int i=0;i<7;++i){const double angle=(-150+i*50)*3.141592653589793/180;const QPointF point=QPointF(80,85)+QPointF(std::cos(angle),std::sin(angle))*27;label(p,{point.x()-8,point.y()-4,16,8},QStringList{"V DC","200","20","2","Ω","V AC","OFF"}[i],QColor("#c3cacd"),3);}
-        terminal(p,{55,123},QColor("#a23737"));terminal(p,{105,123},QColor("#252b2f"));label(p,{62,117,38,12},"V Ω  COM",QColor("#c3cacd"),3);break;}
+        dial(p,{80,115},24,-25);
+        for(int i=0;i<7;++i){const double angle=(-150+i*50)*3.141592653589793/180;const QPointF point=QPointF(80,115)+QPointF(std::cos(angle),std::sin(angle))*35;label(p,{point.x()-8,point.y()-4,16,8},QStringList{"V DC","200","20","2","Ω","V AC","OFF"}[i],QColor("#c3cacd"),3);}
+        terminal(p,{55,186},QColor("#a23737"));terminal(p,{105,186},QColor("#252b2f"));label(p,{62,180,38,12},"V Ω  COM",QColor("#c3cacd"),3);break;}
     case PartKind::SevenSegment:{
         const auto names=CircuitDocument::pins(part);for(const auto& name:names){auto point=artPin(part,name);lead(p,point,{point.x()<80?45.0:115.0,point.y()});}
         body(p,{38,11,84,116},QColor("#292e35"),4);body(p,{44,17,72,104},QColor("#11171e"),2);
