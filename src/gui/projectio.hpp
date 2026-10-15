@@ -10,7 +10,7 @@ struct SketchProject {
     QString combinedSource() const;
     QMap<QString,QString> auxiliaryFiles() const;
 };
-struct SavedProject {thinkercad::CircuitDocument circuit;SketchProject sketch;};
+struct SavedProject {thinkercad::CircuitDocument circuit;SketchProject sketch;QMap<QString,SketchProject> boardSketches;};
 class ProjectIO {
 public:
     static void save(const QString& path,const SavedProject& project);

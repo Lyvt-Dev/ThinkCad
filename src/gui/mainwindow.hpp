@@ -31,18 +31,31 @@ public:
     CircuitCanvas* canvas(){return canvas_;}
     const thinkercad::CircuitDocument& circuit()const{return circuit_;}
     const thinkercad::CircuitState& circuitState()const{return circuitState_;}
-    bool simulationActive()const{return interpreter_.active();}
+    bool simulationActive()const;
+    void stopSimulation();
     QString sketchText()const;
 private:
-    thinkercad::Simulator simulator_;
-    thinkercad::Esp8266Board board_;
+    struct BoardRuntime {
+        explicit BoardRuntime(QObject* parent):interpreter(parent){}
+        thinkercad::Simulator clock;
+        thinkercad::Esp8266Board board;
+        CodeInterpreter interpreter;
+        std::map<int,std::string> displayBindings;
+        int busSda=4,busScl=5,writes=0;
+        bool busStarted=false;
+        std::string id;
+    };
+    std::map<std::string,std::unique_ptr<BoardRuntime>> runtimes_;
+    QMap<QString,SketchProject> boardSketches_;
+    std::string sketchBoard_;
+    bool sketchesDirty_=false,starting_=false,stopping_=false;
+    double speed_=1.0;
+    void syncBoardSketches();
+    void runtimeActiveChanged(bool active);
+    thinkercad::Microseconds virtualTime()const;
     thinkercad::CircuitDocument circuit_;
     thinkercad::CircuitState circuitState_;
     std::map<std::string,thinkercad::OledDisplay> displays_;
-    std::map<int,std::string> displayBindings_;
-    int busSda_=4,busScl_=5;
-    bool busStarted_=false;
-    CodeInterpreter interpreter_;
     Updater updater_;
     CircuitCanvas* canvas_;
     QStackedWidget* workspace_;
@@ -61,8 +74,8 @@ private:
     QString projectFile_;
     bool inputDirty_=false;
     bool smokeTest_,smokeDone_=false,renderDirty_=true;
-    int writes_=0;
-    void process(const QByteArray& line);
+    QComboBox* sketchBoards_;
+    void process(BoardRuntime& runtime,const QByteArray& line);
     void libraries();
     void examplesDialog();
     void appendLog(const QString& message);

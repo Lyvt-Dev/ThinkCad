@@ -54,7 +54,8 @@ public:
     void clearWires();
     void validate() const;
     CircuitState solve(const Esp8266Board& board) const;
-    bool oledReady(const std::string& id,int sda,int scl,const CircuitState& state) const;
+    CircuitState solve(const std::map<std::string,const Esp8266Board*>& boards) const;
+    bool oledReady(const std::string& id,int sda,int scl,const CircuitState& state,const std::string& boardId={}) const;
 private:
     std::string activeBoard_;
     std::vector<CircuitPart> parts_;

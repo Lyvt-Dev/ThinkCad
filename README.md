@@ -9,14 +9,27 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Update 0.5.3
+
+Klassische Windows-Oberfläche und Systemicons, schlichte Startseite, eigene Dialoge
+für Sprache und Bauteildesign, gruppierte Bauteilliste und erklärende Pin-Tooltips.
+Der Modus Realistic verwendet typische Modulabmessungen mit 6 Szeneneinheiten pro mm;
+die Zeichnungen sind keine herstellerspezifischen CAD-Footprints.
+Jedes Board besitzt einen eigenen Sketch und einen eigenen Kindprozess. Alle Sketches
+werden vor dem gemeinsamen Start kompiliert. Gemeinsame GPIO-Netze werden mit allen
+Ausgangstreibern gelöst; Kurzschlüsse stoppen alle Boards. Die Zeitsteuerung bleibt
+hostbasiert und ist keine zyklengenaue Mehrprozessor-Emulation.
+Projekte werden mit Board-Sketches im Format 2 gespeichert; Format 1 bleibt lesbar.
+Ältere ThinkCad-Versionen können das neue Format nicht öffnen.
+
 ## Was bereits funktioniert
 
 - Startseite mit zuletzt geöffneten Projekten, Neu/Öffnen, Einstellungen, Tutorial und Beispielen. Die Startseiten-Schaltfläche führt zurück; „Zum Editor“ erhält ungespeicherte Arbeit und die Editorfenster. Eine per Dateiparameter übergebene Datei öffnet direkt im Editor.
-- Eigene farbige Projekticons und einheitliche Start/Stopp-/Reset-Schaltflächen. Reset startet eine laufende Simulation erneut ab `setup()`; bei gestoppter Simulation löscht es nur die Laufzeitzustände.
+- Klassische Systemicons, native Einstellungsdialoge und einheitliche Start/Stopp-/Reset-Schaltflächen mit Abstand. Reset startet eine laufende Simulation erneut ab `setup()`; bei gestoppter Simulation löscht es nur die Laufzeitzustände.
 
 - Normale Windows-Titelleiste mit Schließen, Minimieren, Maximieren und Größenänderung.
 - Neues Logo, helle und dunkle Oberfläche, andockbare Bauteil-, Code- und Ausgabefenster.
-- Gemeinsame Komponentensuche für Mikrocontroller und weitere Bauteile; Boards hinzufügen, verschieben und löschen. Bei mehreren Boards im Bauteilinspektor „Dieses Board simulieren“ wählen: Ein Board führt den Sketch aus.
+- Gemeinsame Komponentensuche für Mikrocontroller und weitere Bauteile; Boards hinzufügen, verschieben und löschen. Jedes Board hat seinen eigenen Sketch; die Board-Auswahl über dem Code-Editor wechselt zwischen ihnen. Alle Boards laufen gleichzeitig, mit gemeinsamen elektrischen Netzen.
 - Arduino Uno R3 und klassischer Arduino Nano (ATmega328P): 5-V-GPIO, 10-Bit-ADC mit 5-V-Referenz, D0–D13 und A0–A5; Nano zusätzlich A6/A7 als reine Analogeingänge. Host-API-Simulation, keine AVR-CPU- oder vollständige Peripherieemulation.
 - Kabel vom Startpin zum Zielpin ziehen: Jeder weitere Klick setzt einen Knick. Gerade Segmente in beliebige Richtungen einschließlich diagonaler Verbindungen; keine automatisch eingefügten Knicke. Knicke verschieben, Kabelfarbe, Löschen, Undo/Redo und Zoom.
 - **Strg+R** oder **F5** startet/stoppt die Simulation. **R** dreht ausgewählte Bauteile im Arbeitsbereich um 90° im Uhrzeigersinn; Drehungen unterstützen Undo/Redo und werden mitgespeichert.
@@ -60,7 +73,7 @@ prüft es und baut die Anwendung.
 
 Diese Anleitung setzt einen vorhandenen **Gentoo-Desktop auf amd64** mit
 eingerichtetem Gentoo-Repository, funktionierendem Internetzugang und einer X11-
-oder Wayland-Sitzung voraus. Das Ebuild für 0.5.2 benötigt **Qt ≥6.11**,
+oder Wayland-Sitzung voraus. Das Ebuild für 0.5.3 benötigt **Qt ≥6.11**,
 **GCC ≥12 mit C++-Unterstützung**, CMake, Ninja und zlib. Die folgenden Befehle
 aktivieren Beispielsketches, beide Anzeige-Backends und die Testsuite.
 Für die Anwendung muss derzeit die Lizenz `all-rights-reserved` akzeptiert werden;
@@ -101,7 +114,7 @@ emerge --noreplace --ask \
     media-fonts/dejavu net-misc/curl app-arch/tar app-arch/xz-utils \
     sys-apps/coreutils </dev/tty
 
-version=0.5.2
+version=0.5.3
 archive="ThinkCad-${version}-Gentoo-overlay.tar.xz"
 release="https://github.com/Lyvt-Dev/ThinkCad/releases/download/v${version}"
 workdir=$(mktemp -d)
@@ -128,7 +141,7 @@ auto-sync = no
 CONF
 
 # Kompilieren, Tests ohne grafische Sitzung ausführen und die Anwendung installieren.
-FEATURES="${FEATURES-} test" emerge --ask '=media-gfx/thinkcad-0.5.2::thinkcad' </dev/tty
+FEATURES="${FEATURES-} test" emerge --ask '=media-gfx/thinkcad-0.5.3::thinkcad' </dev/tty
 GENTOO_INSTALL
 ```
 
@@ -182,7 +195,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=0.5.2 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=0.5.3 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

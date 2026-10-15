@@ -28,19 +28,18 @@ WelcomePage::WelcomePage(QWidget* parent):QWidget(parent){
     auto* tutorial=button("Tutorial",AppIcons::Symbol::Tutorial,"tutorialNavigation");nav->addWidget(tutorial);nav->addStretch();
     auto* resume=button("Zum Editor",AppIcons::Symbol::Circuit,"resumeEditor");nav->addWidget(resume);nav->addWidget(label("Version " THINKERCAD_VERSION,"muted"));root->addWidget(sidebar);
     pages_=new QStackedWidget;root->addWidget(pages_,1);
-    auto* scroll=new QScrollArea;scroll->setWidgetResizable(true);scroll->setFrameShape(QFrame::NoFrame);auto* content=new QWidget;auto* layout=new QVBoxLayout(content);layout->setContentsMargins(32,30,32,30);layout->setSpacing(18);
-    layout->addWidget(label("Dein nächstes Projekt beginnt hier.","welcomeTitle"));layout->addWidget(label("Schaltungen entwerfen, Arduino-Code testen und Ideen ausprobieren.","welcomeSubtitle"));
-    auto* hero=new QFrame;hero->setObjectName("welcomeHero");auto* heroLayout=new QVBoxLayout(hero);heroLayout->setContentsMargins(24,22,24,22);heroLayout->setSpacing(12);heroLayout->addWidget(label("Von der Idee zur Schaltung","heroTitle"));heroLayout->addWidget(label("Starte mit einem leeren Projekt oder öffne eine lokale Schaltung oder einen .ino-Sketch.","heroSubtitle"));
+    auto* scroll=new QScrollArea;scroll->setWidgetResizable(true);scroll->setFrameShape(QFrame::NoFrame);auto* content=new QWidget;auto* layout=new QVBoxLayout(content);layout->setContentsMargins(18,18,18,18);layout->setSpacing(12);
+    layout->addWidget(label("Projekte","welcomeTitle"));layout->addWidget(label("ThinkCad – Schaltungen und Arduino-Sketches","welcomeSubtitle"));
+    auto* hero=new QFrame;hero->setObjectName("welcomeHero");auto* heroLayout=new QVBoxLayout(hero);heroLayout->setContentsMargins(0,6,0,6);heroLayout->setSpacing(12);heroLayout->addWidget(label("Projekt öffnen oder erstellen","heroTitle"));heroLayout->addWidget(label("Starte mit einem leeren Projekt oder öffne eine lokale Schaltung oder einen .ino-Sketch.","heroSubtitle"));
     auto* actions=new QHBoxLayout;auto* fresh=button("Neues Projekt",AppIcons::Symbol::NewProject,"startNewProject");auto* open=button("Projekt öffnen…",AppIcons::Symbol::Folder,"startOpenProject");actions->addWidget(fresh);actions->addWidget(open);actions->addStretch();heroLayout->addLayout(actions);layout->addWidget(hero);
     auto* heading=new QHBoxLayout;heading->addWidget(label("Zuletzt geöffnet","recentTitle"));heading->addStretch();auto* clear=button("Liste leeren",AppIcons::Symbol::Reset,"clearRecentProjects");heading->addWidget(clear);layout->addLayout(heading);
     recentLayout_=new QVBoxLayout;recentLayout_->setSpacing(10);layout->addLayout(recentLayout_);
-    layout->addSpacing(6);layout->addWidget(label("Lernen & ausprobieren","recentTitle"));auto* examples=button("Beispielschaltungen entdecken",AppIcons::Symbol::Circuit,"startExamples");layout->addWidget(examples);layout->addStretch();scroll->setWidget(content);pages_->addWidget(scroll);
+    layout->addSpacing(6);layout->addWidget(label("Hilfe und Beispiele","recentTitle"));auto* examples=button("Beispielschaltungen entdecken",AppIcons::Symbol::Circuit,"startExamples");layout->addWidget(examples);layout->addStretch();scroll->setWidget(content);pages_->addWidget(scroll);
     auto* settingsPage=new QWidget;auto* settingsLayout=new QVBoxLayout(settingsPage);settingsLayout->setContentsMargins(32,30,32,30);settingsLayout->setSpacing(20);settingsLayout->addWidget(label("Einstellungen","welcomeTitle"));settingsLayout->addWidget(label("Passe ThinkCad an deinen Arbeitsplatz an.","welcomeSubtitle"));
-    auto* dark=new QCheckBox(Language::text("Dark Mode"));dark->setObjectName("startDarkMode");settingsLayout->addWidget(dark);settingsLayout->addWidget(label("Sprache","sectionTitle"));auto* language=new QComboBox;language->setObjectName("startLanguage");language->addItem("Deutsch","de");language->addItem("English","en");language->setMaximumWidth(280);settingsLayout->addWidget(language);settingsLayout->addStretch();pages_->addWidget(settingsPage);
+    auto* dark=new QCheckBox(Language::text("Dark Mode"));dark->setObjectName("startDarkMode");settingsLayout->addWidget(dark);auto* languageButton=button("Sprache…",AppIcons::Symbol::Settings,"startChooseLanguage");settingsLayout->addWidget(languageButton);auto* designButton=button("Komponenten Design…",AppIcons::Symbol::Settings,"startChooseDesign");settingsLayout->addWidget(designButton);connect(languageButton,&QPushButton::clicked,this,&WelcomePage::chooseLanguageRequested);connect(designButton,&QPushButton::clicked,this,&WelcomePage::chooseDesignRequested);settingsLayout->addStretch();pages_->addWidget(settingsPage);
     connect(home,&QPushButton::clicked,this,[this,home,settings]{pages_->setCurrentIndex(0);home->setChecked(true);settings->setChecked(false);});
     connect(settings,&QPushButton::clicked,this,[this,home,settings]{pages_->setCurrentIndex(1);settings->setChecked(true);home->setChecked(false);});
     connect(dark,&QCheckBox::toggled,this,&WelcomePage::darkModeChanged);
-    connect(language,qOverload<int>(&QComboBox::currentIndexChanged),this,[this,language](int index){emit languageChanged(language->itemData(index).toString());});
     connect(fresh,&QPushButton::clicked,this,&WelcomePage::newRequested);connect(open,&QPushButton::clicked,this,&WelcomePage::openRequested);connect(resume,&QPushButton::clicked,this,&WelcomePage::resumeRequested);connect(examples,&QPushButton::clicked,this,&WelcomePage::examplesRequested);connect(tutorial,&QPushButton::clicked,this,&WelcomePage::tutorialRequested);
     connect(clear,&QPushButton::clicked,this,[this]{QSettings().remove("recentProjects");refresh();});refresh();
 }
@@ -56,7 +55,7 @@ void WelcomePage::remember(const QString& path){
     paths.prepend(absolute);while(paths.size()>12)paths.removeLast();QSettings().setValue("recentProjects",paths);
 }
 void WelcomePage::refresh(){
-    auto* dark=findChild<QCheckBox*>("startDarkMode");auto* language=findChild<QComboBox*>("startLanguage");{QSignalBlocker block(dark);dark->setChecked(QSettings().value("darkMode",false).toBool());}{QSignalBlocker block(language);language->setCurrentIndex(language->findData(Language::current()));}
+    auto* dark=findChild<QCheckBox*>("startDarkMode");{QSignalBlocker block(dark);dark->setChecked(QSettings().value("darkMode",false).toBool());}
     while(auto* item=recentLayout_->takeAt(0)){delete item->widget();delete item;}
     const auto paths=QSettings().value("recentProjects").toStringList().mid(0,12);
     if(paths.isEmpty())recentLayout_->addWidget(label("Noch keine Projekte. Erstelle ein Projekt oder öffne eine vorhandene Datei.","emptyProjects"));

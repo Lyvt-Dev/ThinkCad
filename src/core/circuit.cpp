@@ -120,33 +120,36 @@ void CircuitDocument::validate() const {
 }
 bool CircuitDocument::connected(const Endpoint& a,const Endpoint& b) const {validateEndpoint(a);validateEndpoint(b);Nodes nodes(*this);return nodes.node(a)==nodes.node(b);}
 CircuitState CircuitDocument::solve(const Esp8266Board& board) const {
+    return solve(std::map<std::string,const Esp8266Board*>{{boardId(),&board}});
+}
+CircuitState CircuitDocument::solve(const std::map<std::string,const Esp8266Board*>& boards)const {
     validate();Nodes nodes(*this);CircuitState result;std::map<int,double> fixed;std::vector<Branch> resistors;
     auto driver=[&](int n,double v){if(fixed.contains(n)&&std::abs(fixed.at(n)-v)>1e-6)result.errors.push_back("Kurzschluss: widersprüchliche Spannungsquellen auf einem Netz.");else fixed[n]=v;};
-    const auto active=boardId();
-    const int ground=active.empty()?-1:nodes.node({active,"GND"});
-    const int supply=active.empty()?-1:nodes.node({active,board.profile().arduino()?"5V":"3V3"});
+    std::set<int> grounds;for(const auto& part:parts_)if(part.kind==PartKind::Esp8266)grounds.insert(nodes.node({part.id,"GND"}));
     for(const auto& p:parts_)if(p.kind==PartKind::Esp8266){
         const auto profile=BoardProfile::get(p.model);
         for(const auto& pin:pins(p))result.logicVoltage[{p.id,pin}]=profile.voltage;
         driver(nodes.node({p.id,"GND"}),0);driver(nodes.node({p.id,"3V3"}),3.3);
         if(profile.arduino())driver(nodes.node({p.id,"5V"}),5);
     }
-    for(const auto& [ep,index]:nodes.index)if(ep.part==active&&board.profile().pinNumber(ep.pin)>=0) {
+    for(const auto& [id,source]:boards){if(!source)continue;const auto& board=*source;
+    for(const auto& [ep,index]:nodes.index)if(ep.part==id&&board.profile().pinNumber(ep.pin)>=0) {
         const int gpio=board.profile().pinNumber(ep.pin),n=nodes.find(index);const auto& pin=board.pin(gpio);
         if(pin.mode==PinMode::Output)driver(n,pin.output?board.profile().voltage:0);
-        else if(pin.mode==PinMode::InputPullup)resistors.push_back({n,supply,47000});
+        else if(pin.mode==PinMode::InputPullup)resistors.push_back({n,nodes.node({id,board.profile().arduino()?"5V":"3V3"}),47000});
         if(pin.external==Level::High)driver(n,board.profile().voltage);
         if(pin.external==Level::Low)driver(n,0);
         if(pin.external==Level::Contention)result.errors.push_back("GPIO input has conflicting external drivers");
+    }
     }
     for(const auto& p:parts_) {
         if(p.kind==PartKind::Oled){resistors.push_back({nodes.node({p.id,"SDA"}),nodes.node({p.id,"VCC"}),4700});resistors.push_back({nodes.node({p.id,"SCL"}),nodes.node({p.id,"VCC"}),4700});}
         if(p.kind==PartKind::Potentiometer){resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"W"}),std::max(0.01,100*p.value)});resistors.push_back({nodes.node({p.id,"W"}),nodes.node({p.id,"2"}),std::max(0.01,100*(100-p.value))});}
         if(p.kind==PartKind::Photoresistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),std::clamp(10000*std::pow(10/std::max(0.01,p.value),0.7),10.0,1e7)});
         if(p.kind==PartKind::Thermistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),10000*std::exp(3950*(1/(p.value+273.15)-1/298.15))});
-        if((p.kind==PartKind::Battery3V||p.kind==PartKind::Battery9V||p.kind==PartKind::PowerSupply)&&nodes.node({p.id,"-"})==ground)driver(nodes.node({p.id,"+"}),p.value);
+        if((p.kind==PartKind::Battery3V||p.kind==PartKind::Battery9V||p.kind==PartKind::PowerSupply)&&grounds.contains(nodes.node({p.id,"-"})))driver(nodes.node({p.id,"+"}),p.value);
         if(p.kind==PartKind::Resistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),p.value});
-        if(p.kind==PartKind::AnalogSource&&nodes.node({p.id,"GND"})==ground)driver(nodes.node({p.id,"OUT"}),p.value);
+        if(p.kind==PartKind::AnalogSource&&grounds.contains(nodes.node({p.id,"GND"})))driver(nodes.node({p.id,"OUT"}),p.value);
     }
     if(!result.errors.empty())return result;
     struct Junction{std::string id;int a,k;double vf,resistance,limit;};std::vector<Junction> junctions;
@@ -173,17 +176,18 @@ CircuitState CircuitDocument::solve(const Esp8266Board& board) const {
     }
     for(const auto& [ep,index]:nodes.index){const int n=nodes.find(index);result.voltage[ep]=volts.contains(n)?std::optional<double>(volts.at(n)):std::nullopt;}
     for(const auto& j:junctions){const double current=volts.contains(j.a)&&volts.contains(j.k)?std::max(0.0,(volts[j.a]-volts[j.k]-j.vf)/j.resistance):0;result.ledCurrent[j.id]=current;if(current>j.limit+1e-6)result.errors.push_back("Überstrom: "+j.id+". Vorwiderstand / Beschaltung prüfen.");}
-    for(const auto& ep:result.voltage)if(ep.first.part==active&&ep.second){const double limit=ep.first.pin=="A0"?board.profile().adcMax:board.profile().voltage+0.3;if(*ep.second>limit+1e-6||*ep.second<-0.3)result.errors.push_back("Überspannung am Boardpin "+ep.first.pin);}
+    for(const auto& [id,source]:boards){if(!source)continue;const auto& board=*source;for(const auto& ep:result.voltage)if(ep.first.part==id&&ep.second){const double limit=ep.first.pin=="A0"?board.profile().adcMax:board.profile().voltage+0.3;if(*ep.second>limit+1e-6||*ep.second<-0.3)result.errors.push_back("Überspannung am Boardpin "+ep.first.pin);}
 
+    }
     return result;
 }
-bool CircuitDocument::oledReady(const std::string& id,int sda,int scl,const CircuitState& state) const {
+bool CircuitDocument::oledReady(const std::string& id,int sda,int scl,const CircuitState& state,const std::string& board) const {
     if(part(id).kind!=PartKind::Oled||sda==scl)return false;
     const auto v=state.voltage.find({id,"VCC"}),g=state.voltage.find({id,"GND"});
     if(v==state.voltage.end()||g==state.voltage.end()||!v->second||!g->second||*v->second-*g->second<3.0||*v->second-*g->second>3.6)return false;
     if(connected({id,"SDA"},{id,"SCL"}))return false;
     if(state.level({id,"SDA"})!=Level::High||state.level({id,"SCL"})!=Level::High)return false;
-    const auto active=boardId();if(active.empty())return false;
+    const auto active=board.empty()?boardId():board;if(active.empty())return false;
     const auto profile=BoardProfile::get(part(active).model);
     return connected({id,"GND"},{active,"GND"})&&connected({id,"SDA"},{active,profile.pinName(sda)})&&connected({id,"SCL"},{active,profile.pinName(scl)});
 }

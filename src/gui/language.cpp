@@ -8,6 +8,16 @@
 #include <QVariant>
 namespace {
 const QMap<QString,QString>& translations(){static const QMap<QString,QString> values{
+    {"Sprache…","Language…"},{"Komponenten Design…","Component design…"},
+    {"Projekte","Projects"},{"ThinkCad – Schaltungen und Arduino-Sketches","ThinkCad – circuits and Arduino sketches"},
+    {"Projekt öffnen oder erstellen","Open or create a project"},{"Hilfe und Beispiele","Help and examples"},
+    {"Anzeigen","Displays"},{"Eingaben und Sensoren","Inputs and sensors"},{"Versorgung und Messung","Power and measurement"},{"Grundbauteile","Basic components"},
+    {"Zum Platzieren anklicken","Click to place"},{"Sketch für dieses Board bearbeiten","Edit sketch for this board"},
+    {"Sketch-Board auswählen","Select sketch board"},{"Sketch dieses Boards öffnen","Open this board's sketch"},{"Sketch dieses Boards geöffnet","This board's sketch is open"},
+    {"Anode (+)","Anode (+)"},{"Kathode (−)","Cathode (−)"},{"Masse / Bezugspotential (0 V)","Ground / reference (0 V)"},
+    {"I²C-Datenleitung","I²C data"},{"I²C-Taktleitung","I²C clock"},{"Versorgungsspannung","Power supply"},
+    {"Schleifer","Wiper"},{"Gemeinsame Kathode","Common cathode"},{"Pluspol","Positive terminal"},{"Minuspol","Negative terminal"},
+    {"GPIO / Boardanschluss","GPIO / board connection"},{"Anschluss","Terminal"},{"Zum Verbinden klicken","Click to connect"},
     {"Startseite","Home"},
     {"Meine Projekte","My projects"},
     {"Zum Editor","Back to editor"},

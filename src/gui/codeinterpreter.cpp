@@ -24,12 +24,12 @@ CodeInterpreter::CodeInterpreter(QObject* parent) : QObject(parent) {
 CodeInterpreter::~CodeInterpreter() { stop(); }
 void CodeInterpreter::setActive(bool active) { if (active_ != active) {active_=active; emit activeChanged(active);} }
 void CodeInterpreter::stop() {
-    setActive(false); watchdog_.stop(); rateWindow_.stop();
+    prepared_=false;setActive(false); watchdog_.stop(); rateWindow_.stop();
     for (auto* p : {&compiler_,&worker_}) if (p->state()!=QProcess::NotRunning) { p->kill(); p->waitForFinished(1000); }
     pending_.clear();
 }
-void CodeInterpreter::start(const QString& sketch,const QString& compiler,const QString& sdk,const QStringList& libraries,const QMap<QString,QString>& projectFiles,const QString& boardModel) {
-    stop();libraries_.clear();selectedLibraries_.clear();dependencyPasses_=0;temp_=std::make_unique<QTemporaryDir>();
+void CodeInterpreter::start(const QString& sketch,const QString& compiler,const QString& sdk,const QStringList& libraries,const QMap<QString,QString>& projectFiles,const QString& boardModel,bool deferExecution) {
+    stop();deferExecution_=deferExecution;libraries_.clear();selectedLibraries_.clear();dependencyPasses_=0;temp_=std::make_unique<QTemporaryDir>();
     if (!temp_->isValid() || !QFileInfo::exists(sdk+"/runner.cpp")) { emit log("Temporäres Verzeichnis oder Simulator-SDK fehlt."); return; }
     QFile file(temp_->filePath("sketch.ino"));
     if (!file.open(QIODevice::WriteOnly) || file.write(sketch.toUtf8()) < 0) {emit log("Sketch konnte nicht gespeichert werden."); return;} file.close();
@@ -115,5 +115,7 @@ void CodeInterpreter::compilationFinished(int code,QProcess::ExitStatus status){
             if(!selectedLibraries_.contains(i)&&(paths.contains(lib.root+"/",sensitivity)||paths.contains(lib.base+"/",sensitivity))){selectedLibraries_.insert(i);changed=true;}}
         if(changed){if(++dependencyPasses_>100){emit log("Bibliotheks-Abhängigkeitsauflösung überschritten.");stop();return;}launchCompilation(true);}else launchCompilation(false);return;
     }
-    emit log("Kompiliert. Starte setup() und loop().");watchdog_.start(10000);rateWindow_.start();worker_.start(outputPath_);
+    prepared_=true;emit readyToRun();if(!deferExecution_)runPrepared();
 }
+
+void CodeInterpreter::runPrepared(){if(!active_||!prepared_)return;prepared_=false;emit log("Kompiliert. Starte setup() und loop().");watchdog_.start(10000);rateWindow_.start();worker_.start(outputPath_);}

@@ -15,8 +15,9 @@ signals:
     void resumeRequested();
     void examplesRequested();
     void tutorialRequested();
+    void chooseLanguageRequested();
+    void chooseDesignRequested();
     void darkModeChanged(bool enabled);
-    void languageChanged(const QString& language);
 private:
     QVBoxLayout* recentLayout_;
     QStackedWidget* pages_;

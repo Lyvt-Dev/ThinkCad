@@ -50,7 +50,20 @@ class PinItem final:public QGraphicsEllipseItem {
     CircuitCanvas* canvas_;Endpoint endpoint_;
     bool realistic_=ComponentDesign::realistic();
 public:
-    PinItem(CircuitCanvas* c,Endpoint e,QGraphicsItem* parent):QGraphicsEllipseItem(-7,-7,14,14,parent),canvas_(c),endpoint_(std::move(e)){setBrush(QColor("#ffffff"));setPen(QPen(QColor("#0d9488"),2));setZValue(3);setCursor(Qt::CrossCursor);setAcceptHoverEvents(true);setToolTip(QString::fromStdString(endpoint_.pin)+Language::text(" — zum Verbinden klicken"));}
+    PinItem(CircuitCanvas* c,Endpoint e,QGraphicsItem* parent):QGraphicsEllipseItem(ComponentDesign::realistic()?QRectF(-4,-4,8,8):QRectF(-7,-7,14,14),parent),canvas_(c),endpoint_(std::move(e)){setBrush(QColor("#ffffff"));setPen(QPen(QColor("#0d9488"),2));setZValue(3);setCursor(Qt::CrossCursor);setAcceptHoverEvents(true);const auto& part=canvas_->document().part(endpoint_.part);QString description;
+        const auto pin=QString::fromStdString(endpoint_.pin);
+        if(endpoint_.pin=="A"&&(part.kind==PartKind::Led||part.kind==PartKind::Diode))description=Language::text("Anode (+)");
+        else if(endpoint_.pin=="K")description=Language::text("Kathode (−)");
+        else if(endpoint_.pin=="GND"||endpoint_.pin=="GND2")description=Language::text("Masse / Bezugspotential (0 V)");
+        else if(endpoint_.pin=="SDA")description=Language::text("I²C-Datenleitung");
+        else if(endpoint_.pin=="SCL")description=Language::text("I²C-Taktleitung");
+        else if(endpoint_.pin=="VCC"||endpoint_.pin=="3V3"||endpoint_.pin=="3V3_2"||endpoint_.pin=="5V")description=Language::text("Versorgungsspannung");
+        else if(endpoint_.pin=="W")description=Language::text("Schleifer");
+        else if(endpoint_.pin=="COM")description=Language::text("Gemeinsame Kathode");
+        else if(endpoint_.pin=="+"||endpoint_.pin=="-")description=Language::text(endpoint_.pin=="+"?"Pluspol":"Minuspol");
+        else if(part.kind==PartKind::Esp8266)description=Language::text("GPIO / Boardanschluss");
+        else description=Language::text("Anschluss")+" "+pin;
+        setToolTip(pin+" — "+description+"\n"+QString::fromStdString(componentSpec(part.kind).label)+" · "+QString::fromStdString(part.id)+"\n"+Language::text("Zum Verbinden klicken"));}
     void paint(QPainter* painter,const QStyleOptionGraphicsItem* option,QWidget* widget)override{
         if(!realistic_){QGraphicsEllipseItem::paint(painter,option,widget);return;}
         const auto kind=canvas_->document().part(endpoint_.part).kind;

@@ -62,15 +62,33 @@ void ProjectIO::save(const QString& path,const SavedProject& p){
     for(const auto& part:p.circuit.parts())parts.append(QJsonObject{{"id",QString::fromStdString(part.id)},{"kind",static_cast<int>(part.kind)},{"x",part.x},{"y",part.y},{"value",part.value},{"color",QString::fromStdString(part.color)},{"model",QString::fromStdString(part.model)},{"rotation",part.rotation},{"state",part.kind==thinkercad::PartKind::Button?false:part.pressed}});
     for(const auto& wire:p.circuit.wires()){QJsonArray bends;for(const auto& point:wire.points)bends.append(QJsonArray{point.x,point.y});wires.append(QJsonObject{{"a",endpoint(wire.a)},{"b",endpoint(wire.b)},{"color",QString::fromStdString(wire.color)},{"points",bends}});}
     for(const auto& name:p.sketch.order){if(!validFileName(name))throw std::runtime_error("Invalid project file name");files.append(QJsonObject{{"name",name},{"text",p.sketch.files.value(name)}});}
-    const auto data=QJsonDocument(QJsonObject{{"format","ThinkCad"},{"version",1},{"name",p.sketch.name},{"activeBoard",QString::fromStdString(p.circuit.boardId())},{"parts",parts},{"wires",wires},{"files",files}}).toJson();
+    QJsonObject sketches;
+    for(auto it=p.boardSketches.cbegin();it!=p.boardSketches.cend();++it){
+        if(p.circuit.part(it.key().toStdString()).kind!=thinkercad::PartKind::Esp8266)throw std::runtime_error("Sketch is not assigned to a board");
+        QJsonArray boardFiles;for(const auto& name:it->order){if(!validFileName(name)||!it->files.contains(name))throw std::runtime_error("Invalid board sketch file");boardFiles.append(QJsonObject{{"name",name},{"text",it->files.value(name)}});}
+        sketches[it.key()]=QJsonObject{{"name",it->name},{"files",boardFiles}};
+    }
+    const auto data=QJsonDocument(QJsonObject{{"boardSketches",sketches},{"format","ThinkCad"},{"version",p.boardSketches.isEmpty()?1:2},{"name",p.sketch.name},{"activeBoard",QString::fromStdString(p.circuit.boardId())},{"parts",parts},{"wires",wires},{"files",files}}).toJson();
     if(data.size()>3*1024*1024)throw std::runtime_error("Projekt ist größer als 3 MiB.");QSaveFile file(path);if(!file.open(QIODevice::WriteOnly)||file.write(data)!=data.size()||!file.commit())throw std::runtime_error("Projekt konnte nicht gespeichert werden.");
 }
 SavedProject ProjectIO::load(const QString& path){
-    QFile file(path);if(!file.open(QIODevice::ReadOnly)||file.size()>3*1024*1024)throw std::runtime_error("Projektdatei ist nicht lesbar oder zu groß.");QJsonParseError error;const auto json=QJsonDocument::fromJson(file.readAll(),&error);const auto o=json.object();if(error.error!=QJsonParseError::NoError||(o["format"].toString()!="ThinkCad"&&o["format"].toString()!="ThinkerCad")||o["version"].toInt()!=1||!o["parts"].isArray()||!o["wires"].isArray()||!o["files"].isArray())throw std::runtime_error("Ungültiges ThinkCad-Projektformat.");
+    QFile file(path);if(!file.open(QIODevice::ReadOnly)||file.size()>3*1024*1024)throw std::runtime_error("Projektdatei ist nicht lesbar oder zu groß.");QJsonParseError error;const auto json=QJsonDocument::fromJson(file.readAll(),&error);const auto o=json.object();if(error.error!=QJsonParseError::NoError||(o["format"].toString()!="ThinkCad"&&o["format"].toString()!="ThinkerCad")||(o["version"].toInt()!=1&&o["version"].toInt()!=2)||!o["parts"].isArray()||!o["wires"].isArray()||!o["files"].isArray())throw std::runtime_error("Ungültiges ThinkCad-Projektformat.");
     SavedProject p;p.circuit.removePart("board");p.sketch.name=o["name"].toString("sketch");
     for(const auto& entry:o["parts"].toArray()){auto v=entry.toObject();if(!v["x"].isDouble()||!v["y"].isDouble()||!v["value"].isDouble()||!v["kind"].isDouble())throw std::runtime_error("Invalid component properties");thinkercad::CircuitPart part{v["id"].toString().toStdString(),static_cast<thinkercad::PartKind>(v["kind"].toInt(-1)),v["x"].toDouble(),v["y"].toDouble(),v["value"].toDouble(),v["state"].toBool(),v["color"].toString("#fb586b").toStdString(),v["model"].toString().toStdString()};if(v.contains("rotation")&&(!v["rotation"].isDouble()||v["rotation"].toDouble()!=v["rotation"].toInt(-1)))throw std::runtime_error("Invalid component rotation");part.rotation=v["rotation"].toInt();p.circuit.insertPart(part);}
     if(!o["activeBoard"].toString().isEmpty())p.circuit.setActiveBoard(o["activeBoard"].toString().toStdString());
     for(const auto& entry:o["wires"].toArray()){auto v=entry.toObject();p.circuit.connect(endpoint(v["a"].toObject()),endpoint(v["b"].toObject()),v["color"].toString("#0d9488").toStdString());if(v.contains("points")){if(!v["points"].isArray()||v["points"].toArray().size()>64)throw std::runtime_error("Invalid wire bends");auto& wire=const_cast<thinkercad::CircuitWire&>(p.circuit.wires().back());for(const auto& value:v["points"].toArray()){auto xy=value.toArray();if(xy.size()!=2||!xy[0].isDouble()||!xy[1].isDouble())throw std::runtime_error("Invalid wire bend");wire.points.push_back({xy[0].toDouble(),xy[1].toDouble()});}}}
     for(const auto& entry:o["files"].toArray()){auto v=entry.toObject();const auto name=v["name"].toString();if(!validFileName(name)||p.sketch.files.contains(name)||p.sketch.files.size()>=100||!v["text"].isString())throw std::runtime_error("Invalid sketch files");p.sketch.order<<name;p.sketch.files[name]=v["text"].toString();}
-    if(p.sketch.files.isEmpty()||std::none_of(p.sketch.order.begin(),p.sketch.order.end(),[](const auto& n){return n.endsWith(".ino",Qt::CaseInsensitive);}))throw std::runtime_error("Projekt enthält keinen Arduino-Sketch.");p.circuit.validate();return p;
+    if(p.sketch.files.isEmpty()||std::none_of(p.sketch.order.begin(),p.sketch.order.end(),[](const auto& n){return n.endsWith(".ino",Qt::CaseInsensitive);}))throw std::runtime_error("Projekt enthält keinen Arduino-Sketch.");if(o["version"].toInt()==2){
+        if(!o["boardSketches"].isObject())throw std::runtime_error("Invalid board sketches");
+        const auto sketches=o["boardSketches"].toObject();
+        for(auto it=sketches.constBegin();it!=sketches.constEnd();++it){
+            if(p.circuit.part(it.key().toStdString()).kind!=thinkercad::PartKind::Esp8266||!it.value().isObject())throw std::runtime_error("Invalid sketch board");
+            auto object=it.value().toObject();SketchProject sketch;sketch.name=object["name"].toString("sketch");
+            if(!object["files"].isArray())throw std::runtime_error("Invalid board files");
+            for(const auto& entry:object["files"].toArray()){const auto file=entry.toObject();const auto name=file["name"].toString();if(!validFileName(name)||sketch.files.contains(name)||sketch.files.size()>=100||!file["text"].isString())throw std::runtime_error("Invalid board sketch files");sketch.order<<name;sketch.files[name]=file["text"].toString();}
+            if(std::none_of(sketch.order.cbegin(),sketch.order.cend(),[](const auto& name){return name.endsWith(".ino",Qt::CaseInsensitive);}))throw std::runtime_error("Board has no Arduino sketch");
+            p.boardSketches[it.key()]=sketch;
+        }
+    }
+    p.circuit.validate();return p;
 }

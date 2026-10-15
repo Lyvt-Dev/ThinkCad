@@ -13,8 +13,10 @@ class CodeInterpreter final : public QObject {
 public:
     explicit CodeInterpreter(QObject* parent = nullptr);
     ~CodeInterpreter() override;
-    void start(const QString& sketch, const QString& compiler, const QString& sdk, const QStringList& libraries,const QMap<QString,QString>& projectFiles = {},const QString& boardModel="esp8266");
+    void start(const QString& sketch, const QString& compiler, const QString& sdk, const QStringList& libraries,const QMap<QString,QString>& projectFiles = {},const QString& boardModel="esp8266",bool deferExecution=false);
     void stop();
+    void runPrepared();
+    bool prepared()const{return prepared_;}
     void answer(int value);
     void setSimulationSpeed(double multiplier);
     double simulationSpeed() const {return speedPermille_/1000.0;}
@@ -23,6 +25,7 @@ signals:
     void protocol(const QByteArray& line);
     void log(const QString& message);
     void activeChanged(bool active);
+    void readyToRun();
 private:
     QProcess compiler_, worker_;
     QTimer watchdog_, rateWindow_;
@@ -30,7 +33,7 @@ private:
     QByteArray pending_;
     int linesThisSecond_ = 0;
     int speedPermille_ = 1000;
-    bool active_ = false;
+    bool active_ = false,prepared_=false,deferExecution_=false;
     void setActive(bool active);
     void readProtocol();
     struct LibraryUnit {QString root,base;QStringList sources;bool builtin=false;};

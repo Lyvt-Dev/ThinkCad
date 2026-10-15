@@ -2,7 +2,7 @@
 
 ## Ziel und Genauigkeitsvertrag
 
-ThinkCad ist eine native Windows-Anwendung, keine Web-Anwendung. C++20/Qt Widgets
+ThinkCad ist eine native Windows-/Linux-Anwendung, keine Web-Anwendung. C++20/Qt Widgets
 und `QGraphicsScene` ermöglichen einen frei gestaltbaren 2D-Arbeitsbereich sowie
 angedockte Editor-, Bibliotheks- und Diagnosefenster. Das Referenzbild dient der
 Anordnung; Assets, Marken und proprietäre Tinkercad-Darstellungen werden nicht übernommen.
@@ -10,7 +10,7 @@ Anordnung; Assets, Marken und proprietäre Tinkercad-Darstellungen werden nicht 
 Das Gesamtsystem hat zwei klar getrennte Ausführungsziele:
 
 1. **Implementierter Host-API-Backend:** Arduino-kompatible C++-Syntax wird zu einer
-   Windows-Executable übersetzt. Simulatoradapter liefern `Arduino.h`, `Wire` und
+   native Host-Executable übersetzt. Simulatoradapter liefern `Arduino.h`, `Wire` und
    eine kleine SSD1306-API. Die virtuelle Zeit zählt explizite Wartezeiten und
    modellierte I²C-Transfers. Maschineninstruktionen verbrauchen dabei keine
    simulierte Xtensa-Zeit. Unverändert nutzbar sind nur Sketches/Bibliotheken,
@@ -237,3 +237,20 @@ einen manuellen ersten Wechsel, weil ihr Updater ohne Zertifikat deaktiviert war
 Die Module können unabhängig wachsen; volle ESP8266-Kompatibilität ist erst nach
 Etappe F belastbar. Die gegenwärtige Ausführung ist eine nützliche, getestete Grundlage,
 keine Behauptung eines bereits vollständigen Tinkercad-Ersatzes.
+
+## Mehrere Boards seit 0.5.3
+
+`MainWindow::BoardRuntime` besitzt pro Board eine eigene GPIO-/ADC-Instanz,
+virtuelle Uhr, I²C-Pinzuordnung, Display-Bindungen und einen `CodeInterpreter`.
+Ein gemeinsamer Start wartet auf die erfolgreiche Kompilierung aller Sketches;
+jedes Board führt anschließend seinen Sketch in einem eigenen Prozess aus.
+`CircuitDocument::solve` erhält die Board-Instanzen gemeinsam und löst damit
+auch boardübergreifende GPIO-Netze und widersprüchliche Ausgangstreiber.
+Ein Fehler stoppt alle Prozesse. Die Betriebssystem-Zeitsteuerung bietet keine
+zyklengenaue Synchronisation, Interrupt- oder Busarbitrierungs-Emulation.
+
+`SavedProject::boardSketches` speichert die Programme nach stabiler Board-ID.
+Projektformat 2 enthält weiterhin einen primären Sketch und zusätzlich die
+Board-Sketches; der Loader validiert die Dateien und Board-Zuordnungen.
+Alte Projekte werden dem vorher ausgewählten Board zugeordnet. Die Auswahl im
+Code-Editor wechselt nur die angezeigte Quelle und beeinflusst laufende Boards nicht.

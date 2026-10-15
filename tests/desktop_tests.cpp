@@ -1,5 +1,8 @@
 #include "mainwindow.hpp"
 #include "startpage.hpp"
+#include "appicons.hpp"
+#include <QStyle>
+#include <QDialogButtonBox>
 #include <QToolBar>
 #include <QToolButton>
 #include <QDockWidget>
@@ -107,6 +110,55 @@ private slots:
         auto* design=window.findChild<QComboBox*>("componentDesignSelector");
         design->setCurrentIndex(1);QVERIFY(window.simulationActive());QVERIFY(window.circuitState().errors.empty());
         QTest::qWait(100);design->setCurrentIndex(0);QVERIFY(window.simulationActive());stop(window);
+    }
+    void nativeIconsAndSettingsDialogs(){
+        MainWindow window;window.show();
+        QCOMPARE(AppIcons::icon(AppIcons::Symbol::Save).pixmap(18,18).toImage(),window.style()->standardIcon(QStyle::SP_DialogSaveButton).pixmap(18,18).toImage());
+        for(const auto& id:{"chooseLanguage","chooseComponentDesign"}){
+            bool shown=false;QTimer::singleShot(30,&window,[&]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());shown=dialog&&dialog->findChild<QComboBox*>()&&dialog->findChild<QDialogButtonBox*>();if(dialog)dialog->reject();});
+            auto* action=window.findChild<QAction*>(id);QVERIFY(action);action->trigger();QVERIFY(shown);
+        }
+        auto* run=window.findChild<QToolButton*>("runButton");auto* reset=window.findChild<QToolButton*>("resetButton");QVERIFY(run&&reset);QVERIFY(reset->geometry().left()-run->geometry().right()>=10);QCOMPARE(run->height(),reset->height());
+    }
+    void pinNamesAndPhysicalScale(){
+        for(const auto& design:{"blocks","realistic"}){
+            ComponentDesign::set(design);MainWindow window;window.show();window.canvas()->addPart(PartKind::Led);const auto led=window.circuit().parts().back().id;
+            bool anode=false,cathode=false;
+            for(auto* item:window.canvas()->scene()->items())if(item->parentItem()&&item->parentItem()->data(1).toString()==QString::fromStdString(led)){anode|=item->toolTip().contains("Anode (+)");cathode|=item->toolTip().contains("Kathode");}
+            QVERIFY(anode&&cathode);
+        }
+        CircuitPart uno{"uno",PartKind::Esp8266};uno.model="arduino-uno";CircuitPart led{"led",PartKind::Led};CircuitPart resistor{"r",PartKind::Resistor};CircuitPart breadboard{"bb",PartKind::Breadboard30};
+        QVERIFY(ComponentDesign::bounds(led).width()<ComponentDesign::bounds(uno).width()/3);
+        QVERIFY(ComponentDesign::bounds(resistor).width()<ComponentDesign::bounds(uno).width()/3);
+        QCOMPARE(QLineF(ComponentDesign::pinPosition(breadboard,"a1"),ComponentDesign::pinPosition(breadboard,"a2")).length(),15.24);
+        CircuitPart oled{"oled",PartKind::Oled};QVERIFY(std::abs(QLineF(ComponentDesign::pinPosition(oled,"GND"),ComponentDesign::pinPosition(oled,"VCC")).length()-15.24)<0.0001);
+    }
+    void separateBoardSketchesRunTogether(){
+        MainWindow window;window.show();std::string second;
+        window.canvas()->mutate("Two boards",[&](auto& doc){doc.part("board").model="arduino-uno";second=doc.addPart(PartKind::Esp8266,450,100);doc.part(second).model="arduino-uno";doc.connect({"board","D2"},{second,"D3"});doc.connect({"board","GND"},{second,"GND"});});
+        auto* boards=window.findChild<QComboBox*>("sketchBoardSelector");QVERIFY(boards);QCOMPARE(boards->count(),2);
+        auto code=[&](){return qobject_cast<QPlainTextEdit*>(window.findChild<QTabWidget*>("codeTabs")->currentWidget());};
+        const QString sender="void setup(){pinMode(2,OUTPUT);pinMode(13,OUTPUT);digitalWrite(13,LOW);} void loop(){digitalWrite(2,(millis()/200)%2?HIGH:LOW);delay(10);}";
+        code()->setPlainText(sender);code()->document()->setModified(true);
+        boards->setCurrentIndex(boards->findData(QString::fromStdString(second)));
+        QVERIFY(window.sketchText()!=sender);
+        const QString receiver="void setup(){pinMode(3,INPUT_PULLUP);pinMode(13,OUTPUT);} void loop(){digitalWrite(13,digitalRead(3));delay(10);}";
+        code()->setPlainText(receiver);code()->document()->setModified(true);
+        boards->setCurrentIndex(boards->findData("board"));QVERIFY(window.sketchText().contains("pinMode(2,OUTPUT)"));
+        QTemporaryDir dir;const auto file=dir.filePath("two.thinkcad");QVERIFY(window.saveProjectTo(file));QVERIFY(window.openPath(file));
+        boards->setCurrentIndex(boards->findData(QString::fromStdString(second)));QVERIFY(window.sketchText().contains("digitalRead(3)"));
+        window.startSimulation();auto* console=window.findChild<QPlainTextEdit*>("consoleOutput");QTRY_VERIFY_WITH_TIMEOUT(console->toPlainText().count("setup() abgeschlossen")==2,20000);QVERIFY(window.simulationActive());
+        QTRY_VERIFY_WITH_TIMEOUT(window.circuitState().level({second,"D13"})==Level::High,4000);
+        QTRY_VERIFY_WITH_TIMEOUT(window.circuitState().level({second,"D13"})==Level::Low,4000);
+        QCOMPARE(window.circuitState().level({"board","D13"}),Level::Low);QVERIFY(window.simulationActive());
+        boards->setCurrentIndex(boards->findData("board"));QVERIFY(window.sketchText().contains("pinMode(2,OUTPUT)"));QVERIFY(window.simulationActive());
+        window.resetSimulation();QTRY_VERIFY_WITH_TIMEOUT(console->toPlainText().count("setup() abgeschlossen")==4,20000);QVERIFY(window.simulationActive());stop(window);
+    }
+    void conflictingBoardsStopTogether(){
+        SavedProject project;project.circuit.part("board").model="arduino-uno";const auto other=project.circuit.addPart(PartKind::Esp8266,450,100);project.circuit.part(other).model="arduino-uno";project.circuit.connect({"board","D2"},{other,"D2"});
+        auto sketch=[](const QString& level){SketchProject s;s.order={"sketch.ino"};s.files["sketch.ino"]="void setup(){pinMode(2,OUTPUT);digitalWrite(2,"+level+");}void loop(){delay(10);}";return s;};project.sketch=sketch("HIGH");project.boardSketches["board"]=project.sketch;project.boardSketches[QString::fromStdString(other)]=sketch("LOW");
+        QTemporaryDir dir;const auto file=dir.filePath("conflict.thinkcad");ProjectIO::save(file,project);MainWindow window;window.show();QVERIFY(window.openPath(file));window.startSimulation();auto* console=window.findChild<QPlainTextEdit*>("consoleOutput");
+        QTRY_VERIFY_WITH_TIMEOUT(console->toPlainText().contains("Kurzschluss"),20000);QTRY_VERIFY(!window.simulationActive());
     }
     void runShortcut(){
         MainWindow window;window.show();window.loadDemo();QTest::qWait(80);
@@ -240,7 +292,7 @@ private slots:
         const auto recent=home->findChildren<QPushButton*>("recentProject");QCOMPARE(recent.size(),1);QCOMPARE(recent.front()->property("projectPath").toString(),QFileInfo(saved).canonicalFilePath());
         const auto capture=qEnvironmentVariable("THINKCAD_UI_CAPTURE_DIR");if(!capture.isEmpty())window.grab().save(capture+"/home-light.png");
         home->findChild<QPushButton*>("settingsNavigation")->click();auto* dark=home->findChild<QCheckBox*>("startDarkMode");QVERIFY(dark);dark->setChecked(true);QVERIFY(settings.value("darkMode").toBool());
-        auto* language=home->findChild<QComboBox*>("startLanguage");language->setCurrentIndex(language->findData("en"));QCOMPARE(home->findChild<QPushButton*>("homeNavigation")->text(),QString("My projects"));language->setCurrentIndex(language->findData("de"));
+        auto chooseLanguage=[&](const QString& value){QTimer::singleShot(30,&window,[value]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());if(dialog){auto* choice=dialog->findChild<QComboBox*>();choice->setCurrentIndex(choice->findData(value));dialog->accept();}});home->findChild<QPushButton*>("startChooseLanguage")->click();};chooseLanguage("en");QCOMPARE(home->findChild<QPushButton*>("homeNavigation")->text(),QString("My projects"));chooseLanguage("de");
         home->findChild<QPushButton*>("homeNavigation")->click();if(!capture.isEmpty())window.grab().save(capture+"/home-dark.png");
         home->findChild<QPushButton*>("resumeEditor")->click();QVERIFY(!window.startPageVisible());QCOMPARE(window.circuit().parts().size(),parts);QCOMPARE(window.sketchText(),sketch);QVERIFY(codeDock->isHidden());
         auto* run=window.findChild<QToolButton*>("runButton");auto* reset=window.findChild<QToolButton*>("resetButton");QVERIFY(run&&reset);QVERIFY(!reset->icon().isNull());QCOMPARE(run->height(),reset->height());

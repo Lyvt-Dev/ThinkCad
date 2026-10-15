@@ -13,7 +13,7 @@ getuto
 # Dependencies must come from signed Gentoo binary packages; the app is compiled below.
 emerge --getbinpkgonly --binpkg-respect-use=y --backtrack=100 --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase virtual/zlib media-fonts/dejavu
 mkdir -p /var/db/repos/thinkcad
-tar -xJf /release/ThinkCad-0.5.2-Gentoo-overlay.tar.xz -C /var/db/repos/thinkcad --strip-components=1
+tar -xJf /release/ThinkCad-0.5.3-Gentoo-overlay.tar.xz -C /var/db/repos/thinkcad --strip-components=1
 cat > /etc/portage/repos.conf/thinkcad.conf <<'CONF'
 [thinkcad]
 location = /var/db/repos/thinkcad
@@ -21,7 +21,7 @@ masters = gentoo
 auto-sync = no
 CONF
 printf 'media-gfx/thinkcad ~amd64\n' > /etc/portage/package.accept_keywords/thinkcad
-cp /release/ThinkCad-0.5.2-Source.tar.xz /var/cache/distfiles/
+cp /release/ThinkCad-0.5.3-Source.tar.xz /var/cache/distfiles/
 export ACCEPT_LICENSE='*'
 # Build with examples and run the suite through the real cmake eclass.
 USE='examples test X wayland' FEATURES='test' emerge --oneshot --usepkg=n media-gfx/thinkcad

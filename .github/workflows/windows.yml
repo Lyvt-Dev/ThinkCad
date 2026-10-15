@@ -153,7 +153,14 @@ jobs:
           $name = 'qt-everywhere-src-6.8.3.tar.xz'
           $url = "https://download.qt.io/archive/qt/6.8/6.8.3/single/$name"
           Invoke-WebRequest "$url.sha256" -OutFile "out/installer/$name.sha256"
-          Invoke-WebRequest $url -OutFile "out/installer/$name"
+          # Reuse the identical Qt archive from the previous release. The official
+          # Qt checksum below remains the authority, including for reused bytes.
+          $ProgressPreference = 'SilentlyContinue'
+          try {
+            Invoke-WebRequest "https://github.com/$env:GITHUB_REPOSITORY/releases/download/v0.5.2/$name" -OutFile "out/installer/$name" -TimeoutSec 1200
+          } catch {
+            Invoke-WebRequest $url -OutFile "out/installer/$name" -TimeoutSec 1200
+          }
           $expected = ((Get-Content "out/installer/$name.sha256" -Raw).Trim() -split '\s+')[0].ToLower()
           $actual = (Get-FileHash "out/installer/$name" -Algorithm SHA256).Hash.ToLower()
           if ($expected -ne $actual) { throw 'Qt source SHA-256 mismatch.' }

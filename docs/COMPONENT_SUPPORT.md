@@ -39,6 +39,13 @@ Bibliotheksinstallation bedeutet daher keine vollständige ESP-Firmwarekompatibi
 Nicht unterstützte Hardwareaufrufe sollen einen klaren Fehler statt Scheinfunktion liefern.
 
 Mikrocontroller stehen in derselben durchsuchbaren Komponentenliste wie andere Bauteile
-und können hinzugefügt oder gelöscht werden. Bei mehreren Boards bestimmt
-„Dieses Board simulieren“ im Inspektor das Board für den gemeinsamen Sketch; die
-anderen Boards treiben keine GPIO-Ausgänge. Die Auswahl wird im Projekt gespeichert.
+und können hinzugefügt oder gelöscht werden. Jedes Board hat einen eigenen Sketch;
+die Board-Auswahl über dem Code-Editor wechselt zwischen den Programmen. Alle Boards
+werden vor dem gemeinsamen Start kompiliert und laufen in getrennten Hostprozessen.
+GPIO-Netze berücksichtigen die Treiber aller Boards. Reset, Stoppen und elektrische
+Fehler stoppen bzw. starten die gesamte Simulation. Die Zeitsteuerung ist hostbasiert,
+nicht zyklengenau; UART, WLAN und Multi-Master-I²C-Arbitrierung werden nicht emuliert.
+
+Realistische Ansichten verwenden typische Modulabmessungen bei 6 Szeneneinheiten/mm,
+keine herstellerspezifischen Footprints. Gezeichnete Gehäuse und Pin-Hinweise dienen
+der Orientierung; die Anschlussnamen im Projekt bestimmen die elektrische Funktion.
