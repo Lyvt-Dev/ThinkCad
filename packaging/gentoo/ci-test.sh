@@ -2,7 +2,7 @@
 # Runs inside the official Gentoo stage3 container, never on the host.
 set -euo pipefail
 emerge-webrsync
-eselect profile set default/linux/amd64/23.0/desktop
+eselect profile set default/linux/amd64/23.0/desktop/gnome
 mkdir -p /etc/portage/binrepos.conf /etc/portage/repos.conf /etc/portage/package.accept_keywords
 cat > /etc/portage/binrepos.conf/thinkcad-ci.conf <<'CONF'
 [gentoo]
