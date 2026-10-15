@@ -114,24 +114,32 @@ emerge --noreplace --ask \
     media-fonts/dejavu net-misc/curl app-arch/tar app-arch/xz-utils \
     sys-apps/coreutils </dev/tty
 
-version=0.5.3
+# Das neueste veröffentlichte Release ermitteln (keine fest eingetragene Version).
+release_page=$(curl --fail --silent --show-error --location --retry 3 \
+    --output /dev/null --write-out '%{url_effective}' \
+    https://github.com/Lyvt-Dev/ThinkCad/releases/latest)
+tag=${release_page##*/}
+if [[ ! "$tag" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+    echo "Unerwarteter Release-Tag: $tag" >&2
+    exit 1
+fi
+version=${BASH_REMATCH[1]}
 archive="ThinkCad-${version}-Gentoo-overlay.tar.xz"
-release="https://github.com/Lyvt-Dev/ThinkCad/releases/download/v${version}"
+release="https://github.com/Lyvt-Dev/ThinkCad/releases/download/${tag}"
 workdir=$(mktemp -d)
 trap 'rm -rf "$workdir"' EXIT
 cd "$workdir"
-curl --fail --location --remote-name "${release}/${archive}"
-curl --fail --location --remote-name "${release}/${archive}.sha256"
+curl --fail --location --retry 3 --remote-name "${release}/${archive}"
+curl --fail --location --retry 3 --remote-name "${release}/${archive}.sha256"
 sha256sum --check "${archive}.sha256"
 
-# Ein neues Verzeichnis verwenden, damit ein vorhandenes lokales Overlay erhalten bleibt.
-overlay="/var/db/repos/thinkcad-${version}"
-if [ -e "$overlay" ]; then
-    echo "${overlay} existiert bereits; vor einer erneuten Installation dieses Overlay prüfen." >&2
-    exit 1
-fi
-mkdir -p "$overlay"
+# Jedes Mal frisch entpacken, auch bei einer erneuten Installation derselben Version.
+install -d -m 0755 /var/db/repos
+umask 022
+overlay=$(mktemp -d "/var/db/repos/thinkcad-${version}.XXXXXX")
 tar -xJf "$archive" -C "$overlay" --strip-components=1
+chmod -R a+rX "$overlay"
+test -f "$overlay/media-gfx/thinkcad/thinkcad-${version}.ebuild"
 mkdir -p /etc/portage/repos.conf
 cat > /etc/portage/repos.conf/thinkcad.conf <<CONF
 [thinkcad]
@@ -139,9 +147,11 @@ location = ${overlay}
 masters = gentoo
 auto-sync = no
 CONF
+chmod 0644 /etc/portage/repos.conf/thinkcad.conf
 
-# Kompilieren, Tests ohne grafische Sitzung ausführen und die Anwendung installieren.
-FEATURES="${FEATURES-} test" emerge --ask '=media-gfx/thinkcad-0.5.3::thinkcad' </dev/tty
+# Exakt die heruntergeladene Version installieren; Portage löst Abhängigkeiten auf.
+FEATURES="${FEATURES-} test" emerge --ask "=media-gfx/thinkcad-${version}::thinkcad" </dev/tty
+portageq best_version / media-gfx/thinkcad
 GENTOO_INSTALL
 ```
 
@@ -166,10 +176,70 @@ Sketch-Kompilierung einen zu alten Compiler, mit `gcc-config -l` die installiert
 GCC-Profile prüfen, als Root mit `gcc-config` ein Profil für GCC ≥12 auswählen
 und eine neue Login-Shell öffnen.
 
-Dieses Release-Overlay verwendet `auto-sync = no`: `emerge --sync` aktualisiert
-Gentoo, aber nicht das lokale ThinkCad-Overlay. Für ein zukünftiges
-ThinkCad-Release das dazugehörige Overlay herunterladen und prüfen, dessen neues
-Verzeichnis registrieren und die neue Version über Portage installieren.
+### Gentoo aktualisieren (immer das neueste Release)
+
+`emerge --sync` aktualisiert dieses lokale Release-Overlay **nicht**. Als Root
+(`su -` oder `sudo -i`) den folgenden Block vollständig einfügen. Er ermittelt
+das neueste stabile GitHub-Release, lädt dessen Overlay und SHA-256-Prüfsumme
+frisch herunter und registriert ein für Portage lesbares Verzeichnis. Auch ein
+veraltetes oder unlesbares ThinkCad-Overlay wird dadurch ersetzt; seine Dateien
+bleiben zur Sicherheit erhalten. Der Block kann mehrfach ausgeführt werden.
+Die Keyword-, Lizenz- und USE-Einstellungen aus der Erstinstallation gelten weiter.
+
+```bash
+bash <<'GENTOO_UPDATE'
+set -euo pipefail
+if [ "$EUID" -ne 0 ]; then
+    echo "Bitte zuerst mit su - oder sudo -i eine Root-Shell öffnen." >&2
+    exit 1
+fi
+# Das neueste veröffentlichte Release ermitteln (keine fest eingetragene Version).
+release_page=$(curl --fail --silent --show-error --location --retry 3 \
+    --output /dev/null --write-out '%{url_effective}' \
+    https://github.com/Lyvt-Dev/ThinkCad/releases/latest)
+tag=${release_page##*/}
+if [[ ! "$tag" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+    echo "Unerwarteter Release-Tag: $tag" >&2
+    exit 1
+fi
+version=${BASH_REMATCH[1]}
+archive="ThinkCad-${version}-Gentoo-overlay.tar.xz"
+release="https://github.com/Lyvt-Dev/ThinkCad/releases/download/${tag}"
+workdir=$(mktemp -d)
+trap 'rm -rf "$workdir"' EXIT
+cd "$workdir"
+curl --fail --location --retry 3 --remote-name "${release}/${archive}"
+curl --fail --location --retry 3 --remote-name "${release}/${archive}.sha256"
+sha256sum --check "${archive}.sha256"
+
+# Jedes Mal frisch entpacken, auch bei einer erneuten Installation derselben Version.
+install -d -m 0755 /var/db/repos
+umask 022
+overlay=$(mktemp -d "/var/db/repos/thinkcad-${version}.XXXXXX")
+tar -xJf "$archive" -C "$overlay" --strip-components=1
+chmod -R a+rX "$overlay"
+test -f "$overlay/media-gfx/thinkcad/thinkcad-${version}.ebuild"
+mkdir -p /etc/portage/repos.conf
+cat > /etc/portage/repos.conf/thinkcad.conf <<CONF
+[thinkcad]
+location = ${overlay}
+masters = gentoo
+auto-sync = no
+CONF
+chmod 0644 /etc/portage/repos.conf/thinkcad.conf
+
+# Exakt die heruntergeladene Version installieren; Portage löst Abhängigkeiten auf.
+emerge --ask "=media-gfx/thinkcad-${version}::thinkcad" </dev/tty
+portageq best_version / media-gfx/thinkcad
+GENTOO_UPDATE
+```
+
+Fehlt beim neuesten Release das Overlay oder stimmt die Prüfsumme nicht, bricht
+der Block vor der Umstellung des Repositorys ab. Netzwerkzugang und passende
+Gentoo-Abhängigkeiten bleiben erforderlich; bei Portage-Konflikten die konkrete
+Fehlermeldung beachten. Eine Meldung „masked by: corruption“ lässt sich nicht
+mit `package.unmask` beheben: Portage muss die Ebuild-Dateien lesen können.
+
 Weitere Linux- und USE-Flag-Details: [docs/LINUX.md](docs/LINUX.md).
 
 ## Windows bauen
