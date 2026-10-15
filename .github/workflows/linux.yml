@@ -53,14 +53,16 @@ jobs:
         if: github.event_name != 'pull_request'
         id: provenance
         with:
-          subject-path: out/linux/*
+          subject-path: out/linux/ThinkCad-*
       - name: Keep verification bundle
         if: github.event_name != 'pull_request'
         run: cp '${{ steps.provenance.outputs.bundle-path }}' out/linux/ubuntu.sigstore.jsonl
       - uses: actions/upload-artifact@v4
         with:
           name: ThinkCad-Linux-Ubuntu
-          path: out/linux/*
+          path: |
+            out/linux/ThinkCad-*
+            out/linux/*.sigstore.jsonl
   fedora:
     runs-on: ubuntu-24.04
     container: fedora:44
@@ -94,14 +96,16 @@ jobs:
         if: github.event_name != 'pull_request'
         id: provenance
         with:
-          subject-path: out/linux/*
+          subject-path: out/linux/ThinkCad-*
       - name: Keep verification bundle
         if: github.event_name != 'pull_request'
         run: cp '${{ steps.provenance.outputs.bundle-path }}' out/linux/fedora.sigstore.jsonl
       - uses: actions/upload-artifact@v4
         with:
           name: ThinkCad-Linux-Fedora
-          path: out/linux/*
+          path: |
+            out/linux/ThinkCad-*
+            out/linux/*.sigstore.jsonl
   gentoo:
     needs: ubuntu
     runs-on: ubuntu-24.04
