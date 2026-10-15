@@ -50,11 +50,19 @@ void Esp8266Board::pinMode(int gpio, PinMode mode) {
     (void)pin(gpio);
     if ((profile_.id=="esp8266"&&gpio==16&&mode==PinMode::InputPullup)||(mode!=PinMode::Input&&std::find(profile_.inputOnly.begin(),profile_.inputOnly.end(),gpio)!=profile_.inputOnly.end())) throw std::invalid_argument("Pin mode unsupported by selected GPIO");
     pins_.at(gpio).mode = mode;
+    pins_.at(gpio).frequency = 0;
 }
 void Esp8266Board::digitalWrite(int gpio, bool high) {
     (void)pin(gpio);
     if (pins_.at(gpio).mode != PinMode::Output) throw std::logic_error("digitalWrite requires OUTPUT in this model");
     pins_.at(gpio).output = high;
+    pins_.at(gpio).frequency = 0;
+}
+void Esp8266Board::tone(int gpio, unsigned frequency) {
+    if(frequency>20000)throw std::invalid_argument("Tone frequency outside 0..20000 Hz");
+    pinMode(gpio,PinMode::Output);
+    pins_.at(gpio).output=frequency!=0;
+    pins_.at(gpio).frequency=frequency;
 }
 Level Esp8266Board::digitalRead(int gpio) const {
     const auto& p = pin(gpio);

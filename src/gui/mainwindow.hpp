@@ -4,6 +4,7 @@
 #include "circuitcanvas.hpp"
 #include "projectio.hpp"
 #include "updater.hpp"
+#include "soundoutput.hpp"
 #include <QMainWindow>
 class QPlainTextEdit;
 class QLabel;
@@ -57,6 +58,7 @@ private:
     thinkercad::CircuitState circuitState_;
     std::map<std::string,thinkercad::OledDisplay> displays_;
     Updater updater_;
+    SoundOutput sound_;
     CircuitCanvas* canvas_;
     QStackedWidget* workspace_;
     WelcomePage* startPage_;

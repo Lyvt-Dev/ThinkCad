@@ -2,12 +2,23 @@
 
 Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, für **Windows und Linux**. **macOS wird nicht unterstützt.**
 ThinkCad bietet ESP8266-, ESP32-, ESP32-S3-,
-Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, 20 Bauteiltypen,
+Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, 25 Bauteiltypen,
 SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
 ![ThinkCad: native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
+
+## Update 0.5.4
+
+- Passiver Piezo-Summer und 8-Ω-Mini-Lautsprecher mit echter Audioausgabe über
+  `tone(pin, frequenz[, dauer])` und `noTone(pin)`. Die Verdrahtung bestimmt den Ton;
+  eine Gleichspannung erzeugt keinen Dauerton. Einstellungen → **Ton aktivieren**
+  schaltet die Wiedergabe ein oder aus.
+- TMP36-Temperatursensor, AA-Batterie mit 1,5 V und SPST-Ein-/Ausschalter.
+- Flache 2D-Komponentenansichten, größere Arduino-Ansichten, getrennte Pinbeschriftungen
+  und sichtbare LED-Anode mit längerem, geknicktem Bein.
+- Anschlussbeispiele und Modellgrenzen: [Bauteilunterstützung](docs/COMPONENT_SUPPORT.md).
 
 ## Update 0.5.3
 
@@ -38,7 +49,7 @@ Projekte werden mit Board-Sketches im Format 2 gespeichert; Format 1 bleibt lesb
 - `.ino`-Projekte mit weiteren Sketch-Tabs, Headern und C++-Quellen öffnen.
 - Schaltung und Code gemeinsam als portable `.thinkcad`-Datei (ältere `.thinkercad`-Dateien bleiben lesbar) speichern und wieder öffnen.
 - Live-Temporegler von 0,1× bis 10× mit 1×-Rücksetzung; virtuelle Sketch-Zeit bleibt korrekt.
-- Zehn fertige Beispielschaltungen mit passendem Sketch und vollständiger Verdrahtung.
+- Zwölf fertige Beispielschaltungen mit passendem Sketch und vollständiger Verdrahtung.
 - `PROGMEM`-/Flash-Adapter einschließlich `pgmspace.h`, `avr/pgmspace.h`, `pgm_read_*`, `PSTR` und `F`.
 - Eigener zeitbasierter Simulationskern mit deterministischer Ereignisreihenfolge.
 - GPIO-Pinmodi, externe Eingänge, schwebende Pegel und Treiberkonflikte.
@@ -73,7 +84,7 @@ prüft es und baut die Anwendung.
 
 Diese Anleitung setzt einen vorhandenen **Gentoo-Desktop auf amd64** mit
 eingerichtetem Gentoo-Repository, funktionierendem Internetzugang und einer X11-
-oder Wayland-Sitzung voraus. Das Ebuild für 0.5.3 benötigt **Qt ≥6.11**,
+oder Wayland-Sitzung voraus. Das Ebuild für 0.5.4 benötigt **Qt ≥6.11**,
 **GCC ≥12 mit C++-Unterstützung**, CMake, Ninja und zlib. Die folgenden Befehle
 aktivieren Beispielsketches, beide Anzeige-Backends und die Testsuite.
 Für die Anwendung muss derzeit die Lizenz `all-rights-reserved` akzeptiert werden;
@@ -101,6 +112,7 @@ append_portage_config() {
 }
 append_portage_config package.accept_keywords 'media-gfx/thinkcad ~amd64'
 append_portage_config package.accept_keywords 'dev-qt/qtbase ~amd64'
+append_portage_config package.accept_keywords 'dev-qt/qtmultimedia ~amd64'
 append_portage_config package.use 'dev-qt/qtbase gui network ssl widgets X wayland'
 append_portage_config package.use 'media-gfx/thinkcad examples test X wayland'
 append_portage_config package.license 'media-gfx/thinkcad all-rights-reserved'
@@ -110,7 +122,8 @@ append_portage_config package.license 'media-gfx/thinkcad all-rights-reserved'
 # /dev/tty ermöglicht die interaktive Bestätigung innerhalb dieses eingefügten Blocks.
 emerge --noreplace --ask \
     '>=sys-devel/gcc-12[cxx]' '>=dev-build/cmake-3.24' dev-build/ninja \
-    '>=dev-qt/qtbase-6.11:6[gui,network,ssl,widgets,X,wayland]' virtual/zlib \
+    '>=dev-qt/qtbase-6.11:6[gui,network,ssl,widgets,X,wayland]' \
+    '>=dev-qt/qtmultimedia-6.11:6' virtual/zlib \
     media-fonts/dejavu net-misc/curl app-arch/tar app-arch/xz-utils \
     sys-apps/coreutils </dev/tty
 
@@ -193,6 +206,12 @@ if [ "$EUID" -ne 0 ]; then
     echo "Bitte zuerst mit su - oder sudo -i eine Root-Shell öffnen." >&2
     exit 1
 fi
+if [ -f /etc/portage/package.accept_keywords ]; then
+    printf '%s\n' 'dev-qt/qtmultimedia ~amd64' >> /etc/portage/package.accept_keywords
+else
+    mkdir -p /etc/portage/package.accept_keywords
+    printf '%s\n' 'dev-qt/qtmultimedia ~amd64' > /etc/portage/package.accept_keywords/thinkcad-audio
+fi
 # Das neueste veröffentlichte Release ermitteln (keine fest eingetragene Version).
 release_page=$(curl --fail --silent --show-error --location --retry 3 \
     --output /dev/null --write-out '%{url_effective}' \
@@ -244,7 +263,7 @@ Weitere Linux- und USE-Flag-Details: [docs/LINUX.md](docs/LINUX.md).
 
 ## Windows bauen
 
-Benötigt werden CMake ≥3.24, Qt ≥6.4 (getestet: Linux Qt 6.8.2 und Windows Qt 6.8.3/MSVC2022), Visual Studio 2022 C++ Build Tools und für die Laufzeit-Sketches
+Benötigt werden CMake ≥3.24, Qt ≥6.4 mit Widgets, Network und Multimedia (getestet: Linux Qt 6.8.2 und Windows Qt 6.8.3/MSVC2022), Visual Studio 2022 C++ Build Tools und für die Laufzeit-Sketches
 MinGW-w64/UCRT64 GCC mit vollständigen Headern/Standardbibliotheken.
 Die GUI kann mit MSVC gebaut werden; Sketches laufen als eigenständige MinGW-Prozesse.
 
@@ -265,7 +284,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=0.5.3 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=0.5.4 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

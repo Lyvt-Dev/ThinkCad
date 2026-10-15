@@ -3,7 +3,7 @@
 #include <QFont>
 #include <QApplication>
 #include <QPalette>
-#include <QLinearGradient>
+#include <QFontMetricsF>
 #include <QPainter>
 #include <QPainterPath>
 #include <QSettings>
@@ -19,16 +19,17 @@ QRectF artBounds(const CircuitPart& part);
 QPointF artPin(const CircuitPart& part,const std::string& pin);
 QColor metal("#b9c4cd");
 void label(QPainter& p,QRectF rect,const QString& text,QColor color=QColor("#334155"),int size=8){
-    p.setPen(color);p.setFont(QFont("Sans Serif",size));p.drawText(rect,Qt::AlignCenter,text);
+    QFont font("Sans Serif");font.setPixelSize(std::max(3,size));
+    QFontMetricsF metrics(font);
+    const double fit=std::min({1.0,(rect.width()-2)/std::max(1.0,metrics.horizontalAdvance(text)),(rect.height()-2)/metrics.height()});
+    font.setPixelSize(std::max(2,static_cast<int>(size*fit)));
+    p.save();p.setClipRect(rect);p.setPen(color);p.setFont(font);p.drawText(rect,Qt::AlignCenter,text);p.restore();
 }
 void body(QPainter& p,QRectF rect,QColor color,double radius=5){
-    p.setPen(QPen(color.darker(160),1.2));QLinearGradient gradient(rect.topLeft(),rect.bottomRight());
-    gradient.setColorAt(0,color.lighter(108));gradient.setColorAt(0.45,color);gradient.setColorAt(1,color.darker(108));
-    p.setBrush(gradient);p.drawRoundedRect(rect,radius,radius);
+    p.setPen(QPen(color.darker(135),0.8));p.setBrush(color);p.drawRoundedRect(rect,radius,radius);
 }
 void lead(QPainter& p,QPointF a,QPointF b){
     p.setPen(QPen(QColor("#87939e"),4,Qt::SolidLine,Qt::RoundCap));p.drawLine(a,b);
-    p.setPen(QPen(QColor("#e5e9eb"),1.2));p.drawLine(a+QPointF(0,-1),b+QPointF(0,-1));
 }
 void screw(QPainter& p,QPointF center,double radius=6){
     p.setPen(QPen(QColor("#64717d"),1));p.setBrush(metal);p.drawEllipse(center,radius,radius);
@@ -50,7 +51,7 @@ void usb(QPainter& p,QRectF rect){
     p.setPen(QPen(QColor("#f0d091"),1.3));for(int i=0;i<5;++i){double x=rect.left()+rect.width()*0.25+i*rect.width()*0.125;p.drawLine(QPointF(x,rect.top()+4),QPointF(x,rect.top()+8));}
 }
 void dial(QPainter& p,QPointF center,double radius,double angle=0){
-    p.setPen(QPen(QColor("#1f262b"),1));QLinearGradient finish(center-QPointF(radius,radius),center+QPointF(radius,radius));finish.setColorAt(0,QColor("#68757c"));finish.setColorAt(0.5,QColor("#343e44"));finish.setColorAt(1,QColor("#171f25"));p.setBrush(finish);p.drawEllipse(center,radius,radius);
+    p.setPen(QPen(QColor("#1f262b"),1));p.setBrush(QColor("#46535b"));p.drawEllipse(center,radius,radius);
     for(int i=0;i<16;++i){const double a=i*3.141592653589793/8;p.setPen(QPen(QColor("#78838a"),0.8));p.drawLine(center+QPointF(std::cos(a),std::sin(a))*(radius-3),center+QPointF(std::cos(a),std::sin(a))*(radius-1));}
     p.save();p.translate(center);p.rotate(angle);p.setPen(QPen(QColor("#eff3f5"),1.8,Qt::SolidLine,Qt::RoundCap));p.drawLine(QPointF(0,-radius+3),QPointF(0,-radius*0.45));p.restore();
 }
@@ -90,7 +91,10 @@ void board(QPainter& p,const CircuitPart& part,const CircuitState& state){
     const auto profile=BoardProfile::get(part.model);const auto extent=artBounds(part);
     const bool uno=profile.id=="arduino-uno",nano=profile.id=="arduino-nano";
     const QRectF pcb=uno?QRectF(0,0,300,220):nano?QRectF(0,0,100,272):QRectF(0,0,150,extent.height()-24);
-    body(p,pcb,profile.arduino()?QColor("#087b9d"):QColor("#173c3b"),3);
+    if(uno){
+        QPainterPath outline({0,0});outline.lineTo(288,0);outline.lineTo(288,48);outline.lineTo(300,60);outline.lineTo(300,197);outline.lineTo(287,210);outline.lineTo(287,220);outline.lineTo(0,220);outline.closeSubpath();
+        p.setBrush(QColor("#287c9d"));p.setPen(Qt::NoPen);p.drawPath(outline);
+    }else body(p,pcb,profile.arduino()?QColor("#087b9d"):QColor("#424649"),3);
     if(uno){
         header(p,{82,4,210,16});header(p,{50,200,118,16});header(p,{191,200,101,16});
         usb(p,{-10,38,50,42});body(p,{-8,145,40,34},QColor("#252c34"),3);
@@ -98,8 +102,8 @@ void board(QPainter& p,const CircuitPart& part,const CircuitState& state){
         chip(p,{133,99,146,48},14,"ATmega328P");chip(p,{52,55,35,34},4,"USB");
         body(p,{84,143,20,25},QColor("#bcc5cc"),8);screw(p,{94,154},5);
         body(p,{44,17,20,14},QColor("#d85148"),2);
-        label(p,{109,43,156,34},"UNO R3",Qt::white,20);
-        label(p,{143,74,127,16},"5 V  ·  ATmega328P",QColor("#d9f1f0"),8);
+        label(p,{109,65,156,27},"UNO R3",Qt::white,20);
+        label(p,{143,151,127,16},"5 V  ·  ATmega328P",QColor("#d9f1f0"),8);
         for(auto point:{QPointF(20,15),QPointF(278,38),QPointF(20,200),QPointF(282,183)})mountingHole(p,point);
         for(int i=0;i<4;++i){body(p,{45.0+i*17,177,10,7},QColor("#bba68c"),1);}
     }else if(nano){
@@ -136,8 +140,11 @@ void board(QPainter& p,const CircuitPart& part,const CircuitState& state){
             const int gpio=profile.pinNumber(name);if(gpio==3)text="RX";else if(gpio==1)text="TX";
             else for(std::size_t i=0;i<Esp8266Board::nodeMcuGpio.size();++i)if(gpio==Esp8266Board::nodeMcuGpio[i])text="D"+QString::number(i);
         }
-        if(uno)label(p,{point.x()-8,point.y()<100?23.0:184.0,17,16},text,Qt::white,6);
-        else label(p,{point.x()<50?(nano?15.0:16.0):pcb.width()-(nano?31:34),point.y()-7,nano?16.0:18.0,14},text,Qt::white,5);
+        if(uno){
+            // Each label occupies its own header-pitch column, turned inward like silkscreen.
+            p.save();p.translate(point.x(),point.y()<100?24:196);p.rotate(-90);
+            label(p,point.y()<100?QRectF(-35,-5,34,10):QRectF(1,-5,34,10),text,Qt::white,7);p.restore();
+        }else label(p,{point.x()<50?17.0:pcb.width()-(nano?42:43),point.y()-6,nano?25.0:26.0,12},text,Qt::white,7);
     }
 }
 }
@@ -153,7 +160,11 @@ QRectF artBounds(const CircuitPart& part){
     if(part.kind==PartKind::Breadboard30)return {-12,-12,594,284};
     if(part.kind==PartKind::Oled)return {-12,-12,316,CircuitDocument::displayHeight(part)==32?160.0:228.0};
     switch(part.kind){
-    case PartKind::Led:case PartKind::RGBLed:return {30,-2,100,126};
+    case PartKind::Led:case PartKind::RGBLed:return {30,-2,100,150};
+    case PartKind::PiezoBuzzer:case PartKind::Speaker:return {22,5,116,140};
+    case PartKind::TemperatureSensor:return {38,10,84,135};
+    case PartKind::BatteryAA:return {30,2,100,150};
+    case PartKind::ToggleSwitch:return {20,20,120,106};
     case PartKind::Resistor:case PartKind::Diode:case PartKind::ReedSwitch:case PartKind::TiltSwitch:return {-5,36,170,44};
     case PartKind::Button:return {24,17,112,88};
     case PartKind::Potentiometer:return {30,18,100,107};
@@ -173,7 +184,12 @@ QPointF artPin(const CircuitPart& part,const std::string& pin){
     switch(part.kind){
     case PartKind::Breadboard30:{const int column=std::stoi(pin.substr(1))-1,row=pin[0]-'a';return {20.0+column*18,40.0+row*18+(row>=5?25:0)};}
     case PartKind::Oled:return {47.0+i*66,CircuitDocument::displayHeight(part)==32?132.0:200.0};
-    case PartKind::Led:case PartKind::Photoresistor:case PartKind::Thermistor:return {i?100.0:60.0,118};
+    case PartKind::Led:return {i?100.0:60.0,i?118.0:140.0};
+    case PartKind::PiezoBuzzer:case PartKind::Speaker:return {i?105.0:55.0,138};
+    case PartKind::TemperatureSensor:return {50.0+i*30,138};
+    case PartKind::BatteryAA:return {80,i?145.0:8.0};
+    case PartKind::ToggleSwitch:return {i?120.0:40.0,118};
+    case PartKind::Photoresistor:case PartKind::Thermistor:return {i?100.0:60.0,118};
     case PartKind::RGBLed:return {pin=="R"?50.0:pin=="K"?70.0:pin=="G"?90.0:110.0,118};
     case PartKind::Potentiometer:case PartKind::SlideSwitch:return {50.0+i*30,118};
     case PartKind::Button:return {i?130.0:30.0,44};
@@ -190,9 +206,14 @@ QTransform physicalTransform(const CircuitPart& part){
     QSizeF drawing(1,1),millimetres(1,1);
     switch(part.kind){
     case PartKind::Esp8266:{const auto id=BoardProfile::get(part.model).id;
-        if(id=="arduino-uno"){drawing={300,220};millimetres={68.6,53.4};}
-        else if(id=="arduino-nano"){drawing={100,272};millimetres={18,45};}
+        if(id=="arduino-uno"){drawing={300,220};millimetres={85.75,66.75};}
+        else if(id=="arduino-nano"){drawing={100,272};millimetres={22.5,56.25};}
         else{drawing={150,artBounds(part).height()-24};millimetres=id=="esp8266"?QSizeF(31,58):id=="esp32-s3"?QSizeF(25.4,69):QSizeF(25.4,54.6);}break;}
+    case PartKind::PiezoBuzzer:drawing={100,100};millimetres={12,12};break;
+    case PartKind::Speaker:drawing={100,100};millimetres={15,11};break;
+    case PartKind::TemperatureSensor:drawing={64,70};millimetres={4.6,5};break;
+    case PartKind::BatteryAA:drawing={80,125};millimetres={14.5,50.5};break;
+    case PartKind::ToggleSwitch:drawing={100,75};millimetres={12,8};break;
     case PartKind::Oled:drawing={292,CircuitDocument::displayHeight(part)==32?136.0:204.0};millimetres=CircuitDocument::displayHeight(part)==32?QSizeF(38,12):QSizeF(27.3,27.8);break;
     case PartKind::Breadboard30:drawing={570,260};millimetres={83.8,35.6};break;
     case PartKind::Led:case PartKind::RGBLed:drawing={60,66};millimetres={5,8.6};break;
@@ -244,13 +265,46 @@ void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitSta
         const std::array<QColor,4> bands{colors[digits/10],colors[digits%10],exponent<0?QColor("#bda258"):colors[std::clamp(exponent,0,9)],QColor("#bda258")};
         p.setPen(Qt::NoPen);for(int i=0;i<4;++i){p.setBrush(bands[i]);p.drawRect(48+i*19,44,6,28);}break;}
     case PartKind::Led:case PartKind::RGBLed:{
-        for(const auto& name:CircuitDocument::pins(part)){const auto point=artPin(part,name);lead(p,{point.x(),76},point);}
+        for(const auto& name:CircuitDocument::pins(part)){
+            const auto point=artPin(part,name);
+            if(part.kind==PartKind::Led&&name=="A"){
+                lead(p,{60,76},{60,96});lead(p,{60,96},{69,105});lead(p,{69,105},{60,114});lead(p,{60,114},point);
+            }else lead(p,{point.x(),76},point);
+        }
         QColor color=QColor(QString::fromStdString(part.color));double light=current("");
         if(part.kind==PartKind::RGBLed){auto channel=[&](const char* name){return std::clamp(current(std::string(":")+name)/0.02,0.0,1.0);};color=QColor::fromRgbF(channel("R"),channel("G"),channel("B"));light=std::max({channel("R"),channel("G"),channel("B")});}
-        if(light>1e-5){auto glow=color;glow.setAlpha(42);p.setPen(Qt::NoPen);p.setBrush(glow);p.drawEllipse(QPointF(80,49),48,48);}
         QPainterPath dome({50,77});dome.lineTo(50,44);dome.cubicTo(50,8,110,8,110,44);dome.lineTo(110,77);dome.closeSubpath();
-        QLinearGradient gradient(50,25,110,73);gradient.setColorAt(0,color.lighter(180));gradient.setColorAt(0.5,light>1e-5?color:color.darker(150));gradient.setColorAt(1,color.darker(210));p.setBrush(gradient);p.setPen(QPen(color.darker(200),1));p.drawPath(dome);
-        body(p,{45,73,70,9},color,3);p.setPen(QPen(QColor(255,255,255,150),4,Qt::SolidLine,Qt::RoundCap));p.drawLine(61,33,61,51);break;}
+        p.setBrush(light>1e-5?color.lighter(125):color.darker(115));p.setPen(QPen(color.darker(160),1));p.drawPath(dome);
+        body(p,{45,73,70,9},color,2);
+        // Flat cathode edge and unequal leads make polarity visible without tooltips.
+        p.setPen(QPen(color.darker(180),2));p.drawLine(109,61,109,77);break;}
+    case PartKind::PiezoBuzzer:case PartKind::Speaker:{
+        const bool piezo=part.kind==PartKind::PiezoBuzzer;
+        lead(p,{55,98},{55,138});lead(p,{105,98},{105,138});
+        if(piezo){
+            p.setPen(Qt::NoPen);p.setBrush(QColor("#303234"));p.drawEllipse(QPointF(80,61),50,50);
+            p.setBrush(QColor("#151719"));p.drawEllipse(QPointF(80,61),9,9);
+            label(p,{42,87,22,18},"+",QColor("#dedede"),13);
+        }else{
+            body(p,{30,11,100,100},QColor("#34383b"),12);
+            body(p,{36,18,88,84},QColor("#1c2023"),10);
+            p.setPen(QPen(QColor("#535b60"),1.2));p.setBrush(QColor("#41494d"));p.drawEllipse(QPointF(80,60),32,37);
+            p.setBrush(QColor("#242a2d"));p.drawEllipse(QPointF(80,60),14,16);
+            for(int i=0;i<5;++i){p.setPen(QPen(QColor("#161a1c"),2));p.drawLine(48,28+i*16,112,28+i*16);}
+            label(p,{35,112,90,12},"8 Ω",QColor("#64748b"),8);
+        }break;}
+    case PartKind::TemperatureSensor:{
+        for(const auto& name:CircuitDocument::pins(part)){const auto point=artPin(part,name);lead(p,{point.x(),75},point);}
+        QPainterPath package({48,82});package.lineTo(48,35);package.quadTo(48,16,80,16);package.quadTo(112,16,112,35);package.lineTo(112,82);package.closeSubpath();
+        p.setPen(Qt::NoPen);p.setBrush(QColor("#303438"));p.drawPath(package);label(p,{49,35,62,20},"TMP",Qt::white,14);label(p,{49,55,62,18},"36",Qt::white,12);break;}
+    case PartKind::BatteryAA:{
+        body(p,{40,15,80,125},QColor("#303436"),2);body(p,{48,20,64,115},QColor("#369da4"),1);
+        body(p,{67,5,26,10},QColor("#c0c4c6"),1);lead(p,{80,8},{80,15});lead(p,{80,140},{80,145});
+        label(p,{47,23,66,18},"+",Qt::white,16);label(p,{47,61,66,24},"AA",Qt::white,18);label(p,{47,88,66,20},"1.5 V",Qt::white,13);label(p,{47,115,66,18},"−",Qt::white,16);break;}
+    case PartKind::ToggleSwitch:{
+        lead(p,{40,70},{40,118});lead(p,{120,70},{120,118});body(p,{30,27,100,75},QColor("#383d41"),4);
+        body(p,{45,34,70,60},part.pressed?QColor("#287d60"):QColor("#24292d"),3);
+        label(p,{48,part.pressed?39.0:65.0,64,22},part.pressed?"I":"O",Qt::white,18);break;}
     case PartKind::Potentiometer:{
         for(const auto& name:CircuitDocument::pins(part)){auto point=artPin(part,name);lead(p,{point.x(),78},point);}
         body(p,{36,24,88,65},QColor("#245a91"),2);p.setPen(QPen(QColor("#6395b9"),1));p.drawLine(39,28,120,28);p.drawLine(39,28,39,84);
@@ -279,7 +333,7 @@ void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitSta
         else{p.setPen(QPen(QColor("#cbd3d9"),6));p.drawLine(110,43,110,73);label(p,{46,44,53,28},"Si",Qt::white,9);}break;}
     case PartKind::Battery3V:{
         lead(p,{0,58},{160,58});body(p,{28,12,104,100},QColor("#30383c"),18);p.setPen(QPen(QColor("#7f8b96"),2));
-        QLinearGradient gradient(45,20,115,100);gradient.setColorAt(0,QColor("#eef1f2"));gradient.setColorAt(0.5,QColor("#aeb8c1"));gradient.setColorAt(1,QColor("#e3e9ed"));p.setBrush(gradient);p.drawEllipse(QPointF(80,59),44,44);
+        p.setBrush(QColor("#bec3c6"));p.drawEllipse(QPointF(80,59),44,44);
         label(p,{47,29,66,27},"+",QColor("#56616b"),21);label(p,{44,63,72,25},"CR2032 3V",QColor("#56616b"),9);break;}
     case PartKind::Battery9V:{
         body(p,{40,20,80,107},QColor("#333b42"),6);body(p,{40,20,80,35},QColor("#bb985c"),5);screw(p,{62,12},8);

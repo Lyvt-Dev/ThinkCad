@@ -18,11 +18,12 @@ using namespace thinkercad;
 namespace {
 QPainterPath wirePath(QPointF a,QPointF b) {QPainterPath p(a);p.lineTo(b);return p;}
 QString partName(PartKind kind){return Language::text(QString::fromStdString(componentSpec(kind).label));}
-bool switchable(PartKind kind){return kind==PartKind::Button||kind==PartKind::SlideSwitch||kind==PartKind::TiltSwitch||kind==PartKind::ReedSwitch;}
-QRectF blockBounds(const CircuitPart& part){return part.kind==PartKind::Esp8266?QRectF(-10,-10,230,std::max(370,202+static_cast<int>((CircuitDocument::pins(part).size()+1)/2-1)*24)):part.kind==PartKind::Oled?QRectF(-10,-10,310,224):part.kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*20));}
+bool switchable(PartKind kind){return kind==PartKind::ToggleSwitch||kind==PartKind::Button||kind==PartKind::SlideSwitch||kind==PartKind::TiltSwitch||kind==PartKind::ReedSwitch;}
+double blockBoardScale(const CircuitPart& part){return part.kind==PartKind::Esp8266&&BoardProfile::get(part.model).arduino()?1.25:1.0;}
+QRectF blockBounds(const CircuitPart& part){const double scale=blockBoardScale(part);return part.kind==PartKind::Esp8266?QRectF(-10*scale,-10*scale,230*scale,scale*std::max(370,202+static_cast<int>((CircuitDocument::pins(part).size()+1)/2-1)*24)):part.kind==PartKind::Oled?QRectF(-10,-10,310,224):part.kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*20));}
 QPointF localPin(const CircuitPart& part,const std::string& pin) {if(ComponentDesign::realistic())return ComponentDesign::pinPosition(part,pin);const auto kind=part.kind;
     const auto names=CircuitDocument::pins(part);const int index=static_cast<int>(std::find(names.begin(),names.end(),pin)-names.begin());
-    if(kind==PartKind::Esp8266){const int half=(names.size()+1)/2;return index<half?QPointF(0,142+index*24):QPointF(210,142+(index-half)*24);}
+    if(kind==PartKind::Esp8266){const int half=(names.size()+1)/2;return (index<half?QPointF(0,142+index*24):QPointF(210,142+(index-half)*24))*blockBoardScale(part);}
     if(kind==PartKind::Oled)return {47.0+index*66,200};
     if(kind==PartKind::Breadboard30){const int column=std::stoi(pin.substr(1))-1,row=pin[0]-'a';return {20.0+column*18,40.0+row*18+(row>=5?25:0)};}
     if(names.size()>2){const int half=(names.size()+1)/2;return {index<half?0.0:150.0,44.0+(index%half)*20};}
@@ -100,6 +101,7 @@ public:
         if(realistic_){ComponentDesign::paint(*p,part,state,visible,brightness,isSelected());return;}
         p->setPen(QPen(isSelected()?QColor("#0d9488"):QColor("#cbd5e1"),isSelected()?2.5:1));p->setBrush(QColor("#ffffff"));
         if(kind==PartKind::Esp8266){
+            p->scale(blockBoardScale(part),blockBoardScale(part));
             const auto profile=BoardProfile::get(part.model);const auto names=CircuitDocument::pins(part);const int half=(names.size()+1)/2;const int boardHeight=std::max(346,182+(half-1)*24);p->setBrush(QColor(profile.arduino()?"#087b9b":"#143e3c"));p->drawRoundedRect(0,0,210,boardHeight,14,14);p->setPen(Qt::NoPen);p->setBrush(QColor("#dbe5ea"));p->drawRoundedRect(10,30,190,84,6,6);
             p->setPen(QColor("#203b44"));p->setFont(QFont("Segoe UI",13,QFont::Bold));p->drawText(QRectF(12,42,186,30),Qt::AlignCenter,QString::fromStdString(profile.label));p->setFont(QFont("Segoe UI",9));p->drawText(QRectF(38,77,134,24),Qt::AlignCenter,profile.arduino()?"5 V · ATmega328P":part.model.empty()||part.model=="esp8266"?"3.3 V · NodeMCU":"3.3 V · GPIO / ADC");
             p->setBrush(QColor("#0a282d"));p->setPen(Qt::NoPen);p->drawRoundedRect(72,157,65,58,5,5);
@@ -118,7 +120,9 @@ public:
             if(switchable(kind)){p->setBrush(part.pressed?QColor("#0d9488"):QColor("#e2e8f0"));p->drawRoundedRect(50,39,50,34,8,8);p->setPen(QColor("#64748b"));p->setFont(QFont("Segoe UI",8));p->drawText(QRectF(8,81,134,18),Qt::AlignCenter,part.pressed?Language::text("Gedrückt"):Language::text("Doppelklick: drücken"));}
             const auto& spec=componentSpec(kind);if(spec.adjustable&&kind!=PartKind::Resistor&&kind!=PartKind::AnalogSource){p->setPen(QColor("#0d9488"));p->setFont(QFont("Segoe UI",12,QFont::DemiBold));p->drawText(QRectF(20,42,110,40),Qt::AlignCenter,QString::number(part.value,'g',4)+QString::fromStdString(spec.unit));}
             if(kind==PartKind::Diode){p->setPen(QPen(QColor("#334155"),3));p->drawLine(35,64,115,64);p->setBrush(QColor("#334155"));p->drawRect(53,52,37,24);p->setPen(QPen(Qt::white,3));p->drawLine(83,52,83,76);}
-            if(kind==PartKind::Battery3V||kind==PartKind::Battery9V||kind==PartKind::PowerSupply){p->setPen(QColor("#0d9488"));p->setFont(QFont("Segoe UI",14,QFont::Bold));p->drawText(QRectF(22,40,106,42),Qt::AlignCenter,QString("%1 V").arg(part.value));}
+            if(kind==PartKind::BatteryAA||kind==PartKind::Battery3V||kind==PartKind::Battery9V||kind==PartKind::PowerSupply){p->setPen(QColor("#0d9488"));p->setFont(QFont("Segoe UI",14,QFont::Bold));p->drawText(QRectF(22,40,106,42),Qt::AlignCenter,QString("%1 V").arg(part.value));}
+            if(kind==PartKind::TemperatureSensor){p->setPen(QColor("#0d9488"));p->drawText(QRectF(15,38,120,42),Qt::AlignCenter,QString("%1 °C").arg(part.value));}
+            if(kind==PartKind::PiezoBuzzer||kind==PartKind::Speaker){p->setBrush(QColor("#343b42"));p->drawEllipse(QPointF(75,61),24,24);p->setBrush(QColor("#111827"));p->drawEllipse(QPointF(75,61),10,10);}
             if(kind==PartKind::Voltmeter){auto a=state.voltage.find({id,"+"}),b=state.voltage.find({id,"-"});p->setPen(QColor("#0d9488"));p->setFont(QFont("Consolas",13,QFont::Bold));p->drawText(QRectF(20,42,110,40),Qt::AlignCenter,a!=state.voltage.end()&&b!=state.voltage.end()&&a->second&&b->second?QString("%1 V").arg(*a->second-*b->second,0,'f',3):"— V");}
             if(kind==PartKind::RGBLed){auto channel=[&](const char* name){auto found=state.ledCurrent.find(id+":"+name);return found==state.ledCurrent.end()?0:static_cast<int>(255*std::sqrt(std::clamp(found->second/0.02,0.0,1.0)));};p->setPen(Qt::NoPen);p->setBrush(QColor(channel("R"),channel("G"),channel("B")));p->drawEllipse(QPointF(75,64),20,20);}
             if(kind==PartKind::SevenSegment){const std::vector<std::pair<QPointF,QPointF>> lines{{{55,38},{95,38}},{{100,42},{100,75}},{{100,83},{100,116}},{{55,120},{95,120}},{{50,83},{50,116}},{{50,42},{50,75}},{{55,79},{95,79}}};for(int i=0;i<7;++i){auto found=state.ledCurrent.find(id+":"+std::string(1,'a'+i));p->setPen(QPen(found!=state.ledCurrent.end()&&found->second>1e-5?QColor("#fb586b"):QColor("#cbd5e1"),5,Qt::SolidLine,Qt::RoundCap));p->drawLine(lines[i].first,lines[i].second);}auto dot=state.ledCurrent.find(id+":dp");p->setBrush(dot!=state.ledCurrent.end()&&dot->second>1e-5?QColor("#fb586b"):QColor("#cbd5e1"));p->drawEllipse(QPointF(115,120),3,3);}

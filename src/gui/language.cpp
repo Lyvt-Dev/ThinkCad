@@ -8,6 +8,16 @@
 #include <QVariant>
 namespace {
 const QMap<QString,QString>& translations(){static const QMap<QString,QString> values{
+    {"Melodie mit Piezo und Lautsprecher","Melody with piezo and speaker"},
+    {"Arduino D3: Piezo direkt, 8-Ω-Lautsprecher über 470 Ω. tone() spielt Noten, noTone() erzeugt Pausen.","Arduino D3: piezo directly, 8-ohm speaker through 470 ohms. tone() plays notes, noTone() creates pauses."},
+    {"Temperatur messen (TMP36)","Measure temperature (TMP36)"},
+    {"TMP36 an Arduino 5V/GND/A0. Temperatur im Eigenschaftenfeld ändern; über 20 °C leuchtet die LED.","TMP36 on Arduino 5V/GND/A0. Adjust temperature in the inspector; the LED lights above 20 °C."},
+    {"Piezo-Summer (passiv)","Piezo buzzer (passive)"},{"Mini-Lautsprecher 8 Ω","Mini speaker 8 Ω"},
+    {"Temperatursensor TMP36","TMP36 temperature sensor"},{"AA-Batterie 1,5 V (ideal)","AA battery 1.5 V (ideal)"},
+    {"Ein-/Ausschalter SPST","On/off switch SPST"},{"Ton aktivieren","Enable sound"},
+    {"Schalterposition 2","Switch position 2"},{"Kontakt geschlossen","Contact closed"},
+    {"Kein Audioausgabegerät verfügbar. Simulation läuft ohne Ton.","No audio output device available. Simulation continues without sound."},
+    {"Audioausgabe fehlgeschlagen. Audiogerät prüfen.","Audio output failed. Check your audio device."},
     {"Sprache…","Language…"},{"Komponenten Design…","Component design…"},
     {"Projekte","Projects"},{"ThinkCad – Schaltungen und Arduino-Sketches","ThinkCad – circuits and Arduino sketches"},
     {"Projekt öffnen oder erstellen","Open or create a project"},{"Hilfe und Beispiele","Help and examples"},

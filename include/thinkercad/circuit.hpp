@@ -4,7 +4,7 @@
 #include <set>
 #include <tuple>
 namespace thinkercad {
-enum class PartKind { Esp8266, Oled, Led, Resistor, Button, AnalogSource, Potentiometer, Photoresistor, Thermistor, SlideSwitch, TiltSwitch, ReedSwitch, Diode, Battery3V, Battery9V, PowerSupply, RGBLed, SevenSegment, Voltmeter, Breadboard30 };
+enum class PartKind { Esp8266, Oled, Led, Resistor, Button, AnalogSource, Potentiometer, Photoresistor, Thermistor, SlideSwitch, TiltSwitch, ReedSwitch, Diode, Battery3V, Battery9V, PowerSupply, RGBLed, SevenSegment, Voltmeter, Breadboard30, PiezoBuzzer, Speaker, TemperatureSensor, BatteryAA, ToggleSwitch };
 struct ComponentSpec {PartKind kind;std::string label,unit;double initial,min,max;bool adjustable;};
 const std::vector<ComponentSpec>& componentCatalog();
 const ComponentSpec& componentSpec(PartKind kind);
@@ -25,6 +25,10 @@ struct CircuitPart {
 };
 struct WirePoint { double x=0,y=0; };
 struct CircuitWire { std::string id; Endpoint a,b; std::string color="#0d9488"; std::vector<WirePoint> points; };
+struct SoundSignal {
+    std::string id;
+    double frequency=0, amplitude=0; // Normalized AC peak, including electrical attenuation.
+};
 struct CircuitState {
     std::map<Endpoint,std::optional<double>> voltage;
     std::map<Endpoint,double> logicVoltage;
@@ -55,6 +59,7 @@ public:
     void validate() const;
     CircuitState solve(const Esp8266Board& board) const;
     CircuitState solve(const std::map<std::string,const Esp8266Board*>& boards) const;
+    std::vector<SoundSignal> soundSignals(const std::map<std::string,const Esp8266Board*>& boards) const;
     bool oledReady(const std::string& id,int sda,int scl,const CircuitState& state,const std::string& boardId={}) const;
 private:
     std::string activeBoard_;

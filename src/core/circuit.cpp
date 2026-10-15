@@ -7,7 +7,12 @@
 namespace thinkercad {
 const std::vector<ComponentSpec>& componentCatalog(){static const std::vector<ComponentSpec> types{
 {PartKind::Esp8266,"Mikrocontroller","",0,0,1e9,false},{PartKind::Oled,"OLED SSD1306","",60,60,61,false},{PartKind::Led,"LED","",220,0,1e9,false},{PartKind::Resistor,"Widerstand"," Ω",220,1,1e9,true},{PartKind::Button,"Taster","",220,0,1e9,false},{PartKind::AnalogSource,"Analogquelle"," V",0.5,0,3.3,true},
-{PartKind::Potentiometer,"Potentiometer 10 kΩ"," %",50,0,100,true},{PartKind::Photoresistor,"Fotowiderstand"," lx",100,0,100000,true},{PartKind::Thermistor,"NTC 10k B3950"," °C",25,-40,125,true},{PartKind::SlideSwitch,"Schiebeschalter SPDT","",0,0,1,false},{PartKind::TiltSwitch,"Neigungsschalter","",0,0,1,false},{PartKind::ReedSwitch,"Reedkontakt","",0,0,1,false},{PartKind::Diode,"Siliziumdiode","",0,0,1,false},{PartKind::Battery3V,"3-V-Batterie (ideal)","",3,3,3,false},{PartKind::Battery9V,"9-V-Batterie (ideal)","",9,9,9,false},{PartKind::PowerSupply,"Gleichspannungsquelle"," V",5,0,12,true},{PartKind::RGBLed,"RGB-LED (Kathode)","",0,0,1,false},{PartKind::SevenSegment,"7-Segment (Kathode)","",0,0,1,false},{PartKind::Voltmeter,"Voltmeter (ideal)","",0,0,1,false},{PartKind::Breadboard30,"Breadboard 300 Kontakte","",0,0,1,false}
+{PartKind::Potentiometer,"Potentiometer 10 kΩ"," %",50,0,100,true},{PartKind::Photoresistor,"Fotowiderstand"," lx",100,0,100000,true},{PartKind::Thermistor,"NTC 10k B3950"," °C",25,-40,125,true},{PartKind::SlideSwitch,"Schiebeschalter SPDT","",0,0,1,false},{PartKind::TiltSwitch,"Neigungsschalter","",0,0,1,false},{PartKind::ReedSwitch,"Reedkontakt","",0,0,1,false},{PartKind::Diode,"Siliziumdiode","",0,0,1,false},{PartKind::Battery3V,"3-V-Batterie (ideal)","",3,3,3,false},{PartKind::Battery9V,"9-V-Batterie (ideal)","",9,9,9,false},{PartKind::PowerSupply,"Gleichspannungsquelle"," V",5,0,12,true},{PartKind::RGBLed,"RGB-LED (Kathode)","",0,0,1,false},{PartKind::SevenSegment,"7-Segment (Kathode)","",0,0,1,false},{PartKind::Voltmeter,"Voltmeter (ideal)","",0,0,1,false},{PartKind::Breadboard30,"Breadboard 300 Kontakte","",0,0,1,false},
+{PartKind::PiezoBuzzer,"Piezo-Summer (passiv)","",0,0,1,false},
+{PartKind::Speaker,"Mini-Lautsprecher 8 Ω","",8,8,8,false},
+{PartKind::TemperatureSensor,"Temperatursensor TMP36"," °C",25,-40,125,true},
+{PartKind::BatteryAA,"AA-Batterie 1,5 V (ideal)","",1.5,1.5,1.5,false},
+{PartKind::ToggleSwitch,"Ein-/Ausschalter SPST","",0,0,1,false}
 };return types;}
 const ComponentSpec& componentSpec(PartKind kind){for(const auto& type:componentCatalog())if(type.kind==kind)return type;throw std::invalid_argument("Unknown component type");}
 namespace {
@@ -27,7 +32,7 @@ struct Nodes {
         }
         for(const auto& w:doc.wires())join(w.a,w.b);
         for(const auto& p:doc.parts()){
-            if((p.kind==PartKind::Button||p.kind==PartKind::TiltSwitch||p.kind==PartKind::ReedSwitch)&&p.pressed)join({p.id,"1"},{p.id,"2"});
+            if((p.kind==PartKind::ToggleSwitch||p.kind==PartKind::Button||p.kind==PartKind::TiltSwitch||p.kind==PartKind::ReedSwitch)&&p.pressed)join({p.id,"1"},{p.id,"2"});
             if(p.kind==PartKind::SlideSwitch)join({p.id,"C"},{p.id,p.pressed?"2":"1"});
             if(p.kind==PartKind::Breadboard30)for(int n=1;n<=30;++n)for(char start:{'a','f'})for(int j=1;j<5;++j)join({p.id,std::string(1,start)+std::to_string(n)},{p.id,std::string(1,start+j)+std::to_string(n)});
         }
@@ -66,6 +71,8 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
     if(k==PartKind::Esp8266)return {"3V3","GND","GPIO16","GPIO5","GPIO4","GPIO0","GPIO2","A0","GND2","GPIO14","GPIO12","GPIO13","GPIO15","GPIO3","GPIO1","3V3_2"};
     if(k==PartKind::Oled)return {"GND","VCC","SCL","SDA"};
     if(k==PartKind::Led||k==PartKind::Diode)return {"A","K"};
+    if(k==PartKind::TemperatureSensor)return {"VCC","OUT","GND"};
+    if(k==PartKind::PiezoBuzzer||k==PartKind::Speaker||k==PartKind::BatteryAA)return {"+","-"};
     if(k==PartKind::Potentiometer)return {"1","W","2"};
     if(k==PartKind::SlideSwitch)return {"1","C","2"};
     if(k==PartKind::RGBLed)return {"R","G","B","K"};
@@ -143,11 +150,13 @@ CircuitState CircuitDocument::solve(const std::map<std::string,const Esp8266Boar
     }
     }
     for(const auto& p:parts_) {
+        if(p.kind==PartKind::Speaker||p.kind==PartKind::PiezoBuzzer)
+            resistors.push_back({nodes.node({p.id,"+"}),nodes.node({p.id,"-"}),p.kind==PartKind::Speaker?8.0:1e6});
         if(p.kind==PartKind::Oled){resistors.push_back({nodes.node({p.id,"SDA"}),nodes.node({p.id,"VCC"}),4700});resistors.push_back({nodes.node({p.id,"SCL"}),nodes.node({p.id,"VCC"}),4700});}
         if(p.kind==PartKind::Potentiometer){resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"W"}),std::max(0.01,100*p.value)});resistors.push_back({nodes.node({p.id,"W"}),nodes.node({p.id,"2"}),std::max(0.01,100*(100-p.value))});}
         if(p.kind==PartKind::Photoresistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),std::clamp(10000*std::pow(10/std::max(0.01,p.value),0.7),10.0,1e7)});
         if(p.kind==PartKind::Thermistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),10000*std::exp(3950*(1/(p.value+273.15)-1/298.15))});
-        if((p.kind==PartKind::Battery3V||p.kind==PartKind::Battery9V||p.kind==PartKind::PowerSupply)&&grounds.contains(nodes.node({p.id,"-"})))driver(nodes.node({p.id,"+"}),p.value);
+        if((p.kind==PartKind::BatteryAA||p.kind==PartKind::Battery3V||p.kind==PartKind::Battery9V||p.kind==PartKind::PowerSupply)&&grounds.contains(nodes.node({p.id,"-"})))driver(nodes.node({p.id,"+"}),p.value);
         if(p.kind==PartKind::Resistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),p.value});
         if(p.kind==PartKind::AnalogSource&&grounds.contains(nodes.node({p.id,"GND"})))driver(nodes.node({p.id,"OUT"}),p.value);
     }
@@ -157,7 +166,7 @@ CircuitState CircuitDocument::solve(const std::map<std::string,const Esp8266Boar
         if(p.kind==PartKind::RGBLed)for(const auto& channel:std::vector<std::pair<std::string,double>>{{"R",2},{"G",2.2},{"B",3}})junctions.push_back({p.id+":"+channel.first,nodes.node({p.id,channel.first}),nodes.node({p.id,"K"}),channel.second,10,0.02});
         if(p.kind==PartKind::SevenSegment)for(const auto& channel:std::vector<std::string>{"a","b","c","d","e","f","g","dp"})junctions.push_back({p.id+":"+channel,nodes.node({p.id,channel}),nodes.node({p.id,"COM"}),2,10,0.02});
     }
-    std::map<std::string,bool> conducting;std::map<int,double> volts;
+    std::map<std::string,bool> conducting;std::map<int,double> volts;std::set<std::string> poweredSensors;
     for(int iteration=0;iteration<24;++iteration) {
         auto branches=resistors;
         for(const auto& j:junctions)if(conducting[j.id])branches.push_back({j.a,j.k,j.resistance,j.vf});
@@ -171,15 +180,63 @@ CircuitState CircuitDocument::solve(const std::map<std::string,const Esp8266Boar
         }
         const auto solved=linearSolve(std::move(matrix),std::move(rhs));volts=fixed;for(const auto& [n,row]:unknown)volts[n]=solved[row];
         bool changed=false;for(const auto& j:junctions){bool on=volts.contains(j.a)&&volts.contains(j.k)&&volts[j.a]-volts[j.k]>j.vf+1e-8;if(conducting[j.id]!=on){conducting[j.id]=on;changed=true;}}
+        // TMP36: ideal high-impedance sensor, 500 mV offset + 10 mV/°C.
+        // Wait for the supply network to resolve, including series resistors/switches.
+        for(const auto& p:parts_)if(p.kind==PartKind::TemperatureSensor&&!poweredSensors.contains(p.id)){
+            const int v=nodes.node({p.id,"VCC"}),g=nodes.node({p.id,"GND"});
+            if(volts.contains(v)&&volts.contains(g)){
+                const double supply=volts.at(v)-volts.at(g);
+                if(supply< -0.3||supply>5.5)result.errors.push_back("TMP36: Versorgung außerhalb 2,7–5,5 V / Polarität prüfen.");
+                if(supply>=2.7&&supply<=5.5){driver(nodes.node({p.id,"OUT"}),volts.at(g)+0.5+0.01*p.value);poweredSensors.insert(p.id);changed=true;}
+            }
+        }
         if(!changed)break;
         if(iteration==23)result.errors.push_back("LED network did not converge");
     }
     for(const auto& [ep,index]:nodes.index){const int n=nodes.find(index);result.voltage[ep]=volts.contains(n)?std::optional<double>(volts.at(n)):std::nullopt;}
     for(const auto& j:junctions){const double current=volts.contains(j.a)&&volts.contains(j.k)?std::max(0.0,(volts[j.a]-volts[j.k]-j.vf)/j.resistance):0;result.ledCurrent[j.id]=current;if(current>j.limit+1e-6)result.errors.push_back("Überstrom: "+j.id+". Vorwiderstand / Beschaltung prüfen.");}
+    // A small speaker is a real 8-ohm load, not a logic input.
+    // Report excessive GPIO current rather than hiding a direct speaker short.
+    if(std::any_of(parts_.begin(),parts_.end(),[](const auto& p){return p.kind==PartKind::Speaker;}))
+    for(const auto& [id,source]:boards)if(source)for(int gpio:source->profile().gpio){
+        const auto& pin=source->pin(gpio);if(pin.mode!=PinMode::Output)continue;
+        const int n=nodes.node({id,source->profile().pinName(gpio)});double current=0;
+        for(const auto& branch:resistors)if(branch.a!=branch.b&&volts.contains(branch.a)&&volts.contains(branch.b)){
+            const double flow=(volts.at(branch.a)-volts.at(branch.b))/branch.resistance;
+            if(branch.a==n)current+=flow;
+            if(branch.b==n)current-=flow;
+        }
+        if(std::abs(current)>(source->profile().arduino()?0.04:0.012)+1e-6)
+            result.errors.push_back("GPIO-Überstrom: "+id+"."+source->profile().pinName(gpio)+". Lautsprecher benötigt Vorwiderstand / Verstärker.");
+    }
     for(const auto& [id,source]:boards){if(!source)continue;const auto& board=*source;for(const auto& ep:result.voltage)if(ep.first.part==id&&ep.second){const double limit=ep.first.pin=="A0"?board.profile().adcMax:board.profile().voltage+0.3;if(*ep.second>limit+1e-6||*ep.second<-0.3)result.errors.push_back("Überspannung am Boardpin "+ep.first.pin);}
 
     }
     return result;
+}
+std::vector<SoundSignal> CircuitDocument::soundSignals(const std::map<std::string,const Esp8266Board*>& boards)const {
+    std::vector<SoundSignal> signals;
+    if(std::none_of(parts_.begin(),parts_.end(),[](const auto& p){return p.kind==PartKind::PiezoBuzzer||p.kind==PartKind::Speaker;}))return signals;
+    for(const auto& [id,board]:boards)if(board)for(int gpio:board->profile().gpio){
+        const auto& pin=board->pin(gpio);if(!pin.frequency||pin.mode!=PinMode::Output)continue;
+        auto probe=*board;auto sources=boards;sources[id]=&probe;
+        probe.digitalWrite(gpio,true);const auto high=solve(sources);
+        probe.digitalWrite(gpio,false);const auto low=solve(sources);
+        if(!high.errors.empty()||!low.errors.empty())continue;
+        for(const auto& part:parts_)if(part.kind==PartKind::PiezoBuzzer||part.kind==PartKind::Speaker){
+            auto difference=[&](const CircuitState& state)->std::optional<double>{
+                const auto& a=state.voltage.at({part.id,"+"});const auto& b=state.voltage.at({part.id,"-"});
+                if(!a||!b)return {};
+                return *a-*b;
+            };
+            const auto a=difference(high),b=difference(low);if(!a||!b)continue;
+            // Normalize each transducer to a useful listening level; retain resistor attenuation.
+            const double reference=part.kind==PartKind::Speaker?0.25:board->profile().voltage;
+            const double amplitude=(*a-*b)/reference;
+            if(std::abs(amplitude)>1e-6)signals.push_back({part.id+":"+id+":"+std::to_string(gpio),double(pin.frequency),std::clamp(amplitude,-1.0,1.0)});
+        }
+    }
+    return signals;
 }
 bool CircuitDocument::oledReady(const std::string& id,int sda,int scl,const CircuitState& state,const std::string& board) const {
     if(part(id).kind!=PartKind::Oled||sda==scl)return false;

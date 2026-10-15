@@ -17,5 +17,16 @@ int main(){try{
     CircuitDocument seven;auto digit=seven.addPart(PartKind::SevenSegment,0,0),limit=seven.addPart(PartKind::Resistor,0,0);seven.connect({"board","3V3"},{limit,"1"});seven.connect({limit,"2"},{digit,"a"});seven.connect({digit,"COM"},{"board","GND"});state=seven.solve(board);check(state.errors.empty()&&state.ledCurrent.at(digit+":a")>0.005&&state.ledCurrent.at(digit+":b")==0,"7-segment independent segment currents");
     CircuitDocument power;auto battery=power.addPart(PartKind::Battery9V,0,0),meter=power.addPart(PartKind::Voltmeter,0,0);power.connect({battery,"-"},{"board","GND"});power.connect({meter,"-"},{"board","GND"});power.connect({battery,"+"},{meter,"+"});state=power.solve(board);check(state.errors.empty()&&std::abs(*state.voltage.at({meter,"+"})-9)<1e-9,"ideal battery and voltmeter");power.connect({battery,"+"},{"board","GPIO14"});check(!power.solve(board).errors.empty(),"9V GPIO overvoltage rejected");
     board.configure("esp8266");for(const auto& type:componentCatalog()){if(type.kind==PartKind::Esp8266)continue;CircuitDocument empty;empty.addPart(type.kind,0,0);check(empty.solve(board).errors.empty(),"catalog component default is a valid disconnected model");}
+    CircuitDocument extras;extras.part("board").model="arduino-uno";board.configure("arduino-uno");
+    const auto tmp=extras.addPart(PartKind::TemperatureSensor,0,0);
+    check(!extras.solve(board).voltage.at({tmp,"OUT"}),"Unpowered TMP36 output is floating");
+    extras.connect({tmp,"VCC"},{"board","5V"});extras.connect({tmp,"GND"},{"board","GND"});
+    check(std::abs(*extras.solve(board).voltage.at({tmp,"OUT"})-0.75)<1e-9,"TMP36 outputs 750mV at 25C");
+    extras.part(tmp).value=-40;check(std::abs(*extras.solve(board).voltage.at({tmp,"OUT"})-0.1)<1e-9,"TMP36 -40C lower endpoint");
+    extras.part(tmp).value=125;check(std::abs(*extras.solve(board).voltage.at({tmp,"OUT"})-1.75)<1e-9,"TMP36 125C upper endpoint");
+    extras.clearWires();extras.connect({tmp,"VCC"},{"board","GND"});extras.connect({tmp,"GND"},{"board","5V"});check(!extras.solve(board).errors.empty(),"TMP36 reverse polarity diagnosed");
+    extras.clearWires();const auto aa=extras.addPart(PartKind::BatteryAA,0,0);extras.connect({aa,"-"},{"board","GND"});check(std::abs(*extras.solve(board).voltage.at({aa,"+"})-1.5)<1e-9,"AA cell produces 1.5V");
+    extras.connect({tmp,"GND"},{"board","GND"});extras.connect({tmp,"VCC"},{aa,"+"});check(!extras.solve(board).voltage.at({tmp,"OUT"}),"TMP36 below minimum supply remains unpowered");
+    const auto spst=extras.addPart(PartKind::ToggleSwitch,0,0);check(!extras.connected({spst,"1"},{spst,"2"}),"SPST initially open");extras.part(spst).pressed=true;check(extras.connected({spst,"1"},{spst,"2"}),"SPST closes with state change");
     std::cout<<count<<" expanded electrical checks passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

@@ -39,6 +39,7 @@ inline std::uint64_t clockUs = 0;
 inline bool standalone = false;
 inline std::map<const void*,std::function<void()>> timeObservers;
 inline std::array<int,49> modes{};
+inline std::map<int,std::uint64_t> toneDeadlines;
 inline void validatePin(int pin) {
 #if defined(THINKERCAD_ARDUINO_UNO) || defined(THINKERCAD_ARDUINO_NANO)
     if(pin<0||pin>19)throw std::invalid_argument("Unavailable Arduino digital pin");
@@ -56,10 +57,14 @@ inline void advance(std::uint64_t us) {
     do {
         const int speed = request("SPEED"); // Speed multiplier in thousandths; refreshed while running.
         if (speed < 100 || speed > 10000) throw std::runtime_error("Invalid simulation speed");
-        const auto step = std::min<std::uint64_t>(us, 50ull * speed);
+        auto step = std::min<std::uint64_t>(us, 50ull * speed);
+        for(const auto& [pin,deadline]:toneDeadlines)if(deadline>clockUs)step=std::min(step,deadline-clockUs);
         std::this_thread::sleep_for(std::chrono::microseconds(step * 1000 / speed));
         clockUs += step;us -= step;
         std::cout << "TIME " << clockUs << std::endl;
+        for(auto it=toneDeadlines.begin();it!=toneDeadlines.end();){
+            if(it->second<=clockUs){std::cout << "NOTONE " << it->first << std::endl;it=toneDeadlines.erase(it);}else ++it;
+        }
         for(const auto& observer:timeObservers)observer.second();
     } while (us);
 }
@@ -84,13 +89,30 @@ inline void pinMode(int pin, int mode) {
     pin==16&&mode==INPUT_PULLUP
 #endif
     )) throw std::invalid_argument("Unsupported pin mode");
+    thinker::toneDeadlines.erase(pin);
     thinker::modes.at(pin)=mode;
     std::cout << "MODE " << pin << ' ' << mode << std::endl;
 }
 inline void digitalWrite(int pin, int value) {
     thinker::validatePin(pin);
     if (thinker::modes.at(pin) != OUTPUT || (value != HIGH && value != LOW)) throw std::invalid_argument("digitalWrite requires OUTPUT and HIGH/LOW");
+    thinker::toneDeadlines.erase(pin);
     std::cout << "WRITE " << pin << ' ' << value << std::endl;
+}
+inline void noTone(int pin) {
+    thinker::validatePin(pin);thinker::toneDeadlines.erase(pin);
+    thinker::modes.at(pin)=OUTPUT;
+    std::cout << "NOTONE " << pin << std::endl;
+}
+inline void tone(int pin, unsigned int frequency, unsigned long duration=0) {
+    thinker::validatePin(pin);
+    if(frequency>20000)throw std::invalid_argument("tone supports frequencies up to 20000 Hz");
+    if(!frequency){noTone(pin);return;}
+    if(duration>(std::numeric_limits<std::uint64_t>::max()-thinker::clockUs)/1000)
+        throw std::overflow_error("Tone duration overflow");
+    pinMode(pin,OUTPUT); // Also rejects input-only pins for the selected board.
+    if(duration)thinker::toneDeadlines[pin]=thinker::clockUs+std::uint64_t(duration)*1000;
+    std::cout << "TONE " << pin << ' ' << frequency << std::endl;
 }
 inline int digitalRead(int pin) { thinker::validatePin(pin); return thinker::request("READ " + std::to_string(pin)); }
 inline int analogRead(int pin) {

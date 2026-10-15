@@ -7,6 +7,8 @@
 #include <algorithm>
 using namespace thinkercad;
 QList<CircuitExample> ExampleCatalog::entries(){return {
+    {"sound_melody",Language::text("Melodie mit Piezo und Lautsprecher"),Language::text("Arduino D3: Piezo direkt, 8-Ω-Lautsprecher über 470 Ω. tone() spielt Noten, noTone() erzeugt Pausen.")},
+    {"tmp36_temperature",Language::text("Temperatur messen (TMP36)"),Language::text("TMP36 an Arduino 5V/GND/A0. Temperatur im Eigenschaftenfeld ändern; über 20 °C leuchtet die LED.")},
     {"animation",Language::text("OLED-Animation"),Language::text("ESP8266 und SSD1306: zwei Bitmap-Frames aus PROGMEM mit realistischer I²C-Transferzeit.")},
     {"led_blink",Language::text("LED blinken lassen"),Language::text("Externe LED an D5 mit 220-Ω-Vorwiderstand. Mit dem Temporegler die Blinkgeschwindigkeit vergleichen.")},
     {"button_led",Language::text("Taster schaltet LED"),Language::text("Taster an D6 gegen GND, interner Pullup, LED an D5. Taster per Doppelklick oder Auswahl-Checkbox drücken.")},
@@ -28,7 +30,18 @@ SavedProject ExampleCatalog::create(const QString& id){
     };
     auto oled=[&](double x,double y,int address){const auto display=doc.addPart(PartKind::Oled,x,y);doc.part(display).value=address;
         doc.connect({"board","3V3"},{display,"VCC"},"#ec5967");doc.connect({"board","GND"},{display,"GND"},"#64748b");doc.connect({"board","GPIO5"},{display,"SCL"},"#e9ad33");doc.connect({"board","GPIO4"},{display,"SDA"},"#378bcb");};
-    if(id=="esp32_blink"||id=="esp32_s3_adc"){
+    if(id=="sound_melody"){
+        doc.part("board").model="arduino-uno";
+        const auto piezo=doc.addPart(PartKind::PiezoBuzzer,650,80),speaker=doc.addPart(PartKind::Speaker,650,280),resistor=doc.addPart(PartKind::Resistor,450,280);
+        doc.part(resistor).value=470;
+        doc.connect({"board","D3"},{piezo,"+"});doc.connect({piezo,"-"},{"board","GND"});
+        doc.connect({"board","D3"},{resistor,"1"});doc.connect({resistor,"2"},{speaker,"+"});doc.connect({speaker,"-"},{"board","GND"});
+    }
+    else if(id=="tmp36_temperature"){
+        doc.part("board").model="arduino-uno";led("D9",80,"#22c55e");const auto sensor=doc.addPart(PartKind::TemperatureSensor,650,280);
+        doc.connect({sensor,"VCC"},{"board","5V"});doc.connect({sensor,"GND"},{"board","GND"});doc.connect({sensor,"OUT"},{"board","A0"});
+    }
+    else if(id=="esp32_blink"||id=="esp32_s3_adc"){
         doc.part("board").model=id=="esp32_blink"?"esp32":"esp32-s3";led("GPIO5",80,"#22c55e");
         if(id=="esp32_s3_adc"){auto source=doc.addPart(PartKind::AnalogSource,430,270);doc.part(source).value=1.65;doc.connect({source,"OUT"},{"board","A0"});doc.connect({source,"GND"},{"board","GND"});}
     }

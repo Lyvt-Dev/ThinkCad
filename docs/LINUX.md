@@ -10,15 +10,15 @@ unterstützt. Die bestehenden Simulationsgrenzen gelten weiterhin.
 Die Release-Seite enthält ein DEB für Ubuntu 24.04 und kompatible Distributionen,
 ein RPM für Fedora 44 sowie einen Linux-Tarball aus dem Ubuntu-Build.
 Die Pakete verwenden **System-Qt und System-GCC**, keine eingebettete Windows-Toolchain.
-Der Tarball lässt sich entpacken und über `ThinkCad-0.5.3-Linux-x86_64/usr/bin/thinkcad`
+Der Tarball lässt sich entpacken und über `ThinkCad-0.5.4-Linux-x86_64/usr/bin/thinkcad`
 starten. Er ist kein distributionsunabhängiges AppImage; er benötigt kompatible
 Systembibliotheken wie das Ubuntu-Paket. Andere Distributionen können aus Quellen bauen.
 
 ```sh
 # Ubuntu 24.04 / kompatible Systeme
-sudo apt install ./ThinkCad-0.5.3-Linux-x86_64.deb
+sudo apt install ./ThinkCad-0.5.4-Linux-x86_64.deb
 # Fedora 44
-sudo dnf install ./ThinkCad-0.5.3-Fedora44-x86_64.rpm
+sudo dnf install ./ThinkCad-0.5.4-Fedora44-x86_64.rpm
 thinkcad
 ```
 
@@ -29,14 +29,14 @@ im Nutzerverzeichnis gespeichert. Auf HiDPI-Bildschirmen übernimmt Qt die Skali
 
 ## Aus Quellen bauen
 
-CMake ≥3.24, ein C++20-Compiler, Qt ≥6.4 mit Widgets/Network und zlib werden benötigt.
+CMake ≥3.24, ein C++20-Compiler, Qt ≥6.4 mit Widgets/Network/Multimedia und zlib werden benötigt.
 Zur Laufzeit braucht die Sketch-Ausführung einen aktiven GCC/g++ mit C++20-Unterstützung
 (empfohlen ≥12). Die GUI selbst kann auch mit Clang gebaut werden. Die Bibliothekstests
 brauchen Qt Test, für X11 einen Qt-XCB-Plugin und für Wayland den Qt-Wayland-Plugin.
 
 ```sh
 # Ubuntu 24.04
-sudo apt install cmake ninja-build g++ qt6-base-dev qt6-base-dev-tools \
+sudo apt install cmake ninja-build g++ qt6-base-dev qt6-multimedia-dev qt6-base-dev-tools \
   qt6-qpa-plugins qt6-wayland zlib1g-dev
 # Im entpackten Source-Verzeichnis:
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
@@ -58,13 +58,13 @@ bei installierten Beispielen. Die Testsuite läuft ohne Desktop ebenfalls offscr
 
 ## Gentoo: Portage und USE-Flags
 
-Das Release enthält **ThinkCad-0.5.3-Gentoo-overlay.tar.xz** mit Ebuild und passendem
+Das Release enthält **ThinkCad-0.5.4-Gentoo-overlay.tar.xz** mit Ebuild und passendem
 DIST-Manifest. Es ist ein lokales Overlay, kein Eintrag im offiziellen Gentoo-Repository.
 Das Quellarchiv wird von Portage aus demselben GitHub-Release geladen und geprüft.
 
 ```sh
 sudo mkdir -p /var/db/repos/thinkcad
-sudo tar -xJf ThinkCad-0.5.3-Gentoo-overlay.tar.xz \
+sudo tar -xJf ThinkCad-0.5.4-Gentoo-overlay.tar.xz \
   -C /var/db/repos/thinkcad --strip-components=1
 sudo mkdir -p /etc/portage/repos.conf
 sudo tee /etc/portage/repos.conf/thinkcad.conf <<'CONF'
