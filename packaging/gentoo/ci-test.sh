@@ -30,6 +30,14 @@ QT_QPA_PLATFORM=offscreen thinkcad --smoke-test
 USE='-examples -test X -wayland' emerge --oneshot --usepkg=n media-gfx/thinkcad
 test -x /usr/bin/thinkcad
 test ! -d /usr/share/thinkcad/examples
+# A user sketch must compile from the installed SDK even without examples.
+cat > /tmp/thinkcad-user.ino <<'SKETCH'
+void setup(){pinMode(5,OUTPUT);}
+void loop(){digitalWrite(5,HIGH);delay(5);}
+SKETCH
+g++ -std=c++20 -pthread -I/usr/share/thinkcad/sdk '-DTHINKERCAD_SKETCH="/tmp/thinkcad-user.ino"' /usr/share/thinkcad/sdk/runner.cpp -o /tmp/thinkcad-user-sketch
+/tmp/thinkcad-user-sketch --iterations 1 > /tmp/thinkcad-user-output
+grep -q '^WRITE 5 1$' /tmp/thinkcad-user-output
 # Build the Wayland-only dependency configuration as well.
 USE='-examples -test -X wayland' emerge --oneshot --usepkg=n media-gfx/thinkcad
 # Invalid combinations are rejected by Portage REQUIRED_USE.

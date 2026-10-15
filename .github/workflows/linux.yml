@@ -19,7 +19,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++ qt6-base-dev qt6-base-dev-tools qt6-qpa-plugins qt6-wayland zlib1g-dev xvfb xauth weston desktop-file-utils appstream dpkg-dev
       - name: Build and test
         run: |
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON
           cmake --build build --parallel 2
           ctest --test-dir build --output-on-failure
           ./build/library_tests --live
