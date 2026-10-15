@@ -19,6 +19,7 @@ public:
     ~MainWindow() override;
     bool openPath(const QString& path);
     void loadDemo();
+    bool loadExample(const QString& id);
     void startSimulation();
     bool saveProjectTo(const QString& path);
     CircuitCanvas* canvas(){return canvas_;}
@@ -51,6 +52,7 @@ private:
     int writes_=0;
     void process(const QByteArray& line);
     void libraries();
+    void examplesDialog();
     void appendLog(const QString& message);
     void updateCircuit(bool stopOnError=false);
     void updateInspector();

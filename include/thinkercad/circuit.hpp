@@ -16,6 +16,7 @@ struct CircuitPart {
     double x=0,y=0;
     double value=220; // Ohms for a resistor, volts for an analog source.
     bool pressed=false;
+    std::string color="#fb586b"; // Visual LED tint; electrical model still uses Vf=2 V.
 };
 struct CircuitWire { std::string id; Endpoint a,b; std::string color="#0d9488"; };
 struct CircuitState {

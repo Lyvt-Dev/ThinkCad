@@ -15,6 +15,8 @@ public:
     void start(const QString& sketch, const QString& compiler, const QString& sdk, const QStringList& libraries,const QMap<QString,QString>& projectFiles = {});
     void stop();
     void answer(int value);
+    void setSimulationSpeed(double multiplier);
+    double simulationSpeed() const {return speedPermille_/1000.0;}
     bool active() const { return active_; }
 signals:
     void protocol(const QByteArray& line);
@@ -26,6 +28,7 @@ private:
     std::unique_ptr<QTemporaryDir> temp_;
     QByteArray pending_;
     int linesThisSecond_ = 0;
+    int speedPermille_ = 1000;
     bool active_ = false;
     void setActive(bool active);
     void readProtocol();

@@ -9,8 +9,10 @@
 #include <stdexcept>
 #include <string>
 #include <thread>
-#define PROGMEM
-#define pgm_read_byte(p) (*reinterpret_cast<const unsigned char*>(p))
+#include "pgmspace.h"
+#ifndef F
+#define F(text) PSTR(text)
+#endif
 using byte = unsigned char;
 constexpr int LOW = 0, HIGH = 1, INPUT = 0, OUTPUT = 1, INPUT_PULLUP = 2;
 constexpr int D0=16, D1=5, D2=4, D3=0, D4=2, D5=14, D6=12, D7=13, D8=15, A0=17, LED_BUILTIN=2;
@@ -21,18 +23,21 @@ inline std::array<int,17> modes{};
 inline void validatePin(int pin) {
     if (pin < 0 || pin > 16 || (pin >= 6 && pin <= 11)) throw std::invalid_argument("Unavailable ESP8266 GPIO");
 }
+inline int request(const std::string& line);
 inline void advance(std::uint64_t us) {
     if (us > std::numeric_limits<std::uint64_t>::max() - clockUs) throw std::overflow_error("Clock overflow");
     do {
-        const auto step = std::min<std::uint64_t>(us, 50000);
-        std::this_thread::sleep_for(std::chrono::microseconds(step));
+        const int speed = request("SPEED"); // Speed multiplier in thousandths; refreshed while running.
+        if (speed < 100 || speed > 10000) throw std::runtime_error("Invalid simulation speed");
+        const auto step = std::min<std::uint64_t>(us, 50ull * speed);
+        std::this_thread::sleep_for(std::chrono::microseconds(step * 1000 / speed));
         clockUs += step; us -= step;
         std::cout << "TIME " << clockUs << std::endl;
     } while (us);
 }
 inline int request(const std::string& line) {
     std::cout << line << std::endl;
-    if(standalone){if(line.starts_with("OLED_BEGIN "))return 1;return 0;}
+    if(standalone){if(line=="SPEED")return 1000;if(line.starts_with("OLED_BEGIN "))return 1;return 0;}
     int answer = 0;
     if (!(std::cin >> answer)) throw std::runtime_error("Simulation host disconnected");
     return answer;

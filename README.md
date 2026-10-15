@@ -1,7 +1,7 @@
 # ThinkerCad
 
 Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, mit Windows als Zielplattform.
-Version 0.2.0 bietet einen frei verdrahtbaren ESP8266-Arbeitsbereich, SSD1306-OLED,
+Version 0.3.0 bietet einen frei verdrahtbaren ESP8266-Arbeitsbereich, SSD1306-OLED,
 LEDs, Widerstände, Taster, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
 ![Native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
@@ -13,6 +13,9 @@ LEDs, Widerstände, Taster, einen Sketch-Editor und eine compilerbasierte Arduin
 - Bauteile verschieben, Pins durch Kabel verbinden, Kabelfarbe, Löschen, Undo/Redo und Zoom.
 - `.ino`-Projekte mit weiteren Sketch-Tabs, Headern und C++-Quellen öffnen.
 - Schaltung und Code gemeinsam als portable `.thinkercad`-Datei speichern und wieder öffnen.
+- Live-Temporegler von 0,1× bis 10× mit 1×-Rücksetzung; virtuelle Sketch-Zeit bleibt korrekt.
+- Sieben fertige Beispielschaltungen mit passendem Sketch und vollständiger Verdrahtung.
+- `PROGMEM`-/Flash-Adapter einschließlich `pgmspace.h`, `avr/pgmspace.h`, `pgm_read_*`, `PSTR` und `F`.
 - Eigener zeitbasierter Simulationskern mit deterministischer Ereignisreihenfolge.
 - GPIO-Pinmodi, externe Eingänge, schwebende Pegel und Treiberkonflikte.
 - A0 mit 10-Bit-Quantisierung, **0–1 V am nackten ESP8266**; NodeMCU-Spannungsteiler noch nicht modelliert.
@@ -56,7 +59,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=0.2.0 /DStagingDir=C:\Pfad\ThinkerCad\out\stage packaging/windows/ThinkerCad.iss
+ISCC.exe /DVersion=0.3.0 /DStagingDir=C:\Pfad\ThinkerCad\out\stage packaging/windows/ThinkerCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkerCad`,
@@ -83,6 +86,42 @@ fehlende Display-Verbindungen und Schließen während laufender Simulation. Qt v
 dafür `QT_QPA_PLATFORM=offscreen`. `windows_native_chrome` prüft unter Windows
 die echten Win32-Fensterstile sowie Minimieren, Maximieren, Wiederherstellen und Schließen.
 
+## Simulationstempo, Flash-Daten und Beispiele
+
+Der Regler **Tempo** steuert die Abspielgeschwindigkeit von 0,1× bis 10×, auch während
+der Simulation. **1×** setzt ihn zurück. `delay()`, `millis()`, `micros()` und I²C-Transfers
+verwenden weiterhin ihre ursprüngliche virtuelle Zeit. Ein virtuelles `delay(1000)` dauert
+bei 0,1× etwa zehn reale Sekunden, bei 10× etwa 0,1 Sekunden. Der Worker fragt das Tempo
+zwischen Warteabschnitten ab; Abschnitte dauern maximal etwa 50 reale Millisekunden.
+CPU-Schleifen ohne Arduino-Warteaufrufe werden nicht als Prozessorzyklen simuliert.
+Das vorhandene IPC-Ratenlimit bleibt aktiv und kann extrem schnelle Sketches begrenzen.
+
+Flash-Bitmaps bleiben im Sketch unverändert, beispielsweise:
+
+```cpp
+#include <pgmspace.h>
+const uint8_t frame[] PROGMEM = {0x18, 0x3c, 0x7e, 0xff};
+const uint8_t pixel = pgm_read_byte(frame + 1);
+```
+
+Die Simulator-Header legen die Daten im normalen Prozessspeicher ab; die reale
+ESP8266-Toolchain verwendet beim Export wieder ihre eigenen Flash-Attribute und Header.
+Unterstützt sind Byte-, Word-, Dword-, Float- und Pointer-Lesezugriffe, die gängigen
+`*_near`-Varianten sowie `memcpy_P`, `memcmp_P`, `strlen_P`, `strcpy_P` und `strncpy_P`.
+Das ist ein Speicherzugriffsadapter, keine Emulation von Flash-Schreibzyklen oder SPIFFS/LittleFS.
+
+Für ausdrücklich hardwareabhängigen Code definiert der Simulator beim Kompilieren
+aller Sketch- und Bibliotheksquellen `THINKERCAD_SIMULATION=1`. Solcher Code kann gezielt
+mit `#ifndef THINKERCAD_SIMULATION` umschlossen werden. Der Originalcode wird nicht
+pauschal gelöscht; nicht unterstützte Hardware-APIs werden weiterhin als Fehler sichtbar.
+
+**Datei → Beispielschaltungen** oder die gleichnamige Schaltfläche öffnet den Katalog:
+OLED-Animation, LED-Blinken, Taster/LED, Ampel, vierstufiges Lauflicht, analoger Schwellwert
+und zwei OLEDs am gemeinsamen I²C-Bus (0x3C/0x3D). Die Beschreibungen erklären Bedienung
+und Anschlüsse. Alle Beispiele sind frei bearbeitbar und als `.thinkercad` speicherbar.
+LED-Farben sind eine optische Kennzeichnung; das gemeinsame elektrische LED-Modell
+verwendet weiterhin 2 V Vorwärtsspannung.
+
 ## Bibliotheken und Frames
 
 Unter **Bibliotheken verwalten** einen lokalen Bibliotheksordner hinzufügen.
@@ -96,6 +135,11 @@ Hardwarezugriffe benötigen ein Peripheriemodell und einen expliziten Adapter.
 (Schwelle 128, MSB zuerst). Die erzeugte globale Deklaration wird an den Sketch-Anfang
 gefügt. Den kommentierten `drawBitmap()`-Aufruf in `loop()` übernehmen. Mehrere Arrays
 lassen sich wie in `examples/animation.ino` zyklisch abspielen.
+
+`sdk_flash` prüft Flash-Bitmaps, Pointertabellen und unaligned Speicherzugriffe.
+`live_simulation_speed` wechselt einen laufenden Worker von 0,1× auf 10× und prüft
+reales Tempo sowie unveränderte virtuelle Zielzeit. Die Desktoptests kompilieren
+und starten sämtliche Beispielschaltungen.
 
 ## Updates und Releases
 

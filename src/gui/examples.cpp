@@ -1,0 +1,36 @@
+#include "examples.hpp"
+#include <QCoreApplication>
+#include <QFile>
+#include <stdexcept>
+#include <algorithm>
+using namespace thinkercad;
+QList<CircuitExample> ExampleCatalog::entries(){return {
+    {"animation","OLED-Animation","ESP8266 und SSD1306: zwei Bitmap-Frames aus PROGMEM mit realistischer I²C-Transferzeit."},
+    {"led_blink","LED blinken lassen","Externe LED an D5 mit 220-Ω-Vorwiderstand. Mit dem Temporegler die Blinkgeschwindigkeit vergleichen."},
+    {"button_led","Taster schaltet LED","Taster an D6 gegen GND, interner Pullup, LED an D5. Taster per Doppelklick oder Auswahl-Checkbox drücken."},
+    {"traffic_light","Ampelschaltung","Drei LEDs an D5/D6/D7 mit eigenen Vorwiderständen: Rot, Rot/Gelb, Grün, Gelb."},
+    {"led_chaser","Lauflicht","Vier LEDs an D1/D2/D5/D6 mit jeweils 220 Ω werden der Reihe nach eingeschaltet."},
+    {"analog_threshold","Analoger Schwellwert","0–1-V-Quelle an A0. Ab ADC-Wert 512 leuchtet die LED. Simulation stoppen, Quelle auswählen und Spannung verändern."},
+    {"two_oleds","Zwei OLEDs am I²C-Bus","Zwei Displays teilen D2/SDA und D1/SCL. Adressen 0x3C und 0x3D; Flash-Bitmaps bewegen sich gegenläufig."}
+};}
+SavedProject ExampleCatalog::create(const QString& id){
+    const auto entries=ExampleCatalog::entries();if(std::none_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.id==id;}))throw std::invalid_argument("Unbekanntes Beispiel.");
+    QFile file(QCoreApplication::applicationDirPath()+"/examples/"+id+".ino");if(!file.open(QIODevice::ReadOnly))throw std::runtime_error("Beispieldatei fehlt. Installation überprüfen.");
+    SavedProject result;auto& doc=result.circuit;result.sketch.name=id;result.sketch.order={id+".ino"};result.sketch.files[id+".ino"]=QString::fromUtf8(file.readAll());
+    auto led=[&](const std::string& pin,double y,const std::string& color){
+        const auto resistor=doc.addPart(PartKind::Resistor,400,y),light=doc.addPart(PartKind::Led,650,y);doc.part(light).color=color;
+        doc.connect({"board",pin},{resistor,"1"},color);doc.connect({resistor,"2"},{light,"A"},color);doc.connect({light,"K"},{"board","GND"},"#64748b");
+    };
+    auto oled=[&](double x,double y,int address){const auto display=doc.addPart(PartKind::Oled,x,y);doc.part(display).value=address;
+        doc.connect({"board","3V3"},{display,"VCC"},"#ec5967");doc.connect({"board","GND"},{display,"GND"},"#64748b");doc.connect({"board","GPIO5"},{display,"SCL"},"#e9ad33");doc.connect({"board","GPIO4"},{display,"SDA"},"#378bcb");};
+    if(id=="animation")oled(390,80,60);
+    else if(id=="two_oleds"){oled(430,0,60);oled(800,0,61);}
+    else if(id=="traffic_light"){led("GPIO14",0,"#fb586b");led("GPIO12",140,"#e9ad33");led("GPIO13",280,"#22c55e");}
+    else if(id=="led_chaser"){led("GPIO5",0,"#fb586b");led("GPIO4",140,"#e9ad33");led("GPIO14",280,"#22c55e");led("GPIO12",420,"#378bcb");}
+    else {
+        led("GPIO14",80,"#fb586b");
+        if(id=="button_led"){const auto button=doc.addPart(PartKind::Button,430,270);doc.connect({"board","GPIO12"},{button,"1"},"#378bcb");doc.connect({button,"2"},{"board","GND"},"#64748b");}
+        if(id=="analog_threshold"){const auto source=doc.addPart(PartKind::AnalogSource,430,270);doc.part(source).value=0.75;doc.connect({source,"OUT"},{"board","A0"},"#378bcb");doc.connect({source,"GND"},{"board","GND"},"#64748b");}
+    }
+    doc.validate();return result;
+}

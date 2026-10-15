@@ -56,6 +56,7 @@ flowchart LR
 | Arduino-/SSD1306-Adapter | Unterstützte Sketch-APIs und Frame-Protokoll | `sdk/` |
 | `CircuitDocument`, `CircuitState` | Bauteile, Kabel, resistiver DC-Netzlöser, Strom und Pegel | `include/thinkercad/circuit.hpp`, `src/core/circuit.cpp` |
 | `CircuitCanvas` | Pin-Auswahl, Leitungen, Verschieben, Löschen, Undo/Redo, Rendering | `src/gui/circuitcanvas.*` |
+| `ExampleCatalog` | Sieben verdrahtete Referenzschaltungen und Sketch-Zuordnung | `src/gui/examples.*` |
 | `SketchProject`, `ProjectIO` | Arduino-Tabs, portable JSON-Projekte, atomisches Speichern | `src/gui/projectio.*` |
 | `MainWindow`, `CodeEditor` | UI, Eingänge, Syntaxfarben, Protokollvalidierung | `src/gui/` |
 | `Updater` | Release-Discovery, Download, Hash, Signatur, Neustart | `src/gui/updater.*` |
@@ -151,9 +152,12 @@ diese Implementierung mit SSD1306. HD44780/PCF8574 benötigen eigene Komponenten
    portable Bibliotheksquellen. Argumente werden ohne Shell übergeben.
 3. Der Runner ruft `setup()` genau einmal auf und danach `loop()` wiederholt.
 4. Arduino-Aufrufe erzeugen validierte Nachrichten `MODE`, `WRITE`, `READ`,
-   `ADC`, `I2C`, `OLED_BEGIN`, `TIME`, `FRAME`. Eingabelesen wartet auf eine Host-Antwort.
-5. Virtuelle `delay()`/I²C-Zeit wird in ≤50-ms-Schritten an den Host gemeldet
-   und ungefähr in Echtzeit gepaced. GUI-Rendering und Compiler sind asynchron;
+   `ADC`, `I2C`, `OLED_BEGIN`, `TIME`, `FRAME`. Interne `SPEED`-Anfragen beantwortet
+   `CodeInterpreter` direkt mit dem aktuellen Tempo in Tausendsteln. Eingabelesen wartet auf eine Host-Antwort.
+5. Virtuelle `delay()`/I²C-Zeit wird in Abschnitten an den Host gemeldet.
+   Ein Abschnitt entspricht höchstens etwa 50 ms realer Wartezeit beim aktuellen
+   Tempo (0,1× bis 10×). Der Worker fragt das Tempo für jeden Abschnitt neu ab;
+   virtuelle Zeitstempel bleiben unverändert. GUI-Rendering und Compiler sind asynchron;
    reale Betriebssystemlatenz verändert keine protokollierten Zeitstempel.
 6. Stop beendet den eigenen Worker. Watchdog: 120 s Compile-Limit, 10 s ohne
    Protokollaktivität; Puffer/Zeilen-/Ratenlimits verhindern GUI-Überlastung.
@@ -169,6 +173,17 @@ Für Ausbau: ein versioniertes, längenbegrenztes binäres IPC-Protokoll mit Ses
 `SimulationBackend`-Interface (start/stop/read/write/advance), reinem
 `SimulationSession`-Controller, strukturierten Compilerdiagnosen und deterministischem
 Replay. Erst danach PWM, Interrupts, SPI, UART und Firmware-Backend hinzufügen.
+
+## Flash-Adapter
+
+`sdk/pgmspace.h` und der AVR-Includepfad bilden Flash-Lesezugriffe auf normalen
+Prozessspeicher ab. `PROGMEM` und `ICACHE_RODATA_ATTR` sind hostseitig leer; Sketches
+und Projekt-Exporte behalten sie. Typisierte Reads verwenden `memcpy` und tolerieren
+unaligned Adressen. Pointertabellen verwenden die volle Host-Pointerbreite; Flash-Words
+und Dwords behalten 16 bzw. 32 Bit. `F` und `PSTR` liefern normale String-Literale.
+Das Compile-Define `THINKERCAD_SIMULATION=1` gilt für Sketch und lokale/externe Quellen,
+um weitere Hardwareblöcke explizit konditional zu behandeln. Flash-Controller,
+Schreibzyklen, Dateisysteme und ESP-Instruktionen werden damit nicht emuliert.
 
 ## Bibliotheken
 

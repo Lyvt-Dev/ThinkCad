@@ -4,6 +4,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QProcessEnvironment>
+#include <algorithm>
+#include <cmath>
 CodeInterpreter::CodeInterpreter(QObject* parent) : QObject(parent) {
     watchdog_.setSingleShot(true);
     connect(&watchdog_, &QTimer::timeout, this, [this] { emit log("Ausführung abgebrochen: Zeitlimit / fehlende Rückmeldung."); stop(); });
@@ -43,7 +45,7 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
     QFile file(temp_->filePath("sketch.ino"));
     if (!file.open(QIODevice::WriteOnly) || file.write(sketch.toUtf8()) < 0) {emit log("Sketch konnte nicht gespeichert werden."); return;} file.close();
     QString source=QDir::fromNativeSeparators(file.fileName());
-    QStringList args{"-std=c++20","-O0","-g","-pthread","-I"+sdk,"-DTHINKERCAD_SKETCH=\""+source+"\"",sdk+"/runner.cpp"};
+    QStringList args{"-std=c++20","-DTHINKERCAD_SIMULATION=1","-O0","-g","-pthread","-I"+sdk,"-DTHINKERCAD_SKETCH=\""+source+"\"",sdk+"/runner.cpp"};
     args << "-I"+temp_->path() << "-I"+temp_->filePath("src") << "-I"+temp_->filePath("include");
     int sources=0;
     for(auto it=projectFiles.begin();it!=projectFiles.end();++it) {
@@ -92,6 +94,9 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
     worker_.setProcessEnvironment(environment);
     compiler_.start(compiler,args);
 }
+void CodeInterpreter::setSimulationSpeed(double multiplier) {
+    if(std::isfinite(multiplier))speedPermille_=static_cast<int>(std::lround(std::clamp(multiplier,0.1,10.0)*1000));
+}
 void CodeInterpreter::answer(int value) {worker_.write(QByteArray::number(value)+'\n');}
 void CodeInterpreter::readProtocol() {
     if(!active_)return;
@@ -103,6 +108,6 @@ void CodeInterpreter::readProtocol() {
         const auto newline=pending_.indexOf('\n'); if(newline<0) break;
         if (++linesThisSecond_>5000 || newline>4096) {emit log("Sketch-Protokoll überlastet. delay() oder yield() verwenden.");stop();return;}
         auto line=pending_.left(newline).trimmed(); pending_.remove(0,newline+1);
-        emit protocol(line); if(!active_) break;
+        if(line=="SPEED")answer(speedPermille_);else emit protocol(line); if(!active_) break;
     }
 }
