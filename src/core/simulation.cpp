@@ -19,7 +19,20 @@ BoardProfile BoardProfile::get(const std::string& id){
     if(id.empty()||id=="esp8266")return {"esp8266","ESP8266",{0,1,2,3,4,5,12,13,14,15,16},{17},{},1,10,17,4,5};
     if(id=="esp32")return {"esp32","ESP32 DevKit",{0,1,2,3,4,5,12,13,14,15,16,17,18,19,21,22,23,25,26,27,32,33,34,35,36,39},{0,2,4,12,13,14,15,25,26,27,32,33,34,35,36,39},{34,35,36,39},3.3,12,36,21,22};
     if(id=="esp32-s3"){std::vector<int> gpio,adc;for(int i=0;i<=21;++i)gpio.push_back(i);for(int i=35;i<=48;++i)gpio.push_back(i);for(int i=1;i<=20;++i)adc.push_back(i);return {"esp32-s3","ESP32-S3",gpio,adc,{46},3.3,12,1,8,9};}
+    if(id=="arduino-uno"||id=="arduino-nano"){
+        std::vector<int> gpio,adc;const int count=id=="arduino-nano"?22:20;
+        for(int i=0;i<count;++i)gpio.push_back(i);
+        for(int i=14;i<count;++i)adc.push_back(i);
+        return {id,id=="arduino-nano"?"Arduino Nano":"Arduino Uno R3",gpio,adc,id=="arduino-nano"?std::vector<int>{20,21}:std::vector<int>{},5,10,14,18,19,5,13};
+    }
     throw std::invalid_argument("Unknown board profile");
+}
+std::string BoardProfile::pinName(int gpio)const{
+    return arduino()?(gpio<14?"D"+std::to_string(gpio):"A"+std::to_string(gpio-14)):"GPIO"+std::to_string(gpio);
+}
+int BoardProfile::pinNumber(const std::string& name)const{
+    for(int number:gpio)if(pinName(number)==name)return number;
+    return -1;
 }
 void Esp8266Board::configure(const std::string& model){profile_=BoardProfile::get(model);reset();}
 Esp8266Board::Esp8266Board() : Board("esp8266") { reset(); }

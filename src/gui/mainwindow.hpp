@@ -12,6 +12,7 @@ class QTabWidget;
 class QDoubleSpinBox;
 class QComboBox;
 class QCheckBox;
+class QPushButton;
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
@@ -45,6 +46,7 @@ private:
     QDoubleSpinBox* propertyValue_;
     QComboBox* propertyAddress_;
     QCheckBox* propertyPressed_;
+    QPushButton* activeBoardButton_;
     QAction *run_,*undo_,*redo_;
     SketchProject sketch_;
     QString projectFile_;

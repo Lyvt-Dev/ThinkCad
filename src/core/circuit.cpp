@@ -6,7 +6,7 @@
 #include <tuple>
 namespace thinkercad {
 const std::vector<ComponentSpec>& componentCatalog(){static const std::vector<ComponentSpec> types{
-{PartKind::Esp8266,"ESP Board","",0,0,1e9,false},{PartKind::Oled,"OLED SSD1306","",60,60,61,false},{PartKind::Led,"LED","",220,0,1e9,false},{PartKind::Resistor,"Widerstand"," Ω",220,1,1e9,true},{PartKind::Button,"Taster","",220,0,1e9,false},{PartKind::AnalogSource,"Analogquelle"," V",0.5,0,3.3,true},
+{PartKind::Esp8266,"Mikrocontroller","",0,0,1e9,false},{PartKind::Oled,"OLED SSD1306","",60,60,61,false},{PartKind::Led,"LED","",220,0,1e9,false},{PartKind::Resistor,"Widerstand"," Ω",220,1,1e9,true},{PartKind::Button,"Taster","",220,0,1e9,false},{PartKind::AnalogSource,"Analogquelle"," V",0.5,0,3.3,true},
 {PartKind::Potentiometer,"Potentiometer 10 kΩ"," %",50,0,100,true},{PartKind::Photoresistor,"Fotowiderstand"," lx",100,0,100000,true},{PartKind::Thermistor,"NTC 10k B3950"," °C",25,-40,125,true},{PartKind::SlideSwitch,"Schiebeschalter SPDT","",0,0,1,false},{PartKind::TiltSwitch,"Neigungsschalter","",0,0,1,false},{PartKind::ReedSwitch,"Reedkontakt","",0,0,1,false},{PartKind::Diode,"Siliziumdiode","",0,0,1,false},{PartKind::Battery3V,"3-V-Batterie (ideal)","",3,3,3,false},{PartKind::Battery9V,"9-V-Batterie (ideal)","",9,9,9,false},{PartKind::PowerSupply,"Gleichspannungsquelle"," V",5,0,12,true},{PartKind::RGBLed,"RGB-LED (Kathode)","",0,0,1,false},{PartKind::SevenSegment,"7-Segment (Kathode)","",0,0,1,false},{PartKind::Voltmeter,"Voltmeter (ideal)","",0,0,1,false},{PartKind::Breadboard30,"Breadboard 300 Kontakte","",0,0,1,false}
 };return types;}
 const ComponentSpec& componentSpec(PartKind kind){for(const auto& type:componentCatalog())if(type.kind==kind)return type;throw std::invalid_argument("Unknown component type");}
@@ -19,8 +19,12 @@ struct Nodes {
     explicit Nodes(const CircuitDocument& doc) {
         for(const auto& p:doc.parts())for(const auto& pin:CircuitDocument::pins(p))index.emplace(Endpoint{p.id,pin},static_cast<int>(index.size()));
         parent.resize(index.size());std::iota(parent.begin(),parent.end(),0);
-        if(doc.part("board").model!=""&&doc.part("board").model!="esp8266")join({"board","A0"},{"board","GPIO"+std::to_string(BoardProfile::get(doc.part("board").model).defaultAdc)});
-        join({"board","GND"},{"board","GND2"});join({"board","3V3"},{"board","3V3_2"});
+        for(const auto& part:doc.parts())if(part.kind==PartKind::Esp8266){
+            const auto profile=BoardProfile::get(part.model);
+            if(!profile.arduino()&&profile.id!="esp8266")join({part.id,"A0"},{part.id,profile.pinName(profile.defaultAdc)});
+            join({part.id,"GND"},{part.id,"GND2"});
+            if(!profile.arduino())join({part.id,"3V3"},{part.id,"3V3_2"});
+        }
         for(const auto& w:doc.wires())join(w.a,w.b);
         for(const auto& p:doc.parts()){
             if((p.kind==PartKind::Button||p.kind==PartKind::TiltSwitch||p.kind==PartKind::ReedSwitch)&&p.pressed)join({p.id,"1"},{p.id,"2"});
@@ -46,9 +50,18 @@ std::vector<double> linearSolve(std::vector<std::vector<double>> a,std::vector<d
 }
 Level CircuitState::level(const Endpoint& e) const {
     const auto found=voltage.find(e);if(found==voltage.end()||!found->second)return Level::Floating;
-    const auto v=*found->second;if(v<=0.825)return Level::Low;if(v>=2.475)return Level::High;return Level::Floating;
+    const auto v=*found->second;const double supply=logicVoltage.contains(e)?logicVoltage.at(e):3.3;if(v<=supply*(supply>=4.5?0.3:0.25))return Level::Low;if(v>=supply*(supply>=4.5?0.6:0.75))return Level::High;return Level::Floating;
 }
 CircuitDocument::CircuitDocument() {parts_.push_back({"board",PartKind::Esp8266,80,80,0,false,"#fb586b","esp8266"});}
+std::string CircuitDocument::boardId()const{
+    for(const auto& p:parts_)if(p.kind==PartKind::Esp8266&&p.id==activeBoard_)return p.id;
+    for(const auto& p:parts_)if(p.kind==PartKind::Esp8266)return p.id;
+    return {};
+}
+void CircuitDocument::setActiveBoard(const std::string& id){
+    if(part(id).kind!=PartKind::Esp8266)throw std::invalid_argument("Not a microcontroller");
+    activeBoard_=id;
+}
 std::vector<std::string> CircuitDocument::pins(PartKind k) {
     if(k==PartKind::Esp8266)return {"3V3","GND","GPIO16","GPIO5","GPIO4","GPIO0","GPIO2","A0","GND2","GPIO14","GPIO12","GPIO13","GPIO15","GPIO3","GPIO1","3V3_2"};
     if(k==PartKind::Oled)return {"GND","VCC","SCL","SDA"};
@@ -64,13 +77,15 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
 }
 std::vector<std::string> CircuitDocument::pins(const CircuitPart& part){
     if(part.kind!=PartKind::Esp8266||part.model.empty()||part.model=="esp8266")return pins(part.kind);
-    const auto profile=BoardProfile::get(part.model);std::vector<std::string> names{"3V3","GND"};for(int gpio:profile.gpio)names.push_back("GPIO"+std::to_string(gpio));names.insert(names.end(),{"A0","GND2","3V3_2"});return names;
+    const auto profile=BoardProfile::get(part.model);
+    if(profile.arduino()){std::vector<std::string> names{"5V","3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.push_back("GND2");return names;}
+    std::vector<std::string> names{"3V3","GND"};for(int gpio:profile.gpio)names.push_back("GPIO"+std::to_string(gpio));names.insert(names.end(),{"A0","GND2","3V3_2"});return names;
 }
 CircuitPart& CircuitDocument::part(const std::string& id) {for(auto& p:parts_)if(p.id==id)return p;throw std::out_of_range("Unknown component: "+id);}
 const CircuitPart& CircuitDocument::part(const std::string& id) const {for(const auto& p:parts_)if(p.id==id)return p;throw std::out_of_range("Unknown component: "+id);}
 void CircuitDocument::insertPart(CircuitPart p) {
     if(parts_.size()>=100)throw std::invalid_argument("Maximum 100 components");
-    if(p.id.empty()||p.id.size()>80||p.kind==PartKind::Esp8266)throw std::invalid_argument("Invalid component identity");
+    if(p.id.empty()||p.id.size()>80)throw std::invalid_argument("Invalid component identity");
     for(const auto& existing:parts_)if(existing.id==p.id)throw std::invalid_argument("Duplicate component identity");
     if(!std::isfinite(p.x)||!std::isfinite(p.y)||std::abs(p.x)>10000||std::abs(p.y)>10000||!std::isfinite(p.value))throw std::invalid_argument("Invalid component properties");
     if(p.kind==PartKind::Resistor&&(p.value<1||p.value>1e9))throw std::invalid_argument("Resistance outside 1..1e9 ohms");
@@ -84,7 +99,6 @@ std::string CircuitDocument::addPart(PartKind kind,double x,double y) {
     insertPart({id,kind,x,y,componentSpec(kind).initial,false,"#fb586b",{}});return id;
 }
 void CircuitDocument::removePart(const std::string& id) {
-    if(id=="board")throw std::invalid_argument("The primary ESP8266 board cannot be deleted");
     (void)part(id);std::erase_if(wires_,[&](const auto& w){return w.a.part==id||w.b.part==id;});std::erase_if(parts_,[&](const auto& p){return p.id==id;});
 }
 void CircuitDocument::validateEndpoint(const Endpoint& e) const {const auto allowed=pins(part(e.part));if(std::find(allowed.begin(),allowed.end(),e.pin)==allowed.end())throw std::invalid_argument("Unknown pin: "+e.pin);}
@@ -97,23 +111,30 @@ std::string CircuitDocument::connect(Endpoint a,Endpoint b,std::string color) {
 void CircuitDocument::removeWire(const std::string& id){auto old=wires_.size();std::erase_if(wires_,[&](const auto& w){return w.id==id;});if(old==wires_.size())throw std::invalid_argument("Unknown wire");}
 void CircuitDocument::clearWires(){wires_.clear();}
 void CircuitDocument::validate() const {
-    (void)BoardProfile::get(part("board").model);
-    if(parts_.empty()||parts_.size()>100||wires_.size()>300)throw std::invalid_argument("Invalid circuit size");
+    if(parts_.size()>100||wires_.size()>300)throw std::invalid_argument("Invalid circuit size");
     std::set<std::string> ids;
     for(const auto& p:parts_){const auto& type=componentSpec(p.kind);if(p.value<type.min||p.value>type.max)throw std::invalid_argument("Invalid component value");if(!ids.insert(p.id).second)throw std::invalid_argument("Duplicate component");if(!std::isfinite(p.x)||!std::isfinite(p.y)||std::abs(p.x)>10000||std::abs(p.y)>10000||!std::isfinite(p.value))throw std::invalid_argument("Invalid component properties");if(p.kind==PartKind::Resistor&&(p.value<1||p.value>1e9))throw std::invalid_argument("Invalid resistance");if(p.kind==PartKind::AnalogSource&&(p.value<0||p.value>3.3))throw std::invalid_argument("Invalid source voltage");if(p.kind==PartKind::Oled&&p.value!=60&&p.value!=61)throw std::invalid_argument("Invalid OLED address");}
-    if(part("board").kind!=PartKind::Esp8266)throw std::invalid_argument("Missing primary ESP8266");
+    for(const auto& p:parts_)if(p.kind==PartKind::Esp8266)(void)BoardProfile::get(p.model);
     for(const auto& w:wires_){validateEndpoint(w.a);validateEndpoint(w.b);if(w.points.size()>64)throw std::invalid_argument("Maximum 64 wire bends");for(const auto& point:w.points)if(!std::isfinite(point.x)||!std::isfinite(point.y)||std::abs(point.x)>10000||std::abs(point.y)>10000)throw std::invalid_argument("Invalid wire bend");}
 }
 bool CircuitDocument::connected(const Endpoint& a,const Endpoint& b) const {validateEndpoint(a);validateEndpoint(b);Nodes nodes(*this);return nodes.node(a)==nodes.node(b);}
 CircuitState CircuitDocument::solve(const Esp8266Board& board) const {
     validate();Nodes nodes(*this);CircuitState result;std::map<int,double> fixed;std::vector<Branch> resistors;
     auto driver=[&](int n,double v){if(fixed.contains(n)&&std::abs(fixed.at(n)-v)>1e-6)result.errors.push_back("Kurzschluss: widersprüchliche Spannungsquellen auf einem Netz.");else fixed[n]=v;};
-    const int ground=nodes.node({"board","GND"}),supply=nodes.node({"board","3V3"});driver(ground,0);driver(supply,3.3);
-    for(const auto& [ep,index]:nodes.index)if(ep.part=="board"&&ep.pin.starts_with("GPIO")) {
-        const int gpio=std::stoi(ep.pin.substr(4)),n=nodes.find(index);const auto& pin=board.pin(gpio);
-        if(pin.mode==PinMode::Output)driver(n,pin.output?3.3:0);
+    const auto active=boardId();
+    const int ground=active.empty()?-1:nodes.node({active,"GND"});
+    const int supply=active.empty()?-1:nodes.node({active,board.profile().arduino()?"5V":"3V3"});
+    for(const auto& p:parts_)if(p.kind==PartKind::Esp8266){
+        const auto profile=BoardProfile::get(p.model);
+        for(const auto& pin:pins(p))result.logicVoltage[{p.id,pin}]=profile.voltage;
+        driver(nodes.node({p.id,"GND"}),0);driver(nodes.node({p.id,"3V3"}),3.3);
+        if(profile.arduino())driver(nodes.node({p.id,"5V"}),5);
+    }
+    for(const auto& [ep,index]:nodes.index)if(ep.part==active&&board.profile().pinNumber(ep.pin)>=0) {
+        const int gpio=board.profile().pinNumber(ep.pin),n=nodes.find(index);const auto& pin=board.pin(gpio);
+        if(pin.mode==PinMode::Output)driver(n,pin.output?board.profile().voltage:0);
         else if(pin.mode==PinMode::InputPullup)resistors.push_back({n,supply,47000});
-        if(pin.external==Level::High)driver(n,3.3);
+        if(pin.external==Level::High)driver(n,board.profile().voltage);
         if(pin.external==Level::Low)driver(n,0);
         if(pin.external==Level::Contention)result.errors.push_back("GPIO input has conflicting external drivers");
     }
@@ -151,7 +172,7 @@ CircuitState CircuitDocument::solve(const Esp8266Board& board) const {
     }
     for(const auto& [ep,index]:nodes.index){const int n=nodes.find(index);result.voltage[ep]=volts.contains(n)?std::optional<double>(volts.at(n)):std::nullopt;}
     for(const auto& j:junctions){const double current=volts.contains(j.a)&&volts.contains(j.k)?std::max(0.0,(volts[j.a]-volts[j.k]-j.vf)/j.resistance):0;result.ledCurrent[j.id]=current;if(current>j.limit+1e-6)result.errors.push_back("Überstrom: "+j.id+". Vorwiderstand / Beschaltung prüfen.");}
-    for(const auto& ep:result.voltage)if(ep.first.part=="board"&&ep.second){const double limit=ep.first.pin=="A0"?board.profile().adcMax:3.6;if(*ep.second>limit+1e-6||*ep.second<-0.3)result.errors.push_back("Überspannung am Boardpin "+ep.first.pin);}
+    for(const auto& ep:result.voltage)if(ep.first.part==active&&ep.second){const double limit=ep.first.pin=="A0"?board.profile().adcMax:board.profile().voltage+0.3;if(*ep.second>limit+1e-6||*ep.second<-0.3)result.errors.push_back("Überspannung am Boardpin "+ep.first.pin);}
 
     return result;
 }
@@ -161,6 +182,8 @@ bool CircuitDocument::oledReady(const std::string& id,int sda,int scl,const Circ
     if(v==state.voltage.end()||g==state.voltage.end()||!v->second||!g->second||*v->second-*g->second<3.0||*v->second-*g->second>3.6)return false;
     if(connected({id,"SDA"},{id,"SCL"}))return false;
     if(state.level({id,"SDA"})!=Level::High||state.level({id,"SCL"})!=Level::High)return false;
-    return connected({id,"GND"},{"board","GND"})&&connected({id,"SDA"},{"board","GPIO"+std::to_string(sda)})&&connected({id,"SCL"},{"board","GPIO"+std::to_string(scl)});
+    const auto active=boardId();if(active.empty())return false;
+    const auto profile=BoardProfile::get(part(active).model);
+    return connected({id,"GND"},{active,"GND"})&&connected({id,"SDA"},{active,profile.pinName(sda)})&&connected({id,"SCL"},{active,profile.pinName(scl)});
 }
 }

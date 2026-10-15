@@ -21,5 +21,21 @@ int main(){try{
     check(oled.oledReady(display,4,5,oled.solve(board)),"correct display wiring");check(!oled.oledReady(display,5,4,oled.solve(board)),"swapped I2C pins fail");oled.clearWires();check(!oled.oledReady(display,4,5,oled.solve(board)),"disconnected display cannot run");
     CircuitDocument analog;auto src=analog.addPart(PartKind::AnalogSource,200,0);analog.connect({src,"OUT"},{"board","A0"});analog.connect({src,"GND"},{"board","GND"});check(std::abs(*analog.solve(board).voltage.at({"board","A0"})-0.5)<1e-12,"wired analog source");
     auto count=analog.wires().size();analog.removePart(src);check(count==2&&analog.wires().empty(),"removing component removes attached wires");
+    for(const auto& model:{"arduino-uno","arduino-nano"}){
+        CircuitDocument arduino;arduino.part("board").model=model;Esp8266Board avr;avr.configure(model);
+        const auto profile=avr.profile();check(profile.voltage==5&&profile.adcBits==10,"Arduino voltage and ADC profile");
+        avr.pinMode(13,PinMode::Output);avr.digitalWrite(13,true);
+        check(*arduino.solve(avr).voltage.at({"board","D13"})==5,"Arduino output is 5 V");
+        const auto source=arduino.addPart(PartKind::AnalogSource,300,0);arduino.part(source).value=2.5;
+        arduino.connect({source,"OUT"},{"board","D2"});arduino.connect({source,"GND"},{"board","GND"});
+        check(arduino.solve(avr).level({"board","D2"})==Level::Floating,"Arduino mid-rail input is not HIGH");
+        arduino.part(source).value=3.3;check(arduino.solve(avr).level({"board","D2"})==Level::High,"Arduino accepts a 3.3 V HIGH input");
+        avr.setAdcVoltage(5);check(avr.analogRead()==1023,"Arduino ADC full scale");
+        if(profile.id=="arduino-nano"){
+            bool rejected=false;try{avr.pinMode(21,PinMode::Output);}catch(const std::invalid_argument&){rejected=true;}
+            check(rejected,"Nano A7 cannot drive digital output");
+        }
+        arduino.removePart("board");arduino.validate();check(arduino.wires().empty(),"Removing controller removes its wires");
+    }
     std::cout<<checks<<" circuit checks passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -35,7 +35,7 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
     if (!file.open(QIODevice::WriteOnly) || file.write(sketch.toUtf8()) < 0) {emit log("Sketch konnte nicht gespeichert werden."); return;} file.close();
     QString source=QDir::fromNativeSeparators(file.fileName());
     QStringList args{"-std=c++20","-DTHINKERCAD_SIMULATION=1","-O0","-g","-pthread","-I"+sdk,"-DTHINKERCAD_SKETCH=\""+source+"\"",sdk+"/runner.cpp"};
-    if(boardModel=="esp32")args<<"-DTHINKERCAD_ESP32=1";else if(boardModel=="esp32-s3")args<<"-DTHINKERCAD_ESP32_S3=1";
+    if(boardModel=="arduino-uno")args<<"-DTHINKERCAD_ARDUINO_UNO=1";else if(boardModel=="arduino-nano")args<<"-DTHINKERCAD_ARDUINO_NANO=1";else if(boardModel=="esp32")args<<"-DTHINKERCAD_ESP32=1";else if(boardModel=="esp32-s3")args<<"-DTHINKERCAD_ESP32_S3=1";
     args << "-I"+temp_->path() << "-I"+temp_->filePath("src") << "-I"+temp_->filePath("include");
     int sources=0;
     for(auto it=projectFiles.begin();it!=projectFiles.end();++it) {

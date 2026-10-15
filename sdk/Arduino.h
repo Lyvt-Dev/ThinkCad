@@ -21,7 +21,13 @@
 #endif
 using byte = unsigned char;
 constexpr int LOW = 0, HIGH = 1, INPUT = 0, OUTPUT = 1, INPUT_PULLUP = 2;
-#if defined(THINKERCAD_ESP32_S3)
+#if defined(THINKERCAD_ARDUINO_UNO) || defined(THINKERCAD_ARDUINO_NANO)
+constexpr int D0=0,D1=1,D2=2,D3=3,D4=4,D5=5,D6=6,D7=7,D8=8,D9=9,D10=10,D11=11,D12=12,D13=13;
+constexpr int A0=14,A1=15,A2=16,A3=17,A4=18,A5=19,LED_BUILTIN=13,SDA=18,SCL=19;
+#if defined(THINKERCAD_ARDUINO_NANO)
+constexpr int A6=20,A7=21;
+#endif
+#elif defined(THINKERCAD_ESP32_S3)
 constexpr int D0=0,D1=1,D2=2,D3=3,D4=4,D5=5,D6=6,D7=7,D8=8,A0=1,LED_BUILTIN=48,SDA=8,SCL=9;
 #elif defined(THINKERCAD_ESP32)
 constexpr int D0=0,D1=1,D2=2,D3=3,D4=4,D5=5,D6=12,D7=13,D8=14,A0=36,LED_BUILTIN=2,SDA=21,SCL=22;
@@ -34,7 +40,9 @@ inline bool standalone = false;
 inline std::map<const void*,std::function<void()>> timeObservers;
 inline std::array<int,49> modes{};
 inline void validatePin(int pin) {
-#if defined(THINKERCAD_ESP32_S3)
+#if defined(THINKERCAD_ARDUINO_UNO) || defined(THINKERCAD_ARDUINO_NANO)
+    if(pin<0||pin>19)throw std::invalid_argument("Unavailable Arduino digital pin");
+#elif defined(THINKERCAD_ESP32_S3)
     if(!((pin>=0&&pin<=21)||(pin>=35&&pin<=48)))throw std::invalid_argument("Unavailable ESP32-S3 GPIO");
 #elif defined(THINKERCAD_ESP32)
     constexpr int pins[]={0,1,2,3,4,5,12,13,14,15,16,17,18,19,21,22,23,25,26,27,32,33,34,35,36,39};if(std::find(std::begin(pins),std::end(pins),pin)==std::end(pins))throw std::invalid_argument("Unavailable ESP32 GPIO");
@@ -66,7 +74,9 @@ inline int request(const std::string& line) {
 inline void pinMode(int pin, int mode) {
     thinker::validatePin(pin);
     if (mode < INPUT || mode > INPUT_PULLUP || (
-#if defined(THINKERCAD_ESP32_S3)
+#if defined(THINKERCAD_ARDUINO_UNO) || defined(THINKERCAD_ARDUINO_NANO)
+    false
+#elif defined(THINKERCAD_ESP32_S3)
     pin==46&&mode!=INPUT
 #elif defined(THINKERCAD_ESP32)
     pin>=34&&mode!=INPUT
@@ -84,7 +94,17 @@ inline void digitalWrite(int pin, int value) {
 }
 inline int digitalRead(int pin) { thinker::validatePin(pin); return thinker::request("READ " + std::to_string(pin)); }
 inline int analogRead(int pin) {
-#if defined(THINKERCAD_ESP32_S3)
+#if defined(THINKERCAD_ARDUINO_UNO) || defined(THINKERCAD_ARDUINO_NANO)
+#if defined(THINKERCAD_ARDUINO_NANO)
+constexpr int lastAnalog=21;
+#else
+constexpr int lastAnalog=19;
+#endif
+// Like the Arduino AVR core, accept both channel numbers and A0..An constants.
+if(pin>=0&&pin<=lastAnalog-14)pin+=14;
+if(pin<14||pin>lastAnalog)throw std::invalid_argument("Unavailable Arduino analog pin");
+return thinker::request("ADC "+std::to_string(pin));
+#elif defined(THINKERCAD_ESP32_S3)
 if(pin<1||pin>20)throw std::invalid_argument("Unavailable ADC GPIO");return thinker::request("ADC "+std::to_string(pin));
 #elif defined(THINKERCAD_ESP32)
 constexpr int adc[]={0,2,4,12,13,14,15,25,26,27,32,33,34,35,36,39};if(std::find(std::begin(adc),std::end(adc),pin)==std::end(adc))throw std::invalid_argument("Unavailable ADC GPIO");return thinker::request("ADC "+std::to_string(pin));

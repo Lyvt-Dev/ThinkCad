@@ -1,3 +1,4 @@
+#include "language.hpp"
 #include "examples.hpp"
 #include "paths.hpp"
 #include <QCoreApplication>
@@ -6,20 +7,20 @@
 #include <algorithm>
 using namespace thinkercad;
 QList<CircuitExample> ExampleCatalog::entries(){return {
-    {"animation","OLED-Animation","ESP8266 und SSD1306: zwei Bitmap-Frames aus PROGMEM mit realistischer I²C-Transferzeit."},
-    {"led_blink","LED blinken lassen","Externe LED an D5 mit 220-Ω-Vorwiderstand. Mit dem Temporegler die Blinkgeschwindigkeit vergleichen."},
-    {"button_led","Taster schaltet LED","Taster an D6 gegen GND, interner Pullup, LED an D5. Taster per Doppelklick oder Auswahl-Checkbox drücken."},
-    {"traffic_light","Ampelschaltung","Drei LEDs an D5/D6/D7 mit eigenen Vorwiderständen: Rot, Rot/Gelb, Grün, Gelb."},
-    {"led_chaser","Lauflicht","Vier LEDs an D1/D2/D5/D6 mit jeweils 220 Ω werden der Reihe nach eingeschaltet."},
-    {"analog_threshold","Analoger Schwellwert","0–1-V-Quelle an A0. Ab ADC-Wert 512 leuchtet die LED. Simulation stoppen, Quelle auswählen und Spannung verändern."},
-    {"esp32_blink","ESP32: LED blinken","ESP32-Boardprofil, externe LED an GPIO5 mit Vorwiderstand."},
-    {"esp32_s3_adc","ESP32-S3: ADC","12-Bit-ADC an A0/GPIO1. Eine Quelle mit 1,65 V schaltet die LED an GPIO5 ein."},
-    {"oled_text_32","OLED-Text 128×32","setCursor, setTextColor und Textgröße auf einem korrekt verkabelten 128×32-SSD1306."},
-    {"two_oleds","Zwei OLEDs am I²C-Bus","Zwei Displays teilen D2/SDA und D1/SCL. Adressen 0x3C und 0x3D; Flash-Bitmaps bewegen sich gegenläufig."}
+    {"animation",Language::text("OLED-Animation"),Language::text("ESP8266 und SSD1306: zwei Bitmap-Frames aus PROGMEM mit realistischer I²C-Transferzeit.")},
+    {"led_blink",Language::text("LED blinken lassen"),Language::text("Externe LED an D5 mit 220-Ω-Vorwiderstand. Mit dem Temporegler die Blinkgeschwindigkeit vergleichen.")},
+    {"button_led",Language::text("Taster schaltet LED"),Language::text("Taster an D6 gegen GND, interner Pullup, LED an D5. Taster per Doppelklick oder Auswahl-Checkbox drücken.")},
+    {"traffic_light",Language::text("Ampelschaltung"),Language::text("Drei LEDs an D5/D6/D7 mit eigenen Vorwiderständen: Rot, Rot/Gelb, Grün, Gelb.")},
+    {"led_chaser",Language::text("Lauflicht"),Language::text("Vier LEDs an D1/D2/D5/D6 mit jeweils 220 Ω werden der Reihe nach eingeschaltet.")},
+    {"analog_threshold",Language::text("Analoger Schwellwert"),Language::text("0–1-V-Quelle an A0. Ab ADC-Wert 512 leuchtet die LED. Simulation stoppen, Quelle auswählen und Spannung verändern.")},
+    {"esp32_blink",Language::text("ESP32: LED blinken"),Language::text("ESP32-Boardprofil, externe LED an GPIO5 mit Vorwiderstand.")},
+    {"esp32_s3_adc","ESP32-S3: ADC",Language::text("12-Bit-ADC an A0/GPIO1. Eine Quelle mit 1,65 V schaltet die LED an GPIO5 ein.")},
+    {"oled_text_32",Language::text("OLED-Text 128×32"),Language::text("setCursor, setTextColor und Textgröße auf einem korrekt verkabelten 128×32-SSD1306.")},
+    {"two_oleds",Language::text("Zwei OLEDs am I²C-Bus"),Language::text("Zwei Displays teilen D2/SDA und D1/SCL. Adressen 0x3C und 0x3D; Flash-Bitmaps bewegen sich gegenläufig.")}
 };}
 SavedProject ExampleCatalog::create(const QString& id){
     const auto entries=ExampleCatalog::entries();if(std::none_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.id==id;}))throw std::invalid_argument("Unbekanntes Beispiel.");
-    QFile file(AppPaths::examples()+"/"+id+".ino");if(!file.open(QIODevice::ReadOnly))throw std::runtime_error("Beispieldatei fehlt. Installation überprüfen.");
+    QFile file(AppPaths::examples()+"/"+id+".ino");if(!file.open(QIODevice::ReadOnly))throw std::runtime_error(Language::text("Beispieldatei fehlt. Installation überprüfen.").toStdString());
     SavedProject result;auto& doc=result.circuit;result.sketch.name=id;result.sketch.order={id+".ino"};result.sketch.files[id+".ino"]=QString::fromUtf8(file.readAll());
     auto led=[&](const std::string& pin,double y,const std::string& color){
         const auto resistor=doc.addPart(PartKind::Resistor,400,y),light=doc.addPart(PartKind::Led,650,y);doc.part(light).color=color;

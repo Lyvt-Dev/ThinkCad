@@ -26,6 +26,7 @@ struct WirePoint { double x=0,y=0; };
 struct CircuitWire { std::string id; Endpoint a,b; std::string color="#0d9488"; std::vector<WirePoint> points; };
 struct CircuitState {
     std::map<Endpoint,std::optional<double>> voltage;
+    std::map<Endpoint,double> logicVoltage;
     std::map<std::string,double> ledCurrent;
     std::vector<std::string> errors;
     Level level(const Endpoint& endpoint) const;
@@ -34,6 +35,8 @@ struct CircuitState {
 class CircuitDocument {
 public:
     CircuitDocument();
+    std::string boardId()const;
+    void setActiveBoard(const std::string& id);
     const std::vector<CircuitPart>& parts() const { return parts_; }
     const std::vector<CircuitWire>& wires() const { return wires_; }
     CircuitPart& part(const std::string& id);
@@ -52,6 +55,7 @@ public:
     CircuitState solve(const Esp8266Board& board) const;
     bool oledReady(const std::string& id,int sda,int scl,const CircuitState& state) const;
 private:
+    std::string activeBoard_;
     std::vector<CircuitPart> parts_;
     std::vector<CircuitWire> wires_;
     std::uint64_t nextPart_=1,nextWire_=1;

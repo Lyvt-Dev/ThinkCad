@@ -8,6 +8,7 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 | --- | --- |
 | ESP8266 | GPIO, Pullups, 10-Bit-ADC 0–1 V; keine Xtensa-CPU, WLAN oder PWM |
 | ESP32 / ESP32-S3 | Boardprofile mit GPIO-Auswahl, Eingangs-Pins und 12-Bit-ADC 0–3,3 V; keine CPU-/Peripherieemulation |
+| Arduino Uno R3 / klassischer Nano | ATmega328P-Boardprofile: D0–D13, A0–A5, 5-V-GPIO, 10-Bit-ADC 0–5 V; Nano zusätzlich A6/A7 nur analog. Keine AVR-CPU-, PWM-, Timer- oder vollständige Peripherieemulation |
 | SSD1306 | I²C, 128×64/128×32, Adafruit-GFX-Zeichenkern, Text, Bitmaps, Invertierung, Helligkeit; Scrollen mit vereinfachtem 100-ms-Zeitraster |
 | Widerstand | Lineares Gleichstrommodell |
 | LED | Stückweise lineares Diodenmodell, 2 V Vorwärtsspannung; Überstromdiagnose |
@@ -36,3 +37,8 @@ keine fehlende Hardwarephysik.
 Arduino-Sketches laufen als native C++-Hostprozesse mit einer Arduino-API-Teilmenge.
 Bibliotheksinstallation bedeutet daher keine vollständige ESP-Firmwarekompatibilität.
 Nicht unterstützte Hardwareaufrufe sollen einen klaren Fehler statt Scheinfunktion liefern.
+
+Mikrocontroller stehen in derselben durchsuchbaren Komponentenliste wie andere Bauteile
+und können hinzugefügt oder gelöscht werden. Bei mehreren Boards bestimmt
+„Dieses Board simulieren“ im Inspektor das Board für den gemeinsamen Sketch; die
+anderen Boards treiben keine GPIO-Ausgänge. Die Auswahl wird im Projekt gespeichert.
