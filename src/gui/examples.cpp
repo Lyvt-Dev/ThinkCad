@@ -1,4 +1,5 @@
 #include "examples.hpp"
+#include "paths.hpp"
 #include <QCoreApplication>
 #include <QFile>
 #include <stdexcept>
@@ -18,7 +19,7 @@ QList<CircuitExample> ExampleCatalog::entries(){return {
 };}
 SavedProject ExampleCatalog::create(const QString& id){
     const auto entries=ExampleCatalog::entries();if(std::none_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.id==id;}))throw std::invalid_argument("Unbekanntes Beispiel.");
-    QFile file(QCoreApplication::applicationDirPath()+"/examples/"+id+".ino");if(!file.open(QIODevice::ReadOnly))throw std::runtime_error("Beispieldatei fehlt. Installation überprüfen.");
+    QFile file(AppPaths::examples()+"/"+id+".ino");if(!file.open(QIODevice::ReadOnly))throw std::runtime_error("Beispieldatei fehlt. Installation überprüfen.");
     SavedProject result;auto& doc=result.circuit;result.sketch.name=id;result.sketch.order={id+".ino"};result.sketch.files[id+".ino"]=QString::fromUtf8(file.readAll());
     auto led=[&](const std::string& pin,double y,const std::string& color){
         const auto resistor=doc.addPart(PartKind::Resistor,400,y),light=doc.addPart(PartKind::Led,650,y);doc.part(light).color=color;

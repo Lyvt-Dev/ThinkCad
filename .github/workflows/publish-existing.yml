@@ -1,9 +1,13 @@
-name: Publish verified Windows build
+name: Publish verified desktop builds
 on:
   workflow_dispatch:
     inputs:
       run_id:
         description: Successful Windows build run
+        required: true
+        type: string
+      linux_run_id:
+        description: Successful Linux and Gentoo build run
         required: true
         type: string
       tag:
@@ -21,6 +25,7 @@ jobs:
       GH_REPO: ${{ github.repository }}
       RUN_ID: ${{ inputs.run_id }}
       TAG: ${{ inputs.tag }}
+      LINUX_RUN_ID: ${{ inputs.linux_run_id }}
     steps:
       - name: Validate build provenance
         shell: bash
@@ -34,8 +39,16 @@ jobs:
           build_sha=$(jq -r '.head_sha' run.json)
           tag_sha=$(gh api "repos/$GH_REPO/commits/$TAG" --jq .sha)
           test "$build_sha" = "$tag_sha"
+          [[ "$LINUX_RUN_ID" =~ ^[0-9]+$ ]]
+          gh api "repos/$GH_REPO/actions/runs/$LINUX_RUN_ID" > linux-run.json
+          test "$(jq -r '.conclusion' linux-run.json)" = success
+          test "$(jq -r '.name' linux-run.json)" = 'Linux and Gentoo'
+          test "$(jq -r '.head_sha' linux-run.json)" = "$tag_sha"
       - name: Retrieve verified installer and corresponding sources
-        run: gh run download "$RUN_ID" --repo "$GH_REPO" --name ThinkCad-Windows --dir installer
+        run: |
+          gh run download "$RUN_ID" --repo "$GH_REPO" --name ThinkCad-Windows --dir installer
+          gh run download "$LINUX_RUN_ID" --repo "$GH_REPO" --name ThinkCad-Linux-Ubuntu --dir installer
+          gh run download "$LINUX_RUN_ID" --repo "$GH_REPO" --name ThinkCad-Linux-Fedora --dir installer
       - name: Verify published payload checksums
         working-directory: installer
         shell: bash
@@ -47,6 +60,19 @@ jobs:
           test -s "ThinkCad-Setup-${TAG#v}.exe.sigstore.jsonl"
           build_sha=$(gh api "repos/$GH_REPO/actions/runs/$RUN_ID" --jq .head_sha)
           gh attestation verify "ThinkCad-Setup-${TAG#v}.exe" --bundle "ThinkCad-Setup-${TAG#v}.exe.sigstore.jsonl" --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/windows.yml" --source-ref refs/heads/main --source-digest "$build_sha" --deny-self-hosted-runners
+      - name: Verify Linux packages and source provenance
+        working-directory: installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          for checksum in *.deb.sha256 *.rpm.sha256 *.tar.gz.sha256 *.tar.xz.sha256; do sha256sum --check "$checksum"; done
+          build_sha=$(gh api "repos/$GH_REPO/actions/runs/$LINUX_RUN_ID" --jq .head_sha)
+          for file in *.deb *.tar.gz *.tar.xz; do
+            gh attestation verify "$file" --bundle ubuntu.sigstore.jsonl --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/linux.yml" --source-ref refs/heads/main --source-digest "$build_sha" --deny-self-hosted-runners
+          done
+          for file in *.rpm; do
+            gh attestation verify "$file" --bundle fedora.sigstore.jsonl --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/linux.yml" --source-ref refs/heads/main --source-digest "$build_sha" --deny-self-hosted-runners
+          done
       - name: Publish release
         shell: bash
         run: |

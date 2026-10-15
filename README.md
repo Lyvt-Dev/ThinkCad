@@ -1,7 +1,7 @@
 # ThinkCad
 
-Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, mit Windows als Zielplattform.
-Version 0.4.0 bietet ESP8266-, ESP32- und ESP32-S3-Boardprofile, 20 Bauteiltypen,
+Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, für **Windows und Linux**. **macOS wird nicht unterstützt.**
+Version 0.4.1 bietet ESP8266-, ESP32- und ESP32-S3-Boardprofile, 20 Bauteiltypen,
 SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
 ![ThinkCad: native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
@@ -39,9 +39,11 @@ Simulatoradapter. Nicht jede Arduino-Hardwarebibliothek funktioniert durch Insta
 Die tatsächlichen Bauteilmodelle und Grenzen stehen in [COMPONENT_SUPPORT.md](docs/COMPONENT_SUPPORT.md). Native Sketches sind nicht sicher sandboxed;
 nur eigenen bzw. vertrauenswürdigen Code und Bibliotheken ausführen.
 
+Linux-Pakete, Source-Build und Gentoo-USE-Flags: [docs/LINUX.md](docs/LINUX.md).
+
 ## Windows bauen
 
-Benötigt werden CMake ≥3.24, Qt ≥6.5 (getestet: Linux Qt 6.8.2 und Windows Qt 6.8.3/MSVC2022), Visual Studio 2022 C++ Build Tools und für die Laufzeit-Sketches
+Benötigt werden CMake ≥3.24, Qt ≥6.4 (getestet: Linux Qt 6.8.2 und Windows Qt 6.8.3/MSVC2022), Visual Studio 2022 C++ Build Tools und für die Laufzeit-Sketches
 MinGW-w64/UCRT64 GCC mit vollständigen Headern/Standardbibliotheken.
 Die GUI kann mit MSVC gebaut werden; Sketches laufen als eigenständige MinGW-Prozesse.
 
@@ -62,7 +64,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=0.4.0 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=0.4.1 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

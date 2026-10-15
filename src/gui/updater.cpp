@@ -44,7 +44,10 @@ Updater::Updater(QObject* parent) : QObject(parent), network_(this) {}
 void Updater::check() {
     if(busy_ || ready()) return;
 #ifndef Q_OS_WIN
-    emit message("Automatische Installation ist nur unter Windows verfügbar."); return;
+    if(busy_)return;
+    busy_=true;auto* linuxReply=network_.get(request("https://api.github.com/repos/Lyvt-Dev/ThinkCad/releases/latest"));
+    connect(linuxReply,&QNetworkReply::readyRead,linuxReply,[linuxReply]{if(linuxReply->bytesAvailable()>1048576)linuxReply->abort();});
+    connect(linuxReply,&QNetworkReply::finished,this,[this,linuxReply]{busy_=false;linuxReply->deleteLater();const auto bytes=linuxReply->readAll();const auto release=QJsonDocument::fromJson(bytes).object();const auto version=QRegularExpression("^v([0-9]+\\.[0-9]+\\.[0-9]+)$").match(release["tag_name"].toString());if(linuxReply->error()!=QNetworkReply::NoError||!allowedResponse(linuxReply)||bytes.size()>1048576||!version.hasMatch()){emit message("Update-Abfrage fehlgeschlagen.");return;}if(release["draft"].toBool()||release["prerelease"].toBool())return;if(QVersionNumber::fromString(version.captured(1))>QVersionNumber::fromString(THINKERCAD_VERSION))emit message("ThinkCad "+version.captured(1)+" ist verfügbar. Linux: über die Paketverwaltung aktualisieren; Gentoo: Overlay aktualisieren und emerge --ask --oneshot media-gfx/thinkcad. Downloads: https://github.com/Lyvt-Dev/ThinkCad/releases/latest");else emit message("ThinkCad ist aktuell.");});return;
 #endif
     busy_=true;
     auto* reply=network_.get(request("https://api.github.com/repos/Lyvt-Dev/ThinkCad/releases/latest"));

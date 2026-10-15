@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=ThinkCad
+GenericName=Microcontroller circuit simulator
+GenericName[de]=Mikrocontroller-Schaltungssimulator
+Comment=Design 2D circuits and test Arduino sketches
+Comment[de]=2D-Schaltungen entwickeln und Arduino-Sketches testen
+Exec=thinkcad %f
+Icon=thinkcad
+Terminal=false
+Categories=Education;Electronics;Development;
+MimeType=application/x-thinkcad;application/x-arduino;
+StartupNotify=true
+StartupWMClass=thinkcad

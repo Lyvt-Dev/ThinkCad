@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+ <id>io.github.LyvtDev.ThinkCad</id>
+ <metadata_license>CC0-1.0</metadata_license>
+ <project_license>LicenseRef-proprietary</project_license>
+ <name>ThinkCad</name>
+ <summary>Design circuits and simulate Arduino sketches</summary>
+ <description><p>A native C++ and Qt 2D circuit simulator with ESP8266, ESP32 and ESP32-S3 board profiles, Arduino sketch compilation and SSD1306 displays.</p></description>
+ <launchable type="desktop-id">io.github.LyvtDev.ThinkCad.desktop</launchable>
+ <url type="homepage">https://github.com/Lyvt-Dev/ThinkCad</url>
+ <provides><binary>thinkcad</binary></provides>
+ <releases><release version="0.4.1" date="2026-10-15"/></releases>
+</component>
