@@ -115,6 +115,7 @@ append_portage_config package.accept_keywords 'dev-qt/qtbase ~amd64'
 append_portage_config package.accept_keywords 'dev-qt/qtmultimedia ~amd64'
 append_portage_config package.use 'dev-qt/qtbase gui network ssl widgets X wayland'
 append_portage_config package.use 'media-gfx/thinkcad examples test X wayland'
+append_portage_config package.use 'sys-libs/zlib minizip'
 append_portage_config package.license 'media-gfx/thinkcad all-rights-reserved'
 
 # Alle ausdrücklich benötigten Build-, Laufzeit-, Test- und Download-Abhängigkeiten installieren.
@@ -211,6 +212,12 @@ if [ -f /etc/portage/package.accept_keywords ]; then
 else
     mkdir -p /etc/portage/package.accept_keywords
     printf '%s\n' 'dev-qt/qtmultimedia ~amd64' > /etc/portage/package.accept_keywords/thinkcad-audio
+fi
+if [ -f /etc/portage/package.use ]; then
+    printf '%s\n' 'sys-libs/zlib minizip' >> /etc/portage/package.use
+else
+    mkdir -p /etc/portage/package.use
+    printf '%s\n' 'sys-libs/zlib minizip' > /etc/portage/package.use/thinkcad-audio
 fi
 # Das neueste veröffentlichte Release ermitteln (keine fest eingetragene Version).
 release_page=$(curl --fail --silent --show-error --location --retry 3 \

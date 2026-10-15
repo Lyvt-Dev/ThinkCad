@@ -10,6 +10,8 @@ priority = 9999
 sync-uri = https://distfiles.gentoo.org/releases/amd64/binpackages/23.0/x86-64
 CONF
 getuto
+mkdir -p /etc/portage/package.use
+printf 'sys-libs/zlib minizip\n' > /etc/portage/package.use/thinkcad-audio
 # Dependencies must come from signed Gentoo binary packages; the app is compiled below.
 emerge --getbinpkgonly --binpkg-respect-use=y --backtrack=100 --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase dev-qt/qtmultimedia virtual/zlib media-fonts/dejavu
 mkdir -p /var/db/repos/thinkcad
