@@ -14,7 +14,7 @@ class QComboBox;
 class QCheckBox;
 class QPushButton;
 class QStackedWidget;
-class StartPage;
+class WelcomePage;
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
@@ -46,7 +46,7 @@ private:
     Updater updater_;
     CircuitCanvas* canvas_;
     QStackedWidget* workspace_;
-    StartPage* startPage_;
+    WelcomePage* startPage_;
     QByteArray editorLayout_;
     void showEditor();
     QTabWidget* codeTabs_;

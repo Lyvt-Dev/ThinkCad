@@ -2,10 +2,10 @@
 #include <QWidget>
 class QVBoxLayout;
 class QStackedWidget;
-class StartPage final:public QWidget {
+class WelcomePage final:public QWidget {
     Q_OBJECT
 public:
-    explicit StartPage(QWidget* parent=nullptr);
+    explicit WelcomePage(QWidget* parent=nullptr);
     void refresh();
     static void remember(const QString& path);
 signals:

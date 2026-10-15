@@ -236,7 +236,7 @@ private slots:
         auto* codeDock=window.findChild<QDockWidget*>("codeDock");codeDock->hide();
         window.showStartPage();QTest::qWait(50);QVERIFY(window.startPageVisible());
         for(auto* dock:window.findChildren<QDockWidget*>())QVERIFY(dock->isHidden());
-        auto* home=window.findChild<StartPage*>();QVERIFY(home);
+        auto* home=window.findChild<WelcomePage*>();QVERIFY(home);
         const auto recent=home->findChildren<QPushButton*>("recentProject");QCOMPARE(recent.size(),1);QCOMPARE(recent.front()->property("projectPath").toString(),QFileInfo(saved).canonicalFilePath());
         const auto capture=qEnvironmentVariable("THINKCAD_UI_CAPTURE_DIR");if(!capture.isEmpty())window.grab().save(capture+"/home-light.png");
         home->findChild<QPushButton*>("settingsNavigation")->click();auto* dark=home->findChild<QCheckBox*>("startDarkMode");QVERIFY(dark);dark->setChecked(true);QVERIFY(settings.value("darkMode").toBool());
