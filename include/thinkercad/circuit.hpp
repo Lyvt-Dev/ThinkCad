@@ -59,7 +59,7 @@ public:
     void validate() const;
     CircuitState solve(const Esp8266Board& board) const;
     CircuitState solve(const std::map<std::string,const Esp8266Board*>& boards) const;
-    std::vector<SoundSignal> soundSignals(const std::map<std::string,const Esp8266Board*>& boards) const;
+    std::vector<SoundSignal> soundSignals(const std::map<std::string,const Esp8266Board*>& boards,std::vector<std::string>* errors=nullptr) const;
     bool oledReady(const std::string& id,int sda,int scl,const CircuitState& state,const std::string& boardId={}) const;
 private:
     std::string activeBoard_;

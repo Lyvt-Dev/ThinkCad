@@ -214,7 +214,7 @@ CircuitState CircuitDocument::solve(const std::map<std::string,const Esp8266Boar
     }
     return result;
 }
-std::vector<SoundSignal> CircuitDocument::soundSignals(const std::map<std::string,const Esp8266Board*>& boards)const {
+std::vector<SoundSignal> CircuitDocument::soundSignals(const std::map<std::string,const Esp8266Board*>& boards,std::vector<std::string>* errors)const {
     std::vector<SoundSignal> signals;
     if(std::none_of(parts_.begin(),parts_.end(),[](const auto& p){return p.kind==PartKind::PiezoBuzzer||p.kind==PartKind::Speaker;}))return signals;
     for(const auto& [id,board]:boards)if(board)for(int gpio:board->profile().gpio){
@@ -222,7 +222,10 @@ std::vector<SoundSignal> CircuitDocument::soundSignals(const std::map<std::strin
         auto probe=*board;auto sources=boards;sources[id]=&probe;
         probe.digitalWrite(gpio,true);const auto high=solve(sources);
         probe.digitalWrite(gpio,false);const auto low=solve(sources);
-        if(!high.errors.empty()||!low.errors.empty())continue;
+        if(!high.errors.empty()||!low.errors.empty()){
+            if(errors){errors->insert(errors->end(),high.errors.begin(),high.errors.end());errors->insert(errors->end(),low.errors.begin(),low.errors.end());}
+            continue;
+        }
         for(const auto& part:parts_)if(part.kind==PartKind::PiezoBuzzer||part.kind==PartKind::Speaker){
             auto difference=[&](const CircuitState& state)->std::optional<double>{
                 const auto& a=state.voltage.at({part.id,"+"});const auto& b=state.voltage.at({part.id,"-"});

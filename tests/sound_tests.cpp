@@ -26,6 +26,9 @@ int main(int argc,char** argv){QCoreApplication app(argc,argv);try{
     check(doc.solve(sources).errors.empty(),"Speaker with 470-ohm resistor stays within GPIO limit");tones=doc.soundSignals(sources);check(tones.size()==1&&tones[0].amplitude>0&&tones[0].amplitude<1,"Series resistor attenuates speaker signal");
     const auto level=tones[0].amplitude;doc.part(r).value=1000;check(doc.soundSignals(sources)[0].amplitude<level,"Higher series resistance reduces volume");
     doc.clearWires();doc.connect({speaker,"+"},{"board","D3"});doc.connect({speaker,"-"},{"board","D3"});check(doc.soundSignals(sources).empty(),"Both terminals on same signal produce no sound");
+    doc.clearWires();doc.connect({speaker,"+"},{"board","5V"});doc.connect({speaker,"-"},{"board","D3"});
+    std::vector<std::string> waveformErrors;check(doc.solve(sources).errors.empty(),"High half of a rail-connected speaker can appear unloaded");
+    check(doc.soundSignals(sources,&waveformErrors).empty()&&!waveformErrors.empty(),"Low-half GPIO overload is also reported");
     doc.clearWires();doc.connect({buzzer,"-"},{"board","D3"});doc.connect({buzzer,"+"},{"board","GND"});check(doc.soundSignals(sources)[0].amplitude<0,"Reversing passive piezo reverses phase");
     for(const auto& model:{"esp8266","esp32","esp32-s3","arduino-nano"}){
         CircuitDocument circuit;circuit.part("board").model=model;Esp8266Board device;device.configure(model);

@@ -219,8 +219,9 @@ void MainWindow::updateCircuit(bool stopOnError){
             else{idle[part.id].configure(BoardProfile::get(part.model).id);boards[part.id]=&idle.at(part.id);}
         }
         circuitState_=circuit_.solve(boards);
+        const auto tones=simulationActive()&&circuitState_.errors.empty()?circuit_.soundSignals(boards,&circuitState_.errors):std::vector<SoundSignal>{};
         if(stopOnError&&!circuitState_.errors.empty()){appendLog(QString::fromStdString(circuitState_.errors.front()));stopSimulation();if(smokeTest_)QCoreApplication::exit(1);}
-        if(simulationActive()&&circuitState_.errors.empty())sound_.setSignals(circuit_.soundSignals(boards));else sound_.stop();
+        if(simulationActive()&&circuitState_.errors.empty())sound_.setSignals(tones);else sound_.stop();
         renderDirty_=true;
     }catch(const std::exception& e){appendLog(QString::fromUtf8(e.what()));stopSimulation();}
 }
