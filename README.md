@@ -168,7 +168,7 @@ Einstellungen bleiben erhalten. Nachfolgende Updates verwenden die Attestierungs
 Zum Release die CMake-Version erhöhen und Release Notes ergänzen. Der Windows-Workflow
 baut, testet und paketiert auf `main`, prüft den Installer und erzeugt dessen
 Attestierung. Danach einen passenden `vX.Y.Z`-Tag auf dem getesteten Commit erstellen
-und **Publish verified Windows build** mit Run-ID und Tag ausführen. Der Publish-Job
+und **Publish verified desktop builds** mit Windows-Run-ID, Linux-/Gentoo-Run-ID und Tag ausführen. Der Publish-Job
 prüft Commit, Checksummen und Attestierung, bevor er die getesteten Dateien veröffentlicht.
 
 ## Schaltung und Arduino-Projekt benutzen
