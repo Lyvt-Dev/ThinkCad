@@ -41,6 +41,108 @@ nur eigenen bzw. vertrauenswürdigen Code und Bibliotheken ausführen.
 
 Linux-Pakete, Source-Build und Gentoo-USE-Flags: [docs/LINUX.md](docs/LINUX.md).
 
+## Gentoo Installation
+
+The release's **Gentoo overlay** is a small local Portage repository containing the
+ThinkCad ebuild and a checksum Manifest. You do not compile or run the overlay
+itself: register it once, then install ThinkCad with `emerge`. Portage downloads
+and verifies the matching source archive and builds the application.
+
+These instructions target an existing **amd64 Gentoo desktop** with a configured
+Gentoo repository, working Internet access and an X11 or Wayland session. The
+0.4.1 ebuild requires **Qt ≥6.11**, **GCC ≥12 with C++ support**, CMake, Ninja and
+zlib. It enables example sketches, both display backends and the test suite below.
+The application currently requires accepting `all-rights-reserved`; the bundled
+Adafruit GFX code uses BSD. The commands accept that application license explicitly.
+
+Open a root shell with `su -` (or `sudo -i`), then paste this entire block. Review
+the package list at each `--ask` prompt and answer `Yes` to proceed:
+
+```bash
+bash <<'GENTOO_INSTALL'
+set -euo pipefail
+emerge --sync
+
+# Handle both directory-based and single-file Portage configuration layouts.
+append_portage_config() {
+    local path="/etc/portage/$1"
+    if [ -f "$path" ]; then
+        printf '%s\n' "$2" >> "$path"
+    else
+        mkdir -p "$path"
+        printf '%s\n' "$2" >> "$path/thinkcad"
+    fi
+}
+append_portage_config package.accept_keywords 'media-gfx/thinkcad ~amd64'
+append_portage_config package.accept_keywords 'dev-qt/qtbase ~amd64'
+append_portage_config package.use 'dev-qt/qtbase gui network ssl widgets X wayland'
+append_portage_config package.use 'media-gfx/thinkcad examples test X wayland'
+append_portage_config package.license 'media-gfx/thinkcad all-rights-reserved'
+
+# Install all explicit build/runtime/test and download prerequisites.
+# --noreplace keeps already-installed matching packages; --ask shows the plan.
+# /dev/tty keeps confirmation interactive inside this pasted shell block.
+emerge --noreplace --ask \
+    '>=sys-devel/gcc-12[cxx]' '>=dev-build/cmake-3.24' dev-build/ninja \
+    '>=dev-qt/qtbase-6.11:6[gui,network,ssl,widgets,X,wayland]' virtual/zlib \
+    media-fonts/dejavu net-misc/curl app-arch/tar app-arch/xz-utils \
+    sys-apps/coreutils </dev/tty
+
+version=0.4.1
+archive="ThinkCad-${version}-Gentoo-overlay.tar.xz"
+release="https://github.com/Lyvt-Dev/ThinkCad/releases/download/v${version}"
+workdir=$(mktemp -d)
+trap 'rm -rf "$workdir"' EXIT
+cd "$workdir"
+curl --fail --location --remote-name "${release}/${archive}"
+curl --fail --location --remote-name "${release}/${archive}.sha256"
+sha256sum --check "${archive}.sha256"
+
+# Use a new directory so an existing local overlay is never overwritten.
+overlay="/var/db/repos/thinkcad-${version}"
+if [ -e "$overlay" ]; then
+    echo "${overlay} already exists; inspect it before reinstalling this overlay." >&2
+    exit 1
+fi
+mkdir -p "$overlay"
+tar -xJf "$archive" -C "$overlay" --strip-components=1
+mkdir -p /etc/portage/repos.conf
+cat > /etc/portage/repos.conf/thinkcad.conf <<CONF
+[thinkcad]
+location = ${overlay}
+masters = gentoo
+auto-sync = no
+CONF
+
+# Compile, run the headless tests, and install the application.
+FEATURES="${FEATURES-} test" emerge --ask '=media-gfx/thinkcad-0.4.1::thinkcad' </dev/tty
+GENTOO_INSTALL
+```
+
+If Portage reports additional USE changes, apply the specific changes it requests
+and rerun the affected `emerge` command. If your Gentoo tree does not offer Qt
+6.11 yet, this released ebuild cannot be installed from that tree; do not lower
+its dependency requirement blindly. `--noreplace` does not rebuild an existing
+Qt with newly requested USE flags; if Portage requests it, run
+`emerge --ask --oneshot --newuse dev-qt/qtbase` before continuing.
+
+Leave the root shell with `exit`. In a terminal **as your normal desktop user**,
+paste the following to validate sketch compilation, IPC and OLED output, then
+open the application:
+
+```sh
+QT_QPA_PLATFORM=offscreen thinkcad --smoke-test && thinkcad
+```
+
+A graphical desktop is needed for the final window. If sketch compilation reports
+an old compiler, use `gcc-config -l` to inspect installed GCC profiles, select a
+GCC ≥12 profile with `gcc-config` as root, and open a new login shell.
+
+This release overlay has `auto-sync = no`: `emerge --sync` updates Gentoo, but does
+not update ThinkCad's local overlay. For a future ThinkCad release, download and
+verify its matching overlay, register its new directory and install the new
+version through Portage. More Linux and USE-flag details: [docs/LINUX.md](docs/LINUX.md).
+
 ## Windows bauen
 
 Benötigt werden CMake ≥3.24, Qt ≥6.4 (getestet: Linux Qt 6.8.2 und Windows Qt 6.8.3/MSVC2022), Visual Studio 2022 C++ Build Tools und für die Laufzeit-Sketches
