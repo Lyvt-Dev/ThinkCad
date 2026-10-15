@@ -4,7 +4,9 @@ Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, mit Windows als Zielplattform
 Version 0.4.0 bietet ESP8266-, ESP32- und ESP32-S3-Boardprofile, 20 Bauteiltypen,
 SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
-![Native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
+![ThinkCad: native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
+
+![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
 ## Was bereits funktioniert
 
