@@ -17,13 +17,13 @@ REQUIRED_USE="|| ( X wayland )"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
- >=dev-qt/qtbase-6.4:6[gui,network,ssl,widgets]
+ >=dev-qt/qtbase-6.11:6[gui,network,ssl,widgets]
  X? ( dev-qt/qtbase:6[X] )
- wayland? ( dev-qt/qtbase:6[wayland] dev-qt/qtwayland:6 )
+ wayland? ( dev-qt/qtbase:6[wayland] )
  virtual/zlib:="
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND} >=sys-devel/gcc-12[cxx]"
-BDEPEND="test? ( >=sys-devel/gcc-12[cxx] )"
+BDEPEND="test? ( >=sys-devel/gcc-12[cxx] media-fonts/dejavu )"
 
 src_configure() {
  local mycmakeargs=(

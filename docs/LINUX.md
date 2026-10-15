@@ -10,7 +10,8 @@ unterstützt. Die bestehenden Simulationsgrenzen gelten weiterhin.
 Die Release-Seite enthält ein DEB für Ubuntu 24.04 und kompatible Distributionen,
 ein RPM für Fedora 44 sowie einen Linux-Tarball aus dem Ubuntu-Build.
 Die Pakete verwenden **System-Qt und System-GCC**, keine eingebettete Windows-Toolchain.
-Der Tarball ist kein distributionsunabhängiges AppImage; er benötigt kompatible
+Der Tarball lässt sich entpacken und über `ThinkCad-0.4.1-Linux-x86_64/usr/bin/thinkcad`
+starten. Er ist kein distributionsunabhängiges AppImage; er benötigt kompatible
 Systembibliotheken wie das Ubuntu-Paket. Andere Distributionen können aus Quellen bauen.
 
 ```sh
@@ -92,7 +93,8 @@ eigene Projekte und die Simulation bleiben nutzbar. Bereits systemweit vorhanden
 Qt-Backends werden durch das Abschalten eines Flags nicht entfernt. Die Flags steuern
 die Paketabhängigkeiten und optionalen Build-/Installationsschritte. USE-Flags sind
 **ausschließlich Gentoo-spezifisch**; DEB/RPM verwenden keine USE-Konfiguration.
-Das Ebuild ist zunächst für `~amd64` vorgesehen. Weitere Architekturen sind noch
+Das Ebuild verwendet den aktuellen Gentoo-Qt-Aufbau ab Qt 6.11, bei dem der
+Wayland-Client im Qtbase-Paket liegt. Es ist zunächst für `~amd64` vorgesehen. Weitere Architekturen sind noch
 nicht durch einen nativen Gentoo-Build validiert.
 
 Die Hauptanwendung hat bislang keine freie Lizenzfreigabe; das Ebuild übernimmt dafür

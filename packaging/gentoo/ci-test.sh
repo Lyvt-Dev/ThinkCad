@@ -11,9 +11,9 @@ sync-uri = https://distfiles.gentoo.org/releases/amd64/binpackages/23.0/x86-64
 CONF
 getuto
 # Dependencies must come from signed Gentoo binary packages; the app is compiled below.
-emerge --getbinpkgonly --binpkg-respect-use=n --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase dev-qt/qtwayland virtual/zlib
+emerge --getbinpkgonly --binpkg-respect-use=n --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase virtual/zlib media-fonts/dejavu
 mkdir -p /var/db/repos/thinkcad
- tar -xJf /release/ThinkCad-0.4.1-Gentoo-overlay.tar.xz -C /var/db/repos/thinkcad --strip-components=1
+tar -xJf /release/ThinkCad-0.4.1-Gentoo-overlay.tar.xz -C /var/db/repos/thinkcad --strip-components=1
 cat > /etc/portage/repos.conf/thinkcad.conf <<'CONF'
 [thinkcad]
 location = /var/db/repos/thinkcad
@@ -30,6 +30,8 @@ QT_QPA_PLATFORM=offscreen thinkcad --smoke-test
 USE='-examples -test X -wayland' emerge --oneshot --usepkg=n media-gfx/thinkcad
 test -x /usr/bin/thinkcad
 test ! -d /usr/share/thinkcad/examples
+# Build the Wayland-only dependency configuration as well.
+USE='-examples -test -X wayland' emerge --oneshot --usepkg=n media-gfx/thinkcad
 # Invalid combinations are rejected by Portage REQUIRED_USE.
 if USE='-X -wayland' emerge --pretend media-gfx/thinkcad; then
  echo 'Expected REQUIRED_USE failure' >&2
