@@ -20,6 +20,7 @@ public:
     void setWireColor(const QColor& color){wireColor_=color;}
     void addPart(thinkercad::PartKind kind);
     void removeSelected();
+    void rotateSelected();
     void fitCircuit();
     void zoom(double factor);
     void cancelWire();

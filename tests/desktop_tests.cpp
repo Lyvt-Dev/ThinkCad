@@ -11,6 +11,7 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QDialog>
+#include <QDockWidget>
 #include <QTextBrowser>
 #include <QTimer>
 #include "theme.hpp"
@@ -43,6 +44,46 @@ class DesktopTests final:public QObject{
     static void stop(MainWindow& window){if(window.simulationActive())window.findChild<QAction*>("runSimulation")->trigger();}
 private slots:
     void initTestCase(){QApplication::setQuitOnLastWindowClosed(false);QCoreApplication::setOrganizationName("ThinkCadTests");QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settingsDirectory_.path());Language::set("de");}
+    void runShortcut(){
+        MainWindow window;window.show();window.loadDemo();QTest::qWait(80);
+        auto* run=window.findChild<QAction*>("runSimulation");
+        QVERIFY(run->shortcuts().contains(QKeySequence(Qt::CTRL|Qt::Key_R)));
+        QVERIFY(run->shortcuts().contains(QKeySequence(Qt::Key_F5)));
+        window.canvas()->setFocus();QTest::keyClick(window.canvas(),Qt::Key_R,Qt::ControlModifier);
+        QTRY_VERIFY_WITH_TIMEOUT(window.circuitState().level({"board","GPIO2"})==Level::High,15000);
+        QVERIFY(window.simulationActive());
+        QTest::keyClick(window.canvas(),Qt::Key_R,Qt::ControlModifier);
+        QTRY_VERIFY(!window.simulationActive());
+    }
+    void rotationShortcutAndPersistence(){
+        MainWindow window;window.show();QTest::qWait(80);auto* canvas=window.canvas();std::string resistor;
+        canvas->mutate("Rotation fixture",[&](auto& doc){resistor=doc.addPart(PartKind::Resistor,400,240);doc.connect({"board","GPIO14"},{resistor,"1"});const_cast<CircuitWire&>(doc.wires().back()).points={{330,460}};});
+        auto partItem=[&]()->QGraphicsItem*{for(auto* item:canvas->scene()->items())if(item->data(0)=="part"&&item->data(1).toString()==QString::fromStdString(resistor))return item;return nullptr;};
+        auto pinPosition=[&](){for(auto* item:canvas->scene()->items())if(item->parentItem()==partItem()&&item->toolTip().startsWith("1 —"))return item->scenePos();return QPointF(-10000,-10000);};
+        const auto center=partItem()->mapToScene(partItem()->boundingRect().center());const auto originalPin=pinPosition();
+        canvas->selectPart(resistor);canvas->setFocus();QTest::keyClick(canvas,Qt::Key_R);
+        QCOMPARE(window.circuit().part(resistor).rotation,90);QCOMPARE(partItem()->rotation(),90.0);
+        QCOMPARE(partItem()->mapToScene(partItem()->boundingRect().center()),center);QVERIFY(pinPosition()!=originalPin);
+        for(auto* item:canvas->scene()->items())if(item->data(0)=="wire"){
+            const auto path=static_cast<QGraphicsPathItem*>(item)->path();QCOMPARE(path.elementCount(),3);
+            QCOMPARE(QPointF(path.elementAt(2).x,path.elementAt(2).y),pinPosition());
+            QCOMPARE(QPointF(path.elementAt(1).x,path.elementAt(1).y),QPointF(330,460));
+        }
+        canvas->history()->undo();QCOMPARE(window.circuit().part(resistor).rotation,0);QCOMPARE(pinPosition(),originalPin);
+        canvas->history()->redo();QCOMPARE(window.circuit().part(resistor).rotation,90);
+        QTemporaryDir dir;const auto file=dir.filePath("rotated.thinkcad");QVERIFY(window.saveProjectTo(file));QVERIFY(window.openPath(file));
+        QCOMPARE(window.circuit().part(resistor).rotation,90);QCOMPARE(partItem()->rotation(),90.0);
+        canvas->selectPart(resistor);canvas->setFocus();for(int i=0;i<3;++i)QTest::keyClick(canvas,Qt::Key_R);
+        QCOMPARE(window.circuit().part(resistor).rotation,0);QCOMPARE(pinPosition(),originalPin);
+        canvas->setEditingEnabled(false);QTest::keyClick(canvas,Qt::Key_R);QCOMPARE(window.circuit().part(resistor).rotation,0);canvas->setEditingEnabled(true);
+        // Typing R in the sketch editor must never rotate a selected component.
+        window.findChild<QDockWidget*>("codeDock")->show();auto* editor=static_cast<CodeEditor*>(window.findChild<QTabWidget*>("codeTabs")->currentWidget());
+        editor->setFocus();editor->moveCursor(QTextCursor::End);QTest::keyClicks(editor,"r");
+        QVERIFY(editor->toPlainText().endsWith("r"));QCOMPARE(window.circuit().part(resistor).rotation,0);
+        canvas->setFocus();for(auto* item:canvas->scene()->items())if(item->data(0)=="part")item->setSelected(true);
+        QTest::keyClick(canvas,Qt::Key_R);QCOMPARE(window.circuit().part(resistor).rotation,90);QCOMPARE(window.circuit().part("board").rotation,90);
+        QTest::keyClick(canvas,Qt::Key_R);QCOMPARE(window.circuit().part(resistor).rotation,180);QCOMPARE(window.circuit().part("board").rotation,180);
+    }
     void componentSearchAndBoards(){
         MainWindow window;window.show();QTest::qWait(60);
         QVERIFY(!window.findChild<QComboBox*>("boardProfile"));

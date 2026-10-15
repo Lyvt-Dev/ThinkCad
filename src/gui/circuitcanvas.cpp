@@ -57,7 +57,7 @@ class PartItem final:public QGraphicsItem {
     bool initializing_=true;
 public:
     std::string id;PartKind kind;CircuitState state;Frame visible;double brightness=1;
-    PartItem(CircuitCanvas* c,const CircuitPart& p):canvas_(c),id(p.id),kind(p.kind){setData(0,"part");setData(1,QString::fromStdString(id));setFlags(ItemIsSelectable|ItemIsMovable|ItemSendsGeometryChanges);setZValue(1);setPos(p.x,p.y);initializing_=false;setCursor(Qt::OpenHandCursor);for(const auto& pin:CircuitDocument::pins(p)){auto* port=new PinItem(c,{id,pin},this);port->setPos(localPin(p,pin));}}
+    PartItem(CircuitCanvas* c,const CircuitPart& p):canvas_(c),id(p.id),kind(p.kind){setData(0,"part");setData(1,QString::fromStdString(id));setFlags(ItemIsSelectable|ItemIsMovable|ItemSendsGeometryChanges);setZValue(1);setPos(p.x,p.y);setTransformOriginPoint(boundingRect().center());setRotation(p.rotation);initializing_=false;setCursor(Qt::OpenHandCursor);for(const auto& pin:CircuitDocument::pins(p)){auto* port=new PinItem(c,{id,pin},this);port->setPos(localPin(p,pin));}}
     QRectF boundingRect()const override{return kind==PartKind::Esp8266?QRectF(-10,-10,230,std::max(370,202+static_cast<int>((CircuitDocument::pins(canvas_->document().part(id)).size()+1)/2-1)*24)):kind==PartKind::Oled?QRectF(-10,-10,310,224):kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(kind).size()+1)/2)*20));}
     QVariant itemChange(GraphicsItemChange change,const QVariant& v)override{
         if(change==ItemPositionChange&&!initializing_){auto pos=v.toPointF();return QPointF(std::clamp(std::round(pos.x()/10)*10,-9500.0,9500.0),std::clamp(std::round(pos.y()/10)*10,-9500.0,9500.0));}
@@ -102,7 +102,28 @@ CircuitCanvas::~CircuitCanvas(){scene()->disconnect(this);}
 void CircuitCanvas::resetHistory(){history_.clear();history_.setClean();}
 void CircuitCanvas::mutate(const QString& label,std::function<void(CircuitDocument&)> action){if(!editingEnabled_){emit notice(Language::text("Simulation zuerst stoppen, um die Schaltung zu ändern."));return;}try{auto after=document_;action(after);after.validate();history_.push(new Snapshot(this,document_,std::move(after),label));}catch(const std::exception& e){emit notice(QString::fromUtf8(e.what()));}}
 void CircuitCanvas::applyDocument(const CircuitDocument& doc){document_=doc;rebuild();emit documentChanged();}
-void CircuitCanvas::rebuild(){cancelWire();const auto selected=selectedPart();QString selectedWire;for(auto* item:scene()->selectedItems())if(item->data(0)=="wire")selectedWire=item->data(1).toString();scene()->clear();parts_.clear();for(const auto& p:document_.parts()){auto* item=new PartItem(this,p);item->setFlag(QGraphicsItem::ItemIsMovable,editingEnabled_&&!wireMode_);scene()->addItem(item);parts_[p.id]=item;}for(const auto& w:document_.wires()){auto* item=new WireItem(w,routedWire(w));scene()->addItem(item);if(QString::fromStdString(w.id)==selectedWire)item->setSelected(true);}scene()->setSceneRect(scene()->itemsBoundingRect().adjusted(-500,-350,600,400));if(!selected.isEmpty())selectPart(selected.toStdString());viewport()->update();}
+void CircuitCanvas::rebuild(){
+    cancelWire();
+    std::set<std::string> selectedParts,selectedWires;
+    for(auto* item:scene()->selectedItems()){
+        const auto id=item->data(1).toString().toStdString();
+        if(item->data(0)=="part")selectedParts.insert(id);
+        if(item->data(0)=="wire")selectedWires.insert(id);
+    }
+    scene()->clear();parts_.clear();
+    for(const auto& part:document_.parts()){
+        auto* item=new PartItem(this,part);
+        item->setFlag(QGraphicsItem::ItemIsMovable,editingEnabled_&&!wireMode_);
+        scene()->addItem(item);parts_[part.id]=item;
+        item->setSelected(selectedParts.contains(part.id));
+    }
+    for(const auto& wire:document_.wires()){
+        auto* item=new WireItem(wire,routedWire(wire));scene()->addItem(item);
+        item->setSelected(selectedWires.contains(wire.id));
+    }
+    scene()->setSceneRect(scene()->itemsBoundingRect().adjusted(-500,-350,600,400));
+    viewport()->update();
+}
 QPainterPath CircuitCanvas::routedWire(const CircuitWire& wire) const {
     QPainterPath path(pinPosition(wire.a));
     for(const auto& point:wire.points)path.lineTo(point.x,point.y);
@@ -117,6 +138,14 @@ void CircuitCanvas::connectPin(const Endpoint& pin){if(!editingEnabled_){emit no
 void CircuitCanvas::cancelWire(){wireStart_.reset();pendingBends_.clear();if(preview_){scene()->removeItem(preview_);delete preview_;preview_=nullptr;}}
 void CircuitCanvas::addPart(PartKind kind){const auto pos=mapToScene(viewport()->rect().center());mutate(Language::text("Bauteil hinzufügen"),[&](auto& doc){doc.addPart(kind,pos.x()-70,pos.y()-50);});}
 void CircuitCanvas::removeSelected(){std::vector<std::pair<QString,QString>> selected;for(auto* item:scene()->selectedItems())selected.emplace_back(item->data(0).toString(),item->data(1).toString());mutate(Language::text("Auswahl löschen"),[&](auto& doc){for(const auto& [kind,id]:selected)if(kind=="wire")doc.removeWire(id.toStdString());for(const auto& [kind,id]:selected)if(kind=="part")doc.removePart(id.toStdString());});}
+void CircuitCanvas::rotateSelected(){
+    std::vector<std::string> selected;
+    for(auto* item:scene()->selectedItems())if(item->data(0)=="part")selected.push_back(item->data(1).toString().toStdString());
+    if(selected.empty())return;
+    mutate(Language::text("Bauteile rotieren"),[&](auto& doc){
+        for(const auto& id:selected){auto& part=doc.part(id);part.rotation=(part.rotation+90)%360;}
+    });
+}
 void CircuitCanvas::recordMove(const CircuitDocument& before){history_.push(new Snapshot(this,before,document_,Language::text("Bauteil verschieben")));}
 void CircuitCanvas::toggleButton(const std::string& id){auto& p=document_.part(id);p.pressed=!p.pressed;parts_.at(id)->update();emit runtimeInputChanged();}
 void CircuitCanvas::fitCircuit(){fitInView(scene()->itemsBoundingRect().adjusted(-50,-50,50,50),Qt::KeepAspectRatio);if(transform().m11()>1.4){resetTransform();scale(1.4,1.4);}}

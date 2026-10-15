@@ -8,6 +8,7 @@
 #include <QVariant>
 namespace {
 const QMap<QString,QString>& translations(){static const QMap<QString,QString> values{
+    {"Bauteile rotieren","Rotate components"},
     {"Arbeitsbereich","Workspace"},
     {"Datei","File"},
     {"Neues Projekt","New project"},

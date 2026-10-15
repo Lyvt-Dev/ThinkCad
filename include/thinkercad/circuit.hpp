@@ -21,6 +21,7 @@ struct CircuitPart {
     bool pressed=false;
     std::string color="#fb586b"; // Visual LED tint; electrical model still uses Vf=2 V.
     std::string model;
+    int rotation=0; // Clockwise quarter-turns in degrees, around the component center.
 };
 struct WirePoint { double x=0,y=0; };
 struct CircuitWire { std::string id; Endpoint a,b; std::string color="#0d9488"; std::vector<WirePoint> points; };

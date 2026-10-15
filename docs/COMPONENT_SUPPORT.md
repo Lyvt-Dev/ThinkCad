@@ -1,4 +1,4 @@
-# Bauteilunterstützung in ThinkCad 0.5.0
+# Bauteilunterstützung in ThinkCad 0.5.1
 
 Die Forderung nach sämtlichen Tinkercad-Bauteilen ist noch nicht vollständig umgesetzt.
 Diese Liste beschreibt die tatsächlich implementierten Modelle. Sie garantiert keine
