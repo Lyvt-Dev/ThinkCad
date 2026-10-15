@@ -65,12 +65,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for checksum in *.deb.sha256 *.rpm.sha256 *.tar.gz.sha256 *.tar.xz.sha256; do sha256sum --check "$checksum"; done
+          for checksum in ThinkCad-*.deb.sha256 ThinkCad-*.rpm.sha256 ThinkCad-*.tar.gz.sha256 ThinkCad-*.tar.xz.sha256; do sha256sum --check "$checksum"; done
           build_sha=$(gh api "repos/$GH_REPO/actions/runs/$LINUX_RUN_ID" --jq .head_sha)
-          for file in *.deb *.tar.gz *.tar.xz; do
+          for file in ThinkCad-*.deb ThinkCad-*.tar.gz ThinkCad-*.tar.xz; do
             gh attestation verify "$file" --bundle ubuntu.sigstore.jsonl --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/linux.yml" --source-ref refs/heads/main --source-digest "$build_sha" --deny-self-hosted-runners
           done
-          for file in *.rpm; do
+          for file in ThinkCad-*.rpm; do
             gh attestation verify "$file" --bundle fedora.sigstore.jsonl --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/linux.yml" --source-ref refs/heads/main --source-digest "$build_sha" --deny-self-hosted-runners
           done
       - name: Publish release
