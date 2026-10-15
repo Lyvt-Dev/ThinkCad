@@ -187,14 +187,14 @@ Schreibzyklen, Dateisysteme und ESP-Instruktionen werden damit nicht emuliert.
 
 ## Bibliotheken
 
-Der lokale Manager speichert ausschließlich Pfade in `QSettings`. Moderne `src/`-
+Der Manager lädt den offiziellen Arduino-Bibliotheksindex und installiert SHA-256-geprüfte
+ZIPs in versionierte Nutzerverzeichnisse; aktive Pfade stehen in `QSettings`. Moderne `src/`-
 Bibliotheken und ältere Root/`utility`-Layouts werden beim Build eingebunden.
 Das SDK steht vor externen Includes; bekannte Simulatoradapter werden nicht durch
 upstream-Header überschrieben. Dies ist eine explizite Kompatibilitätsentscheidung.
 
-Der vollständige Manager braucht zusätzlich Paketmetadaten (`library.properties`),
-Versions-/Abhängigkeitsauflösung, architekturspezifische Auswahl, ZIP-Path-Traversal-Schutz,
-Hashes und ein Lockmanifest je Projekt. Für hardwarenahe Libraries ist zusätzlich
+Versions-/Abhängigkeitsauflösung, ZIP-Path-Traversal-Schutz und Hashprüfung sind
+implementiert. Architekturen werden angezeigt; ein Projekt-Lockmanifest fehlt noch. Für hardwarenahe Libraries ist zusätzlich
 zu erfolgreicher Kompilierung ein passendes Register-/Busmodell nötig.
 
 ## Windows-Auslieferung und Updates
@@ -208,24 +208,20 @@ Updater-Ablauf:
 1. Neueste stabile GitHub-Release-Version mit der eingebauten SemVer vergleichen.
 2. Passenden Installer und exakt zugeordnetes SHA-256-Asset laden.
 3. Größenlimits, HTTPS und Zielhost prüfen; TLS-Prüfung bleibt aktiv.
-4. Hash vergleichen; Windows `WinVerifyTrust` prüft Authenticode/Trust Chain,
-   zusätzlich muss der SHA-256-Fingerprint des Signierzertifikats dem Build-Pin entsprechen.
-5. Atomar abgelegte, geprüfte Update-Datei bereitstellen.
-6. Nutzer startet über den Update-Befehl neu; ungespeicherten Sketch behandeln,
-   Signatur erneut prüfen und einen kleinen nativen Helfer aus dem Cache starten.
-   Der Helfer wartet auf das Prozessende, prüft die Signatur erneut und startet
-   den Installer. Die App beendet sich; Inno
-   ersetzt Dateien und startet sie wieder. Es ist kein manueller Download nötig.
+4. Hash vergleichen und mit dem gebündelten GitHub-CLI-Verifier die Sigstore-
+   Attestierung gegen Repository, Workflow, `refs/heads/main` und Quellcommit prüfen.
+   Bundle und Vertrauenswurzeln erlauben Prüfung ohne GitHub-Anmeldung.
+5. Die atomar abgelegte, geprüfte Update-Datei bereitstellen.
+6. Vor dem Neustart ungespeicherte Projekte behandeln. Ein nativer Helfer wartet
+   auf das Prozessende, prüft die Attestierung erneut und startet Inno Setup.
+   Der Installer ersetzt Dateien und startet ThinkCad anschließend wieder.
 
-In Entwicklungsbuilds ohne Pin ist die Installation deaktiviert. Ein Zertifikat,
-GitHub-Releases und erfolgreiche Windows-Tests existieren nicht automatisch dadurch,
-dass der Code vorbereitet ist. Zertifikatsrotation, Rollback, Delta-Updates,
-Installationsfehlerdiagnose und eine robuste Neuaufnahme bereits gecachter Downloads
-sind weitere Produktivschritte. Zum Release gehören Windows-Tests für Signaturfehler,
-Unterbrechung, Downgrade, gesperrte Dateien, unsaved Sketch, Installer/Uninstaller
-und tatsächlich erfolgreiches Wiederstarten. Installer-Installation, Start und
-Deinstallation wurden für 0.1.0 unter Windows geprüft; die zusätzlichen
-Update-/Signaturtests stehen noch aus.
+Ein Herausgeberzertifikat ist für diesen Ablauf nicht erforderlich; Authenticode
+kann zusätzlich aktiviert werden. Windows CI prüft gültige Attestierungen sowie
+falsche Commits, manipulierte Installer und ungültige Bundles. Installerstart und
+Deinstallation sind separate Windows-Tests. Unterbrechung, Rollback und die vollständige
+Update-Interaktion brauchen weitere End-to-End-Prüfungen. Clients bis 0.3.0 brauchen
+einen manuellen ersten Wechsel, weil ihr Updater ohne Zertifikat deaktiviert war.
 
 ## Ausbau in prüfbaren Etappen
 

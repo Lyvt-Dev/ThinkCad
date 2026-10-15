@@ -7,7 +7,10 @@ constexpr int SSD1306_BLACK=0,SSD1306_WHITE=1,SSD1306_INVERSE=2;
 constexpr int SSD1306_DISPLAYOFF=0xae,SSD1306_DISPLAYON=0xaf,SSD1306_INVERTDISPLAY=0xa7,SSD1306_NORMALDISPLAY=0xa6;
 class Adafruit_SSD1306:public Adafruit_GFX {
 public:
-    Adafruit_SSD1306(uint8_t w,uint8_t h,TwoWire* wire=&Wire,int8_t=-1,uint32_t=400000,uint32_t=100000):Adafruit_GFX(w,h),wire_(wire),pixels_(static_cast<std::size_t>(w)*h/8),presented_(pixels_){if(w!=128||(h!=32&&h!=64)||!wire)throw std::invalid_argument("SSD1306 supports 128x32 or 128x64 I2C in ThinkerCad");}
+    Adafruit_SSD1306(uint8_t w,uint8_t h,TwoWire* wire=&Wire,int8_t=-1,uint32_t=400000,uint32_t=100000):Adafruit_GFX(w,h),wire_(wire),pixels_(static_cast<std::size_t>(w)*h/8),presented_(pixels_){if(w!=128||(h!=32&&h!=64)||!wire)throw std::invalid_argument("SSD1306 supports 128x32 or 128x64 I2C in ThinkCad");thinker::timeObservers[this]=[this]{if(begun_&&scrolling_&&static_cast<int>(((thinker::clockUs-scrollStarted_)/100000)%(WIDTH*HEIGHT))!=lastScrollOffset_)publish();};}
+    ~Adafruit_SSD1306()override{thinker::timeObservers.erase(this);}
+    Adafruit_SSD1306(const Adafruit_SSD1306&)=delete;
+    Adafruit_SSD1306& operator=(const Adafruit_SSD1306&)=delete;
     bool begin(uint8_t,uint8_t address=0x3c,bool=true,bool periphBegin=true){if(address!=0x3c&&address!=0x3d)return false;address_=address;if(periphBegin&&!wire_->ready())wire_->begin();begun_=wire_->ready()&&thinker::request("OLED_BEGIN "+std::to_string(address_)+" "+std::to_string(HEIGHT))==1;return begun_;}
     void clearDisplay(){std::fill(pixels_.begin(),pixels_.end(),0);}
     void drawPixel(int16_t x,int16_t y,uint16_t color)override{
@@ -34,7 +37,7 @@ private:
     TwoWire* wire_;std::vector<uint8_t> pixels_,presented_;uint8_t address_=0x3c;bool begun_=false,inverted_=false,enabled_=true,dimmed_=false,scrolling_=false;int scrollX_=0,scrollY_=0,firstPage_=0,lastPage_=7;std::uint64_t scrollStarted_=0;int lastScrollOffset_=0;
     void publish(){
         constexpr char hex[]="0123456789abcdef";std::string line="FRAME "+std::to_string(address_)+" ";line.reserve(2*pixels_.size()+12);
-        const auto offset=scrolling_?static_cast<int>((thinker::clockUs-scrollStarted_)/100000):0;
+        const auto offset=scrolling_?static_cast<int>(((thinker::clockUs-scrollStarted_)/100000)%(WIDTH*HEIGHT)):0;
         for(int page=0;page<HEIGHT/8;++page)for(int x=0;x<WIDTH;++x){uint8_t value=0;for(int bit=0;bit<8;++bit){int y=page*8+bit,sx=x,sy=y;if(scrolling_&&page>=firstPage_&&page<=lastPage_){sx=(x-scrollX_*offset%WIDTH+WIDTH)%WIDTH;sy=(y-scrollY_*offset%HEIGHT+HEIGHT)%HEIGHT;}bool on=presented_[sx+(sy/8)*WIDTH]&(1u<<(sy%8));if(inverted_)on=!on;if(enabled_&&on)value|=1u<<bit;}line+=hex[value>>4];line+=hex[value&15];}
         std::cout<<line<<' '<<(dimmed_?250:1000)<<std::endl;lastScrollOffset_=offset;
     }

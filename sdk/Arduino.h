@@ -50,8 +50,9 @@ inline void advance(std::uint64_t us) {
         if (speed < 100 || speed > 10000) throw std::runtime_error("Invalid simulation speed");
         const auto step = std::min<std::uint64_t>(us, 50ull * speed);
         std::this_thread::sleep_for(std::chrono::microseconds(step * 1000 / speed));
-        clockUs += step;us -= step;for(const auto& observer:timeObservers)observer.second();
+        clockUs += step;us -= step;
         std::cout << "TIME " << clockUs << std::endl;
+        for(const auto& observer:timeObservers)observer.second();
     } while (us);
 }
 inline int request(const std::string& line) {
