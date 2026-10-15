@@ -41,29 +41,33 @@ nur eigenen bzw. vertrauenswürdigen Code und Bibliotheken ausführen.
 
 Linux-Pakete, Source-Build und Gentoo-USE-Flags: [docs/LINUX.md](docs/LINUX.md).
 
-## Gentoo Installation
+## Gentoo installieren
 
-The release's **Gentoo overlay** is a small local Portage repository containing the
-ThinkCad ebuild and a checksum Manifest. You do not compile or run the overlay
-itself: register it once, then install ThinkCad with `emerge`. Portage downloads
-and verifies the matching source archive and builds the application.
+Das **Gentoo-Overlay** aus dem Release ist ein kleines lokales Portage-Repository
+mit dem ThinkCad-Ebuild und einem Manifest mit Prüfsummen. Das Overlay selbst wird
+weder kompiliert noch gestartet: Es wird einmal registriert, anschließend wird
+ThinkCad mit `emerge` installiert. Portage lädt das passende Quellarchiv herunter,
+prüft es und baut die Anwendung.
 
-These instructions target an existing **amd64 Gentoo desktop** with a configured
-Gentoo repository, working Internet access and an X11 or Wayland session. The
-0.4.1 ebuild requires **Qt ≥6.11**, **GCC ≥12 with C++ support**, CMake, Ninja and
-zlib. It enables example sketches, both display backends and the test suite below.
-The application currently requires accepting `all-rights-reserved`; the bundled
-Adafruit GFX code uses BSD. The commands accept that application license explicitly.
+Diese Anleitung setzt einen vorhandenen **Gentoo-Desktop auf amd64** mit
+eingerichtetem Gentoo-Repository, funktionierendem Internetzugang und einer X11-
+oder Wayland-Sitzung voraus. Das Ebuild für 0.4.1 benötigt **Qt ≥6.11**,
+**GCC ≥12 mit C++-Unterstützung**, CMake, Ninja und zlib. Die folgenden Befehle
+aktivieren Beispielsketches, beide Anzeige-Backends und die Testsuite.
+Für die Anwendung muss derzeit die Lizenz `all-rights-reserved` akzeptiert werden;
+der mitgelieferte Adafruit-GFX-Code steht unter BSD. Die Befehle akzeptieren die
+Anwendungslizenz ausdrücklich.
 
-Open a root shell with `su -` (or `sudo -i`), then paste this entire block. Review
-the package list at each `--ask` prompt and answer `Yes` to proceed:
+Mit `su -` (oder `sudo -i`) eine Root-Shell öffnen und anschließend den gesamten
+folgenden Block einfügen. Bei jeder `--ask`-Rückfrage die Paketliste prüfen und
+zum Fortfahren mit `Yes` bestätigen:
 
 ```bash
 bash <<'GENTOO_INSTALL'
 set -euo pipefail
 emerge --sync
 
-# Handle both directory-based and single-file Portage configuration layouts.
+# Unterstützt Portage-Konfigurationen als Verzeichnis oder einzelne Datei.
 append_portage_config() {
     local path="/etc/portage/$1"
     if [ -f "$path" ]; then
@@ -79,9 +83,9 @@ append_portage_config package.use 'dev-qt/qtbase gui network ssl widgets X wayla
 append_portage_config package.use 'media-gfx/thinkcad examples test X wayland'
 append_portage_config package.license 'media-gfx/thinkcad all-rights-reserved'
 
-# Install all explicit build/runtime/test and download prerequisites.
-# --noreplace keeps already-installed matching packages; --ask shows the plan.
-# /dev/tty keeps confirmation interactive inside this pasted shell block.
+# Alle ausdrücklich benötigten Build-, Laufzeit-, Test- und Download-Abhängigkeiten installieren.
+# --noreplace behält bereits installierte passende Pakete; --ask zeigt den Installationsplan.
+# /dev/tty ermöglicht die interaktive Bestätigung innerhalb dieses eingefügten Blocks.
 emerge --noreplace --ask \
     '>=sys-devel/gcc-12[cxx]' '>=dev-build/cmake-3.24' dev-build/ninja \
     '>=dev-qt/qtbase-6.11:6[gui,network,ssl,widgets,X,wayland]' virtual/zlib \
@@ -98,10 +102,10 @@ curl --fail --location --remote-name "${release}/${archive}"
 curl --fail --location --remote-name "${release}/${archive}.sha256"
 sha256sum --check "${archive}.sha256"
 
-# Use a new directory so an existing local overlay is never overwritten.
+# Ein neues Verzeichnis verwenden, damit ein vorhandenes lokales Overlay erhalten bleibt.
 overlay="/var/db/repos/thinkcad-${version}"
 if [ -e "$overlay" ]; then
-    echo "${overlay} already exists; inspect it before reinstalling this overlay." >&2
+    echo "${overlay} existiert bereits; vor einer erneuten Installation dieses Overlay prüfen." >&2
     exit 1
 fi
 mkdir -p "$overlay"
@@ -114,34 +118,37 @@ masters = gentoo
 auto-sync = no
 CONF
 
-# Compile, run the headless tests, and install the application.
+# Kompilieren, Tests ohne grafische Sitzung ausführen und die Anwendung installieren.
 FEATURES="${FEATURES-} test" emerge --ask '=media-gfx/thinkcad-0.4.1::thinkcad' </dev/tty
 GENTOO_INSTALL
 ```
 
-If Portage reports additional USE changes, apply the specific changes it requests
-and rerun the affected `emerge` command. If your Gentoo tree does not offer Qt
-6.11 yet, this released ebuild cannot be installed from that tree; do not lower
-its dependency requirement blindly. `--noreplace` does not rebuild an existing
-Qt with newly requested USE flags; if Portage requests it, run
-`emerge --ask --oneshot --newuse dev-qt/qtbase` before continuing.
+Falls Portage zusätzliche USE-Änderungen verlangt, die konkret angeforderten
+Änderungen übernehmen und den betroffenen `emerge`-Befehl erneut ausführen.
+Wenn das Gentoo-Repository Qt 6.11 noch nicht anbietet, lässt sich dieses
+veröffentlichte Ebuild damit nicht installieren; die Versionsanforderung nicht
+ungeprüft herabsetzen. `--noreplace` baut ein vorhandenes Qt nicht mit neu
+angeforderten USE-Flags neu. Falls Portage dies verlangt, vor dem Fortfahren
+`emerge --ask --oneshot --newuse dev-qt/qtbase` ausführen.
 
-Leave the root shell with `exit`. In a terminal **as your normal desktop user**,
-paste the following to validate sketch compilation, IPC and OLED output, then
-open the application:
+Die Root-Shell mit `exit` verlassen. Anschließend in einem Terminal **als normaler
+Desktop-Benutzer** folgenden Befehl einfügen. Er prüft Sketch-Kompilierung, IPC
+und OLED-Ausgabe und öffnet bei erfolgreichem Test die Anwendung:
 
 ```sh
 QT_QPA_PLATFORM=offscreen thinkcad --smoke-test && thinkcad
 ```
 
-A graphical desktop is needed for the final window. If sketch compilation reports
-an old compiler, use `gcc-config -l` to inspect installed GCC profiles, select a
-GCC ≥12 profile with `gcc-config` as root, and open a new login shell.
+Für das Anwendungsfenster wird ein grafischer Desktop benötigt. Meldet die
+Sketch-Kompilierung einen zu alten Compiler, mit `gcc-config -l` die installierten
+GCC-Profile prüfen, als Root mit `gcc-config` ein Profil für GCC ≥12 auswählen
+und eine neue Login-Shell öffnen.
 
-This release overlay has `auto-sync = no`: `emerge --sync` updates Gentoo, but does
-not update ThinkCad's local overlay. For a future ThinkCad release, download and
-verify its matching overlay, register its new directory and install the new
-version through Portage. More Linux and USE-flag details: [docs/LINUX.md](docs/LINUX.md).
+Dieses Release-Overlay verwendet `auto-sync = no`: `emerge --sync` aktualisiert
+Gentoo, aber nicht das lokale ThinkCad-Overlay. Für ein zukünftiges
+ThinkCad-Release das dazugehörige Overlay herunterladen und prüfen, dessen neues
+Verzeichnis registrieren und die neue Version über Portage installieren.
+Weitere Linux- und USE-Flag-Details: [docs/LINUX.md](docs/LINUX.md).
 
 ## Windows bauen
 
