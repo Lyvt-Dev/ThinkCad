@@ -329,6 +329,7 @@ private slots:
         window.showStartPage();QTest::qWait(50);QVERIFY(window.startPageVisible());
         for(auto* dock:window.findChildren<QDockWidget*>())QVERIFY(dock->isHidden());
         auto* home=window.findChild<WelcomePage*>();QVERIFY(home);
+        for(auto* action:home->findChildren<QPushButton*>())QVERIFY2(action->icon().isNull(),qPrintable(action->objectName()));
         const auto recent=home->findChildren<QPushButton*>("recentProject");QCOMPARE(recent.size(),1);QCOMPARE(recent.front()->property("projectPath").toString(),QFileInfo(saved).canonicalFilePath());
         const auto capture=qEnvironmentVariable("THINKCAD_UI_CAPTURE_DIR");if(!capture.isEmpty())window.grab().save(capture+"/home-light.png");
         home->findChild<QPushButton*>("settingsNavigation")->click();auto* dark=home->findChild<QCheckBox*>("startDarkMode");QVERIFY(dark);dark->setChecked(true);QVERIFY(settings.value("darkMode").toBool());
@@ -338,7 +339,14 @@ private slots:
         auto* run=window.findChild<QToolButton*>("runButton");auto* reset=window.findChild<QToolButton*>("resetButton");QVERIFY(run&&reset);QVERIFY(!reset->icon().isNull());QCOMPARE(run->height(),reset->height());
         // Clear the edit before opening the recent project, so no save prompt is needed.
         code->document()->setModified(false);window.showStartPage();home->findChild<QPushButton*>("recentProject")->click();QVERIFY(!window.startPageVisible());QVERIFY(!window.sketchText().contains("keep this unsaved edit"));QVERIFY(!codeDock->isHidden());
-        window.showStartPage();home->findChild<QPushButton*>("clearRecentProjects")->click();QVERIFY(settings.value("recentProjects").toStringList().isEmpty());
+        window.showStartPage();home->findChild<QPushButton*>("clearRecentProjects")->click();QVERIFY(settings.value("recentProjects").toStringList().isEmpty());QVERIFY(!home->findChild<QPushButton*>("clearRecentProjects")->isEnabled());QVERIFY(QFileInfo::exists(saved));
+        WelcomePage::remember(saved);home->refresh();
+        home->findChild<QPushButton*>("removeRecentProject")->click();
+        QTRY_VERIFY(home->findChildren<QPushButton*>("recentProject").isEmpty());
+        QVERIFY(QFileInfo::exists(saved));
+        const auto missing=dir.filePath("Missing.thinkcad");settings.setValue("recentProjects",QStringList{missing});home->refresh();
+        QVERIFY(!home->findChild<QPushButton*>("recentProject")->isEnabled());
+        home->findChild<QPushButton*>("clearRecentProjects")->click();
         home->findChild<QPushButton*>("startNewProject")->click();QVERIFY(!window.startPageVisible());QCOMPARE(window.circuit().parts().size(),std::size_t(1));
         window.findChild<QAction*>("darkModeAction")->setChecked(originalDark);settings.setValue("recentProjects",original);
     }

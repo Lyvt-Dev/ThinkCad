@@ -8,6 +8,7 @@
 #include <QVariant>
 namespace {
 const QMap<QString,QString>& translations(){static const QMap<QString,QString> values{
+    {"Darstellung und Sprache","Appearance and language"},{"Entfernen","Remove"},
     {"IR, NFC und Funk","IR, NFC and radio"},{" Kanal"," channel"},{" Kommando"," command"},{"IR-LED 940 nm","IR LED 940 nm"},{"IR-Empfänger 38 kHz","IR receiver 38 kHz"},{"TV-Fernbedienung (NEC)","TV remote (NEC)"},{"NFC-Leser PN532 (I²C)","NFC reader PN532 (I²C)"},{"NFC-Testkarte","NFC test card"},{"433-MHz-Sender (ASK)","433 MHz transmitter (ASK)"},{"433-MHz-Empfänger (ASK)","433 MHz receiver (ASK)"},{"TV-Taste gedrückt","TV button pressed"},{"Karte am Leser","Card present at reader"},{"Testgruppe","Test group"},{"NEC-Adresse","NEC address"},{"Übernehmen","Apply"},{"UID: 4 oder 7 Bytes als Hex eingeben.","UID: enter 4 or 7 bytes in hexadecimal."},{"NDEF: maximal 96 UTF-8-Bytes.","NDEF: maximum 96 UTF-8 bytes."},{"Funk-/NFC-Einstellungen ändern","Change wireless/NFC settings"},
     {"IR: TV-Fernbedienung testen","IR: test TV remote"},{"IR: Senden und Empfangen","IR: transmit and receive"},{"NFC: PN532 und Testkarte","NFC: PN532 and test card"},{"Funk: nRF24L01 Sender und Empfänger","Radio: nRF24L01 transmitter and receiver"},{"Funk: 433-MHz-ASK-Paar","Radio: 433 MHz ASK pair"},
     {"Netzname · Enter","Net name · Enter"},
