@@ -51,14 +51,14 @@ private slots:
  void exactCustomSpeed(){MainWindow window;window.show();auto* input=window.findChild<QDoubleSpinBox*>("simulationSpeedInput");auto* slider=window.findChild<QSlider*>("simulationSpeed");QVERIFY(input&&slider);input->setValue(1.375);QCOMPARE(input->value(),1.375);QCOMPARE(slider->value(),qRound(40+40*std::log10(1.375)));slider->setValue(0);QCOMPARE(input->value(),.1);slider->setValue(80);QCOMPARE(input->value(),10.);}
  void noteContextMenuAndPersistence(){MainWindow window;window.show();QTest::qWait(100);auto* canvas=window.canvas();auto before=window.circuit().parts().size();QTimer::singleShot(60,&window,[&]{auto* menu=qobject_cast<QMenu*>(QApplication::activePopupWidget());QVERIFY(menu);QTimer::singleShot(40,&window,[&]{auto* dialog=qobject_cast<QInputDialog*>(QApplication::activeModalWidget());QVERIFY(dialog);dialog->setTextValue("NFC reader\nSDA = GPIO21, SCL = GPIO22");dialog->accept();});menu->actions().front()->trigger();menu->close();});QTest::mouseClick(canvas->viewport(),Qt::RightButton,Qt::NoModifier,QPoint(25,25));QTRY_COMPARE(window.circuit().parts().size(),before+1);auto id=window.circuit().parts().back().id;QCOMPARE(window.circuit().part(id).kind,PartKind::Note);auto path=temporary_.filePath("notes.thinkcad");QVERIFY(window.saveProjectTo(path));QCOMPARE(ProjectIO::load(path).circuit.part(id).model,std::string("NFC reader\nSDA = GPIO21, SCL = GPIO22"));canvas->history()->undo();QCOMPARE(window.circuit().parts().size(),before);canvas->history()->redo();QCOMPARE(window.circuit().parts().size(),before+1);canvas->selectPart(id);shot(window,"v12-notes");}
  void noteResizeEdgesCornersAndPersistence(){
-    MainWindow window;window.resize(1400,900);window.show();auto* canvas=window.canvas();std::string id;
+    MainWindow window;window.resize(1400,900);window.show();QTest::qWait(50);auto* canvas=window.canvas();std::string id;
     canvas->mutate("note",[&](auto& doc){id=doc.addPart(PartKind::Note,1000,700);doc.part(id).model="Hi";});
     auto item=[&]()->QGraphicsItem*{for(auto* candidate:canvas->scene()->items())if(candidate->data(0)=="part"&&candidate->data(1).toString()==QString::fromStdString(id))return candidate;return nullptr;};
     QVERIFY(item());QVERIFY(item()->boundingRect().width()<100);QVERIFY(item()->boundingRect().height()<60);
     canvas->mutate("long text",[&](auto& doc){doc.part(id).model=std::string(200,'W');});QVERIFY(item()->boundingRect().height()>32);canvas->history()->undo();
     const QList<Qt::Edges> edges={Qt::LeftEdge,Qt::RightEdge,Qt::TopEdge,Qt::BottomEdge,Qt::LeftEdge|Qt::TopEdge,Qt::RightEdge|Qt::TopEdge,Qt::LeftEdge|Qt::BottomEdge,Qt::RightEdge|Qt::BottomEdge};
     for(int rotation:{0,90}){
-        canvas->mutate("rotate",[&](auto& doc){doc.part(id).rotation=rotation;});canvas->resetTransform();canvas->centerOn(item());QTest::qWait(20);
+        canvas->mutate("rotate",[&](auto& doc){doc.part(id).rotation=rotation;});QTest::qWait(20);canvas->resetTransform();canvas->centerOn(item());
         for(auto edge:edges){
             auto* note=item();auto size=note->boundingRect().size();bool horizontal=edge.testFlag(Qt::LeftEdge)||edge.testFlag(Qt::RightEdge),vertical=edge.testFlag(Qt::TopEdge)||edge.testFlag(Qt::BottomEdge);
             QPointF start(edge.testFlag(Qt::LeftEdge)?1:edge.testFlag(Qt::RightEdge)?size.width()-1:size.width()/2,edge.testFlag(Qt::TopEdge)?1:edge.testFlag(Qt::BottomEdge)?size.height()-1:size.height()/2);
@@ -70,7 +70,7 @@ private slots:
             QMouseEvent move(QEvent::MouseMove,QPointF(to),QPointF(canvas->viewport()->mapToGlobal(to)),Qt::NoButton,Qt::LeftButton,Qt::NoModifier);QApplication::sendEvent(canvas->viewport(),&move);
             QTest::mouseRelease(canvas->viewport(),Qt::LeftButton,Qt::NoModifier,to);
             QTRY_COMPARE(canvas->history()->index(),index+1);
-            auto resized=item()->boundingRect().size();QVERIFY(std::abs(resized.width()-(size.width()+(horizontal?40:0)))<1.1);QVERIFY(std::abs(resized.height()-(size.height()+(vertical?35:0)))<1.1);
+            auto resized=item()->boundingRect().size();const auto detail=QString("rotation=%1 edges=%2 scale=%3 before=%4,%5 after=%6,%7").arg(rotation).arg(int(edge)).arg(canvas->transform().m11()).arg(size.width()).arg(size.height()).arg(resized.width()).arg(resized.height());QVERIFY2(std::abs(resized.width()-(size.width()+(horizontal?40:0)))<1.1,qPrintable(detail));QVERIFY2(std::abs(resized.height()-(size.height()+(vertical?35:0)))<1.1,qPrintable(detail));
             auto fixed=item()->mapToScene(QPointF(edge.testFlag(Qt::LeftEdge)?resized.width():0,edge.testFlag(Qt::TopEdge)?resized.height():0));QVERIFY(QLineF(anchor,fixed).length()<1.1);
             canvas->history()->undo();QCOMPARE(item()->boundingRect().size(),size);canvas->history()->redo();QCOMPARE(item()->boundingRect().size(),resized);
             const auto path=temporary_.filePath("resized.thinkcad");QVERIFY(window.saveProjectTo(path));auto saved=ProjectIO::load(path);QCOMPARE(parameter(saved.circuit.part(id),"noteWidth",0),resized.width());QCOMPARE(parameter(saved.circuit.part(id),"noteHeight",0),resized.height());
