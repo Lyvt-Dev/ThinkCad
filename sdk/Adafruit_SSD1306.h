@@ -11,7 +11,7 @@ public:
     ~Adafruit_SSD1306()override{thinker::timeObservers.erase(this);}
     Adafruit_SSD1306(const Adafruit_SSD1306&)=delete;
     Adafruit_SSD1306& operator=(const Adafruit_SSD1306&)=delete;
-    bool begin(uint8_t,uint8_t address=0x3c,bool=true,bool periphBegin=true){if(address!=0x3c&&address!=0x3d)return false;address_=address;if(periphBegin&&!wire_->ready())wire_->begin();begun_=wire_->ready()&&thinker::request("OLED_BEGIN "+std::to_string(address_)+" "+std::to_string(HEIGHT))==1;return begun_;}
+    bool begin(uint8_t=SSD1306_SWITCHCAPVCC,uint8_t address=0,bool=true,bool periphBegin=true){if(!address)address=HEIGHT==32?0x3c:0x3d;if(address!=0x3c&&address!=0x3d)return false;address_=address;if(periphBegin&&!wire_->ready())wire_->begin();begun_=wire_->ready()&&thinker::request("OLED_BEGIN "+std::to_string(address_)+" "+std::to_string(HEIGHT))==1;return begun_;}
     void clearDisplay(){std::fill(pixels_.begin(),pixels_.end(),0);}
     void drawPixel(int16_t x,int16_t y,uint16_t color)override{
         if(x<0||x>=width()||y<0||y>=height())return;

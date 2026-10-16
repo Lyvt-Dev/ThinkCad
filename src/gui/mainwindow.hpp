@@ -9,6 +9,7 @@
 #include "recovery.hpp"
 #include "serialtools.hpp"
 #include "peripheralhub.hpp"
+#include "i2cdevices.hpp"
 #include <QMainWindow>
 class QPlainTextEdit;
 class QLineEdit;
@@ -83,6 +84,7 @@ private:
     bool hadInstruments_=false;
     QDoubleSpinBox* powerRating_;
     PeripheralHub peripherals_;
+    I2cDevices i2cDevices_;
     QLineEdit* netName_;
     QWidget* generatorProperties_;
     QComboBox* generatorShape_;

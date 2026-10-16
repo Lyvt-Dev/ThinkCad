@@ -9,6 +9,18 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.2.3
+
+- PWM-fähige Pins aller Mikrocontroller sind in beiden Ansichten mit `~` markiert.
+- Wire unterstützt Master-Transaktionen, String-/Puffer-Schreiben, Lesen,
+  ACK/NACK, wiederholte Starts und Rohzugriffe auf LCD-Backpack und SSD1306.
+- Serial bietet die Stream-Lese- und Parsing-Funktionen; LCD-Kommandos,
+  Zeichen-/Adressspeicher, OLED-Standardinitialisierung und Servo-Positionserhalt
+  wurden korrigiert.
+- [Bibliothekskompatibilität und offene Modellgrenzen](docs/LIBRARY_COMPATIBILITY.md).
+
+[Release Notes 1.2.3](docs/RELEASE_NOTES_1.2.3.md)
+
 ## Neu in 1.2.2
 
 - Simulationsgeschwindigkeit wieder rechts in der Werkzeugleiste, mit Regler und Zahlenfeld.
@@ -369,7 +381,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=1.2.2 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=1.2.3 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,
@@ -434,12 +446,51 @@ verwendet weiterhin 2 V Vorwärtsspannung.
 
 ## Bibliotheken und Frames
 
+[Geprüfte APIs und offene Modellgrenzen](docs/LIBRARY_COMPATIBILITY.md).
+
 Unter **Bibliotheken verwalten** den offiziellen Arduino-Katalog laden, durchsuchen und
 ein Paket installieren. Versionierte ZIPs werden anhand der SHA-256-Prüfsumme des
 Katalogs geprüft; deklarierte Abhängigkeiten werden aufgelöst. Auch lokale Ordner
 können hinzugefügt werden. Nur benutzte Bibliotheken einschließlich ihrer transitiven
 Header-Abhängigkeiten werden kompiliert. Unterstützt sind C++-Quellen; hardwareabhängige
 Bibliotheken benötigen zusätzlich ein implementiertes Peripheriemodell.
+
+Die eingebaute `Wire`-Bibliothek unterstützt Master-Transaktionen mit
+`beginTransmission()`, `write()` (Byte, Zeichenkette oder Puffer),
+`endTransmission(stop)`, `requestFrom()`, `available()`, `read()` und `peek()`.
+Als `Stream` bietet sie außerdem `readBytes()`, `readBytesUntil()`,
+`readStringUntil()`, `parseInt()`, `parseFloat()` und `find()` mit einstellbarem
+Timeout in simulierter Zeit.
+`endTransmission()` liefert 0 bei Erfolg, 1 bei Pufferüberlauf, 2 bei fehlender
+Adresse und 4 bei einem Adresskonflikt. `false` als Stop-Parameter erlaubt
+aufeinanderfolgende Schreib-/Lesezugriffe ohne Zurücksetzen des Gerätezustands.
+Die Puffergröße beträgt auf Uno/Nano 32 Byte, auf ESP-Boards 128 Byte;
+Übertragungszeiten berücksichtigen den mit `setClock()` gesetzten Bustakt.
+
+```cpp
+#include <Wire.h>
+void setup() {
+  Serial.begin(9600);
+  Wire.begin(); // Board-Standardpins; alternativ Wire.begin(sda, scl)
+  Wire.beginTransmission(0x27);
+  Wire.write("hello world");
+  Serial.println(Wire.endTransmission()); // 0 = Gerät hat bestätigt
+}
+void loop() {}
+```
+
+**Wichtig:** Adresse `0x27` ist beim LCD-Backpack ein PCF8574-Pinexpander.
+Die obige Zeichenkette wird korrekt auf den Bus geschrieben, erscheint aber
+nicht als Text auf dem Display. Dafür `LiquidCrystal_I2C` wie im Beispiel
+`lcd_i2c` verwenden oder die HD44780-Initialisierung und 4-Bit-Steuerung senden.
+Der Rohzugriff unterstützt den üblichen Backpack mit RS/RW/E/Backlight an
+P0–P3 und D4–D7 an P4–P7, einschließlich DDRAM, CGRAM und Port-Lesen.
+Beim SSD1306 sind Befehle und Bilddaten mit Seiten-, horizontaler und vertikaler
+Adressierung unterstützt. Versorgung, Masse, SDA/SCL und Adresse müssen stimmen.
+Slave-Sketches, zusätzliche I²C-Controller, Clock-Stretching, rohe PN532-Kommandos
+und rohes SSD1306-Hardwarescrolling sind noch nicht modelliert; für PN532 und
+OLED-Scrolling die vorhandenen Geräteadapter verwenden. Das ist keine vollständige
+Emulation aller Arduino-Core- oder Gerätebibliotheken.
 
 Der originale Adafruit-GFX-Zeichenkern unterstützt Text, `setCursor`, `setTextColor`,
 Zeichengröße, Umbruch, Schriften, Rotation, Bitmaps und Zeichenprimitive. Der SSD1306-

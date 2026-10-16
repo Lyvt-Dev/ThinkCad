@@ -10,7 +10,7 @@ int main(){try{
     Adafruit_SSD1306 small(128,32);small.setRotation(1);if(small.width()!=32||small.height()!=128)throw std::runtime_error("128x32 dimensions failed");small.drawPixel(0,127,SSD1306_WHITE);if(!small.getPixel(0,127))throw std::runtime_error("small OLED pixel mapping failed");
     GFXcanvas16 canvas(2,1);canvas.drawPixel(0,0,0x1234);canvas.byteSwap();if(canvas.getPixel(0,0)!=0x3412)throw std::runtime_error("16-bit canvas byte swap failed");
     thinker::standalone=true;std::ostringstream messages;auto* old=std::cout.rdbuf(messages.rdbuf());
-    Adafruit_SSD1306 scrolling(128,64);const bool begun=scrolling.begin(SSD1306_SWITCHCAPVCC);scrolling.drawPixel(0,0,SSD1306_WHITE);scrolling.display();scrolling.startscrollright(0,7);messages.str("");thinker::advance(100000);const auto scrolled=messages.str();scrolling.dim(true);const bool dim=messages.str().find(" 250\n")!=std::string::npos;std::cout.rdbuf(old);
+    Adafruit_SSD1306 scrolling(128,64);const bool begun=scrolling.begin(SSD1306_SWITCHCAPVCC,0x3c);scrolling.drawPixel(0,0,SSD1306_WHITE);scrolling.display();scrolling.startscrollright(0,7);messages.str("");thinker::advance(100000);const auto scrolled=messages.str();scrolling.dim(true);const bool dim=messages.str().find(" 250\n")!=std::string::npos;std::cout.rdbuf(old);
     if(!begun||scrolled.find("FRAME 60 0001")==std::string::npos||!scrolling.getPixel(0,0)||!dim)throw std::runtime_error("automatic scroll, drawing buffer preservation or brightness failed");
     std::cout<<"Original GFX text, print, bounds, shapes, custom fonts, rotation and 128x32 passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

@@ -141,6 +141,7 @@ void board(QPainter& p,const CircuitPart& part,const CircuitState& state){
             const int gpio=profile.pinNumber(name);if(gpio==3)text="RX";else if(gpio==1)text="TX";
             else for(std::size_t i=0;i<Esp8266Board::nodeMcuGpio.size();++i)if(gpio==Esp8266Board::nodeMcuGpio[i])text="D"+QString::number(i);
         }
+        if(profile.supportsPwm(profile.pinNumber(name)))text.prepend("~");
         if(uno){
             // Each label occupies its own header-pitch column, turned inward like silkscreen.
             p.save();p.translate(point.x(),point.y()<100?24:196);p.rotate(-90);

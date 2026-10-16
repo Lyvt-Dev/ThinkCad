@@ -27,6 +27,10 @@ BoardProfile BoardProfile::get(const std::string& id){
     }
     throw std::invalid_argument("Unknown board profile");
 }
+bool BoardProfile::supportsPwm(int number)const{
+    if(std::find(gpio.begin(),gpio.end(),number)==gpio.end()||std::find(inputOnly.begin(),inputOnly.end(),number)!=inputOnly.end())return false;
+    return !arduino()||number==3||number==5||number==6||number==9||number==10||number==11;
+}
 std::string BoardProfile::pinName(int gpio)const{
     return arduino()?(gpio<14?"D"+std::to_string(gpio):"A"+std::to_string(gpio-14)):"GPIO"+std::to_string(gpio);
 }
@@ -71,7 +75,7 @@ void Esp8266Board::servoWrite(int gpio,unsigned pulse){if(pulse<500||pulse>2500)
 void Esp8266Board::analogWrite(int gpio,unsigned value,unsigned range,unsigned frequency){
     if(!range||range>65535||value>range||!frequency||frequency>20000)throw std::invalid_argument("Invalid PWM value/range/frequency");
     pinMode(gpio,PinMode::Output);
-    if(profile_.arduino()&&gpio!=3&&gpio!=5&&gpio!=6&&gpio!=9&&gpio!=10&&gpio!=11){digitalWrite(gpio,value*2>=range);return;}
+    if(profile_.arduino()&&!profile_.supportsPwm(gpio)){digitalWrite(gpio,value*2>=range);return;}
     if(value==0||value==range){digitalWrite(gpio,value!=0);return;}
     auto& pin=pins_.at(gpio);pin.output=true;pin.pwm=true;pin.duty=double(value)/range;pin.frequency=profile_.arduino()?(gpio==5||gpio==6?980:490):frequency;
 }

@@ -1,4 +1,5 @@
 #include "thinkercad/circuit.hpp"
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -9,6 +10,18 @@ void healthy(const CircuitState& s){if(!s.errors.empty())throw std::runtime_erro
 double voltage(const CircuitState& s,const std::string& p,const std::string& pin){healthy(s);return s.voltage.at({p,pin}).value();}
 struct Bench{CircuitDocument d;TransientSimulation sim;std::string ground,source;Bench(){d.removePart("board");ground=d.addPart(PartKind::Ground,0,0);source=d.addPart(PartKind::PowerSupply,0,0);d.part(source).value=5;d.connect({source,"-"},{ground,"GND"});}void g(std::string p,std::string pin){d.connect({p,pin},{ground,"GND"});}void v(std::string p,std::string pin){d.connect({p,pin},{source,"+"});}};
 int main(){try{
+    for(const auto& model:{"arduino-uno","arduino-nano","esp8266","esp32","esp32-s3"}){
+        const auto profile=BoardProfile::get(model);Esp8266Board board;board.configure(model);
+        check(!profile.supportsPwm(-1)&&!profile.supportsPwm(999),"unknown and power pins have no PWM marker");
+        for(int pin:profile.gpio){
+            const bool inputOnly=std::find(profile.inputOnly.begin(),profile.inputOnly.end(),pin)!=profile.inputOnly.end();
+            if(inputOnly){check(!profile.supportsPwm(pin),"input-only GPIO has no PWM marker");continue;}
+            board.analogWrite(pin,128);
+            check(profile.supportsPwm(pin)==board.pin(pin).pwm,"PWM capability matches simulated output on every board pin");
+        }
+        if(profile.arduino())for(int pin=0;pin<22;++pin)
+            check(profile.supportsPwm(pin)==(pin==3||pin==5||pin==6||pin==9||pin==10||pin==11),"classic AVR PWM pin map");
+    }
     {Bench b;auto r=b.d.addPart(PartKind::Resistor,0,0),c=b.d.addPart(PartKind::Capacitor,0,0);b.d.part(r).value=1000;b.d.part(c).value=10;b.v(r,"1");b.d.connect({r,"2"},{c,"1"});b.g(c,"2");auto s=b.sim.advance(b.d,{},10000);check(std::abs(voltage(s,c,"1")-5*(1-std::exp(-1)))<0.015,"RC time constant");check(std::abs(*s.branchCurrent.at(c)-*s.branchCurrent.at(r))<1e-8,"RC KCL");b.d.part(b.source).value=0;s=b.sim.advance(b.d,{},20000);check(std::abs(voltage(s,c,"1")-5*(1-std::exp(-1))*std::exp(-1))<0.015,"RC discharge with retained state");}
     {Bench b;auto r=b.d.addPart(PartKind::Resistor,0,0),l=b.d.addPart(PartKind::Inductor,0,0);b.d.part(r).value=10;b.d.part(l).value=100;b.v(r,"1");b.d.connect({r,"2"},{l,"1"});b.g(l,"2");auto s=b.sim.advance(b.d,{},10000);check(std::abs(*s.branchCurrent.at(l)-5/10.1*(1-std::exp(-1.01)))<.002,"RL time constant");}
     {Bench b;auto r=b.d.addPart(PartKind::Resistor,0,0),c=b.d.addPart(PartKind::Capacitor,0,0);b.v(c,"1");b.g(c,"2");b.v(r,"1");b.g(r,"2");b.d.part(r).value=1000;auto s=b.sim.advance(b.d,{},100);check(std::abs(*s.branchCurrent.at(c)-.5)<1e-8,"parallel capacitor current uses its own companion, not resistor");}

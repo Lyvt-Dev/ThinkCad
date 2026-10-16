@@ -15,7 +15,12 @@ class Print {
 public:
     virtual ~Print()=default;
     virtual std::size_t write(std::uint8_t)=0;
-    virtual std::size_t write(const std::uint8_t* data,std::size_t size){std::size_t n=0;while(n<size&&write(data[n]))++n;return n;}
+    std::size_t write(int value){return write(static_cast<std::uint8_t>(value));}
+    std::size_t write(unsigned value){return write(static_cast<std::uint8_t>(value));}
+    std::size_t write(long value){return write(static_cast<std::uint8_t>(value));}
+    std::size_t write(unsigned long value){return write(static_cast<std::uint8_t>(value));}
+    virtual std::size_t write(const std::uint8_t* data,std::size_t size){if(!data&&size){setWriteError();return 0;}std::size_t n=0;while(n<size&&write(data[n]))++n;return n;}
+    std::size_t write(const char* data,std::size_t size){return write(reinterpret_cast<const std::uint8_t*>(data),size);}
     std::size_t write(const char* text){return text?write(reinterpret_cast<const std::uint8_t*>(text),std::strlen(text)):0;}
     std::size_t print(const char* text){return write(text);}
     std::size_t print(const String& text){return write(reinterpret_cast<const std::uint8_t*>(text.data()),text.size());}

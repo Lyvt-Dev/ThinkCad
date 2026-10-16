@@ -17,7 +17,7 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 | Masse / Verbindungspunkt / Netzlabel | Gemeinsames 0-V-Potential, explizite Abzweigungen und case-sensitive benannte Netze |
 | Funktionsgenerator | Sinus, Rechteck, Dreieck, Sägezahn; 0,1–2000 Hz, Amplitude/Offset/Tastgrad |
 | Oszilloskop / Logikanalysator / Stromsonde | Live-Erfassung, Trigger, Cursor, RMS/Frequenz, CSV/PNG und UART/SPI/I²C-Decoder; endliche Sample-Auflösung |
-| LCD 16×2 / 20×4 | LiquidCrystal 4 Bit oder LiquidCrystal_I2C; 5-V-Versorgung und Verdrahtungsprüfung, Text/Custom-Glyphs; API-Adapter, keine HD44780-/PCF8574-Registeremulation |
+| LCD 16×2 / 20×4 | LiquidCrystal 4 Bit oder LiquidCrystal_I2C; 5-V-Versorgung und Verdrahtungsprüfung, Text/Custom-Glyphs; LiquidCrystal-API und roher PCF8574-/HD44780-I²C-Zugriff (übliche P0–P7-Belegung); paralleler Anschluss nur 4 Bit |
 | AND/NAND/OR/NOR/XOR/XNOR/NOT | Versorgte generische Gatter, 1,8–5,5 V; keine Laufzeit-/Fan-out-/Gehäusemodelle |
 | Servo | Servo.h und gemessene 50-Hz-Pulse; 4,5–6-V-Versorgung, Winkelanzeige; keine mechanische Last-/Getriebesimulation |
 | IR-LED / 38-kHz-Empfänger / TV-Fernbedienung | Elektrische 1,2-V-IR-Diode mit Vorwiderstand; Arduino-IRremote-NEC-Adapter mit Adresse, Kommando, Repeat-Flag, decode/resume. Testfernbedienung während der Simulation mit der Maustaste gedrückt halten. Keine optische Ausbreitung oder Träger-/Pulsformsimulation |
