@@ -4,6 +4,9 @@ Ab 1.2.0 gibt es neben Portage, DEB und RPM eine portable **x86_64-AppImage**.
 Sie enthält Qt, Plugins, Ressourcen, Beispiele, Offline-Hilfe, einen Zig/Clang-
 basierten C++20-Sketch-Compiler und den Verifizierer für GitHub-Buildnachweise.
 Ein systemweites Qt oder g++ ist für die enthaltenen Simulationsbeispiele nicht nötig.
+Beim ersten Sketch-Start wird zusätzlich die C++-Standardbibliothek im lokalen
+Cache vorbereitet. Das kann je nach Rechner einige Minuten dauern; spätere
+Kompilierungen verwenden den Cache.
 Echte Firmware-Uploads benötigen weiterhin Arduino CLI, Board-Core, Original-
 Bibliotheken und Zugriff auf das USB-Gerät.
 

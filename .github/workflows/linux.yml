@@ -134,7 +134,7 @@ jobs:
           docker run --rm -v "$PWD:/src" thinkcad-appimage
       - name: Test portable image on clean Gentoo without system Qt or compiler
         run: |
-          docker run --rm -v "$PWD/out/appimage:/images:ro" -e QT_QPA_PLATFORM=offscreen -e APPIMAGE_EXTRACT_AND_RUN=1 -e THINKCAD_SMOKE_TIMEOUT_MS=180000 gentoo/stage3:latest bash -c 'exec /images/ThinkCad-*-x86_64.AppImage --smoke-test'
+          docker run --rm -v "$PWD/out/appimage:/images:ro" -e QT_QPA_PLATFORM=offscreen -e APPIMAGE_EXTRACT_AND_RUN=1 -e THINKCAD_SMOKE_TIMEOUT_MS=300000 gentoo/stage3:latest bash -c 'exec /images/ThinkCad-*-x86_64.AppImage --smoke-test'
       - uses: actions/attest-build-provenance@v3
         if: github.event_name != 'pull_request'
         id: appimage_provenance

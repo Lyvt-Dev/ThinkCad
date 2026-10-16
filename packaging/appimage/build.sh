@@ -23,6 +23,7 @@ cat > "$work/AppDir/usr/bin/toolchain/bin/g++" <<'COMPILER'
 #!/bin/sh
 set -eu
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+echo "Portable compiler: preparing sketch (the first build also prepares the C++ standard library)." >&2
 exec "$root/zig" c++ -target x86_64-linux-musl "$@"
 COMPILER
 chmod +x "$work/AppDir/usr/bin/toolchain/bin/g++"
@@ -82,9 +83,9 @@ FONTS
 cp "$work/thinkcad.svg" "$work/AppDir/thinkcad.svg"
 rm -f "$work/AppDir/AppRun"
 cp "$source_dir/packaging/appimage/AppRun" "$work/AppDir/AppRun";chmod +x "$work/AppDir/AppRun"
-THINKCAD_SMOKE_TIMEOUT_MS=180000 QT_QPA_PLATFORM=offscreen "$work/AppDir/AppRun" --smoke-test
+THINKCAD_SMOKE_TIMEOUT_MS=300000 QT_QPA_PLATFORM=offscreen "$work/AppDir/AppRun" --smoke-test
 # No FUSE is required for this build or smoke test.
 ARCH=x86_64 "$work/tools/appimagetool-x86_64.AppImage" --runtime-file "$work/tools/runtime-x86_64" "$work/AppDir" "$output/ThinkCad-${version}-x86_64.AppImage"
 chmod +x "$output/ThinkCad-${version}-x86_64.AppImage"
 (cd "$output" && sha256sum "ThinkCad-${version}-x86_64.AppImage" > "ThinkCad-${version}-x86_64.AppImage.sha256")
-THINKCAD_SMOKE_TIMEOUT_MS=180000 QT_QPA_PLATFORM=offscreen APPIMAGE_EXTRACT_AND_RUN=1 "$output/ThinkCad-${version}-x86_64.AppImage" --smoke-test
+THINKCAD_SMOKE_TIMEOUT_MS=300000 QT_QPA_PLATFORM=offscreen APPIMAGE_EXTRACT_AND_RUN=1 "$output/ThinkCad-${version}-x86_64.AppImage" --smoke-test
