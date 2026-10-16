@@ -3,7 +3,7 @@
 #include <cmath>
 #include <stdexcept>
 namespace thinkercad {
-void TransientSimulation::reset(){memory_={};now_=0;}
+void TransientSimulation::reset(){memory_={};now_=0;digitalSampling_=false;}
 void TransientSimulation::setMaximumStep(Microseconds step){if(step<1||step>10000)throw std::invalid_argument("Time step outside 1..10000 us");maximumStep_=step;}
 CircuitState TransientSimulation::evaluate(const CircuitDocument& document,const Boards& boards){auto state=document.solveStep(boards,&memory_,1e-9,now_*1e-6);observeUltrasonic(document,state);return state;}
 void TransientSimulation::observeUltrasonic(const CircuitDocument& document,const CircuitState& state){
@@ -27,7 +27,7 @@ std::pair<Microseconds,Microseconds> TransientSimulation::pulse(const CircuitDoc
 CircuitState TransientSimulation::advance(const CircuitDocument& document,const Boards& boards,Microseconds target,const std::function<void(Microseconds,const CircuitState&)>& sample){
     if(target<now_)throw std::invalid_argument("Transient clock cannot go backwards");
     bool stepping=false,ultrasonic=false;for(const auto& p:document.parts()){ultrasonic|=p.kind==PartKind::Module&&p.model=="hcsr04";stepping|=p.kind==PartKind::ServoMotor||p.kind==PartKind::DcMotor||p.kind==PartKind::Capacitor||p.kind==PartKind::Inductor||p.kind==PartKind::FunctionGenerator||p.kind==PartKind::Oscilloscope||p.kind==PartKind::LogicAnalyzer||p.kind==PartKind::CurrentProbe;}stepping|=ultrasonic;
-    for(const auto& [id,board]:boards)if(board)for(int pin:board->profile().gpio)stepping|=board->pin(pin).pwm;
+    for(const auto& [id,board]:boards)if(board)for(int pin:board->profile().gpio)stepping|=board->pin(pin).pwm||(digitalSampling_&&board->pin(pin).frequency);
     if(!stepping){now_=target;auto result=document.solve(boards);if(sample)sample(now_,result);return result;}
     auto result=evaluate(document,boards);std::size_t steps=0;
     while(now_<target){

@@ -87,6 +87,7 @@ public:
     void reset();
     Microseconds now()const{return now_;}
     void setMaximumStep(Microseconds step);
+    void setDigitalSampling(bool enabled){digitalSampling_=enabled;}
     CircuitState evaluate(const CircuitDocument& document,const Boards& boards);
     std::pair<Microseconds,Microseconds> pulse(const CircuitDocument&,const CircuitState&,const Boards&,
         const std::string& board,int pin,bool high,Microseconds timeout)const;
@@ -95,6 +96,7 @@ public:
 private:
     ReactiveState memory_;
     Microseconds now_=0,maximumStep_=100;
+    bool digitalSampling_=false;
     void observeUltrasonic(const CircuitDocument&,const CircuitState&);
 };
 }

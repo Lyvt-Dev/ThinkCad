@@ -304,7 +304,7 @@ void MainWindow::updateCircuit(bool stopOnError){
         }
         if(simulationActive()){
             const auto target=std::max(transient_.now(),virtualTime());
-            circuitState_=target>transient_.now()?transient_.advance(circuit_,boards,target,[this](auto time,const auto& state){instruments_->sample(time,state);}):transient_.evaluate(circuit_,boards);
+            circuitState_=target>transient_.now()?transient_.advance(circuit_,boards,target,[this](auto time,const auto& state){instruments_->sample(time,state);interrupts_.sample(circuit_,state);}):transient_.evaluate(circuit_,boards);
             if(target==transient_.now())instruments_->sample(target,circuitState_);
         }else circuitState_=circuit_.solve(boards);
         sensors_.synchronizePower(circuit_,circuitState_);pixels_.apply(circuit_,circuitState_);
@@ -315,7 +315,7 @@ void MainWindow::updateCircuit(bool stopOnError){
         diagnostics_->clear();for(const auto& error:circuitState_.errors){auto* item=new QListWidgetItem(Language::text("Fehler: ")+QString::fromStdString(error),diagnostics_);for(const auto& p:circuit_.parts())if(error.find(p.id)!=std::string::npos){item->setData(Qt::UserRole,QString::fromStdString(p.id));break;}}for(const auto& issue:circuitState_.warnings){auto* item=new QListWidgetItem(QString::fromStdString(issue.part)+": "+QString::fromStdString(issue.message),diagnostics_);item->setData(Qt::UserRole,QString::fromStdString(issue.part));}if(diagnostics_->count()==0)diagnostics_->addItem(Language::text("Keine elektrischen Fehler erkannt. Modellgrenzen beachten."));
         if(runUntil_&&virtualTime()>=runUntil_)stopSimulation();
         checkLesson();renderDirty_=true;
-        spiBus_.refreshSelects(circuit_,circuitState_);
+        spiBus_.refreshSelects(circuit_,circuitState_);interrupts_.sample(circuit_,circuitState_);
     }catch(const std::exception& e){appendLog(QString::fromUtf8(e.what()));stopSimulation();}
 }
 bool MainWindow::simulationActive()const{if(analogRunning_)return true;for(const auto& [id,runtime]:runtimes_)if(runtime->interpreter.active())return true;return false;}
@@ -325,9 +325,9 @@ void MainWindow::runtimeActiveChanged(bool active){
     const bool running=simulationActive();updateExecutionMode();findChild<QAction*>("wireModeAction")->setEnabled(!running);findChild<QAction*>("wireColorAction")->setEnabled(!running);canvas_->setEditingEnabled(!running);run_->setText(Language::text(running?"Simulation stoppen":"Simulation starten"));run_->setIcon(AppIcons::icon(running?AppIcons::Symbol::Stop:AppIcons::Symbol::Play));undo_->setEnabled(!running&&canvas_->history()->canUndo());redo_->setEnabled(!running&&canvas_->history()->canRedo());sketchBoards_->setEnabled(sketchBoards_->count()>0);updateInspector();
     if(smokeTest_&&!running&&!smokeDone_&&!stopping_)QCoreApplication::exit(1);
 }
-void MainWindow::stopSimulation(){sound_.stop();if(stopping_)return;stopping_=true;paused_=false;runUntil_=0;{QSignalBlocker block(pause_);pause_->setChecked(false);}analogRunning_=false;for(auto& [id,runtime]:runtimes_)runtime->interpreter.stop();runtimeActiveChanged(false);stopping_=false;}
+void MainWindow::stopSimulation(){sound_.stop();if(stopping_)return;stopping_=true;interrupts_.reset();transient_.setDigitalSampling(false);paused_=false;runUntil_=0;{QSignalBlocker block(pause_);pause_->setChecked(false);}analogRunning_=false;for(auto& [id,runtime]:runtimes_)runtime->interpreter.stop();runtimeActiveChanged(false);stopping_=false;}
 void MainWindow::startSimulation(){
-    showEditor();stopSimulation();syncBoardSketches();runtimes_.clear();peripherals_.reset();i2cDevices_.reset();sensors_.reset();pixels_.reset();uart_.reset();transient_.reset();analogTarget_=0;instruments_->configure(circuit_);instruments_->reset();
+    showEditor();stopSimulation();syncBoardSketches();runtimes_.clear();peripherals_.reset();i2cDevices_.reset();sensors_.reset();pixels_.reset();uart_.reset();interrupts_.reset();transient_.reset();analogTarget_=0;instruments_->configure(circuit_);instruments_->reset();
     if(circuit_.boardId().empty()){analogRunning_=true;runtimeActiveChanged(true);updateCircuit(true);return;}
 
     for(auto& [id,display]:displays_){(void)id;display.reset();}
@@ -349,6 +349,9 @@ void MainWindow::process(BoardRuntime& runtime,const QByteArray& line){if(smokeD
     auto& board_=runtime.board;auto& simulator_=runtime.clock;auto& interpreter_=runtime.interpreter;auto& displayBindings_=runtime.displayBindings;auto& busSda_=runtime.busSda;auto& busScl_=runtime.busScl;auto& busStarted_=runtime.busStarted;auto& writes_=runtime.writes;
 auto log=[this,&runtime](const QString& message){appendLog(runtimes_.size()>1?QString::fromStdString(runtime.id)+": "+message:message);};
 try{const auto parts=line.split(' ');auto number=[&](int i){bool ok=false;if(i>=parts.size())throw std::runtime_error(Language::text("Fehlende Protokolldaten").toStdString());int v=parts[i].toInt(&ok);if(!ok)throw std::runtime_error(Language::text("Ungültige Protokolldaten").toStdString());return v;};auto lcdReady=[&](const BoardRuntime::LcdBinding& binding){const auto& id=binding.id;auto v=circuitState_.voltage.find({id,"VCC"}),g=circuitState_.voltage.find({id,"GND"});if(v==circuitState_.voltage.end()||g==circuitState_.voltage.end()||!v->second||!g->second||*v->second-*g->second<4.5||*v->second-*g->second>5.5)return false;if(binding.address>=0)return busStarted_&&circuit_.connected({id,"SDA"},{runtime.id,board_.profile().pinName(busSda_)})&&circuit_.connected({id,"SCL"},{runtime.id,board_.profile().pinName(busScl_)});auto rw=circuitState_.voltage.at({id,"RW"}),contrast=circuitState_.voltage.at({id,"VO"});if(!rw||!contrast||std::abs(*rw-*g->second)>.3||*contrast-*g->second<0||*contrast-*g->second>1)return false;const std::vector<std::string> names{"RS","E","D4","D5","D6","D7"};for(std::size_t i=0;i<names.size();++i)if(!circuit_.connected({id,names[i]},{runtime.id,board_.profile().pinName(binding.pins[i])}))return false;return true;};
+if(parts[0]=="IRQ_ATTACH"&&parts.size()==3){interrupts_.attach(circuit_,circuitState_,runtime.id,number(1),static_cast<InterruptController::Mode>(number(2)));transient_.setDigitalSampling(true);interpreter_.answer(1);return;}
+if(parts[0]=="IRQ_DETACH"&&parts.size()==2){interrupts_.detach(runtime.id,number(1));transient_.setDigitalSampling(!interrupts_.empty());interpreter_.answer(0);return;}
+if(parts[0]=="IRQ_POLL"&&parts.size()==1){const auto pending=interrupts_.take(runtime.id);interpreter_.answer(int(pending.size()));for(int pin:pending)interpreter_.answer(pin);return;}
 if(parts[0]=="UART_BEGIN"&&parts.size()==7){
     const int port=number(1),baud=number(2),format=number(3),rx=number(4),tx=number(5),optional=number(6);if(port<0||port>2||baud<300||baud>2000000||format<0||(format&~0x3e)||(format&0x30)==0x10||rx< -2||tx< -2||(optional!=0&&optional!=1))throw std::invalid_argument("Invalid UART initialization");
     const auto allowed=UartBus::supportedPorts(board_.profile());if(optional&&std::find(allowed.begin(),allowed.end(),port)==allowed.end()){interpreter_.answer(0);interpreter_.answer(-1);interpreter_.answer(-1);return;}
@@ -400,7 +403,7 @@ void MainWindow::showEditor(){
     QTimer::singleShot(0,canvas_,&CircuitCanvas::fitCircuit);
 }
 void MainWindow::resetSimulation(){
-    const bool restart=simulationActive();stopSimulation();runtimes_.clear();peripherals_.reset();i2cDevices_.reset();sensors_.reset();pixels_.reset();uart_.reset();transient_.reset();analogTarget_=0;instruments_->reset();
+    const bool restart=simulationActive();stopSimulation();runtimes_.clear();peripherals_.reset();i2cDevices_.reset();sensors_.reset();pixels_.reset();uart_.reset();interrupts_.reset();transient_.reset();analogTarget_=0;instruments_->reset();
     for(auto& [id,display]:displays_){(void)id;display.reset();}
     updateCircuit();canvas_->updateSimulation(circuitState_,displays_);renderDirty_=true;
     appendLog(Language::text("Simulation zurückgesetzt."));if(restart)startSimulation();

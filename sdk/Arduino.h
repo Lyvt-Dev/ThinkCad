@@ -80,12 +80,17 @@ inline void validatePin(int pin) {
 #endif
 }
 inline int request(const std::string& line);
+inline bool interruptsRegistered();
+inline void dispatchInterrupts();
 inline void advance(std::uint64_t us) {
     if (us > std::numeric_limits<std::uint64_t>::max() - clockUs) throw std::overflow_error("Clock overflow");
     do {
         const int speed = request("SPEED"); // Speed multiplier in thousandths; refreshed while running.
         if (speed < 100 || speed > 10000) throw std::runtime_error("Invalid simulation speed");
         auto step = std::min<std::uint64_t>(us, 50ull * speed);
+#ifdef THINKERCAD_EMULATION
+        if(interruptsRegistered())step=std::min<std::uint64_t>(step,1000);
+#endif
         for(const auto& [pin,deadline]:toneDeadlines)if(deadline>clockUs)step=std::min(step,deadline-clockUs);
         std::this_thread::sleep_for(std::chrono::microseconds(step * 1000 / speed));
         clockUs += step;us -= step;
@@ -94,6 +99,7 @@ inline void advance(std::uint64_t us) {
             if(it->second<=clockUs){std::cout << "NOTONE " << it->first << std::endl;it=toneDeadlines.erase(it);}else ++it;
         }
         for(const auto& observer:timeObservers)observer.second();
+        dispatchInterrupts();
     } while (us);
 }
 inline int request(const std::string& line) {
@@ -122,12 +128,14 @@ inline void pinMode(int pin, int mode) {
     thinker::toneDeadlines.erase(pin);
     thinker::modes.at(pin)=mode;
     std::cout << "MODE " << pin << ' ' << mode << std::endl;
+    thinker::dispatchInterrupts();
 }
 inline void digitalWrite(int pin, int value) {
     thinker::validatePin(pin);
     if (thinker::modes.at(pin) != OUTPUT || (value != HIGH && value != LOW)) throw std::invalid_argument("digitalWrite requires OUTPUT and HIGH/LOW");
     thinker::toneDeadlines.erase(pin);
     std::cout << "WRITE " << pin << ' ' << value << std::endl;
+    thinker::dispatchInterrupts();
 }
 inline void noTone(int pin) {
     thinker::validatePin(pin);thinker::toneDeadlines.erase(pin);
@@ -156,7 +164,7 @@ inline void analogWrite(int pin,int value){
 inline void analogWriteRange(unsigned range){if(!range||range>65535)throw std::invalid_argument("PWM range outside 1..65535");thinker::pwmRange=range;}
 inline void analogWriteFreq(unsigned frequency){if(!frequency||frequency>20000)throw std::invalid_argument("PWM frequency outside 1..20000 Hz");thinker::pwmFrequency=frequency;}
 #endif
-inline int digitalRead(int pin) { thinker::validatePin(pin); return thinker::request("READ " + std::to_string(pin)); }
+inline int digitalRead(int pin) { thinker::validatePin(pin);const int value=thinker::request("READ " + std::to_string(pin));thinker::dispatchInterrupts();return value; }
 inline int analogRead(int pin) {
 #if defined(THINKERCAD_GENERIC_BOARD)
 if(pin<0||pin>=49||!(THINKERCAD_BOARD_ADC_MASK&(1ull<<pin)))throw std::invalid_argument("Unavailable ADC GPIO");return thinker::request("ADC "+std::to_string(pin));
@@ -182,13 +190,20 @@ inline unsigned long millis() { return static_cast<std::uint32_t>(thinker::clock
 inline unsigned long micros() { return static_cast<std::uint32_t>(thinker::clockUs); }
 inline void delay(unsigned long ms) { thinker::advance(static_cast<std::uint64_t>(ms)*1000); }
 inline void delayMicroseconds(unsigned int us) { thinker::advance(us); }
-inline void yield() { delayMicroseconds(0); }
+inline void yield() {
+#ifdef THINKERCAD_EMULATION
+    delayMicroseconds(thinker::interruptsRegistered()?1000:0);
+#else
+    delayMicroseconds(0);
+#endif
+}
 inline unsigned long pulseIn(uint8_t pin,uint8_t state,unsigned long timeout=1000000){
     thinker::validatePin(pin);if(state>1||timeout>10000000)throw std::invalid_argument("Invalid pulse state or timeout");
     if(thinker::standalone){delayMicroseconds(unsigned(timeout));return 0;}
     const int elapsed=thinker::request("PULSE "+std::to_string(pin)+" "+std::to_string(state)+" "+std::to_string(timeout));int width=0;if(!(std::cin>>width)||elapsed<0||width<0||static_cast<unsigned long>(elapsed)>timeout||width>elapsed)throw std::runtime_error("Invalid pulse response");thinker::advance(unsigned(elapsed));return static_cast<unsigned long>(width);
 }
 inline unsigned long pulseInLong(uint8_t pin,uint8_t state,unsigned long timeout=1000000){return pulseIn(pin,state,timeout);}
+#include "interrupts.hpp"
 #include "serial/HardwareSerial.hpp"
 struct SerialPort : Stream {
     HardwareSerial wired_{0};
