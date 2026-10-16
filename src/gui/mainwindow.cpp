@@ -69,10 +69,10 @@ QString title(PartKind kind){return Language::text(QString::fromStdString(compon
 void sizeSimulationButtons(QWidget* root){
     for(auto* button:root->findChildren<QToolButton*>()){
         if(!button->property("flatControl").toBool())continue;
-        int width=156;
-        for(const auto& text:{"Simulation starten","Simulation stoppen","Reset","Pause","Zeitschritt","Kabel verbinden","Kabelfarbe"})
-            width=std::max(width,button->fontMetrics().horizontalAdvance(Language::text(text))+32);
-        button->setFixedSize(width,40);
+        auto text=button->text();
+        int width=std::max(88,button->fontMetrics().horizontalAdvance(text)+48);
+        if(button->objectName()=="runButton")for(const auto* name:{"Simulation starten","Simulation stoppen"})width=std::max(width,button->fontMetrics().horizontalAdvance(Language::text(name))+48);
+        button->setFixedSize(width,36);
     }
 }
 QToolButton* addSimulationButton(QToolBar* bar,QAction* action,const char* name){
