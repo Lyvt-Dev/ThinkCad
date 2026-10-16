@@ -8,7 +8,7 @@
 #include <QVariant>
 namespace {
 const QMap<QString,QString>& translations(){static const QMap<QString,QString> values{
-{"Notizen","Notes"},{"Notiz","Note"},{"Notiz hinzufügen…","Add note…"},{"Notiz hinzufügen","Add note"},{"Notiz bearbeiten…","Edit note…"},{"Notiz bearbeiten","Edit note"},{"Text","Text"},{"Notiz doppelklicken, um Text zu bearbeiten.","Double-click the note to edit its text."},
+{"Simulation: klicken","Simulation: click"},{"Notizen","Notes"},{"Notiz","Note"},{"Notiz hinzufügen…","Add note…"},{"Notiz hinzufügen","Add note"},{"Notiz bearbeiten…","Edit note…"},{"Notiz bearbeiten","Edit note"},{"Text","Text"},{"Notiz doppelklicken, um Text zu bearbeiten.","Double-click the note to edit its text."},
 {"In die Arbeitsfläche ziehen","Drag into the workspace"},{"Projekt automatisch gespeichert.","Project saved automatically."},{"Lernpfad…","Learning path…"},{"Aktuelle Lektion","Current lesson"},{"Lektion abgeschlossen! Die nächste Übung ist freigeschaltet.","Lesson complete! The next exercise is unlocked."},{"Alle Einstellungen…","All settings…"},{"Einstellungen…","Settings…"},{"Erweitert","Advanced"},
     {"Keine Vorschau","No preview"},{"Projektvorschau","Project preview"},
     {"Darstellung und Sprache","Appearance and language"},{"Entfernen","Remove"},

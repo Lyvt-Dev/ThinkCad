@@ -55,6 +55,29 @@ png=pathlib.Path(sys.argv[1]).read_bytes();width,height=struct.unpack('>II',png[
 pathlib.Path(sys.argv[2]).write_text(f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512" viewBox="0 0 {width} {height}"><image width="{width}" height="{height}" xlink:href="data:image/png;base64,{base64.b64encode(png).decode()}"/></svg>')
 ICON
 "$work/tools/linuxdeploy-x86_64.AppImage" --appdir "$work/AppDir" --executable "$work/AppDir/usr/bin/thinkcad" --desktop-file "$source_dir/packaging/linux/io.github.LyvtDev.ThinkCad.desktop" --icon-file "$work/thinkcad.svg" --library /usr/lib/x86_64-linux-gnu/libssl.so.3 --library /usr/lib/x86_64-linux-gnu/libcrypto.so.3 --plugin qt "${plugin_libraries[@]}"
+# Bundle vendor-neutral OpenGL dispatch libraries, not vendor GPU drivers.
+# linuxdeploy excludes these by default, but a clean Gentoo installation may
+# have no system GLX even when using the offscreen platform.
+for library in libGL.so.1 libGLX.so.0 libGLdispatch.so.0 libOpenGL.so.0 libEGL.so.1 libfontconfig.so.1 libfreetype.so.6 libexpat.so.1 libX11.so.6 libX11-xcb.so.1 libxcb.so.1 libdrm.so.2 libwayland-client.so.0; do
+    cp -L "/usr/lib/x86_64-linux-gnu/$library" "$work/AppDir/usr/lib/$library"
+    patchelf --set-rpath '$ORIGIN' "$work/AppDir/usr/lib/$library"
+done
+mkdir -p "$work/AppDir/usr/share/licenses/glvnd"
+for package in libgl1 libglx0 libglvnd0 libopengl0 libegl1 libfontconfig1 libfreetype6 libexpat1 libx11-6 libx11-xcb1 libxcb1 libdrm2 libwayland-client0; do
+    cp "/usr/share/doc/$package/copyright" "$work/AppDir/usr/share/licenses/glvnd/$package.txt"
+done
+mkdir -p "$work/AppDir/usr/share/fonts" "$work/AppDir/usr/share/licenses/dejavu"
+cp /usr/share/fonts/truetype/dejavu/DejaVuSans*.ttf "$work/AppDir/usr/share/fonts/"
+cp /usr/share/doc/fonts-dejavu-core/copyright "$work/AppDir/usr/share/licenses/dejavu/"
+cat > "$work/AppDir/usr/share/thinkcad/fonts.conf" <<'FONTS'
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<fontconfig>
+  <include ignore_missing="yes">/etc/fonts/fonts.conf</include>
+  <dir prefix="relative">../fonts</dir>
+  <cachedir prefix="xdg">fontconfig</cachedir>
+</fontconfig>
+FONTS
 # Match the Icon= identifier regardless of linuxdeploy's source icon basename.
 cp "$work/thinkcad.svg" "$work/AppDir/thinkcad.svg"
 rm -f "$work/AppDir/AppRun"

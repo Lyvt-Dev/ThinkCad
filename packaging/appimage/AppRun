@@ -9,6 +9,8 @@ export LD_LIBRARY_PATH="$APPDIR/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 for hook in "$APPDIR"/apprun-hooks/*.sh "$APPDIR"/usr/apprun-hooks/*.sh; do
     if [ -f "$hook" ]; then . "$hook"; fi
 done
+export FONTCONFIG_FILE="$APPDIR/usr/share/thinkcad/fonts.conf"
+export QT_QPA_FONTDIR="$APPDIR/usr/share/fonts"
 export QT_PLUGIN_PATH="$APPDIR/usr/plugins"
 export QT_QPA_PLATFORM_PLUGIN_PATH="$APPDIR/usr/plugins/platforms"
 export ZIG_GLOBAL_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/thinkcad/zig"
