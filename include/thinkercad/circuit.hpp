@@ -45,7 +45,8 @@ struct CircuitState {
     Level level(const Endpoint& endpoint) const;
 };
 // Serializable, GUI-independent circuit document. Wires join nodes electrically.
-struct ReactiveState {std::map<std::string,double> capacitorVoltage,inductorCurrent,motorCurrent,motorSpeed,servoRise,servoPulse;std::map<std::string,bool> servoLevel;};
+struct UltrasonicState {bool high=false;Microseconds trigger=0,rise=0,fall=0,ready=0;};
+struct ReactiveState {std::map<std::string,double> capacitorVoltage,inductorCurrent,motorCurrent,motorSpeed,servoRise,servoPulse;std::map<std::string,bool> servoLevel;std::map<std::string,UltrasonicState> ultrasonic;};
 class TransientSimulation;
 class CircuitDocument {
 public:
@@ -86,11 +87,14 @@ public:
     void reset();
     Microseconds now()const{return now_;}
     void setMaximumStep(Microseconds step);
-    CircuitState evaluate(const CircuitDocument& document,const Boards& boards)const;
+    CircuitState evaluate(const CircuitDocument& document,const Boards& boards);
+    std::pair<Microseconds,Microseconds> pulse(const CircuitDocument&,const CircuitState&,const Boards&,
+        const std::string& board,int pin,bool high,Microseconds timeout)const;
     CircuitState advance(const CircuitDocument& document,const Boards& boards,Microseconds target,
                          const std::function<void(Microseconds,const CircuitState&)>& sample={});
 private:
     ReactiveState memory_;
     Microseconds now_=0,maximumStep_=100;
+    void observeUltrasonic(const CircuitDocument&,const CircuitState&);
 };
 }

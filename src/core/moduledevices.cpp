@@ -4,6 +4,11 @@
 #include <limits>
 #include <stdexcept>
 namespace thinkercad {
+void ModuleDevices::synchronizePower(const CircuitDocument& doc,const CircuitState& state){
+    std::set<std::string> present;
+    for(const auto& part:doc.parts())if(part.kind==PartKind::Module){present.insert(part.id);const auto& d=ModuleRegistry::get(part.model);auto voltage=[&](const std::string& pin)->std::optional<double>{auto it=state.voltage.find({part.id,pin});return it==state.voltage.end()?std::nullopt:it->second;};const auto v=voltage(d.power),g=voltage(d.ground);bool ready=v&&g&&*v-*g>=d.minVoltage&&*v-*g<=d.maxVoltage;if(ready&&d.implementation=="mfrc522"){const auto reset=voltage("RST");ready=reset&&*reset-*g>=.7*(*v-*g);}if(!ready)states_.erase(part.id);}
+    std::erase_if(states_,[&](const auto& entry){return !present.contains(entry.first);});
+}
 namespace {
 using Registers=std::array<std::uint8_t,256>;
 void word(Registers& reg,int at,int value,bool little=false){const auto bits=std::uint16_t(value);reg[at]=std::uint8_t(little?bits:bits>>8);reg[at+1]=std::uint8_t(little?bits>>8:bits);}

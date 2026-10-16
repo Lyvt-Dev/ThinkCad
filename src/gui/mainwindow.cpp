@@ -307,6 +307,7 @@ void MainWindow::updateCircuit(bool stopOnError){
             circuitState_=target>transient_.now()?transient_.advance(circuit_,boards,target,[this](auto time,const auto& state){instruments_->sample(time,state);}):transient_.evaluate(circuit_,boards);
             if(target==transient_.now())instruments_->sample(target,circuitState_);
         }else circuitState_=circuit_.solve(boards);
+        sensors_.synchronizePower(circuit_,circuitState_);pixels_.apply(circuit_,circuitState_);
         if(simulationActive())peripherals_.inputs(circuit_);
         const auto tones=simulationActive()&&circuitState_.errors.empty()?circuit_.soundSignals(boards,&circuitState_.errors):std::vector<SoundSignal>{};
         if(stopOnError&&!circuitState_.errors.empty()){appendLog(QString::fromStdString(circuitState_.errors.front()));stopSimulation();if(smokeTest_)QCoreApplication::exit(1);}
@@ -326,7 +327,7 @@ void MainWindow::runtimeActiveChanged(bool active){
 }
 void MainWindow::stopSimulation(){sound_.stop();if(stopping_)return;stopping_=true;paused_=false;runUntil_=0;{QSignalBlocker block(pause_);pause_->setChecked(false);}analogRunning_=false;for(auto& [id,runtime]:runtimes_)runtime->interpreter.stop();runtimeActiveChanged(false);stopping_=false;}
 void MainWindow::startSimulation(){
-    showEditor();stopSimulation();syncBoardSketches();runtimes_.clear();peripherals_.reset();i2cDevices_.reset();sensors_.reset();transient_.reset();analogTarget_=0;instruments_->configure(circuit_);instruments_->reset();
+    showEditor();stopSimulation();syncBoardSketches();runtimes_.clear();peripherals_.reset();i2cDevices_.reset();sensors_.reset();pixels_.reset();transient_.reset();analogTarget_=0;instruments_->configure(circuit_);instruments_->reset();
     if(circuit_.boardId().empty()){analogRunning_=true;runtimeActiveChanged(true);updateCircuit(true);return;}
 
     for(auto& [id,display]:displays_){(void)id;display.reset();}
@@ -348,6 +349,8 @@ void MainWindow::process(BoardRuntime& runtime,const QByteArray& line){if(smokeD
     auto& board_=runtime.board;auto& simulator_=runtime.clock;auto& interpreter_=runtime.interpreter;auto& displayBindings_=runtime.displayBindings;auto& busSda_=runtime.busSda;auto& busScl_=runtime.busScl;auto& busStarted_=runtime.busStarted;auto& writes_=runtime.writes;
 auto log=[this,&runtime](const QString& message){appendLog(runtimes_.size()>1?QString::fromStdString(runtime.id)+": "+message:message);};
 try{const auto parts=line.split(' ');auto number=[&](int i){bool ok=false;if(i>=parts.size())throw std::runtime_error(Language::text("Fehlende Protokolldaten").toStdString());int v=parts[i].toInt(&ok);if(!ok)throw std::runtime_error(Language::text("Ungültige Protokolldaten").toStdString());return v;};auto lcdReady=[&](const BoardRuntime::LcdBinding& binding){const auto& id=binding.id;auto v=circuitState_.voltage.find({id,"VCC"}),g=circuitState_.voltage.find({id,"GND"});if(v==circuitState_.voltage.end()||g==circuitState_.voltage.end()||!v->second||!g->second||*v->second-*g->second<4.5||*v->second-*g->second>5.5)return false;if(binding.address>=0)return busStarted_&&circuit_.connected({id,"SDA"},{runtime.id,board_.profile().pinName(busSda_)})&&circuit_.connected({id,"SCL"},{runtime.id,board_.profile().pinName(busScl_)});auto rw=circuitState_.voltage.at({id,"RW"}),contrast=circuitState_.voltage.at({id,"VO"});if(!rw||!contrast||std::abs(*rw-*g->second)>.3||*contrast-*g->second<0||*contrast-*g->second>1)return false;const std::vector<std::string> names{"RS","E","D4","D5","D6","D7"};for(std::size_t i=0;i<names.size();++i)if(!circuit_.connected({id,names[i]},{runtime.id,board_.profile().pinName(binding.pins[i])}))return false;return true;};
+if(parts[0]=="PULSE"&&parts.size()==4){const int pin=number(1),high=number(2),timeout=number(3);if((high!=0&&high!=1)||timeout<0||board_.pin(pin).mode==PinMode::Output)throw std::invalid_argument("Invalid pulse input request");updateCircuit(true);if(!interpreter_.active())return;TransientSimulation::Boards sources;for(const auto& [id,source]:runtimes_)sources[id]=&source->board;const auto measured=transient_.pulse(circuit_,circuitState_,sources,runtime.id,pin,high!=0,unsigned(timeout));interpreter_.answer(int(measured.second));interpreter_.answer(int(measured.first));return;}
+if(parts[0]=="NEOPIXEL"&&parts.size()==4){const auto& hex=parts[3];if(hex.isEmpty()||hex.size()>6144||hex.size()%6||!std::all_of(hex.begin(),hex.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))throw std::invalid_argument("Invalid NeoPixel frame");const auto bytes=QByteArray::fromHex(hex);if(board_.pin(number(1)).mode!=PinMode::Output)throw std::invalid_argument("NeoPixel data pin must be an output");const bool delivered=pixels_.transmit(circuit_,circuitState_,runtime.id,number(1),unsigned(number(2)),{bytes.begin(),bytes.end()},simulator_.now());pixels_.apply(circuit_,circuitState_);renderDirty_=true;interpreter_.answer(delivered?1:0);return;}
 if(parts[0]=="ONEWIRE"&&parts.size()==4){interpreter_.answer(sensors_.oneWire(circuit_,circuitState_,runtime.id,number(1),number(2),number(3),simulator_.now(),executionMode_==ExecutionMode::Emulation));return;}else if(parts[0]=="DHT_READ"&&parts.size()==3){interpreter_.answer(sensors_.dht(circuit_,circuitState_,runtime.id,number(1),number(2),simulator_.now()));return;}else if(parts[0]=="SPI_BYTE"&&parts.size()==9){const int sck=number(1),miso=number(2),mosi=number(3),hz=number(4),mode=number(5),order=number(6),value=number(7),reserved=number(8);if(value<0||value>255||(order!=0&&order!=1)||hz<1||reserved!=0)throw std::runtime_error("Invalid SPI transaction");updateCircuit(true);if(!interpreter_.active())return;i2cDevices_.context(runtime.clock.now(),executionMode_==ExecutionMode::Emulation);const auto reply=spiBus_.transfer(circuit_,circuitState_,runtime.id,sck,miso,mosi,unsigned(hz),mode,order==0,std::uint8_t(value),runtime.clock.now());interpreter_.answer(reply.value);return;}
 if(parts[0]=="I2C_END"&&parts.size()==1){busStarted_=false;return;}
 if((parts[0]=="I2C_WRITE"&&parts.size()==5)||(parts[0]=="I2C_READ"&&parts.size()==5)){
@@ -388,7 +391,7 @@ void MainWindow::showEditor(){
     QTimer::singleShot(0,canvas_,&CircuitCanvas::fitCircuit);
 }
 void MainWindow::resetSimulation(){
-    const bool restart=simulationActive();stopSimulation();runtimes_.clear();peripherals_.reset();i2cDevices_.reset();sensors_.reset();transient_.reset();analogTarget_=0;instruments_->reset();
+    const bool restart=simulationActive();stopSimulation();runtimes_.clear();peripherals_.reset();i2cDevices_.reset();sensors_.reset();pixels_.reset();transient_.reset();analogTarget_=0;instruments_->reset();
     for(auto& [id,display]:displays_){(void)id;display.reset();}
     updateCircuit();canvas_->updateSimulation(circuitState_,displays_);renderDirty_=true;
     appendLog(Language::text("Simulation zurückgesetzt."));if(restart)startSimulation();

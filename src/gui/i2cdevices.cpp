@@ -9,7 +9,7 @@ namespace {
 }
 using namespace thinkercad;
 I2cDevices::Reply I2cDevices::transfer(const CircuitDocument& doc,const CircuitState& state,const std::string& board,int sda,int scl,int address,const std::vector<uint8_t>& data,int readCount,unsigned clock){
-    Reply reply;const auto profile=BoardProfile::get(doc.part(board).model);
+    Reply reply;const auto profile=BoardProfile::get(doc.part(board).model);modules_.synchronizePower(doc,state);
     std::vector<const CircuitPart*> matches;
     for(const auto& part:doc.parts()){
         const bool module=part.kind==PartKind::Module;const ModuleDefinition* definition=module?&ModuleRegistry::get(part.model):nullptr;

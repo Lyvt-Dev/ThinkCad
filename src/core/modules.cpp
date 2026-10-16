@@ -20,7 +20,7 @@ std::map<std::string,ModuleDefinition>& models(){
         add("dht22","DHT22 / AM2302","single-wire","dht22",{"VCC","DATA","GND"},{{"temperature","Temperature","°C",25,-40,80},{"humidity","Humidity","%",50,0,100}},15.1,25,3.3,6);
         add("hcsr04","HC-SR04","pulse","hcsr04",{"VCC","TRIG","ECHO","GND"},{{"distance","Distance","cm",100,2,400}},45,20,4.5,5.5);
         add("ds18b20","DS18B20","onewire","ds18b20",{"GND","DQ","VCC"},{{"temperature","Temperature","°C",25,-55,125}},4.9,10.2,3,5.5);
-        add("ws2812","WS2812B · 8 pixels","neopixel","ws2812",{"VCC","DIN","GND","DOUT"},{{"pixels","Pixel count","",8,1,64}},40,10,3.5,5.3,0,800000);
+        add("ws2812","WS2812B · RGB strip","neopixel","ws2812",{"VCC","DIN","GND","DOUT"},{{"pixels","Pixel count","",8,1,64}},40,10,3.5,5.3,0,800000);
         add("l298n","L298N · dual H bridge","bridge","l298n",{"VS","VCC","GND","ENA","IN1","IN2","OUT1","OUT2","ENB","IN3","IN4","OUT3","OUT4"},{},43,43,4.5,5.5);
         add("mfrc522","RFID RC522 · SPI","spi","mfrc522",{"VCC","GND","SCK","MISO","MOSI","CS","RST","IRQ"},{},40,60,2.5,3.6,0,10000000);
         add("mcp3008","MCP3008 · SPI ADC","spi","mcp3008",{"VCC","VREF","GND","SCK","MISO","MOSI","CS","CH0","CH1","CH2","CH3","CH4","CH5","CH6","CH7"},{},10,20,2.7,5.5,0,1000000);

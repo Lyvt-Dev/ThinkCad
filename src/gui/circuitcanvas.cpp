@@ -357,6 +357,7 @@ void CircuitCanvas::changeParameter(const std::string& id,const std::string& nam
     const auto& part=document_.part(id);if(part.kind!=PartKind::Module)throw std::invalid_argument("Not a module parameter");const auto& model=ModuleRegistry::get(part.model);bool valid=false;
     for(const auto& field:model.parameters)if(field.name==name&&std::isfinite(value)&&value>=field.min&&value<=field.max)valid=true;
     if(name=="address")valid=editingEnabled_&&model.bus=="i2c"&&value==std::floor(value)&&value>=(model.builtin?model.address:8)&&value<=(model.builtin?model.address+1:119);
+    if(model.implementation=="ws2812"&&name=="pixels")valid=valid&&editingEnabled_&&value==std::floor(value);
     if(!valid)throw std::invalid_argument("Module parameter outside its allowed range");if(parameter(part,name,name=="address"?model.address:0)==value&&part.parameters.contains(name))return;
     if(editingEnabled_)mutate(Language::text("Modulparameter ändern"),[&](auto& doc){doc.part(id).parameters[name]=value;});else{document_.part(id).parameters[name]=value;viewport()->update();emit inputValueChanged();emit runtimeInputChanged();}
 }

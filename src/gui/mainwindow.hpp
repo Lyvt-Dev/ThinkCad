@@ -12,6 +12,7 @@
 #include "i2cdevices.hpp"
 #include "thinkercad/spibus.hpp"
 #include "thinkercad/sensorbus.hpp"
+#include "thinkercad/pixelbus.hpp"
 #include <QMainWindow>
 class QPlainTextEdit;
 class QLineEdit;
@@ -96,6 +97,7 @@ private:
     PeripheralHub peripherals_;
     I2cDevices i2cDevices_;
     thinkercad::SensorBus sensors_;
+    thinkercad::PixelBus pixels_;
     thinkercad::SpiBus spiBus_{i2cDevices_.modules()};
     QLineEdit* netName_;
     QWidget* generatorProperties_;

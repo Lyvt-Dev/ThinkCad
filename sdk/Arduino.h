@@ -183,6 +183,12 @@ inline unsigned long micros() { return static_cast<std::uint32_t>(thinker::clock
 inline void delay(unsigned long ms) { thinker::advance(static_cast<std::uint64_t>(ms)*1000); }
 inline void delayMicroseconds(unsigned int us) { thinker::advance(us); }
 inline void yield() { delayMicroseconds(0); }
+inline unsigned long pulseIn(uint8_t pin,uint8_t state,unsigned long timeout=1000000){
+    thinker::validatePin(pin);if(state>1||timeout>10000000)throw std::invalid_argument("Invalid pulse state or timeout");
+    if(thinker::standalone){delayMicroseconds(unsigned(timeout));return 0;}
+    const int elapsed=thinker::request("PULSE "+std::to_string(pin)+" "+std::to_string(state)+" "+std::to_string(timeout));int width=0;if(!(std::cin>>width)||elapsed<0||width<0||static_cast<unsigned long>(elapsed)>timeout||width>elapsed)throw std::runtime_error("Invalid pulse response");thinker::advance(unsigned(elapsed));return static_cast<unsigned long>(width);
+}
+inline unsigned long pulseInLong(uint8_t pin,uint8_t state,unsigned long timeout=1000000){return pulseIn(pin,state,timeout);}
 struct SerialPort : Stream {
     using Print::write;
     void begin(unsigned long) {} explicit operator bool()const{return true;}

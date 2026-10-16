@@ -28,6 +28,8 @@ int main(){
     f.select(false);f.select(true);require(f.byte(0xd0,1000000,1).status==SpiBus::Status::Mode,"unsupported clock phase rejected");require(f.byte(0xd0,80000000).status==SpiBus::Status::Clock,"excessive SPI frequency rejected");
     f.select(false);f.select(true);f.byte(0xd0,1000000,3);require(f.byte(0,1000000,3).value==0x60,"BME280 also supports mode 3");
     f.select(false);f.select(true);f.byte(0x0b,1000000,0,true);require(f.byte(0,1000000,0,true).value==6,"LSB first changes bits on physical bus");
+    auto part=f.document.part(id);f.devices.i2c(part,{0xf4,0x27},-1,1000);require(f.devices.registers(part,1000)[0xf4]!=0,"configured sensor has state");auto powerOff=f.document.solve(f.board);powerOff.voltage[{id,"VCC"}]=0;f.bus.refreshSelects(f.document,powerOff);f.bus.refreshSelects(f.document,f.document.solve(f.board));require(f.devices.registers(part,2000)[0xf4]==0,"power cycle resets device registers");
     f.add();require(f.byte(0xd0).status==SpiBus::Status::Collision,"two asserted CS lines cause collision");
+    Fixture reset;const auto reader=reset.add();reset.document.part(reader).model="mfrc522";reset.document.connect({reader,"RST"},{"board","GPIO16"});reset.board.pinMode(16,PinMode::Output);reset.select(true);require(reset.byte(0xee).status==SpiBus::Status::Unselected,"RC522 held in reset must not respond");reset.board.digitalWrite(16,true);reset.byte(0xee);require(reset.byte(0).value==0x92,"RC522 responds after reset release");
     std::cout<<"Physical SPI wiring, supply, selection, clock, bit ordering and collision checks passed\n";
 }

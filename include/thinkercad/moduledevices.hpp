@@ -10,6 +10,7 @@ class ModuleDevices {
 public:
     void reset(){states_.clear();cards_.clear();analog_.clear();}
     void setEmulation(bool value){emulation_=value;}
+    void synchronizePower(const CircuitDocument&,const CircuitState&);
     std::vector<std::uint8_t> i2c(const CircuitPart&,const std::vector<std::uint8_t>& data,int count,Microseconds now);
     void select(const CircuitPart&,bool active);
     std::uint8_t spi(const CircuitPart&,std::uint8_t value,Microseconds now);

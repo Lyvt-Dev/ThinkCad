@@ -200,7 +200,7 @@ void CircuitDocument::validate() const {
             if(!valid)throw std::invalid_argument("Invalid component parameter: "+key);
         }
     }
-    for(const auto& p:parts_){if(p.kind==PartKind::Note&&p.model.size()>4000)throw std::invalid_argument("Note exceeds 4000 UTF-8 bytes");if(p.rotation<0||p.rotation>=360||p.rotation%90)throw std::invalid_argument("Invalid component rotation");if(p.kind==PartKind::NfcTestCard&&p.model.size()>96)throw std::invalid_argument("NFC test text exceeds 96 bytes");if((p.kind==PartKind::InfraredRemote||p.kind==PartKind::RadioTransceiver)&&std::floor(p.value)!=p.value)throw std::invalid_argument("IR command must be an integer");if(p.kind==PartKind::Esp8266)(void)BoardProfile::get(p.model);if(p.kind==PartKind::Module)(void)ModuleRegistry::get(p.model);}
+    for(const auto& p:parts_){if(p.kind==PartKind::Note&&p.model.size()>4000)throw std::invalid_argument("Note exceeds 4000 UTF-8 bytes");if(p.rotation<0||p.rotation>=360||p.rotation%90)throw std::invalid_argument("Invalid component rotation");if(p.kind==PartKind::NfcTestCard&&p.model.size()>96)throw std::invalid_argument("NFC test text exceeds 96 bytes");if((p.kind==PartKind::InfraredRemote||p.kind==PartKind::RadioTransceiver)&&std::floor(p.value)!=p.value)throw std::invalid_argument("IR command must be an integer");if(p.kind==PartKind::Esp8266)(void)BoardProfile::get(p.model);if(p.kind==PartKind::Module){(void)ModuleRegistry::get(p.model);if(p.model=="ws2812"&&parameter(p,"pixels",8)!=std::floor(parameter(p,"pixels",8)))throw std::invalid_argument("Pixel count must be an integer");}}
     for(const auto& w:wires_){validateEndpoint(w.a);validateEndpoint(w.b);if(w.points.size()>64)throw std::invalid_argument("Maximum 64 wire bends");for(const auto& point:w.points)if(!std::isfinite(point.x)||!std::isfinite(point.y)||std::abs(point.x)>10000||std::abs(point.y)>10000)throw std::invalid_argument("Invalid wire bend");}
 }
 bool CircuitDocument::connected(const Endpoint& a,const Endpoint& b) const {validateEndpoint(a);validateEndpoint(b);Nodes nodes(*this);return nodes.node(a)==nodes.node(b);}
@@ -271,9 +271,18 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         if(p.kind==PartKind::SevenSegment)for(const auto& channel:std::vector<std::string>{"a","b","c","d","e","f","g","dp"})junctions.push_back({p.id+":"+channel,nodes.node({p.id,channel}),nodes.node({p.id,"COM"}),2,10,0.02});
     }
     std::map<std::string,bool> conducting;std::map<int,std::string> logicOwners;std::map<int,double> volts=fixed;std::set<std::string> poweredSensors;
+    std::map<std::string,std::array<int,4>> bridgeDrive;
     const bool nonlinear=std::any_of(parts_.begin(),parts_.end(),[](const auto& p){return p.kind==PartKind::NpnTransistor||p.kind==PartKind::PnpTransistor||p.kind==PartKind::NMosfet||p.kind==PartKind::PMosfet||p.kind==PartKind::OpAmp;});
     for(int iteration=0;iteration<(nonlinear?400:124);++iteration) {
-        auto branches=resistors;std::set<std::string> activeAmps;
+        auto branches=resistors;std::set<std::string> activeAmps,activeUltrasonic;
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&p.model=="hcsr04"){
+            const int power=nodes.node({p.id,"VCC"}),ground=nodes.node({p.id,"GND"});if(!volts.contains(power)||!volts.contains(ground)||volts.at(power)-volts.at(ground)<4.5||volts.at(power)-volts.at(ground)>5.5)continue;
+            bool high=false;if(memory){const auto it=memory->ultrasonic.find(p.id);if(it!=memory->ultrasonic.end()){const auto at=Microseconds(std::llround(time*1e6));high=it->second.rise&&at>=it->second.rise&&at<it->second.fall;}}
+            branches.push_back({nodes.node({p.id,"ECHO"}),ground,50,high?volts.at(power)-volts.at(ground):0});activeUltrasonic.insert(p.id);
+        }
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&p.model=="l298n"){
+            const auto& drive=bridgeDrive[p.id];for(int i=0;i<4;++i)if(drive[i])branches.push_back({nodes.node({p.id,"OUT"+std::to_string(i+1)}),nodes.node({p.id,drive[i]==2?"VS":"GND"}),.3,drive[i]==2?-1.:1.});
+        }
         for(const auto& j:junctions)if(conducting[j.id])branches.push_back({j.a,j.k,j.resistance,j.vf});
         for(const auto& p:parts_)if(p.kind==PartKind::NpnTransistor||p.kind==PartKind::PnpTransistor||p.kind==PartKind::NMosfet||p.kind==PartKind::PMosfet){
             const auto terminals=pins(p);for(int i=0;i<2;++i)branches.push_back({nodes.node({p.id,terminals[i]}),nodes.node({p.id,terminals[2]}),1e12});
@@ -365,6 +374,16 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
             bool value=p.kind==PartKind::AndGate||p.kind==PartKind::NandGate?*aa&&*bb:p.kind==PartKind::OrGate||p.kind==PartKind::NorGate?*aa||*bb:p.kind==PartKind::NotGate?!*aa:*aa!=*bb;if(p.kind==PartKind::NandGate||p.kind==PartKind::NorGate||p.kind==PartKind::XnorGate)value=!value;
             const double output=volts.at(g)+(value?supply:0);if(!fixed.contains(out)){driver(out,output);logicOwners[out]=p.id;changed=true;}else if(std::abs(fixed.at(out)-output)>1e-6){if(logicOwners.contains(out)&&logicOwners.at(out)==p.id){fixed[out]=output;changed=true;}else result.errors.push_back("Logic gate output conflict: "+p.id);}
         }
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&p.model=="l298n"){
+            auto voltage=[&](const std::string& pin)->std::optional<double>{const auto n=nodes.node({p.id,pin});return volts.contains(n)?std::optional<double>(volts.at(n)):std::nullopt;};
+            const auto vcc=voltage("VCC"),vs=voltage("VS"),gnd=voltage("GND");std::array<int,4> next{};
+            if(vcc&&vs&&gnd&&*vcc-*gnd>=4.5&&*vcc-*gnd<=5.5&&*vs-*gnd>=2.5&&*vs-*gnd<=46){
+                auto input=[&](const std::string& pin)->std::optional<bool>{const auto v=voltage(pin);if(!v)return {};const double relative=*v-*gnd;if(relative>=-.3&&relative<=1.5)return false;if(relative>=2.3&&relative<=7)return true;return {};};
+                for(int channel=0;channel<2;++channel){const auto enabled=input(channel?"ENB":"ENA");if(!enabled||!*enabled)continue;for(int output=0;output<2;++output){const int i=channel*2+output;const auto high=input("IN"+std::to_string(i+1));if(high)next[i]=*high?2:1;}}
+            }
+            if(next!=bridgeDrive[p.id]){bridgeDrive[p.id]=next;changed=true;}
+        }
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&p.model=="hcsr04"){const int v=nodes.node({p.id,"VCC"}),g=nodes.node({p.id,"GND"});const bool powered=volts.contains(v)&&volts.contains(g)&&volts.at(v)-volts.at(g)>=4.5&&volts.at(v)-volts.at(g)<=5.5;if(powered!=activeUltrasonic.contains(p.id))changed=true;}
         for(const auto& p:parts_)if(p.kind==PartKind::OpAmp){const int hi=nodes.node({p.id,"V+"}),lo=nodes.node({p.id,"V-"});const bool powered=volts.contains(hi)&&volts.contains(lo)&&volts.at(hi)-volts.at(lo)>.1;if(powered!=activeAmps.contains(p.id))changed=true;}
         if(!changed)break;
         if(iteration==(nonlinear?399:123))result.errors.push_back("Electrical network did not converge; check bias, feedback and supply rails.");

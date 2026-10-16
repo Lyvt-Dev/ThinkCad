@@ -62,7 +62,7 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
         if(libraries_.size()>=500){emit log("Zu viele registrierte Bibliotheken.");return;}
         const auto root=QFileInfo::exists(lib+"/src")?lib+"/src":lib;args<<"-I"+root<<"-I"+lib;
         QFile metadata(lib+"/library.properties");QString name;if(metadata.open(QIODevice::ReadOnly)){auto match=QRegularExpression("(?:^|\\n)name\\s*=\\s*([^\\r\\n]+)").match(QString::fromUtf8(metadata.readAll()));name=match.captured(1).trimmed();}
-        const bool builtin=QStringList{"Adafruit GFX Library","Adafruit SSD1306","Adafruit BusIO","LiquidCrystal","LiquidCrystal I2C","LiquidCrystal_I2C","Servo","IRremote","Adafruit PN532","RF24","rc-switch","Adafruit BME280 Library","Adafruit MPU6050","Adafruit Unified Sensor","MFRC522","DallasTemperature"}.contains(name,Qt::CaseInsensitive);
+        const bool builtin=QStringList{"Adafruit GFX Library","Adafruit SSD1306","Adafruit BusIO","LiquidCrystal","LiquidCrystal I2C","LiquidCrystal_I2C","Servo","IRremote","Adafruit PN532","RF24","rc-switch","Adafruit BME280 Library","Adafruit MPU6050","Adafruit Unified Sensor","MFRC522","DallasTemperature","Adafruit NeoPixel","DHT sensor library","OneWire"}.contains(name,Qt::CaseInsensitive);
         LibraryUnit unit{QDir::fromNativeSeparators(QFileInfo(root).absoluteFilePath()),QDir::fromNativeSeparators(QFileInfo(lib).absoluteFilePath()),{},builtin};
         if(!builtin){const auto flags=root.endsWith("/src")?QDirIterator::Subdirectories:QDirIterator::NoIteratorFlags;QDirIterator files(root,{"*.cpp","*.cc","*.cxx"},QDir::Files,flags);while(files.hasNext()){unit.sources<<files.next();if(unit.sources.size()>200){emit log("Bibliothek enthält zu viele Quelldateien.");return;}}
             if(root==lib&&QDir(lib+"/utility").exists()){args<<"-I"+lib+"/utility";QDirIterator files(lib+"/utility",{"*.cpp","*.cc","*.cxx"},QDir::Files,QDirIterator::Subdirectories);while(files.hasNext()){unit.sources<<files.next();if(unit.sources.size()>200){emit log("Bibliothek enthält zu viele Quelldateien.");return;}}}}
@@ -107,7 +107,7 @@ void CodeInterpreter::readProtocol() {
     while (true) {
         if(dispatched++>=64){QTimer::singleShot(0,this,&CodeInterpreter::readProtocol);break;}
         const auto newline=pending_.indexOf('\n'); if(newline<0) break;
-        if (++linesThisSecond_>5000 || newline>4096) {emit log("Sketch-Protokoll überlastet. delay() oder yield() verwenden.");stop();return;}
+        if (++linesThisSecond_>5000 || newline>8192) {emit log("Sketch-Protokoll überlastet. delay() oder yield() verwenden.");stop();return;}
         auto line=pending_.left(newline).trimmed(); pending_.remove(0,newline+1);
         if(line=="SPEED"){if(paused_&&!stepping_){waitingForSpeed_=true;watchdog_.stop();}else answer(speedPermille_);}else{if(line.startsWith("TIME ")){bool ok=false;auto time=line.mid(5).toULongLong(&ok);if(ok){protocolTime_=time;if(stepping_&&time>stepStart_)stepping_=false;}}emit protocol(line);} if(!active_) break;
     }
