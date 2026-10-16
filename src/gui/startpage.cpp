@@ -1,5 +1,6 @@
 #include "startpage.hpp"
 #include "language.hpp"
+#include "projectpreview.hpp"
 #include <QCheckBox>
 #include <QButtonGroup>
 #include <QGroupBox>
@@ -69,7 +70,11 @@ void WelcomePage::refresh(){
     findChild<QPushButton*>("clearRecentProjects")->setEnabled(!paths.isEmpty());
     if(paths.isEmpty())recentLayout_->addWidget(label("Noch keine Projekte. Erstelle ein Projekt oder öffne eine vorhandene Datei.","emptyProjects"));
     for(const auto& path:paths){
-        const QFileInfo file(path);auto* card=new QFrame;card->setObjectName("recentProjectCard");auto* row=new QHBoxLayout(card);row->setContentsMargins(0,14,0,14);row->setSpacing(16);auto* open=button(file.fileName().replace("&","&&"),"recentProject");open->setProperty("projectPath",path);open->setToolTip(path);open->setMinimumWidth(160);open->setMaximumWidth(240);open->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);auto* detail=new QVBoxLayout;detail->setSpacing(6);detail->addWidget(open,0,Qt::AlignLeft);auto* location=label(file.absolutePath(),"recentLocation");location->setToolTip(path);location->setWordWrap(false);location->setMinimumWidth(0);location->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);detail->addWidget(location);row->addLayout(detail,1);
+        const QFileInfo file(path);auto* card=new QFrame;card->setObjectName("recentProjectCard");auto* row=new QHBoxLayout(card);row->setContentsMargins(0,14,0,14);row->setSpacing(16);
+        auto* preview=new QLabel(Language::text("Keine Vorschau"));preview->setObjectName("recentProjectPreview");preview->setFixedSize(120,72);preview->setAlignment(Qt::AlignCenter);preview->setWordWrap(true);preview->setFrameShape(QFrame::StyledPanel);preview->setAccessibleName(Language::text("Projektvorschau"));row->addWidget(preview);
+        // Deferred and tied to the row lifetime: opening the menu remains immediate.
+        QTimer::singleShot(0,preview,[preview,path]{const auto image=ProjectPreview::load(path);if(!image.isNull()){auto pixmap=QPixmap::fromImage(image).scaled(240,144,Qt::KeepAspectRatio,Qt::SmoothTransformation);pixmap.setDevicePixelRatio(2);preview->setPixmap(pixmap);}});
+        auto* open=button(file.fileName().replace("&","&&"),"recentProject");open->setProperty("projectPath",path);open->setToolTip(path);open->setMinimumWidth(160);open->setMaximumWidth(240);open->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);auto* detail=new QVBoxLayout;detail->setSpacing(6);detail->addWidget(open,0,Qt::AlignLeft);auto* location=label(file.absolutePath(),"recentLocation");location->setToolTip(path);location->setWordWrap(false);location->setMinimumWidth(0);location->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);detail->addWidget(location);row->addLayout(detail,1);
         auto* date=label(file.exists()?file.lastModified().toString("dd.MM.yyyy"):Language::text("Datei fehlt"),"muted");row->addWidget(date);open->setEnabled(file.isFile());auto* remove=button("Entfernen","removeRecentProject");remove->setAccessibleName(Language::text("Aus Liste entfernen"));remove->setToolTip(remove->accessibleName());row->addWidget(remove);
         connect(open,&QPushButton::clicked,this,[this,path]{emit recentRequested(path);});connect(remove,&QPushButton::clicked,this,[this,path]{auto list=QSettings().value("recentProjects").toStringList();list.removeAll(path);QSettings().setValue("recentProjects",list);QTimer::singleShot(0,this,&WelcomePage::refresh);});recentLayout_->addWidget(card);
     }

@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include "mainwindow.hpp"
 #include "startpage.hpp"
+#include "projectpreview.hpp"
 #include "appicons.hpp"
 #include <QStyle>
 #include <QDialogButtonBox>
@@ -55,7 +56,7 @@ class DesktopTests final:public QObject{
     static QPoint port(CircuitCanvas* canvas,const QString& part,const QString& pin){for(auto* item:canvas->scene()->items())if(item->parentItem()&&item->parentItem()->data(1).toString()==part&&item->toolTip().startsWith(pin+" —"))return canvas->mapFromScene(item->scenePos());return {-1000,-1000};}
     static void stop(MainWindow& window){if(window.simulationActive())window.findChild<QAction*>("runSimulation")->trigger();}
 private slots:
-    void initTestCase(){QApplication::setQuitOnLastWindowClosed(false);QCoreApplication::setOrganizationName("ThinkCadTests");QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settingsDirectory_.path());Language::set("de");ComponentDesign::set("blocks");}
+    void initTestCase(){qputenv("XDG_CACHE_HOME",(settingsDirectory_.path()+"/cache").toUtf8());QApplication::setQuitOnLastWindowClosed(false);QCoreApplication::setOrganizationName("ThinkCadTests");QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settingsDirectory_.path());Language::set("de");ComponentDesign::set("blocks");}
     void cleanup(){ComponentDesign::set("blocks");Language::set("de");}
     void analogAcquisitionAndPersistence(){
         MainWindow window;window.show();QVERIFY(window.loadExample("analog_rc"));
@@ -159,6 +160,10 @@ private slots:
             auto* action=window.findChild<QAction*>(id);QVERIFY(action);action->trigger();QVERIFY(shown);
         }
         auto* run=window.findChild<QToolButton*>("runButton");auto* reset=window.findChild<QToolButton*>("resetButton");QVERIFY(run&&reset);QVERIFY(run->isVisible()&&reset->isVisible());QVERIFY2(reset->geometry().left()-run->geometry().right()>=10,qPrintable(QString("Run %1,%2 Reset %3,%4").arg(run->x()).arg(run->width()).arg(reset->x()).arg(reset->width())));QCOMPARE(run->height(),reset->height());
+        for(const auto* name:{"runButton","resetButton","pauseButton","stepButton","wireButton","wireColorButton"}){
+            auto* button=window.findChild<QToolButton*>(name);QVERIFY(button);QCOMPARE(button->size(),run->size());
+            QVERIFY(button->icon().isNull());QCOMPARE(button->toolButtonStyle(),Qt::ToolButtonTextOnly);
+        }
     }
     void pinNamesAndPhysicalScale(){
         for(const auto& design:{"blocks","realistic"}){
@@ -315,6 +320,17 @@ private slots:
         QVERIFY(window.saveProjectTo(dir.filePath("arduino.thinkcad")));QVERIFY(window.openPath(dir.filePath("arduino.thinkcad")));
         QCOMPARE(window.circuit().part(board).model,model.toStdString());
     }
+    void recentPreviewsFollowProjectChanges(){
+        QTemporaryDir dir;const auto path=dir.filePath("preview.thinkcad");SavedProject project;project.sketch.order={"sketch.ino"};project.sketch.files["sketch.ino"]="void setup(){} void loop(){}";
+        project.circuit.addPart(PartKind::Led,0,0);ProjectIO::save(path,project);
+        const auto first=ProjectPreview::load(path);QVERIFY(!first.isNull());QCOMPARE(first.size(),QSize(320,192));
+        QCOMPARE(ProjectPreview::load(path).convertToFormat(QImage::Format_ARGB32),first.convertToFormat(QImage::Format_ARGB32));
+        // An external edit must invalidate a previously cached screenshot.
+        project.circuit.addPart(PartKind::Resistor,250,120);ProjectIO::save(path,project);
+        const auto updated=ProjectPreview::load(path);QVERIFY(!updated.isNull());QVERIFY(updated!=first);
+        QVERIFY(write(path,"invalid project"));QVERIFY(ProjectPreview::load(path).isNull());
+        QVERIFY(QFile::remove(path));QVERIFY(ProjectPreview::load(path).isNull());
+    }
     void startPageNavigationAndRecentProjects(){
         Theme::apply(false);
         QSettings settings;const auto original=settings.value("recentProjects");
@@ -331,12 +347,13 @@ private slots:
         auto* home=window.findChild<WelcomePage*>();QVERIFY(home);
         for(auto* action:home->findChildren<QPushButton*>())QVERIFY2(action->icon().isNull(),qPrintable(action->objectName()));
         const auto recent=home->findChildren<QPushButton*>("recentProject");QCOMPARE(recent.size(),1);QCOMPARE(recent.front()->property("projectPath").toString(),QFileInfo(saved).canonicalFilePath());
+        auto* thumbnail=home->findChild<QLabel*>("recentProjectPreview");QVERIFY(thumbnail);QTRY_VERIFY(!thumbnail->pixmap().isNull());
         const auto capture=qEnvironmentVariable("THINKCAD_UI_CAPTURE_DIR");if(!capture.isEmpty())window.grab().save(capture+"/home-light.png");
         home->findChild<QPushButton*>("settingsNavigation")->click();auto* dark=home->findChild<QCheckBox*>("startDarkMode");QVERIFY(dark);dark->setChecked(true);QVERIFY(settings.value("darkMode").toBool());
         auto chooseLanguage=[&](const QString& value){QTimer::singleShot(30,&window,[value]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());if(dialog){auto* choice=dialog->findChild<QComboBox*>();choice->setCurrentIndex(choice->findData(value));dialog->accept();}});home->findChild<QPushButton*>("startChooseLanguage")->click();};chooseLanguage("en");QCOMPARE(home->findChild<QPushButton*>("homeNavigation")->text(),QString("My projects"));chooseLanguage("de");
         home->findChild<QPushButton*>("homeNavigation")->click();if(!capture.isEmpty())window.grab().save(capture+"/home-dark.png");
         home->findChild<QPushButton*>("resumeEditor")->click();QVERIFY(!window.startPageVisible());QCOMPARE(window.circuit().parts().size(),parts);QCOMPARE(window.sketchText(),sketch);QVERIFY(codeDock->isHidden());
-        auto* run=window.findChild<QToolButton*>("runButton");auto* reset=window.findChild<QToolButton*>("resetButton");QVERIFY(run&&reset);QVERIFY(!reset->icon().isNull());QCOMPARE(run->height(),reset->height());
+        auto* run=window.findChild<QToolButton*>("runButton");auto* reset=window.findChild<QToolButton*>("resetButton");QVERIFY(run&&reset);QVERIFY(reset->icon().isNull());QCOMPARE(run->height(),reset->height());
         // Clear the edit before opening the recent project, so no save prompt is needed.
         code->document()->setModified(false);window.showStartPage();home->findChild<QPushButton*>("recentProject")->click();QVERIFY(!window.startPageVisible());QVERIFY(!window.sketchText().contains("keep this unsaved edit"));QVERIFY(!codeDock->isHidden());
         window.showStartPage();home->findChild<QPushButton*>("clearRecentProjects")->click();QVERIFY(settings.value("recentProjects").toStringList().isEmpty());QVERIFY(!home->findChild<QPushButton*>("clearRecentProjects")->isEnabled());QVERIFY(QFileInfo::exists(saved));

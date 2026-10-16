@@ -9,6 +9,12 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.1.1
+
+Gleich große, erhabene Textbuttons für die Simulationssteuerung und echte
+Schaltungsvorschauen bei zuletzt geöffneten Projekten.
+[Release Notes 1.1.1](docs/RELEASE_NOTES_1.1.1.md).
+
 ## Neu in 1.1.0
 
 Das Startmenü verwendet ausschließlich Text, klar getrennte Bereiche und
@@ -318,7 +324,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=1.1.0 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=1.1.1 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,
