@@ -189,16 +189,24 @@ inline unsigned long pulseIn(uint8_t pin,uint8_t state,unsigned long timeout=100
     const int elapsed=thinker::request("PULSE "+std::to_string(pin)+" "+std::to_string(state)+" "+std::to_string(timeout));int width=0;if(!(std::cin>>width)||elapsed<0||width<0||static_cast<unsigned long>(elapsed)>timeout||width>elapsed)throw std::runtime_error("Invalid pulse response");thinker::advance(unsigned(elapsed));return static_cast<unsigned long>(width);
 }
 inline unsigned long pulseInLong(uint8_t pin,uint8_t state,unsigned long timeout=1000000){return pulseIn(pin,state,timeout);}
+#include "serial/HardwareSerial.hpp"
 struct SerialPort : Stream {
+    HardwareSerial wired_{0};
     using Print::write;
-    void begin(unsigned long) {} explicit operator bool()const{return true;}
+    void begin(unsigned long baud,uint32_t format=SERIAL_8N1) {
+#ifdef THINKERCAD_EMULATION
+        wired_.beginMonitor(baud,format);
+#else
+        (void)baud;(void)format;
+#endif
+    } explicit operator bool()const{return true;}
     int available()override{return thinker::request("SERIAL_AVAILABLE");}
     int read()override{return thinker::request("SERIAL_READ");}
     int peek()override{return thinker::request("SERIAL_PEEK");}
     int availableForWrite()override{return 512;}
-    void end(){}
+    void end(){wired_.end();}
     std::size_t write(std::uint8_t value)override{return write(&value,1);}
-    std::size_t write(const std::uint8_t* data,std::size_t size)override{constexpr char hex[]="0123456789abcdef";for(std::size_t start=0;start<size;start+=512){std::string encoded;for(std::size_t i=start;i<std::min(size,start+512);++i){encoded+=hex[data[i]>>4];encoded+=hex[data[i]&15];}std::cout<<"SERIAL "<<encoded<<std::endl;}std::cerr.write(reinterpret_cast<const char*>(data),size);return size;}
+    std::size_t write(const std::uint8_t* data,std::size_t size)override{if(!data&&size)return 0;constexpr char hex[]="0123456789abcdef";for(std::size_t start=0;start<size;start+=512){std::string encoded;const auto count=std::min<std::size_t>(512,size-start);for(std::size_t i=start;i<start+count;++i){encoded+=hex[data[i]>>4];encoded+=hex[data[i]&15];}std::cout<<"SERIAL "<<encoded<<std::endl;wired_.waitTransmit(count);}std::cerr.write(reinterpret_cast<const char*>(data),size);return size;}
 protected:
     uint64_t streamClock()const override{return thinker::clockUs;}
     void streamWait(uint64_t us)override{thinker::advance(us);}
