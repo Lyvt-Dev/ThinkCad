@@ -1,3 +1,4 @@
+#include "debugtools.hpp"
 #include "tutorialcourse.hpp"
 #include "preferences.hpp"
 #include <QTextBrowser>
@@ -235,6 +236,9 @@ MainWindow::MainWindow(bool smokeTest):updater_(this),smokeTest_(smokeTest){
     connect(startPage_,&WelcomePage::resumeRequested,this,&MainWindow::showEditor);
     connect(startPage_,&WelcomePage::examplesRequested,this,&MainWindow::examplesDialog);
     connect(startPage_,&WelcomePage::tutorialRequested,this,[this]{showStartPage();startPage_->showCourse();});
+    debugTools_=new DebugTools;auto* debugDock=new QDockWidget(Language::text("Quellcode-Debugger"),this);debugDock->setObjectName("sourceDebuggerDock");debugDock->setWidget(debugTools_);addDockWidget(Qt::BottomDockWidgetArea,debugDock);debugDock->hide();view->addAction(debugDock->toggleViewAction());
+    connect(debugTools_,&DebugTools::startRequested,this,&MainWindow::startDebugging);connect(debugTools_,&DebugTools::stopRequested,this,&MainWindow::stopSimulation);connect(debugTools_,&DebugTools::sourceStopped,this,&MainWindow::showDebugLocation);
+    connect(debugTools_,&DebugTools::continueRequested,this,[this](const auto& board){auto it=runtimes_.find(board.toStdString());if(it==runtimes_.end())return;pause_->setChecked(false);for(auto& [id,runtime]:runtimes_){runtime->interpreter.setPaused(false);if(runtime->interpreter.debugger()->stopped())runtime->interpreter.debugger()->resume();}for(int i=0;i<codeTabs_->count();++i)static_cast<CodeEditor*>(codeTabs_->widget(i))->setExecutionLine(0);});
     auto* lessonDock=new QDockWidget(Language::text("Aktuelle Lektion"),this);lessonDock->setObjectName("lessonDock");auto* lessonText=new QTextBrowser;lessonText->setObjectName("lessonInstructions");lessonDock->setWidget(lessonText);addDockWidget(Qt::RightDockWidgetArea,lessonDock);lessonDock->hide();view->addAction(lessonDock->toggleViewAction());
     connect(startPage_,&WelcomePage::lessonRequested,this,[this,lessonDock,lessonText](const QString& id){if(!TutorialCourse::available(id)||!maybeSave())return;if(loadExample(id)){activeLesson_=id;lessonSerialStart_=serial_->monitorText().size();lessonText->setHtml(TutorialCourse::instructions(id));lessonDock->show();}});
     action(help,Language::text("Lernpfad…"),{},[this]{showStartPage();startPage_->showCourse();})->setObjectName("openLearningCourse");
@@ -258,9 +262,9 @@ MainWindow::MainWindow(bool smokeTest):updater_(this),smokeTest_(smokeTest){
     if(smokeTest_){loadDemo();QTimer::singleShot(0,this,&MainWindow::startSimulation);QTimer::singleShot(std::clamp(qEnvironmentVariableIntValue("THINKCAD_SMOKE_TIMEOUT_MS")?qEnvironmentVariableIntValue("THINKCAD_SMOKE_TIMEOUT_MS"):20000,20000,300000),this,[]{std::cerr<<"Desktop smoke timed out\n";QCoreApplication::exit(1);});}else QTimer::singleShot(3000,&updater_,&Updater::check);
 }
 MainWindow::~MainWindow(){for(auto* child:findChildren<QObject*>())child->disconnect(this);for(auto& [id,runtime]:runtimes_)runtime->interpreter.disconnect(this);stopSimulation();delete takeCentralWidget();}
-SketchProject MainWindow::currentSketch()const{auto p=sketch_;for(int i=0;i<codeTabs_->count();++i){auto* editor=static_cast<CodeEditor*>(codeTabs_->widget(i));p.files[editor->property("fileName").toString()]=editor->toPlainText();}return p;}
+SketchProject MainWindow::currentSketch()const{auto p=sketch_;for(int i=0;i<codeTabs_->count();++i){auto* editor=static_cast<CodeEditor*>(codeTabs_->widget(i));const auto file=editor->property("fileName").toString();p.files[file]=editor->toPlainText();p.breakpoints[file]=editor->breakpoints();}return p;}
 QString MainWindow::sketchText()const{return currentSketch().combinedSource();}
-void MainWindow::setSketch(const SketchProject& sketch){sketch_=sketch;while(codeTabs_->count()){auto* widget=codeTabs_->widget(0);codeTabs_->removeTab(0);delete widget;}for(const auto& name:sketch_.order){auto* editor=new CodeEditor;editor->setProperty("fileName",name);editor->setPlainText(sketch_.files.value(name));editor->document()->setModified(false);codeTabs_->addTab(editor,QFileInfo(name).fileName());editor->setToolTip(name);connect(editor->document(),&QTextDocument::modificationChanged,this,[this,editor,name](bool modified){auto index=codeTabs_->indexOf(editor);if(index>=0)codeTabs_->setTabText(index,QFileInfo(name).fileName()+(modified?" •":""));refreshTitle();});}refreshTitle();}
+void MainWindow::setSketch(const SketchProject& sketch){sketch_=sketch;while(codeTabs_->count()){auto* widget=codeTabs_->widget(0);codeTabs_->removeTab(0);delete widget;}for(const auto& name:sketch_.order){auto* editor=new CodeEditor;editor->setProperty("fileName",name);editor->setPlainText(sketch_.files.value(name));editor->setBreakpoints(sketch_.breakpoints.value(name));editor->setReadOnly(sourceDebugging_);connect(editor,&CodeEditor::breakpointsChanged,this,[this]{inputDirty_=true;refreshTitle();});editor->document()->setModified(false);codeTabs_->addTab(editor,QFileInfo(name).fileName());editor->setToolTip(name);connect(editor->document(),&QTextDocument::modificationChanged,this,[this,editor,name](bool modified){auto index=codeTabs_->indexOf(editor);if(index>=0)codeTabs_->setTabText(index,QFileInfo(name).fileName()+(modified?" •":""));refreshTitle();});}refreshTitle();}
 bool MainWindow::dirty()const{if(sketchesDirty_)return true;if(inputDirty_)return true;if(!canvas_->history()->isClean())return true;for(int i=0;i<codeTabs_->count();++i)if(static_cast<CodeEditor*>(codeTabs_->widget(i))->document()->isModified())return true;return false;}
 void MainWindow::refreshTitle(){const auto name=projectFile_.isEmpty()?sketch_.name:QFileInfo(projectFile_).completeBaseName();setWindowTitle(name+(dirty()?" *":"")+" — ThinkCad " THINKERCAD_VERSION);projectLabel_->setText(name+(dirty()?Language::text(" · ungespeichert"):"")+Language::text("  |  Pin → Pin verbindet ein Kabel"));}
 void MainWindow::appendLog(const QString& text){console_->appendPlainText(Language::text(text));if(smokeTest_)std::cerr<<text.toStdString()<<'\n';}
@@ -322,12 +326,14 @@ bool MainWindow::simulationActive()const{if(analogRunning_)return true;for(const
 Microseconds MainWindow::virtualTime()const{Microseconds time=analogRunning_?analogTarget_:0;for(const auto& [id,runtime]:runtimes_)time=std::max(time,runtime->clock.now());return time;}
 void MainWindow::runtimeActiveChanged(bool active){
     if(!active&&!stopping_&&!starting_){stopSimulation();if(smokeTest_&&!smokeDone_)QCoreApplication::exit(1);return;}
-    const bool running=simulationActive();updateExecutionMode();findChild<QAction*>("wireModeAction")->setEnabled(!running);findChild<QAction*>("wireColorAction")->setEnabled(!running);canvas_->setEditingEnabled(!running);run_->setText(Language::text(running?"Simulation stoppen":"Simulation starten"));run_->setIcon(AppIcons::icon(running?AppIcons::Symbol::Stop:AppIcons::Symbol::Play));undo_->setEnabled(!running&&canvas_->history()->canUndo());redo_->setEnabled(!running&&canvas_->history()->canRedo());sketchBoards_->setEnabled(sketchBoards_->count()>0);updateInspector();
+    const bool running=simulationActive();for(int i=0;i<codeTabs_->count();++i)static_cast<CodeEditor*>(codeTabs_->widget(i))->setReadOnly(running&&sourceDebugging_);updateExecutionMode();findChild<QAction*>("wireModeAction")->setEnabled(!running);findChild<QAction*>("wireColorAction")->setEnabled(!running);canvas_->setEditingEnabled(!running);run_->setText(Language::text(running?"Simulation stoppen":"Simulation starten"));run_->setIcon(AppIcons::icon(running?AppIcons::Symbol::Stop:AppIcons::Symbol::Play));undo_->setEnabled(!running&&canvas_->history()->canUndo());redo_->setEnabled(!running&&canvas_->history()->canRedo());sketchBoards_->setEnabled(sketchBoards_->count()>0);updateInspector();
     if(smokeTest_&&!running&&!smokeDone_&&!stopping_)QCoreApplication::exit(1);
 }
-void MainWindow::stopSimulation(){sound_.stop();if(stopping_)return;stopping_=true;interrupts_.reset();transient_.setDigitalSampling(false);paused_=false;runUntil_=0;{QSignalBlocker block(pause_);pause_->setChecked(false);}analogRunning_=false;for(auto& [id,runtime]:runtimes_)runtime->interpreter.stop();runtimeActiveChanged(false);stopping_=false;}
+void MainWindow::stopSimulation(){
+    if(debugTools_)debugTools_->clear();sourceDebugging_=false;for(int i=0;i<codeTabs_->count();++i){auto* editor=static_cast<CodeEditor*>(codeTabs_->widget(i));editor->setExecutionLine(0);editor->setReadOnly(false);}sound_.stop();if(stopping_)return;stopping_=true;interrupts_.reset();transient_.setDigitalSampling(false);paused_=false;runUntil_=0;{QSignalBlocker block(pause_);pause_->setChecked(false);}analogRunning_=false;for(auto& [id,runtime]:runtimes_)runtime->interpreter.stop();runtimeActiveChanged(false);stopping_=false;}
 void MainWindow::startSimulation(){
-    showEditor();stopSimulation();syncBoardSketches();runtimes_.clear();peripherals_.reset();i2cDevices_.reset();sensors_.reset();pixels_.reset();uart_.reset();interrupts_.reset();transient_.reset();analogTarget_=0;instruments_->configure(circuit_);instruments_->reset();
+    const bool debug=debuggingRequested_;debuggingRequested_=false;
+    showEditor();stopSimulation();sourceDebugging_=debug;syncBoardSketches();runtimes_.clear();peripherals_.reset();i2cDevices_.reset();sensors_.reset();pixels_.reset();uart_.reset();interrupts_.reset();transient_.reset();analogTarget_=0;instruments_->configure(circuit_);instruments_->reset();
     if(circuit_.boardId().empty()){analogRunning_=true;runtimeActiveChanged(true);updateCircuit(true);return;}
 
     for(auto& [id,display]:displays_){(void)id;display.reset();}
@@ -342,7 +348,7 @@ void MainWindow::startSimulation(){
     updateCircuit();if(!circuitState_.errors.empty()){appendLog(QString::fromStdString(circuitState_.errors.front()));return;}
     QSettings settings;const auto compiler=AppPaths::compiler();
     if(std::any_of(circuit_.parts().begin(),circuit_.parts().end(),[](const auto& p){return p.kind==PartKind::PiezoBuzzer||p.kind==PartKind::Speaker;}))sound_.prepare();
-    starting_=true;for(auto& [id,runtime]:runtimes_){const auto sketch=boardSketches_.value(QString::fromStdString(id));runtime->interpreter.start(sketch.combinedSource(),compiler,AppPaths::sdk(),projectLibraries_+settings.value("libraries").toStringList(),sketch.auxiliaryFiles(),QString::fromStdString(runtime->board.profile().id),true,executionMode_==ExecutionMode::Emulation);}starting_=false;
+    starting_=true;for(auto& [id,runtime]:runtimes_){const auto sketch=boardSketches_.value(QString::fromStdString(id));if(debug){QList<GdbSession::Breakpoint> points;for(auto it=sketch.breakpoints.begin();it!=sketch.breakpoints.end();++it)for(int line:it.value())points.append({it.key(),line});runtime->interpreter.configureDebugger(AppPaths::debugger(),points,sketch.files);debugTools_->addBoard(QString::fromStdString(id),runtime->interpreter.debugger());}runtime->interpreter.start(sketch.combinedSource(),compiler,AppPaths::sdk(),projectLibraries_+settings.value("libraries").toStringList(),sketch.auxiliaryFiles(),QString::fromStdString(runtime->board.profile().id),true,executionMode_==ExecutionMode::Emulation);}starting_=false;
     for(const auto& [id,runtime]:runtimes_)if(!runtime->interpreter.active()){stopSimulation();break;}
 }
 void MainWindow::process(BoardRuntime& runtime,const QByteArray& line){if(smokeDone_)return;
@@ -439,4 +445,20 @@ void MainWindow::refreshModulePalette(){
     auto* group=findChild<QGroupBox*>("modulePaletteGroup");if(!group)return;auto* layout=qobject_cast<QVBoxLayout*>(group->layout());if(!layout)return;while(auto* item=layout->takeAt(0)){delete item->widget();delete item;}
     for(const auto& [id,model]:ModuleRegistry::definitions()){auto* button=new ComponentPaletteButton(QString::fromStdString(model.label));button->setObjectName("componentCard");button->setProperty("kind",int(PartKind::Module));button->setProperty("model",QString::fromStdString(id));button->setToolTip(QString::fromStdString(model.label)+" — "+Language::text("In die Arbeitsfläche ziehen"));layout->addWidget(button);}
     if(auto* search=findChild<QLineEdit*>("componentSearch"))QMetaObject::invokeMethod(search,"textChanged",Qt::DirectConnection,Q_ARG(QString,search->text()));
+}
+
+void MainWindow::startDebugging(){
+    if(AppPaths::debugger().isEmpty()){appendLog(Language::text("Lokales GDB fehlt. Unter Einstellungen / Editor den Debugger auswählen."));return;}
+    if(circuit_.boardId().empty()){appendLog(Language::text("Zum Debuggen wird ein Board benötigt."));return;}
+    debuggingRequested_=true;startSimulation();if(auto* dock=findChild<QDockWidget*>("sourceDebuggerDock"))dock->show();
+}
+void MainWindow::showDebugLocation(const QString& board,const QString& file,int line){
+    if(!simulationActive())return;
+    pause_->setChecked(true);
+    // The stopped board must still answer RPC when it is stepped; other boards
+    // wait at their next virtual-time barrier until Continue is requested.
+    auto found=runtimes_.find(board.toStdString());if(found!=runtimes_.end())found->second->interpreter.setPaused(false);
+    if(circuit_.boardId()!=board.toStdString()){circuit_.setActiveBoard(board.toStdString());syncBoardSketches();updateInspector();}
+    const auto wanted=QDir::fromNativeSeparators(file);
+    for(int i=0;i<codeTabs_->count();++i){auto* editor=static_cast<CodeEditor*>(codeTabs_->widget(i));const auto name=editor->property("fileName").toString();const bool matches=wanted==name||wanted.endsWith('/'+name);editor->setExecutionLine(matches?line:0);if(matches)codeTabs_->setCurrentIndex(i);}
 }

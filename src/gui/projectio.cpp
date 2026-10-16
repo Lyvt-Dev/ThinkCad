@@ -39,8 +39,38 @@ QString prototypes(QString source){
         }else if(mask[i]=='}'){depth=std::max(0,depth-1);if(depth==0)start=i+1;}
         else if(mask[i]==';'&&depth==0)start=i+1;
     }
-    if(first>=0){int line=source.left(first).count('\n')+1;source.insert(first,"\n// Arduino-style declarations for plain global functions.\n"+declarations.join('\n')+"\n#line "+QString::number(line)+" \"combined-sketch.ino\"\n");}
+    if(first>=0){
+        int line=1;QString file="combined-sketch.ino";
+        const QRegularExpression directive(R"(^\s*#\s*line\s+(\d+)\s+("(?:[^"\\]|\\.)*")\s*$)");
+        // Restore the original .ino location after generated declarations.
+        // Counting combined-source lines loses the preceding #line directives.
+        for(const auto& text:source.left(first).split('\n')){
+            const auto match=directive.match(text);
+            if(match.hasMatch()){line=match.captured(1).toInt();file=match.captured(2);}
+            else ++line;
+        }
+        // The last split item is the unfinished current line.
+        --line;if(!file.startsWith('"'))file='"'+file+'"';
+        source.insert(first,"\n// Arduino-style declarations for plain global functions.\n"+declarations.join('\n')+"\n#line "+QString::number(line)+" "+file+"\n");
+    }
     return source;
+}
+QJsonObject breakpointData(const SketchProject& sketch){
+    QJsonObject data;int total=0;
+    for(auto it=sketch.breakpoints.begin();it!=sketch.breakpoints.end();++it){
+        if(!sketch.files.contains(it.key())||!ProjectIO::validFileName(it.key()))throw std::runtime_error("Invalid breakpoint source");
+        auto lines=it.value().values();std::sort(lines.begin(),lines.end());QJsonArray points;
+        for(int line:lines){if(line<1||line>sketch.files.value(it.key()).count('\n')+1||++total>2048)throw std::runtime_error("Invalid breakpoint line");points.append(line);}if(!points.isEmpty())data[it.key()]=points;
+    }return data;
+}
+void readBreakpoints(SketchProject& sketch,const QJsonObject& object){
+    if(!object.contains("breakpoints"))return;
+    if(!object["breakpoints"].isObject())throw std::runtime_error("Invalid breakpoints");
+    const auto data=object["breakpoints"].toObject();int total=0;
+    for(auto it=data.begin();it!=data.end();++it){
+        if(!sketch.files.contains(it.key())||!it.value().isArray())throw std::runtime_error("Invalid breakpoint source");
+        for(const auto& point:it.value().toArray()){const int line=point.toInt(-1);if(!point.isDouble()||line!=point.toDouble()||line<1||line>sketch.files.value(it.key()).count('\n')+1||++total>2048||sketch.breakpoints[it.key()].contains(line))throw std::runtime_error("Invalid breakpoint line");sketch.breakpoints[it.key()].insert(line);}
+    }
 }
 QJsonObject endpoint(const thinkercad::Endpoint& ep){return {{"part",QString::fromStdString(ep.part)},{"pin",QString::fromStdString(ep.pin)}};}
 thinkercad::Endpoint endpoint(const QJsonObject& o){return {o["part"].toString().toStdString(),o["pin"].toString().toStdString()};}
@@ -68,10 +98,10 @@ QByteArray ProjectIO::serialize(const SavedProject& p){
     for(auto it=p.boardSketches.cbegin();it!=p.boardSketches.cend();++it){
         if(p.circuit.part(it.key().toStdString()).kind!=thinkercad::PartKind::Esp8266)throw std::runtime_error("Sketch is not assigned to a board");
         QJsonArray boardFiles;for(const auto& name:it->order){if(!validFileName(name)||!it->files.contains(name))throw std::runtime_error("Invalid board sketch file");boardFiles.append(QJsonObject{{"name",name},{"text",it->files.value(name)}});}
-        sketches[it.key()]=QJsonObject{{"name",it->name},{"files",boardFiles}};
+        sketches[it.key()]=QJsonObject{{"name",it->name},{"files",boardFiles},{"breakpoints",breakpointData(*it)}};
     }
     QJsonObject bundled;for(auto it=p.bundledLibraries.cbegin();it!=p.bundledLibraries.cend();++it)bundled[it.key()]=QJsonObject{{"data",QString::fromLatin1(it.value().toBase64())},{"sha256",QString::fromLatin1(QCryptographicHash::hash(it.value(),QCryptographicHash::Sha256).toHex())}};
-    const auto data=QJsonDocument(QJsonObject{{"libraries",bundled},{"boardSketches",sketches},{"format","ThinkCad"},{"version",4},{"executionMode",QString::fromLatin1(thinkercad::executionModeName(p.mode))},{"componentModels",ModulePackages::usedDefinitions(p.circuit)},{"name",p.sketch.name},{"activeBoard",QString::fromStdString(p.circuit.boardId())},{"parts",parts},{"wires",wires},{"files",files}}).toJson();
+    const auto data=QJsonDocument(QJsonObject{{"breakpoints",breakpointData(p.sketch)},{"libraries",bundled},{"boardSketches",sketches},{"format","ThinkCad"},{"version",4},{"executionMode",QString::fromLatin1(thinkercad::executionModeName(p.mode))},{"componentModels",ModulePackages::usedDefinitions(p.circuit)},{"name",p.sketch.name},{"activeBoard",QString::fromStdString(p.circuit.boardId())},{"parts",parts},{"wires",wires},{"files",files}}).toJson();
     if(data.size()>32*1024*1024)throw std::runtime_error("Projekt ist größer als 32 MiB.");return data;
 }
 void ProjectIO::save(const QString& path,const SavedProject& p){const auto data=serialize(p);QSaveFile file(path);if(!file.open(QIODevice::WriteOnly)||file.write(data)!=data.size()||!file.commit())throw std::runtime_error("Projekt konnte nicht gespeichert werden.");
@@ -98,11 +128,11 @@ SavedProject ProjectIO::deserialize(const QByteArray& data){
             if(!object["files"].isArray())throw std::runtime_error("Invalid board files");
             for(const auto& entry:object["files"].toArray()){const auto file=entry.toObject();const auto name=file["name"].toString();if(!validFileName(name)||sketch.files.contains(name)||sketch.files.size()>=100||!file["text"].isString())throw std::runtime_error("Invalid board sketch files");sketch.order<<name;sketch.files[name]=file["text"].toString();}
             if(std::none_of(sketch.order.cbegin(),sketch.order.cend(),[](const auto& name){return name.endsWith(".ino",Qt::CaseInsensitive);}))throw std::runtime_error("Board has no Arduino sketch");
-            p.boardSketches[it.key()]=sketch;
+            readBreakpoints(sketch,object);p.boardSketches[it.key()]=sketch;
         }
     }
     if(o.contains("libraries")){if(!o["libraries"].isObject())throw std::runtime_error("Invalid library bundle");auto bundle=o["libraries"].toObject();if(bundle.size()>2000)throw std::runtime_error("Too many bundled files");qint64 total=0;for(auto it=bundle.begin();it!=bundle.end();++it){const auto name=it.key();if(!QRegularExpression("^[A-Za-z0-9_. /+-]+$").match(name).hasMatch()||name.startsWith('/')||name.split('/').contains("..")||name.split('/').contains(".")||name.split('/').contains("")||!name.contains('/'))throw std::runtime_error("Unsafe bundled library path");auto item=it.value().toObject();auto decoded=QByteArray::fromBase64Encoding(item["data"].toString().toLatin1(),QByteArray::AbortOnBase64DecodingErrors);if(!decoded)throw std::runtime_error("Corrupt library data");auto bytes=decoded.decoded;total+=bytes.size();if(total>20*1024*1024||QCryptographicHash::hash(bytes,QCryptographicHash::Sha256).toHex()!=item["sha256"].toString().toLatin1())throw std::runtime_error("Library checksum/size mismatch");p.bundledLibraries[name]=bytes;}}
-    p.circuit.validate();accepted=true;return p;
+    readBreakpoints(p.sketch,o);p.circuit.validate();accepted=true;return p;
 }
 
 QMap<QString,QByteArray> ProjectIO::bundleLibraries(const QStringList& directories){QMap<QString,QByteArray> files;qint64 total=0;int library=0;for(const auto& directory:directories){QDir root(directory);if(!root.exists())throw std::runtime_error("Library directory missing");QString prefix="library"+QString::number(++library);QDirIterator it(directory,QDir::Files|QDir::NoSymLinks,QDirIterator::Subdirectories);while(it.hasNext()){auto path=it.next();auto relative=root.relativeFilePath(path);if(relative.startsWith(".git/")||relative.startsWith("build/"))continue;auto name=prefix+"/"+relative;if(!QRegularExpression("^[A-Za-z0-9_. /+-]+$").match(name).hasMatch())throw std::runtime_error("Unsupported library filename");QFile file(path);if(!file.open(QIODevice::ReadOnly)||file.size()>4*1024*1024)throw std::runtime_error("Library file unreadable/too large");auto data=file.readAll();total+=data.size();if(total>20*1024*1024||files.size()>=2000)throw std::runtime_error("Library bundle exceeds 20 MiB / 2000 files");files[name]=data;}}return files;}

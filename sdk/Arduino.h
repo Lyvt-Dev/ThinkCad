@@ -1,4 +1,5 @@
 #pragma once
+#include "debugio.hpp"
 #include <algorithm>
 #include <array>
 #include <chrono>

@@ -2,10 +2,12 @@
 #include "thinkercad/circuit.hpp"
 #include <QMap>
 #include <QString>
+#include <QSet>
 struct SketchProject {
     QString name="sketch",sourceFolder;
     QStringList order;
     QMap<QString,QString> files;
+    QMap<QString,QSet<int>> breakpoints;
     static SketchProject openIno(const QString& path);
     QString combinedSource() const;
     QMap<QString,QString> auxiliaryFiles() const;

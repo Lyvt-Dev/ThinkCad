@@ -28,7 +28,7 @@ jobs:
           msystem: UCRT64
           location: D:\ThinkCad-msys2
           update: true
-          install: mingw-w64-ucrt-x86_64-gcc
+          install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-gdb
       - name: Prepare native compression dependency
         shell: pwsh
         run: |
@@ -57,6 +57,7 @@ jobs:
       - name: Build and test
         shell: pwsh
         env:
+          THINKCAD_REQUIRE_GDB: "1"
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
           . .github/scripts/Invoke-Checked.ps1

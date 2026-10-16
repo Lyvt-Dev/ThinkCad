@@ -30,6 +30,7 @@ class WelcomePage;
 class QListWidget;
 class QDockWidget;
 class ModuleControls;
+class DebugTools;
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
@@ -39,6 +40,7 @@ public:
     void loadDemo();
     bool loadExample(const QString& id);
     void startSimulation();
+    void startDebugging();
     void resetSimulation();
     void showStartPage();
     bool startPageVisible() const;
@@ -95,6 +97,9 @@ private:
     bool hadInstruments_=false;
     QDoubleSpinBox* powerRating_;
     ModuleControls* moduleEditor_=nullptr;
+    DebugTools* debugTools_=nullptr;
+    bool debuggingRequested_=false,sourceDebugging_=false;
+    void showDebugLocation(const QString& board,const QString& file,int line);
     void refreshModulePalette();
     PeripheralHub peripherals_;
     I2cDevices i2cDevices_;

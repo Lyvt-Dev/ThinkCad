@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QStandardPaths>
 QString AppPaths::dataRoot(){
     const auto executable=QCoreApplication::applicationDirPath();
     // Build tree and Windows installation keep resources next to the executable.
@@ -24,3 +25,15 @@ QString AppPaths::bundledCompiler(){auto bundled=QCoreApplication::applicationDi
 #endif
 return QFileInfo::exists(bundled)?bundled:QString();}
 QString AppPaths::compiler(){const auto bundled=bundledCompiler();return QSettings().value("compiler",bundled.isEmpty()?QString("g++"):bundled).toString();}
+
+QString AppPaths::debugger(){
+    const auto chosen=QSettings().value("debugger").toString().trimmed();if(!chosen.isEmpty())return chosen;
+    const auto compilerPath=compiler();const auto bundled=QFileInfo(compilerPath).absolutePath()+
+#ifdef Q_OS_WIN
+        "/gdb.exe";
+#else
+        "/gdb";
+#endif
+    if(QFileInfo(compilerPath).isAbsolute()&&QFileInfo::exists(bundled))return bundled;
+    return QStandardPaths::findExecutable("gdb");
+}

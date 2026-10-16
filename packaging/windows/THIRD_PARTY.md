@@ -8,7 +8,7 @@ sources at https://download.qt.io/archive/qt/6.8/6.8.3/single/.
 Users may replace the Qt DLLs with compatible modified builds. Do not prohibit
 reverse engineering for debugging modifications to these libraries.
 
-The Windows installer also includes the MSYS2 UCRT64 GCC toolchain. Preserve its
+The Windows installer also includes the MSYS2 UCRT64 GCC toolchain and the optional local GNU GDB debugger. GDB is distributed under GPL v3 or later; its installed license notices and matching source package are included alongside the compiler sources. Preserve its
 share/licenses directory. GCC and binutils have GPL licenses; the GCC runtime
 exception applies to qualifying runtime linkage, not to distribution of the
 compiler itself. The release workflow collects source packages matching the installed compiler,
