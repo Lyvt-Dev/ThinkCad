@@ -25,6 +25,7 @@ int main(){auto* out=std::cout.rdbuf();auto* in=std::cin.rdbuf();try{
     check(messages.str().find("I2C_WRITE 39 0 100000 1234")!=std::string::npos,"repeated START and big endian register");
     Wire.beginTransmission(0x27);for(std::size_t i=0;i<TwoWire::bufferLength;++i)check(Wire.write(uint8_t(i))==1,"buffer capacity");check(Wire.write(0)==0&&Wire.getWriteError()&&Wire.endTransmission()==1,"overflow reported without transaction");
     Wire.setClock(400000);check(Wire.getClock()==400000,"clock");Wire.end();bool rejected=false;try{Wire.beginTransmission(0x27);}catch(const std::runtime_error&){rejected=true;}check(rejected,"use after end rejected");
+    Wire.begin(2,3);Wire.begin();check(Wire.sda()==2&&Wire.scl()==3,"library begin preserves explicitly selected pins");Wire.end();
     MemoryStream numbers("value=-123,45.25;done");check(numbers.parseInt()==-123&&numbers.read()==','&&numbers.parseFloat()==45.25f,"Stream number parsing and delimiters");check(numbers.readStringUntil(';').empty()&&numbers.readString()=="done","Stream strings and exhaustion");
     MemoryStream search("abababacENDrest");check(search.find("ababac")&&search.findUntil("rest","END")==false,"Stream overlapping find and terminator");
     MemoryStream lines("abc\nrest");char line[8]{};check(lines.readBytesUntil('\n',line,7)==3&&std::string(line)=="abc"&&lines.peek()=='r',"Stream delimiter buffer read");

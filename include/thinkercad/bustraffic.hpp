@@ -20,8 +20,9 @@ public:
     void append(BusTransaction entry){
         if(!enabled)return;
         entry.txBytes=entry.tx.size();entry.rxBytes=entry.rx.size();
-        if(entry.tx.size()>128)entry.tx.resize(128);if(entry.rx.size()>128)entry.rx.resize(128);
-        for(auto* field:{&entry.board,&entry.bus,&entry.target,&entry.status})if(field->size()>256)field->resize(256);
+        if(entry.tx.size()>128)std::vector<std::uint8_t>(entry.tx.begin(),entry.tx.begin()+128).swap(entry.tx);
+        if(entry.rx.size()>128)std::vector<std::uint8_t>(entry.rx.begin(),entry.rx.begin()+128).swap(entry.rx);
+        for(auto* field:{&entry.board,&entry.bus,&entry.target,&entry.status})if(field->size()>256)std::string(*field,0,256).swap(*field);
         if(entries_.size()>=capacity_){entries_.pop_front();++overwritten_;}entries_.push_back(std::move(entry));++revision_;
     }
     void clear(){entries_.clear();overwritten_=0;++revision_;}

@@ -3988,5 +3988,83 @@
     "Переносити довгі рядки коду",
     "Ajustar líneas largas de código",
     "Renvoyer les longues lignes de code"
+  ],
+  "Pico: BME280 over I²C": [
+    "Pico: BME280 по I²C",
+    "Pico: BME280 через I²C",
+    "Pico: BME280 por I²C",
+    "Pico : BME280 par I²C"
+  ],
+  "RP2040 with BME280 on GPIO0/1. Change sensor values in the simulation inspector.": [
+    "RP2040 с BME280 на GPIO0/1. Меняйте показания датчика в инспекторе симуляции.",
+    "RP2040 із BME280 на GPIO0/1. Змінюйте показники датчика в інспекторі симуляції.",
+    "RP2040 con BME280 en GPIO0/1. Cambia los valores en el inspector de simulación.",
+    "RP2040 avec BME280 sur GPIO0/1. Modifiez les valeurs du capteur dans l’inspecteur de simulation."
+  ],
+  "Acceleration and angular velocity over I²C on GPIO8/9; genuine Adafruit library.": [
+    "Ускорение и угловая скорость по I²C на GPIO8/9; настоящая библиотека Adafruit.",
+    "Прискорення й кутова швидкість через I²C на GPIO8/9; справжня бібліотека Adafruit.",
+    "Aceleración y velocidad angular por I²C en GPIO8/9; biblioteca original de Adafruit.",
+    "Accélération et vitesse angulaire par I²C sur GPIO8/9 ; bibliothèque Adafruit originale."
+  ],
+  "HC-SR04: measure distance": [
+    "HC-SR04: измерение расстояния",
+    "HC-SR04: вимірювання відстані",
+    "HC-SR04: medir distancia",
+    "HC-SR04 : mesurer une distance"
+  ],
+  "Uno D2/D3, 5 V. Change distance in the simulation inspector; echo time is measured.": [
+    "Uno D2/D3, 5 В. Меняйте расстояние в инспекторе симуляции; измеряется время эха.",
+    "Uno D2/D3, 5 В. Змінюйте відстань в інспекторі симуляції; вимірюється час відлуння.",
+    "Uno D2/D3, 5 V. Cambia la distancia en el inspector; se mide el tiempo del eco.",
+    "Uno D2/D3, 5 V. Modifiez la distance dans l’inspecteur ; le temps d’écho est mesuré."
+  ],
+  "WS2812: RGB animation": [
+    "WS2812: RGB-анимация",
+    "WS2812: RGB-анімація",
+    "WS2812: animación RGB",
+    "WS2812 : animation RGB"
+  ],
+  "Eight RGB pixels on Uno D6 and 5 V. Animation with modeled transfer and latch timing.": [
+    "Восемь RGB-пикселей на Uno D6 и 5 В. Анимация с моделированием времени передачи и фиксации.",
+    "Вісім RGB-пікселів на Uno D6 і 5 В. Анімація з моделюванням часу передавання й фіксації.",
+    "Ocho píxeles RGB en Uno D6 y 5 V. Animación con tiempos de transmisión y retención modelados.",
+    "Huit pixels RGB sur Uno D6 et 5 V. Animation avec temps de transfert et de verrouillage modélisés."
+  ],
+  "UART: two ESP32 boards": [
+    "UART: две платы ESP32",
+    "UART: дві плати ESP32",
+    "UART: dos placas ESP32",
+    "UART : deux cartes ESP32"
+  ],
+  "Two separate sketches with crossed RX/TX wires and common GND.": [
+    "Два отдельных скетча с перекрёстными RX/TX и общим GND.",
+    "Два окремі скетчі з перехресними RX/TX і спільним GND.",
+    "Dos sketches independientes con RX/TX cruzados y GND común.",
+    "Deux sketches distincts avec RX/TX croisés et masse commune."
+  ],
+  "The project mode is visible in the status bar. Stop execution before switching. Old projects use Simulation; Emulation adds modeled peripheral registers and bus timing, without MCU instruction emulation.": [
+    "Режим проекта виден в строке состояния. Перед сменой остановите выполнение. Старые проекты используют симуляцию; эмуляция добавляет модели регистров периферии и временных параметров шин, но не команд микроконтроллера.",
+    "Режим проєкту видно в рядку стану. Перед зміною зупиніть виконання. Старі проєкти використовують симуляцію; емуляція додає моделі регістрів периферії й часових параметрів шин, але не команд мікроконтролера.",
+    "El modo del proyecto aparece en la barra de estado. Detén la ejecución antes de cambiarlo. Los proyectos antiguos usan Simulación; Emulación añade registros periféricos y tiempos de buses modelados, sin emular instrucciones MCU.",
+    "Le mode du projet figure dans la barre d’état. Arrêtez l’exécution avant de le changer. Les anciens projets utilisent Simulation ; Émulation ajoute les registres périphériques et les temps des bus modélisés, sans émuler les instructions du MCU."
+  ],
+  "View → Source debugger uses local GDB. Click the source gutter for breakpoints, then Debug. Inspect local variables and step through the code; CPU registers belong to the PC.": [
+    "Вид → Отладчик исходного кода использует локальный GDB. Щёлкните поле номеров строк для точек останова и выберите Отладка. Просматривайте локальные переменные и выполняйте код по шагам; регистры процессора относятся к ПК.",
+    "Вигляд → Налагоджувач вихідного коду використовує локальний GDB. Клацніть поле номерів рядків для точок зупинки й виберіть Налагодження. Переглядайте локальні змінні та виконуйте код покроково; регістри процесора належать ПК.",
+    "Ver → Depurador de código fuente usa GDB local. Haz clic en el margen para poner puntos de interrupción y elige Depurar. Inspecciona variables locales y ejecuta paso a paso; los registros de CPU son del PC.",
+    "Affichage → Débogueur de code source utilise GDB local. Cliquez dans la marge pour placer des points d’arrêt, puis sur Déboguer. Inspectez les variables locales et avancez pas à pas ; les registres CPU sont ceux du PC."
+  ],
+  "View → Local collaboration starts explicit Host/Join sessions on the LAN. Share the host address, port and ticket. Conflicts preserve local drafts; libraries remain installed separately.": [
+    "Вид → Работа в локальной сети запускает сеансы вручную. Передайте адрес ведущего, порт и ключ сеанса. При конфликтах локальные черновики сохраняются; библиотеки устанавливаются отдельно.",
+    "Вигляд → Співпраця в локальній мережі запускає сеанси вручну. Передайте адресу хоста, порт і код сеансу. За конфліктів локальні чернетки зберігаються; бібліотеки встановлюються окремо.",
+    "Ver → Colaboración local inicia sesiones LAN explícitas. Comparte dirección, puerto y clave del anfitrión. Los conflictos conservan borradores locales; cada participante instala sus bibliotecas.",
+    "Affichage → Collaboration locale démarre explicitement les sessions LAN. Partagez l’adresse de l’hôte, le port et le code de session. Les conflits préservent les brouillons locaux ; les bibliothèques sont installées séparément."
+  ],
+  "View → Simulation inspector shows pins, connected nets, modeled registers and recorded I2C/SPI/UART traffic. Its environment tab changes sensor inputs while running. Closing the tool stops bus recording.": [
+    "Вид → Инспектор симуляции показывает выводы, соединённые сети, модели регистров и записанный обмен I2C/SPI/UART. Вкладка среды меняет показания датчиков во время работы. Закрытие инструмента останавливает запись шин.",
+    "Вигляд → Інспектор симуляції показує виводи, з’єднані мережі, моделі регістрів і записаний обмін I2C/SPI/UART. Вкладка середовища змінює показники датчиків під час роботи. Закриття інструмента зупиняє запис шин.",
+    "Ver → Inspector de simulación muestra pines, redes conectadas, registros modelados y tráfico I2C/SPI/UART capturado. La pestaña de entorno cambia sensores durante la ejecución. Cerrar la herramienta detiene la captura.",
+    "Affichage → Inspecteur de simulation présente broches, réseaux connectés, registres modélisés et trafic I2C/SPI/UART enregistré. L’onglet environnement modifie les capteurs pendant l’exécution. Fermer l’outil arrête l’enregistrement des bus."
   ]
 }

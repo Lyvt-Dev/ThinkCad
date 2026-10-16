@@ -1,5 +1,6 @@
 #include "language.hpp"
 #include "examples.hpp"
+#include "moduleexamples.hpp"
 #include "paths.hpp"
 #include <QCoreApplication>
 #include <QFile>
@@ -7,6 +8,11 @@
 #include <algorithm>
 using namespace thinkercad;
 QList<CircuitExample> ExampleCatalog::entries(){return {
+    {"pico_bme280",Language::text("Pico: BME280 über I²C"),Language::text("RP2040 mit BME280 an GPIO0/1. Sensorwerte im Simulationsinspektor ändern.")},
+    {"s3_mpu6050","ESP32-S3: MPU6050",Language::text("Beschleunigung und Drehrate über I²C an GPIO8/9; echte Adafruit-Bibliothek.")},
+    {"ultrasonic_distance",Language::text("HC-SR04: Abstand messen"),Language::text("Uno D2/D3, 5 V. Distanz im Simulationsinspektor verändern; Echozeit wird gemessen.")},
+    {"neopixel_strip",Language::text("WS2812: RGB-Animation"),Language::text("Acht RGB-Pixel an Uno D6 und 5 V. Animation mit modellierter Übertragungs- und Latch-Zeit.")},
+    {"uart_pair",Language::text("UART: zwei ESP32"),Language::text("Zwei getrennte Sketches mit gekreuzten RX/TX-Leitungen und gemeinsamem GND.")},
     {"ir_remote",Language::text("IR: TV-Fernbedienung testen"),Language::text("ESP32, 38-kHz-Empfänger und NEC-Testfernbedienung. Taste während der Simulation gedrückt halten.")},
     {"ir_loopback",Language::text("IR: Senden und Empfangen"),Language::text("GPIO2 mit 220 Ω und IR-LED; 38-kHz-Empfänger an GPIO4. NEC-Kommandos im seriellen Monitor.")},
     {"nfc_reader",Language::text("NFC: PN532 und Testkarte"),Language::text("ESP32 mit PN532 über I²C. Synthetische UID und NDEF lesen; Karte während der Simulation mit einem Klick entfernen oder auflegen.")},
@@ -45,7 +51,8 @@ SavedProject ExampleCatalog::create(const QString& id){
     auto oled=[&](double x,double y,int address){const auto display=doc.addPart(PartKind::Oled,x,y);doc.part(display).value=address;
         doc.connect({"board","3V3"},{display,"VCC"},"#ec5967");doc.connect({"board","GND"},{display,"GND"},"#64748b");doc.connect({"board","GPIO5"},{display,"SCL"},"#e9ad33");doc.connect({"board","GPIO4"},{display,"SDA"},"#378bcb");};
     auto power=[&](const std::string& board,const std::string& module){doc.connect({board,"3V3"},{module,"VCC"},"#ef4444");doc.connect({board,"GND"},{module,"GND"},"#64748b");};
-    if(id=="ir_remote"||id=="ir_loopback"){
+    if(configureModuleExample(id,result)){}
+    else if(id=="ir_remote"||id=="ir_loopback"){
         doc.part("board").model="esp32";auto receiver=doc.addPart(PartKind::InfraredReceiver,500,30);power("board",receiver);doc.connect({"board","GPIO4"},{receiver,"OUT"});
         if(id=="ir_remote")doc.addPart(PartKind::InfraredRemote,750,30);
         else{auto resistor=doc.addPart(PartKind::Resistor,400,270),ir=doc.addPart(PartKind::InfraredLed,640,270);doc.connect({"board","GPIO2"},{resistor,"1"});doc.connect({resistor,"2"},{ir,"A"});doc.connect({ir,"K"},{"board","GND"});}

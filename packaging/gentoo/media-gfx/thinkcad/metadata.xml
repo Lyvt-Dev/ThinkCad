@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
- <use><flag name="examples">Install bundled example sketches and circuits</flag></use>
+ <use><flag name="examples">Install bundled example sketches and circuits</flag><flag name="debugger">Install local GNU GDB for source breakpoints and variable inspection</flag></use>
  <upstream><remote-id type="github">Lyvt-Dev/ThinkCad</remote-id></upstream>
 </pkgmetadata>

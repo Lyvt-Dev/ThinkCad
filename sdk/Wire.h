@@ -9,7 +9,11 @@ class TwoWire : public Stream {
 public:
     explicit TwoWire(int bus=0) {if(bus!=0)throw std::invalid_argument("Only the primary I2C controller is modeled");}
     using Print::write;
-    bool begin(){return begin(SDA,SCL);}
+    bool begin(){return begin(sda_,scl_);}
+#if defined(THINKERCAD_RP2040)
+    bool setSDA(int pin){if(initialized_)return false;try{thinker::validatePin(pin);}catch(const std::exception&){return false;}sda_=pin;return true;}
+    bool setSCL(int pin){if(initialized_)return false;try{thinker::validatePin(pin);}catch(const std::exception&){return false;}scl_=pin;return true;}
+#endif
     bool begin(int sda,int scl) {
         thinker::validatePin(sda);thinker::validatePin(scl);
         if(sda==scl)throw std::invalid_argument("SDA and SCL must differ");

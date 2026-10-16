@@ -1,0 +1,62 @@
+name: Windows feature diagnostics
+on:
+  push:
+    branches: [feature/thinkcad-1.2.6]
+permissions:
+  contents: read
+jobs:
+  debug-tests:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    env:
+      QT_QPA_PLATFORM: offscreen
+      THINKCAD_REQUIRE_GDB: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          arch: win64_msvc2022_64
+          modules: qtmultimedia qtserialport
+          cache: true
+      - uses: msys2/setup-msys2@v2
+        id: msys2
+        with:
+          msystem: UCRT64
+          location: D:\ThinkCad-msys2
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-gdb
+      - name: Native dependencies
+        shell: pwsh
+        env:
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+        run: |
+          & "$env:VCPKG_INSTALLATION_ROOT/vcpkg.exe" install zlib:x64-windows-static-md
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          "ZLIB_ROOT=$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static-md" >> $env:GITHUB_ENV
+          "$env:MSYS2_LOCATION\ucrt64\bin" >> $env:GITHUB_PATH
+      - name: Build focused diagnostics
+        shell: pwsh
+        run: |
+          . .github/scripts/Invoke-Checked.ps1
+          Invoke-Checked cmake @('-S', '.', '-B', 'build', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_CXX_COMPILER=cl', "-DZLIB_ROOT=$env:ZLIB_ROOT", "-DZLIB_LIBRARY_RELEASE=$env:ZLIB_ROOT/lib/zs.lib")
+          Invoke-Checked cmake @('--build', 'build', '--target', 'collaboration_tests', 'debugger_tests', 'feature126_tests', '--parallel', '2')
+      - name: Run focused diagnostics
+        shell: pwsh
+        run: |
+          & gdb --version
+          & ctest --test-dir build -R '^(local_realtime_collaboration|native_source_debugger)$' --output-on-failure
+          $protocolExit = $LASTEXITCODE
+          & ./build/feature126_tests.exe sourceDebuggerInEditor '-o' 'build/feature126-debug-gui.txt,txt' '-o' '-,txt'
+          $guiExit = $LASTEXITCODE
+          Get-Content build/*-tests.txt, build/feature126-debug-gui.txt | Write-Host
+          if ($protocolExit -or $guiExit) { throw 'Focused diagnostics failed' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-feature-diagnostics
+          path: |
+            build/*-tests.txt
+            build/feature126-debug-gui.txt
+            build/Testing/Temporary/LastTest.log

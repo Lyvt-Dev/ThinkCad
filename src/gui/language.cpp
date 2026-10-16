@@ -150,6 +150,19 @@ const QMap<QString,QString>& translations(){static const QMap<QString,QString> v
     {"Änderung bei µs","Change at µs"},
     {"Änderungen bündeln","Batch changes"},
     {"Überlauf","Overrun"},
+    {"Pico: BME280 über I²C","Pico: BME280 over I²C"},
+    {"RP2040 mit BME280 an GPIO0/1. Sensorwerte im Simulationsinspektor ändern.","RP2040 with BME280 on GPIO0/1. Change sensor values in the simulation inspector."},
+    {"Beschleunigung und Drehrate über I²C an GPIO8/9; echte Adafruit-Bibliothek.","Acceleration and angular velocity over I²C on GPIO8/9; genuine Adafruit library."},
+    {"HC-SR04: Abstand messen","HC-SR04: measure distance"},
+    {"Uno D2/D3, 5 V. Distanz im Simulationsinspektor verändern; Echozeit wird gemessen.","Uno D2/D3, 5 V. Change distance in the simulation inspector; echo time is measured."},
+    {"WS2812: RGB-Animation","WS2812: RGB animation"},
+    {"Acht RGB-Pixel an Uno D6 und 5 V. Animation mit modellierter Übertragungs- und Latch-Zeit.","Eight RGB pixels on Uno D6 and 5 V. Animation with modeled transfer and latch timing."},
+    {"UART: zwei ESP32","UART: two ESP32 boards"},
+    {"Zwei getrennte Sketches mit gekreuzten RX/TX-Leitungen und gemeinsamem GND.","Two separate sketches with crossed RX/TX wires and common GND."},
+    {"Der Projektmodus steht in der Statusleiste. Vor dem Wechsel die Ausführung stoppen. Alte Projekte nutzen Simulation; Emulation ergänzt modellierte Peripherieregister und Bus-Timing, ohne MCU-Befehle zu emulieren.","The project mode is visible in the status bar. Stop execution before switching. Old projects use Simulation; Emulation adds modeled peripheral registers and bus timing, without MCU instruction emulation."},
+    {"Ansicht → Quellcode-Debugger verwendet lokales GDB. Für Haltepunkte am Zeilenrand klicken, dann Debuggen wählen. Lokale Variablen ansehen und den Code schrittweise ausführen; CPU-Register gehören zum PC.","View → Source debugger uses local GDB. Click the source gutter for breakpoints, then Debug. Inspect local variables and step through the code; CPU registers belong to the PC."},
+    {"Ansicht → Lokale Zusammenarbeit startet ausdrücklich gewählte Host-/Beitritts-Sitzungen im LAN. Host-Adresse, Port und Ticket teilen. Bei Konflikten bleiben lokale Entwürfe erhalten; Bibliotheken installiert jeder getrennt.","View → Local collaboration starts explicit Host/Join sessions on the LAN. Share the host address, port and ticket. Conflicts preserve local drafts; libraries remain installed separately."},
+    {"Ansicht → Simulationsinspektor zeigt Pins, verbundene Netze, modellierte Register und aufgezeichneten I2C-/SPI-/UART-Verkehr. Im Umgebungstab Sensorwerte während der Ausführung ändern. Schließen beendet die Bus-Aufzeichnung.","View → Simulation inspector shows pins, connected nets, modeled registers and recorded I2C/SPI/UART traffic. Its environment tab changes sensor inputs while running. Closing the tool stops bus recording."},
     {"Tutorial","Tutorial"},
     {"Version ","Version "},
     {"Videodateien","Video files"},
@@ -686,6 +699,10 @@ QString Language::tutorialHtml(){
     section("OLED-Animation","ESP8266-OLED: VCC an 3V3, GND an GND, SDA an D2 und SCL an D1. Datei → Video in frames.h umwandeln exportiert einfarbige PROGMEM-Bitmaps. Wähle Auflösung, Bildrate und Clipdauer; maximal 256 KiB Bitmapdaten. Kopiere frames.h in den Sketch-Ordner.");
     section("Projekt speichern","Strg+S speichert Verdrahtung und Code zusammen. Strg+O öffnet ein Projekt oder einen .ino-Sketch. Der Arduino-Export schreibt die Dateien für die echte IDE. Strg+Mausrad zoomt; die mittlere Maustaste verschiebt die Ansicht.");
     section("Arduino-Bibliotheken","Official Arduino catalog. Installation includes dependencies. Hardware libraries also require a supported simulation model.");
+    section("Simulation & Emulation","Der Projektmodus steht in der Statusleiste. Vor dem Wechsel die Ausführung stoppen. Alte Projekte nutzen Simulation; Emulation ergänzt modellierte Peripherieregister und Bus-Timing, ohne MCU-Befehle zu emulieren.");
+    section("Quellcode-Debugger","Ansicht → Quellcode-Debugger verwendet lokales GDB. Für Haltepunkte am Zeilenrand klicken, dann Debuggen wählen. Lokale Variablen ansehen und den Code schrittweise ausführen; CPU-Register gehören zum PC.");
+    section("Lokale Zusammenarbeit","Ansicht → Lokale Zusammenarbeit startet ausdrücklich gewählte Host-/Beitritts-Sitzungen im LAN. Host-Adresse, Port und Ticket teilen. Bei Konflikten bleiben lokale Entwürfe erhalten; Bibliotheken installiert jeder getrennt.");
+    section("Simulationsinspektor","Ansicht → Simulationsinspektor zeigt Pins, verbundene Netze, modellierte Register und aufgezeichneten I2C-/SPI-/UART-Verkehr. Im Umgebungstab Sensorwerte während der Ausführung ändern. Schließen beendet die Bus-Aufzeichnung.");
     section("Modellgrenzen","Dies ist eine Host-API-Simulation, keine CPU-Emulation. Ein unverbundener Eingang ist nicht automatisch LOW. Verwende INPUT_PULLUP und beachte die Versorgung und ADC-Grenzen. Hardwarebibliotheken benötigen ein passendes Gerätemodell.");
     html+="<pre>"+QString("display.setCursor(0, 0);\ndisplay.setTextColor(SSD1306_WHITE);\ndisplay.println(\"ThinkCad\");\ndisplay.display();\n\n// #include \"frames.h\"\n// uint32_t index = (uint64_t(micros()) * FRAME_FPS / 1000000) % FRAME_COUNT;\n// display.drawBitmap(0, 0, frames[index], FRAME_WIDTH, FRAME_HEIGHT, SSD1306_WHITE);\n// display.display();").toHtmlEscaped()+"</pre>";
     return html;
