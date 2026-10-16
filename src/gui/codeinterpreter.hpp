@@ -14,7 +14,7 @@ class CodeInterpreter final : public QObject {
 public:
     explicit CodeInterpreter(QObject* parent = nullptr);
     ~CodeInterpreter() override;
-    void start(const QString& sketch, const QString& compiler, const QString& sdk, const QStringList& libraries,const QMap<QString,QString>& projectFiles = {},const QString& boardModel="esp8266",bool deferExecution=false);
+    void start(const QString& sketch, const QString& compiler, const QString& sdk, const QStringList& libraries,const QMap<QString,QString>& projectFiles = {},const QString& boardModel="esp8266",bool deferExecution=false,bool emulation=false);
     void stop();
     void setPaused(bool paused);
     void stepOnce();

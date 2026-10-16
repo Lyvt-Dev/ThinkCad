@@ -5,7 +5,9 @@ class SPISettings {public:SPISettings(unsigned long=1000000,int=MSBFIRST,int=SPI
 class SPIClass {
 public:
     void begin(int sck=-1,int miso=-1,int mosi=-1,int ss=-1){
-#if defined(THINKERCAD_ARDUINO_UNO)||defined(THINKERCAD_ARDUINO_NANO)
+#if defined(THINKERCAD_GENERIC_BOARD)
+        const int defaults[]={THINKERCAD_BOARD_SPI_SCK,THINKERCAD_BOARD_SPI_MISO,THINKERCAD_BOARD_SPI_MOSI,THINKERCAD_BOARD_SPI_CS};
+#elif defined(THINKERCAD_ARDUINO_UNO)||defined(THINKERCAD_ARDUINO_NANO)
         const int defaults[]={13,12,11,10};
 #elif defined(THINKERCAD_ESP32_S3)
         const int defaults[]={12,13,11,10};

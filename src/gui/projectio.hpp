@@ -10,7 +10,7 @@ struct SketchProject {
     QString combinedSource() const;
     QMap<QString,QString> auxiliaryFiles() const;
 };
-struct SavedProject {thinkercad::CircuitDocument circuit;SketchProject sketch;QMap<QString,SketchProject> boardSketches;QMap<QString,QByteArray> bundledLibraries;};
+struct SavedProject {thinkercad::CircuitDocument circuit;SketchProject sketch;QMap<QString,SketchProject> boardSketches;QMap<QString,QByteArray> bundledLibraries;thinkercad::ExecutionMode mode=thinkercad::ExecutionMode::Simulation;};
 class ProjectIO {
 public:
     static QMap<QString,QByteArray> bundleLibraries(const QStringList& directories);

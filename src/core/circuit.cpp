@@ -1,4 +1,5 @@
 #include "thinkercad/circuit.hpp"
+#include "thinkercad/modules.hpp"
 #include <algorithm>
 #include <cmath>
 #include <numeric>
@@ -46,7 +47,8 @@ const std::vector<ComponentSpec>& componentCatalog(){static const std::vector<Co
 {PartKind::RadioTransmitter,"433-MHz-Sender (ASK)"," MHz",433.92,300,928,true},
 {PartKind::RadioReceiver,"433-MHz-Empfänger (ASK)"," MHz",433.92,300,928,true},
 {PartKind::RadioTransceiver,"nRF24L01+ (SPI)"," Kanal",76,0,125,true},
-{PartKind::Note,"Notiz","",0,0,0,false}
+{PartKind::Note,"Notiz","",0,0,0,false},
+{PartKind::Module,"Sensormodul","",0,0,1e9,false}
 };return types;}
 double parameter(const CircuitPart& part,const std::string& name,double fallback){auto found=part.parameters.find(name);return found==part.parameters.end()?fallback:found->second;}
 const ComponentSpec& componentSpec(PartKind kind){for(const auto& type:componentCatalog())if(type.kind==kind)return type;throw std::invalid_argument("Unknown component type");}
@@ -139,10 +141,11 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
     return {"1","2"};
 }
 std::vector<std::string> CircuitDocument::pins(const CircuitPart& part){
+    if(part.kind==PartKind::Module)return ModuleRegistry::get(part.model.empty()?"bme280":part.model).pins;
     if(part.kind!=PartKind::Esp8266||part.model.empty()||part.model=="esp8266")return pins(part.kind);
     const auto profile=BoardProfile::get(part.model);
     if(profile.arduino()){std::vector<std::string> names{"5V","3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.push_back("GND2");return names;}
-    std::vector<std::string> names{"3V3","GND"};for(int gpio:profile.gpio)names.push_back("GPIO"+std::to_string(gpio));names.insert(names.end(),{"A0","GND2","3V3_2"});return names;
+    std::vector<std::string> names{"3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.insert(names.end(),{"A0","GND2","3V3_2"});return names;
 }
 CircuitPart& CircuitDocument::part(const std::string& id) {for(auto& p:parts_)if(p.id==id)return p;throw std::out_of_range("Unknown component: "+id);}
 const CircuitPart& CircuitDocument::part(const std::string& id) const {for(const auto& p:parts_)if(p.id==id)return p;throw std::out_of_range("Unknown component: "+id);}
@@ -156,6 +159,7 @@ void CircuitDocument::insertPart(CircuitPart p) {
     if(p.kind==PartKind::Oled&&p.value!=60&&p.value!=61)throw std::invalid_argument("OLED address must be 0x3C or 0x3D");
     const auto& type=componentSpec(p.kind);if(p.value<type.min||p.value>type.max)throw std::invalid_argument("Component value outside model range");
     if(p.rotation<0||p.rotation>=360||p.rotation%90)throw std::invalid_argument("Invalid component rotation");
+    if(p.kind==PartKind::Module){if(p.model.empty())p.model="bme280";const auto& definition=ModuleRegistry::get(p.model);for(const auto& param:definition.parameters){const auto value=parameter(p,param.name,param.initial);if(!std::isfinite(value)||value<param.min||value>param.max)throw std::invalid_argument("Module parameter outside range: "+param.name);}}
     parts_.push_back(std::move(p));
 }
 std::string CircuitDocument::addPart(PartKind kind,double x,double y) {
@@ -180,7 +184,7 @@ void CircuitDocument::validate() const {
     for(const auto& p:parts_){const auto& type=componentSpec(p.kind);if(p.value<type.min||p.value>type.max)throw std::invalid_argument("Invalid component value");if(!ids.insert(p.id).second)throw std::invalid_argument("Duplicate component");if(!std::isfinite(p.x)||!std::isfinite(p.y)||std::abs(p.x)>10000||std::abs(p.y)>10000||!std::isfinite(p.value))throw std::invalid_argument("Invalid component properties");if(p.kind==PartKind::Resistor&&(p.value<1||p.value>1e9))throw std::invalid_argument("Invalid resistance");if(p.kind==PartKind::AnalogSource&&(p.value<0||p.value>3.3))throw std::invalid_argument("Invalid source voltage");if(p.kind==PartKind::Oled&&p.value!=60&&p.value!=61)throw std::invalid_argument("Invalid OLED address");}
     for(const auto& p:parts_){
         if(p.netName.size()>48||(!p.netName.empty()&&p.kind!=PartKind::NetLabel)||std::any_of(p.netName.begin(),p.netName.end(),[](unsigned char c){return !((c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='0'&&c<='9')||c=='_'||c=='-'||c=='.');}))throw std::invalid_argument("Invalid net label (use A-Z, a-z, 0-9, _, - and .; max 48)");
-        if(p.parameters.size()>16)throw std::invalid_argument("Too many component parameters");
+        if(p.parameters.size()>(p.kind==PartKind::Module?32u:16u))throw std::invalid_argument("Too many component parameters");
         for(const auto& [key,value]:p.parameters){
             if(!std::isfinite(value))throw std::invalid_argument("Non-finite component parameter");
             bool valid=p.kind==PartKind::Note&&(key=="noteWidth"||key=="noteHeight")&&value>=32&&value<=4096;
@@ -192,10 +196,11 @@ void CircuitDocument::validate() const {
             valid|=p.kind>=PartKind::InfraredLed&&p.kind<=PartKind::RadioTransceiver&&key=="channel"&&value>=0&&value<=15&&std::floor(value)==value;
             valid|=p.kind==PartKind::InfraredRemote&&key=="address"&&value>=0&&value<=65535&&std::floor(value)==value;
             valid|=p.kind==PartKind::NfcTestCard&&((key=="uidLength"&&(value==4||value==7))||(key.size()==4&&key.substr(0,3)=="uid"&&key[3]>='0'&&key[3]<='6'&&value>=0&&value<=255&&std::floor(value)==value));
+            if(p.kind==PartKind::Module){const auto& model=ModuleRegistry::get(p.model);for(const auto& field:model.parameters)if(field.name==key&&value>=field.min&&value<=field.max)valid=true;valid|=key=="address"&&model.bus=="i2c"&&value>=(model.builtin?model.address:8)&&value<=(model.builtin?model.address+1:119)&&std::floor(value)==value;}
             if(!valid)throw std::invalid_argument("Invalid component parameter: "+key);
         }
     }
-    for(const auto& p:parts_){if(p.kind==PartKind::Note&&p.model.size()>4000)throw std::invalid_argument("Note exceeds 4000 UTF-8 bytes");if(p.rotation<0||p.rotation>=360||p.rotation%90)throw std::invalid_argument("Invalid component rotation");if(p.kind==PartKind::NfcTestCard&&p.model.size()>96)throw std::invalid_argument("NFC test text exceeds 96 bytes");if((p.kind==PartKind::InfraredRemote||p.kind==PartKind::RadioTransceiver)&&std::floor(p.value)!=p.value)throw std::invalid_argument("IR command must be an integer");if(p.kind==PartKind::Esp8266)(void)BoardProfile::get(p.model);}
+    for(const auto& p:parts_){if(p.kind==PartKind::Note&&p.model.size()>4000)throw std::invalid_argument("Note exceeds 4000 UTF-8 bytes");if(p.rotation<0||p.rotation>=360||p.rotation%90)throw std::invalid_argument("Invalid component rotation");if(p.kind==PartKind::NfcTestCard&&p.model.size()>96)throw std::invalid_argument("NFC test text exceeds 96 bytes");if((p.kind==PartKind::InfraredRemote||p.kind==PartKind::RadioTransceiver)&&std::floor(p.value)!=p.value)throw std::invalid_argument("IR command must be an integer");if(p.kind==PartKind::Esp8266)(void)BoardProfile::get(p.model);if(p.kind==PartKind::Module)(void)ModuleRegistry::get(p.model);}
     for(const auto& w:wires_){validateEndpoint(w.a);validateEndpoint(w.b);if(w.points.size()>64)throw std::invalid_argument("Maximum 64 wire bends");for(const auto& point:w.points)if(!std::isfinite(point.x)||!std::isfinite(point.y)||std::abs(point.x)>10000||std::abs(point.y)>10000)throw std::invalid_argument("Invalid wire bend");}
 }
 bool CircuitDocument::connected(const Endpoint& a,const Endpoint& b) const {validateEndpoint(a);validateEndpoint(b);Nodes nodes(*this);return nodes.node(a)==nodes.node(b);}

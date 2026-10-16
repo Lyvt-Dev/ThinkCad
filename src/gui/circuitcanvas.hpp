@@ -42,6 +42,7 @@ public:
     void toggleButton(const std::string& id);
     void setButtonPressed(const std::string& id,bool pressed);
     void changeValue(const std::string& id,double value);
+    void changeParameter(const std::string& id,const std::string& name,double value);
     void recordMove(const thinkercad::CircuitDocument& before);
     void moveBend(const std::string& id,std::size_t index,QPointF position);
     void addBend(const std::string& id,QPointF position);

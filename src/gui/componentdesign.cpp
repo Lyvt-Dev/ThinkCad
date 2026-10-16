@@ -1,4 +1,5 @@
 #include "componentdesign.hpp"
+#include "thinkercad/modules.hpp"
 #include "notelayout.hpp"
 #include "language.hpp"
 #include <QFont>
@@ -113,9 +114,11 @@ void board(QPainter& p,const CircuitPart& part,const CircuitState& state){
         body(p,{39,49,22,13},QColor("#b7b9bc"),2);p.setBrush(QColor("#ec7773"));p.drawEllipse(QPointF(50,55),4,4);
         label(p,{33,73,35,20},"NANO",Qt::white,8);label(p,{35,218,30,20},"5 V",Qt::white,8);
         mountingHole(p,{30,257});mountingHole(p,{70,257});
+    }else if(profile.id=="rp2040"||profile.id=="stm32f103"){
+        body(p,pcb,profile.id=="rp2040"?QColor("#28745a"):QColor("#23649a"),3);header(p,{1,15,14,pcb.height()-28});header(p,{135,15,14,pcb.height()-28});usb(p,{54,-4,42,32});chip(p,{46,pcb.height()*.37,58,58},8,profile.id=="rp2040"?"RP2040":"F103");label(p,{20,pcb.height()*.68,110,24},profile.id=="rp2040"?"Raspberry Pi Pico":"STM32F103",Qt::white,10);body(p,{58,48,32,20},QColor("#d2d2cb"),2);label(p,{56,71,38,12},profile.id=="rp2040"?"BOOTSEL":"RESET",Qt::white,7);
     }else{
         header(p,{1,15,14,pcb.height()-28});header(p,{135,15,14,pcb.height()-28});
-        body(p,{32,67,86,109},QColor("#c3c9cd"),2);label(p,{37,100,76,45},profile.id=="esp8266"?"ESP8266":profile.id=="esp32-s3"?"ESP32-S3":"ESP32",QColor("#333e43"),10);
+        body(p,{32,67,86,109},QColor("#c3c9cd"),2);label(p,{37,100,76,45},QString::fromStdString(profile.id).toUpper(),QColor("#333e43"),10);
         body(p,{32,23,86,40},QColor("#25483c"),1);p.setPen(QPen(QColor("#d5b56e"),2));
         QPainterPath antenna({40,54});for(int i=0;i<5;++i){antenna.lineTo(40+i*15,31);antenna.lineTo(48+i*15,31);antenna.lineTo(48+i*15,54);}p.drawPath(antenna);
         chip(p,{57,pcb.height()-111,36,27},5,"USB");usb(p,{54,pcb.height()-28,42,32});
@@ -240,7 +243,7 @@ QTransform physicalTransform(const CircuitPart& part){
     case PartKind::Esp8266:{const auto id=BoardProfile::get(part.model).id;
         if(id=="arduino-uno"){drawing={300,220};millimetres={85.75,66.75};}
         else if(id=="arduino-nano"){drawing={100,272};millimetres={22.5,56.25};}
-        else{drawing={150,artBounds(part).height()-24};millimetres=id=="esp8266"?QSizeF(31,58):id=="esp32-s3"?QSizeF(25.4,69):QSizeF(25.4,54.6);}break;}
+        else{drawing={150,artBounds(part).height()-24};millimetres=id=="esp8266"?QSizeF(31,58):id=="esp32-s3"?QSizeF(25.4,69):QSizeF(25.4,54.6);if(id=="rp2040")millimetres={21,51};else if(id=="stm32f103")millimetres={22.86,53.34};else if(id=="esp32-c3")millimetres={18,35};else if(id=="esp32-c6")millimetres={25.4,58};}break;}
     case PartKind::Capacitor:case PartKind::Inductor:drawing={100,130};millimetres={8,12};break;
     case PartKind::NpnTransistor:case PartKind::PnpTransistor:drawing={100,130};millimetres={5,10};break;
     case PartKind::NMosfet:case PartKind::PMosfet:drawing={100,130};millimetres={10,20};break;
@@ -272,9 +275,20 @@ QTransform physicalTransform(const CircuitPart& part){
     return QTransform::fromScale(6*millimetres.width()/drawing.width(),6*millimetres.height()/drawing.height());
 }
 }
-QRectF ComponentDesign::bounds(const CircuitPart& part){return physicalTransform(part).mapRect(artBounds(part)).adjusted(-7,-7,7,7);}
-QPointF ComponentDesign::pinPosition(const CircuitPart& part,const std::string& pin){if(part.kind==PartKind::Oled){const auto pins=CircuitDocument::pins(part);const auto i=std::find(pins.begin(),pins.end(),pin)-pins.begin();const bool small=CircuitDocument::displayHeight(part)==32;const double width=small?38:27.3,height=small?12:27.8;return {6*((width-7.62)/2+i*2.54),6*(height-1.3)};}if(part.kind==PartKind::Breadboard30){const int column=std::stoi(pin.substr(1))-1,row=pin[0]-'a';return {6*(3.5+column*2.54),6*(5.0+row*2.54+(row>=5?2.54:0))};}return physicalTransform(part).map(artPin(part,pin));}
+QRectF ComponentDesign::bounds(const CircuitPart& part){if(part.kind==PartKind::Module){const auto& d=ModuleRegistry::get(part.model);return {-8,-8,d.width*6+16,d.height*6+16};}return physicalTransform(part).mapRect(artBounds(part)).adjusted(-7,-7,7,7);}
+QPointF ComponentDesign::pinPosition(const CircuitPart& part,const std::string& pin){if(part.kind==PartKind::Module){const auto& d=ModuleRegistry::get(part.model);const auto position=d.pinPositions.find(pin);if(position!=d.pinPositions.end())return {position->second.first*6,position->second.second*6};const auto it=std::find(d.pins.begin(),d.pins.end(),pin);if(it==d.pins.end())throw std::invalid_argument("Unknown module pin");const int index=int(it-d.pins.begin()),half=int((d.pins.size()+1)/2);const bool right=index>=half;const int row=right?index-half:index,count=right?int(d.pins.size())-half:half;return {right?d.width*6:0.,d.height*6*(row+1)/(count+1)};}if(part.kind==PartKind::Oled){const auto pins=CircuitDocument::pins(part);const auto i=std::find(pins.begin(),pins.end(),pin)-pins.begin();const bool small=CircuitDocument::displayHeight(part)==32;const double width=small?38:27.3,height=small?12:27.8;return {6*((width-7.62)/2+i*2.54),6*(height-1.3)};}if(part.kind==PartKind::Breadboard30){const int column=std::stoi(pin.substr(1))-1,row=pin[0]-'a';return {6*(3.5+column*2.54),6*(5.0+row*2.54+(row>=5?2.54:0))};}return physicalTransform(part).map(artPin(part,pin));}
 void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitState& state,const Frame& frame,double brightness,bool selected){
+    if(part.kind==PartKind::Module){
+        const auto& d=ModuleRegistry::get(part.model);const double w=d.width*6,h=d.height*6;p.save();p.setRenderHint(QPainter::Antialiasing);p.setPen(QPen(selected?QColor("#11a698"):QColor("#254c3e"),selected?2:1));p.setBrush(QColor(d.implementation=="mfrc522"?"#185d8b":"#236c50"));if(d.implementation!="dht22"&&d.implementation!="ds18b20")p.drawRoundedRect(QRectF(0,0,w,h),3,3);else{p.setPen(QPen(QColor("#aeb5ba"),2));for(const auto& pin:d.pins){const auto at=ComponentDesign::pinPosition(part,pin);p.drawLine(at,QPointF(at.x(),h*.45));}}
+        if(d.implementation=="hcsr04"){for(double x:{w*.25,w*.75}){p.setBrush(QColor("#bbc3ca"));p.setPen(QPen(QColor("#7e8991"),2));p.drawEllipse(QPointF(x,h*.48),h*.37,h*.37);p.setBrush(QColor("#444c52"));p.drawEllipse(QPointF(x,h*.48),h*.28,h*.28);p.setPen(QPen(QColor("#8a939c"),1));for(int n=-3;n<=3;++n)p.drawLine(QPointF(x-h*.22,h*.48+n*5),QPointF(x+h*.22,h*.48+n*5));}}
+        else if(d.implementation=="dht22"){p.setBrush(QColor("#ece9df"));p.setPen(QPen(QColor("#b7b9b0"),1));p.drawRoundedRect(QRectF(w*.06,0,w*.88,h*.86),4,4);p.setPen(QPen(QColor("#787c75"),3));for(int y=12;y<int(h*.75);y+=9)p.drawLine(QPointF(w*.2,y),QPointF(w*.8,y));}
+        else if(d.implementation=="ds18b20"){p.setBrush(QColor("#252b30"));p.setPen(QPen(QColor("#0d1116"),1));p.drawRoundedRect(QRectF(0,0,w,h*.51),w*.3,w*.2);}
+        else if(d.implementation=="ws2812"){const int count=std::clamp(int(parameter(part,"pixels",8)),1,64);const auto found=state.pixels.find(part.id);for(int i=0;i<count;++i){const double cell=w/count;p.setBrush(QColor("#e9e8d8"));p.setPen(QPen(QColor("#c4c6bc"),1));p.drawRect(QRectF(i*cell+2,h*.12,std::max(2.,cell-4),h*.72));std::uint32_t color=0;if(found!=state.pixels.end()&&i<int(found->second.size()))color=found->second[i];p.setBrush(color?QColor::fromRgb(color):QColor("#555e61"));p.setPen(Qt::NoPen);p.drawEllipse(QPointF((i+.5)*cell,h*.48),std::max(1.,cell*.2),h*.2);}}
+        else if(d.implementation=="l298n"){p.setBrush(QColor("#161b1e"));p.setPen(QPen(QColor("#6b767c"),2));p.drawRect(QRectF(w*.17,h*.12,w*.66,h*.5));for(int x=int(w*.2);x<int(w*.8);x+=10)p.drawLine(QPointF(x,h*.14),QPointF(x,h*.6));p.setBrush(QColor("#2f7a9c"));p.drawRect(QRectF(w*.14,h*.72,w*.72,h*.15));}
+        else{if(d.implementation=="mfrc522"){p.setPen(QPen(QColor("#d9b16a"),2));p.setBrush(Qt::NoBrush);for(int n=0;n<4;++n)p.drawRoundedRect(QRectF(10+n*7,10+n*7,w-20-n*14,h*.58-n*14),8,8);}p.setPen(QPen(QColor("#111b1b"),1));p.setBrush(QColor("#24292c"));p.drawRoundedRect(QRectF(w*.28,h*.35,w*.44,h*.28),2,2);for(int n=0;n<4;++n){p.setBrush(QColor("#c8ba91"));p.drawRect(QRectF(w*.12,h*.24+n*9,w*.1,4));}}
+        for(const auto& pin:d.pins){const auto at=ComponentDesign::pinPosition(part,pin);p.setPen(QPen(QColor("#b7a66b"),3));p.setBrush(QColor("#22282d"));p.drawEllipse(at,3,3);}
+        if(d.implementation!="dht22"&&d.implementation!="ds18b20"&&d.implementation!="ws2812"){p.setPen(QColor("#e1eee4"));QFont font("Sans Serif");font.setPixelSize(8);p.setFont(font);p.drawText(QRectF(5,h*.82,w-10,h*.15),Qt::AlignCenter,QString::fromStdString(d.label));}p.restore();return;
+    }
     p.save();p.setTransform(physicalTransform(part),true);p.setRenderHint(QPainter::Antialiasing);
     if(selected){p.setPen(QPen(QColor("#14b8a6"),1.5,Qt::DashLine));p.setBrush(Qt::NoBrush);p.drawRoundedRect(artBounds(part).adjusted(3,3,-3,-3),6,6);}
     const auto current=[&](const std::string& channel){auto it=state.ledCurrent.find(part.id+channel);return it==state.ledCurrent.end()?0.0:it->second;};

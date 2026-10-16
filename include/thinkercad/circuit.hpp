@@ -4,7 +4,7 @@
 #include <set>
 #include <tuple>
 namespace thinkercad {
-enum class PartKind { Esp8266, Oled, Led, Resistor, Button, AnalogSource, Potentiometer, Photoresistor, Thermistor, SlideSwitch, TiltSwitch, ReedSwitch, Diode, Battery3V, Battery9V, PowerSupply, RGBLed, SevenSegment, Voltmeter, Breadboard30, PiezoBuzzer, Speaker, TemperatureSensor, BatteryAA, ToggleSwitch, Capacitor, Inductor, NpnTransistor, PnpTransistor, NMosfet, PMosfet, OpAmp, Ground, FunctionGenerator, Oscilloscope, LogicAnalyzer, CurrentProbe, Junction, NetLabel, CharacterLcd, I2cCharacterLcd, AndGate, NandGate, OrGate, NorGate, XorGate, XnorGate, NotGate, ServoMotor, DcMotor, InfraredLed, InfraredReceiver, InfraredRemote, NfcReader, NfcTestCard, RadioTransmitter, RadioReceiver, RadioTransceiver, Note };
+enum class PartKind { Esp8266, Oled, Led, Resistor, Button, AnalogSource, Potentiometer, Photoresistor, Thermistor, SlideSwitch, TiltSwitch, ReedSwitch, Diode, Battery3V, Battery9V, PowerSupply, RGBLed, SevenSegment, Voltmeter, Breadboard30, PiezoBuzzer, Speaker, TemperatureSensor, BatteryAA, ToggleSwitch, Capacitor, Inductor, NpnTransistor, PnpTransistor, NMosfet, PMosfet, OpAmp, Ground, FunctionGenerator, Oscilloscope, LogicAnalyzer, CurrentProbe, Junction, NetLabel, CharacterLcd, I2cCharacterLcd, AndGate, NandGate, OrGate, NorGate, XorGate, XnorGate, NotGate, ServoMotor, DcMotor, InfraredLed, InfraredReceiver, InfraredRemote, NfcReader, NfcTestCard, RadioTransmitter, RadioReceiver, RadioTransceiver, Note, Module };
 struct ComponentSpec {PartKind kind;std::string label,unit;double initial,min,max;bool adjustable;};
 const std::vector<ComponentSpec>& componentCatalog();
 const ComponentSpec& componentSpec(PartKind kind);
@@ -39,6 +39,7 @@ struct CircuitState {
     std::map<std::string,double> ledCurrent;
     std::map<std::string,std::optional<double>> branchCurrent;
     std::map<std::string,double> partValues;
+    std::map<std::string,std::vector<std::uint32_t>> pixels;
     std::vector<std::string> errors;
     std::vector<CircuitIssue> warnings;
     Level level(const Endpoint& endpoint) const;

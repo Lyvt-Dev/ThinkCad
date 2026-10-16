@@ -24,6 +24,7 @@ class QStackedWidget;
 class WelcomePage;
 class QListWidget;
 class QDockWidget;
+class ModuleControls;
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
@@ -48,6 +49,8 @@ public:
     thinkercad::Microseconds simulationTime()const{return virtualTime();}
     const thinkercad::Frame& displayFrame(const std::string& id)const{return displays_.at(id).frame();}
     void stopSimulation();
+    thinkercad::ExecutionMode executionMode()const{return executionMode_;}
+    bool setExecutionMode(thinkercad::ExecutionMode mode);
     QString sketchText()const;
 private:
     struct BoardRuntime {
@@ -69,6 +72,9 @@ private:
     QString activeLesson_;
     qsizetype lessonSerialStart_=0;
     void checkLesson();
+    thinkercad::ExecutionMode executionMode_=thinkercad::ExecutionMode::Simulation;
+    QComboBox* executionModeChoice_=nullptr;
+    void updateExecutionMode();
     double speed_=1.0;
     bool analogRunning_=false,paused_=false;
     thinkercad::Microseconds runUntil_=0;
@@ -83,6 +89,8 @@ private:
     QDockWidget* inspectorDock_=nullptr;
     bool hadInstruments_=false;
     QDoubleSpinBox* powerRating_;
+    ModuleControls* moduleEditor_=nullptr;
+    void refreshModulePalette();
     PeripheralHub peripherals_;
     I2cDevices i2cDevices_;
     QLineEdit* netName_;

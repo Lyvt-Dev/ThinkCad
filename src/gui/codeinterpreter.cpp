@@ -1,4 +1,5 @@
 #include "codeinterpreter.hpp"
+#include "thinkercad/simulation.hpp"
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
@@ -28,14 +29,21 @@ void CodeInterpreter::stop() {
     for (auto* p : {&compiler_,&worker_}) if (p->state()!=QProcess::NotRunning) { p->kill(); p->waitForFinished(1000); }
     pending_.clear();
 }
-void CodeInterpreter::start(const QString& sketch,const QString& compiler,const QString& sdk,const QStringList& libraries,const QMap<QString,QString>& projectFiles,const QString& boardModel,bool deferExecution) {
+void CodeInterpreter::start(const QString& sketch,const QString& compiler,const QString& sdk,const QStringList& libraries,const QMap<QString,QString>& projectFiles,const QString& boardModel,bool deferExecution,bool emulation) {
     stop();deferExecution_=deferExecution;libraries_.clear();selectedLibraries_.clear();dependencyPasses_=0;temp_=std::make_unique<QTemporaryDir>();
     if (!temp_->isValid() || !QFileInfo::exists(sdk+"/runner.cpp")) { emit log("Temporäres Verzeichnis oder Simulator-SDK fehlt."); return; }
     QFile file(temp_->filePath("sketch.ino"));
     if (!file.open(QIODevice::WriteOnly) || file.write(sketch.toUtf8()) < 0) {emit log("Sketch konnte nicht gespeichert werden."); return;} file.close();
     QString source=QDir::fromNativeSeparators(file.fileName());
     QStringList args{"-std=c++20","-DTHINKERCAD_SIMULATION=1","-O0","-g","-pthread","-I"+sdk,"-DTHINKERCAD_SKETCH=\""+source+"\"",sdk+"/runner.cpp"};
+    if(emulation)args<<"-DTHINKERCAD_EMULATION=1";
     if(boardModel=="arduino-uno")args<<"-DTHINKERCAD_ARDUINO_UNO=1";else if(boardModel=="arduino-nano")args<<"-DTHINKERCAD_ARDUINO_NANO=1";else if(boardModel=="esp32")args<<"-DTHINKERCAD_ESP32=1";else if(boardModel=="esp32-s3")args<<"-DTHINKERCAD_ESP32_S3=1";
+    if(QStringList{"rp2040","stm32f103","esp32-c3","esp32-s2","esp32-c6"}.contains(boardModel)){
+        const auto board=thinkercad::BoardProfile::get(boardModel.toStdString());auto mask=[](const std::vector<int>& pins){quint64 value=0;for(int pin:pins)value|=quint64(1)<<pin;return QString::number(value)+"ull";};
+        args<<"-DTHINKERCAD_GENERIC_BOARD=1"<<"-DTHINKERCAD_BOARD_GPIO_MASK="+mask(board.gpio)<<"-DTHINKERCAD_BOARD_INPUT_MASK="+mask(board.inputOnly)<<"-DTHINKERCAD_BOARD_ADC_MASK="+mask(board.adc)<<"-DTHINKERCAD_BOARD_ADC="+QString::number(board.defaultAdc)<<"-DTHINKERCAD_BOARD_LED="+QString::number(board.builtinLed)<<"-DTHINKERCAD_BOARD_SDA="+QString::number(board.sda)<<"-DTHINKERCAD_BOARD_SCL="+QString::number(board.scl);
+        const auto spi=board.spiPins();const char* names[]={"SCK","MISO","MOSI","CS"};for(int i=0;i<4;++i)args<<"-DTHINKERCAD_BOARD_SPI_"+QString::fromLatin1(names[i])+"="+QString::number(spi[i]);
+        if(boardModel=="stm32f103")args<<"-DTHINKERCAD_STM32F103=1";if(boardModel=="rp2040")args<<"-DTHINKERCAD_RP2040=1";
+    }
     args << "-I"+temp_->path() << "-I"+temp_->filePath("src") << "-I"+temp_->filePath("include");
     int sources=0;
     for(auto it=projectFiles.begin();it!=projectFiles.end();++it) {
