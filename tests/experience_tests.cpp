@@ -65,7 +65,7 @@ private slots:
             QPointF delta(horizontal?(edge.testFlag(Qt::LeftEdge)?-40:40):0,vertical?(edge.testFlag(Qt::TopEdge)?-35:35):0);
             auto anchor=note->mapToScene(QPointF(edge.testFlag(Qt::LeftEdge)?size.width():0,edge.testFlag(Qt::TopEdge)?size.height():0));
             auto from=canvas->mapFromScene(note->mapToScene(start)),to=canvas->mapFromScene(note->mapToScene(start+delta));
-            window.activateWindow();canvas->setFocus();QTest::mouseMove(canvas->viewport(),QPoint(5,5));QTest::mouseMove(canvas->viewport(),from);QTest::qWait(10);QVERIFY(note->cursor().shape()!=Qt::OpenHandCursor);
+            window.activateWindow();canvas->setFocus();QTest::mouseMove(window.windowHandle(),canvas->viewport()->mapTo(&window,QPoint(5,5)));QTest::mouseMove(window.windowHandle(),canvas->viewport()->mapTo(&window,from));QTest::qWait(10);QVERIFY(note->cursor().shape()!=Qt::OpenHandCursor);
             auto index=canvas->history()->index();QTest::mousePress(canvas->viewport(),Qt::LeftButton,Qt::NoModifier,from);
             QMouseEvent move(QEvent::MouseMove,QPointF(to),QPointF(canvas->viewport()->mapToGlobal(to)),Qt::NoButton,Qt::LeftButton,Qt::NoModifier);QApplication::sendEvent(canvas->viewport(),&move);
             QTest::mouseRelease(canvas->viewport(),Qt::LeftButton,Qt::NoModifier,to);
