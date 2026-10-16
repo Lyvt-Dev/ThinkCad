@@ -31,6 +31,18 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 [Release Notes 1.2.0](docs/RELEASE_NOTES_1.2.0.md) ·
 [Screenshots](docs/V12_REVIEW.md)
 
+## Neu in 1.1.1
+
+Gleich große, erhabene Textbuttons für die Simulationssteuerung und echte
+Schaltungsvorschauen bei zuletzt geöffneten Projekten.
+[Release Notes 1.1.1](docs/RELEASE_NOTES_1.1.1.md).
+
+## Neu in 1.1.0
+
+Das Startmenü verwendet ausschließlich Text, klar getrennte Bereiche und
+einheitliche Abstände. Der Editor bleibt unverändert.
+[Release Notes 1.1.0](docs/RELEASE_NOTES_1.1.0.md).
+
 ## Neu in 1.0.0
 
 Version 1.0.0 ergänzt Editor-Funktionen (Zwischenablage,
