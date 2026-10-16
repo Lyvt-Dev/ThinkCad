@@ -111,7 +111,7 @@ private slots:
         ComponentDesign::set("realistic");CircuitDocument document;document.removePart("board");int index=0;double rowTop=0,rowHeight=0;
         auto add=[&](PartKind kind,const std::string& model,double,double){
             if(index&&index%5==0){rowTop+=rowHeight+70;rowHeight=0;}
-            const auto id=document.addPart(kind,0,0);auto& part=document.part(id);part.model=model;const auto bounds=ComponentDesign::bounds(part);
+            const auto id=document.addPart(kind,0,0);auto& part=document.part(id);if(!model.empty())part.model=model;const auto bounds=ComponentDesign::bounds(part);
             part.x=(index%5)*620+20-bounds.left();part.y=rowTop+20-bounds.top();rowHeight=std::max(rowHeight,bounds.height());++index;return id;
         };
         for(const auto& model:{"esp8266","esp32","esp32-s3","arduino-uno","arduino-nano"})add(PartKind::Esp8266,model,0,0);

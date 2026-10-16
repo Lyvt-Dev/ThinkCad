@@ -14,6 +14,6 @@ int main(){
     const char text[] ICACHE_RODATA_ATTR="Flash animation";char copy[32]{};
     strcpy_P(copy,text);if(strlen_P(text)!=15 || memcmp_P(copy,text,16)!=0)return 5;
     memcpy_P(copy,PSTR("Frames"),7);if(std::strcmp(copy,"Frames")!=0)return 6;
-    if(std::strcmp(F("Ready"),"Ready")!=0)return 7;
+    if(String(F("Ready"))!="Ready")return 7;
     std::cout<<"Flash bitmap, pointer table, unaligned reads and strings passed\n";
 }

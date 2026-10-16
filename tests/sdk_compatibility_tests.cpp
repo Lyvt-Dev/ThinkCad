@@ -10,10 +10,17 @@
 #include "RCSwitch.h"
 #include <sstream>
 #include <stdexcept>
+#include <limits>
 void check(bool ok,const char* message){if(!ok)throw std::runtime_error(message);}
 std::vector<uint8_t> lastFrame(const std::string& messages){const auto start=messages.rfind("LCD_FRAME ");check(start!=std::string::npos,"LCD emitted a frame");const auto hexStart=messages.find(' ',start+10)+1;const auto end=messages.find('\n',hexStart);const auto hex=messages.substr(hexStart,end-hexStart);check(hex.size()==2048,"LCD frame length");std::vector<uint8_t> bytes;for(std::size_t i=0;i<hex.size();i+=2)bytes.push_back(std::stoi(hex.substr(i,2),nullptr,16));return bytes;}
 int main(){auto* old=std::cout.rdbuf();try{
     thinker::standalone=true;std::ostringstream messages;std::cout.rdbuf(messages.rdbuf());
+    check(String(F("flash text"))=="flash text","flash strings construct Arduino String");
+    check(String(-42)=="-42"&&String(255,HEX)=="FF"&&String(true)=="1","Arduino numeric String constructors");
+    check(String(-1,HEX)==String(std::numeric_limits<unsigned int>::max(),HEX),"nondecimal signed String uses unsigned representation");
+    check(String(std::numeric_limits<long long>::min())==std::to_string(std::numeric_limits<long long>::min()),"minimum signed integer conversion does not overflow");
+    String text(F("  Sensor ready  "));text.trim();text.replace("ready","active");check(text=="Sensor active"&&text.substring(7)=="active"&&text.equalsIgnoreCase("SENSOR ACTIVE"),"Arduino String editing");
+    char copied[5];text.toCharArray(copied,sizeof copied,7);check(std::string(copied)=="acti","Arduino String bounded copy");
     Stream* serial=&Serial;Serial.begin(115200);serial->setTimeout(0);check(serial->readString().empty()&&serial->getTimeout()==0,"Serial supports Stream API");Serial.write(0);Serial.write("hello",5);check(messages.str().find("SERIAL 00")!=std::string::npos,"Serial numeric zero writes a byte");
     Wire.begin();check(Wire.sda()==SDA&&Wire.scl()==SCL,"Wire board defaults");Wire.setTimeout(2);const auto before=thinker::clockUs;char c;check(Wire.readBytes(&c,1)==0&&thinker::clockUs-before==2000,"Wire Stream timeout advances simulated time");
     SPI.begin();check(SPI.ready(),"SPI board defaults initialize");

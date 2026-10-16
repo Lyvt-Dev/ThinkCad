@@ -9,14 +9,14 @@ std::map<std::string,ModuleDefinition>& models(){
     static auto values=[] {
         std::map<std::string,ModuleDefinition> result;
         auto add=[&](std::string id,std::string label,std::string bus,std::string implementation,std::vector<std::string> pins,std::vector<ModuleParameter> params,double w,double h,double low,double high,int address=0,unsigned clock=400000){
-            ModuleDefinition d;d.id=std::move(id);d.label=std::move(label);d.bus=std::move(bus);d.implementation=std::move(implementation);d.pins=std::move(pins);d.parameters=std::move(params);d.width=w;d.height=h;d.minVoltage=low;d.maxVoltage=high;d.address=address;d.maxClock=clock;d.builtin=true;
+            ModuleDefinition d;d.id=std::move(id);d.label=std::move(label);d.bus=std::move(bus);d.implementation=std::move(implementation);d.pins=std::move(pins);d.parameters=std::move(params);d.width=w;d.height=h;d.minVoltage=low;d.maxVoltage=high;d.address=address;d.maxClock=clock;d.builtin=true;if(d.bus=="i2c")d.pullups={{"SDA",4700},{"SCL",4700}};if(d.implementation=="dht22")d.pullups={{"DATA",4700}};if(d.implementation=="ds18b20")d.pullups={{"DQ",4700}};if(d.implementation=="mfrc522"){d.pullups={{"RST",10000}};d.idleCurrent=.025;}if(d.implementation=="ws2812")d.idleCurrent=.008;
             if(d.bus=="i2c"||d.bus=="pulse"||d.bus=="single-wire"||d.bus=="onewire"||d.implementation=="mfrc522"){const double pitch=d.implementation=="ds18b20"?1.27:2.54;for(std::size_t i=0;i<d.pins.size();++i)d.pinPositions[d.pins[i]]={d.width/2+(double(i)-(d.pins.size()-1)/2.)*pitch,d.height};}
             result.emplace(d.id,d);
         };
         const std::vector<ModuleParameter> environment{{"temperature","Temperature","°C",25,-40,85},{"humidity","Humidity","%",50,0,100},{"pressure","Pressure","hPa",1013.25,300,1100}};
         add("bme280","BME280 · I2C","i2c","bme280",{"VCC","GND","SDA","SCL"},environment,11.5,15,1.71,3.6,0x76);
         add("bme280-spi","BME280 · SPI","spi","bme280",{"VCC","GND","SCK","MISO","MOSI","CS"},environment,15,18,1.71,3.6,0,10000000);
-        add("mpu6050","MPU6050 · GY-521","i2c","mpu6050",{"VCC","GND","SDA","SCL","INT"},{{"accelX","Acceleration X","g",0,-16,16},{"accelY","Acceleration Y","g",0,-16,16},{"accelZ","Acceleration Z","g",1,-16,16},{"gyroX","Angular velocity X","°/s",0,-2000,2000},{"gyroY","Angular velocity Y","°/s",0,-2000,2000},{"gyroZ","Angular velocity Z","°/s",0,-2000,2000},{"temperature","Temperature","°C",25,-40,85}},20,16,3,5.5,0x68);
+        add("mpu6050","MPU6050 · 3.3 V","i2c","mpu6050",{"VCC","GND","SDA","SCL","INT"},{{"accelX","Acceleration X","g",0,-16,16},{"accelY","Acceleration Y","g",0,-16,16},{"accelZ","Acceleration Z","g",1,-16,16},{"gyroX","Angular velocity X","°/s",0,-2000,2000},{"gyroY","Angular velocity Y","°/s",0,-2000,2000},{"gyroZ","Angular velocity Z","°/s",0,-2000,2000},{"temperature","Temperature","°C",25,-40,85}},20,16,2.375,3.46,0x68);
         add("dht22","DHT22 / AM2302","single-wire","dht22",{"VCC","DATA","GND"},{{"temperature","Temperature","°C",25,-40,80},{"humidity","Humidity","%",50,0,100}},15.1,25,3.3,6);
         add("hcsr04","HC-SR04","pulse","hcsr04",{"VCC","TRIG","ECHO","GND"},{{"distance","Distance","cm",100,2,400}},45,20,4.5,5.5);
         add("ds18b20","DS18B20","onewire","ds18b20",{"GND","DQ","VCC"},{{"temperature","Temperature","°C",25,-55,125}},4.9,10.2,3,5.5);
@@ -35,6 +35,8 @@ void ModuleRegistry::validate(const ModuleDefinition& d){
     if(!identifier(d.id)||d.label.empty()||d.label.size()>120||d.pins.size()<2||d.pins.size()>32||!identifier(d.power)||!identifier(d.ground))throw std::invalid_argument("Invalid module identity or pins");
     std::set<std::string> pins;for(const auto& pin:d.pins)if(!identifier(pin)||!pins.insert(pin).second)throw std::invalid_argument("Invalid or duplicate module pin");
     for(const auto& [pin,position]:d.pinPositions)if(!pins.contains(pin)||!std::isfinite(position.first)||!std::isfinite(position.second)||position.first<0||position.first>d.width||position.second<0||position.second>d.height)throw std::invalid_argument("Invalid module pin position");
+    if(!std::isfinite(d.idleCurrent)||d.idleCurrent<0||d.idleCurrent>2)throw std::invalid_argument("Invalid module idle current");
+    for(const auto& [pin,resistance]:d.pullups)if(!pins.contains(pin)||pin==d.power||pin==d.ground||!std::isfinite(resistance)||resistance<330||resistance>100000)throw std::invalid_argument("Invalid module pullup");
     if(!pins.contains(d.power)||!pins.contains(d.ground)||d.power==d.ground)throw std::invalid_argument("Module supply pins are missing");
     if(!std::isfinite(d.width)||!std::isfinite(d.height)||d.width<3||d.width>200||d.height<3||d.height>200||!std::isfinite(d.minVoltage)||!std::isfinite(d.maxVoltage)||d.minVoltage<=0||d.maxVoltage<d.minVoltage||d.maxVoltage>48)throw std::invalid_argument("Invalid module dimensions or voltage range");
     if(d.bus!="i2c"&&d.bus!="spi"&&d.bus!="single-wire"&&d.bus!="pulse"&&d.bus!="onewire"&&d.bus!="neopixel"&&d.bus!="bridge")throw std::invalid_argument("Unsupported module bus");

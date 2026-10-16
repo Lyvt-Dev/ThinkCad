@@ -35,7 +35,7 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
     QFile file(temp_->filePath("sketch.ino"));
     if (!file.open(QIODevice::WriteOnly) || file.write(sketch.toUtf8()) < 0) {emit log("Sketch konnte nicht gespeichert werden."); return;} file.close();
     QString source=QDir::fromNativeSeparators(file.fileName());
-    QStringList args{"-std=c++20","-DTHINKERCAD_SIMULATION=1","-O0","-g","-pthread","-I"+sdk,"-DTHINKERCAD_SKETCH=\""+source+"\"",sdk+"/runner.cpp"};
+    QStringList args{"-std=c++20","-DTHINKERCAD_SIMULATION=1","-DARDUINO=10819","-O0","-g","-pthread","-I"+sdk,"-DTHINKERCAD_SKETCH=\""+source+"\"",sdk+"/runner.cpp"};
     if(emulation)args<<"-DTHINKERCAD_EMULATION=1";
     if(boardModel=="arduino-uno")args<<"-DTHINKERCAD_ARDUINO_UNO=1";else if(boardModel=="arduino-nano")args<<"-DTHINKERCAD_ARDUINO_NANO=1";else if(boardModel=="esp32")args<<"-DTHINKERCAD_ESP32=1";else if(boardModel=="esp32-s3")args<<"-DTHINKERCAD_ESP32_S3=1";
     if(QStringList{"rp2040","stm32f103","esp32-c3","esp32-s2","esp32-c6"}.contains(boardModel)){
@@ -53,11 +53,16 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
         const auto bytes=it.value().toUtf8();if(!auxiliary.open(QIODevice::WriteOnly)||auxiliary.write(bytes)!=bytes.size()){emit log("Projektdatei konnte nicht vorbereitet werden.");return;}auxiliary.close();
         if(QStringList{"cpp","cc","cxx"}.contains(QFileInfo(name).suffix().toLower()))args<<path;
     }
+    // Bundled source libraries are compiled only when the existing dependency
+    // scan finds their headers. Unused sensor libraries add no sketch build work.
+    for(const auto* name:{"busio","sensor","bme280","mpu6050","mfrc522","dallas"}){
+        const auto root=QDir::fromNativeSeparators(QFileInfo(sdk+"/vendor/"+name).absoluteFilePath());if(!QDir(root).exists())continue;args<<"-I"+root;LibraryUnit unit{root,root,{},true};QDirIterator source(root,{"*.cpp"},QDir::Files);while(source.hasNext())unit.sources<<source.next();libraries_<<unit;
+    }
     for(const auto& lib:libraries){
         if(libraries_.size()>=500){emit log("Zu viele registrierte Bibliotheken.");return;}
         const auto root=QFileInfo::exists(lib+"/src")?lib+"/src":lib;args<<"-I"+root<<"-I"+lib;
         QFile metadata(lib+"/library.properties");QString name;if(metadata.open(QIODevice::ReadOnly)){auto match=QRegularExpression("(?:^|\\n)name\\s*=\\s*([^\\r\\n]+)").match(QString::fromUtf8(metadata.readAll()));name=match.captured(1).trimmed();}
-        const bool builtin=QStringList{"Adafruit GFX Library","Adafruit SSD1306","Adafruit BusIO","LiquidCrystal","LiquidCrystal I2C","LiquidCrystal_I2C","Servo","IRremote","Adafruit PN532","RF24","rc-switch"}.contains(name,Qt::CaseInsensitive);
+        const bool builtin=QStringList{"Adafruit GFX Library","Adafruit SSD1306","Adafruit BusIO","LiquidCrystal","LiquidCrystal I2C","LiquidCrystal_I2C","Servo","IRremote","Adafruit PN532","RF24","rc-switch","Adafruit BME280 Library","Adafruit MPU6050","Adafruit Unified Sensor","MFRC522","DallasTemperature"}.contains(name,Qt::CaseInsensitive);
         LibraryUnit unit{QDir::fromNativeSeparators(QFileInfo(root).absoluteFilePath()),QDir::fromNativeSeparators(QFileInfo(lib).absoluteFilePath()),{},builtin};
         if(!builtin){const auto flags=root.endsWith("/src")?QDirIterator::Subdirectories:QDirIterator::NoIteratorFlags;QDirIterator files(root,{"*.cpp","*.cc","*.cxx"},QDir::Files,flags);while(files.hasNext()){unit.sources<<files.next();if(unit.sources.size()>200){emit log("Bibliothek enthält zu viele Quelldateien.");return;}}
             if(root==lib&&QDir(lib+"/utility").exists()){args<<"-I"+lib+"/utility";QDirIterator files(lib+"/utility",{"*.cpp","*.cc","*.cxx"},QDir::Files,QDirIterator::Subdirectories);while(files.hasNext()){unit.sources<<files.next();if(unit.sources.size()>200){emit log("Bibliothek enthält zu viele Quelldateien.");return;}}}}

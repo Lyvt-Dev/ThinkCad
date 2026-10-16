@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <limits>
+#include <math.h>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -18,9 +19,14 @@
 #define ARDUINO 10819
 #endif
 #ifndef F
-#define F(text) PSTR(text)
+#define F(text) (reinterpret_cast<const __FlashStringHelper*>(PSTR(text)))
 #endif
 using byte = unsigned char;
+template<class Value,class Lower,class Upper>
+constexpr auto constrain(Value value,Lower lower,Upper upper){
+    using Result=std::common_type_t<Value,Lower,Upper>;
+    return std::clamp<Result>(static_cast<Result>(value),static_cast<Result>(lower),static_cast<Result>(upper));
+}
 constexpr int LOW = 0, HIGH = 1, INPUT = 0, OUTPUT = 1, INPUT_PULLUP = 2;
 #if defined(THINKERCAD_GENERIC_BOARD)
 constexpr int D0=0,D1=1,D2=2,D3=3,D4=4,D5=5,D6=6,D7=7,D8=8;
@@ -42,6 +48,17 @@ constexpr int D0=0,D1=1,D2=2,D3=3,D4=4,D5=5,D6=6,D7=7,D8=8,A0=1,LED_BUILTIN=48,S
 constexpr int D0=0,D1=1,D2=2,D3=3,D4=4,D5=5,D6=12,D7=13,D8=14,A0=36,LED_BUILTIN=2,SDA=21,SCL=22;
 #else
 constexpr int D0=16,D1=5,D2=4,D3=0,D4=2,D5=14,D6=12,D7=13,D8=15,A0=17,LED_BUILTIN=2,SDA=4,SCL=5;
+#endif
+#if defined(THINKERCAD_GENERIC_BOARD)
+constexpr int SCK=THINKERCAD_BOARD_SPI_SCK,MISO=THINKERCAD_BOARD_SPI_MISO,MOSI=THINKERCAD_BOARD_SPI_MOSI,SS=THINKERCAD_BOARD_SPI_CS;
+#elif defined(THINKERCAD_ARDUINO_UNO)||defined(THINKERCAD_ARDUINO_NANO)
+constexpr int SCK=13,MISO=12,MOSI=11,SS=10;
+#elif defined(THINKERCAD_ESP32_S3)
+constexpr int SCK=12,MISO=13,MOSI=11,SS=10;
+#elif defined(THINKERCAD_ESP32)
+constexpr int SCK=18,MISO=19,MOSI=23,SS=5;
+#else
+constexpr int SCK=14,MISO=12,MOSI=13,SS=15;
 #endif
 namespace thinker {
 inline std::uint64_t clockUs = 0;

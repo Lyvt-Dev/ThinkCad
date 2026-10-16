@@ -4,6 +4,8 @@
 #include <QRegularExpression>
 #include <QTextBlock>
 #include <QResizeEvent>
+#include <QSettings>
+#include <QFontDatabase>
 class LineArea final:public QWidget{
     CodeEditor* editor_;
 public:explicit LineArea(CodeEditor* e):QWidget(e),editor_(e){}QSize sizeHint()const override{return {editor_->lineAreaWidth(),0};}
@@ -19,9 +21,18 @@ protected:void highlightBlock(const QString& text)override{
     setCurrentBlockState(0);int start=previousBlockState()==1?0:text.indexOf("/*");QTextCharFormat comment;comment.setForeground(QColor("#8a97a9"));while(start>=0){int end=text.indexOf("*/",start);if(end<0){setCurrentBlockState(1);setFormat(start,text.size()-start,comment);break;}setFormat(start,end-start+2,comment);start=text.indexOf("/*",end+2);}
 }};
 CodeEditor::CodeEditor(QWidget* parent):QPlainTextEdit(parent),lineArea_(new LineArea(this)){
-    setFont(QFont("Consolas",10));setTabStopDistance(28);setLineWrapMode(QPlainTextEdit::NoWrap);setMinimumWidth(240);setObjectName("codeEditor");new CppColors(document());
+    applyPreferences();setMinimumWidth(240);setObjectName("codeEditor");new CppColors(document());
     connect(this,&QPlainTextEdit::blockCountChanged,this,[this]{setViewportMargins(lineAreaWidth(),0,0,0);});
     connect(this,&QPlainTextEdit::updateRequest,this,[this](const QRect& r,int dy){if(dy)lineArea_->scroll(0,dy);else lineArea_->update(0,r.y(),lineArea_->width(),r.height());});setViewportMargins(lineAreaWidth(),0,0,0);
+}
+void CodeEditor::applyPreferences(){
+    QSettings settings;
+    auto selected=QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    selected.setPointSize(std::clamp(settings.value("editorFontSize",10).toInt(),8,28));
+    setFont(selected);
+    setTabStopDistance(fontMetrics().horizontalAdvance(' ')*std::clamp(settings.value("editorTabWidth",4).toInt(),2,8));
+    setLineWrapMode(settings.value("editorWordWrap",false).toBool()?QPlainTextEdit::WidgetWidth:QPlainTextEdit::NoWrap);
+    if(lineArea_)setViewportMargins(lineAreaWidth(),0,0,0);
 }
 int CodeEditor::lineAreaWidth()const{int digits=1,n=std::max(1,blockCount());while(n>=10){n/=10;++digits;}return 18+fontMetrics().horizontalAdvance('9')*digits;}
 void CodeEditor::resizeEvent(QResizeEvent* e){QPlainTextEdit::resizeEvent(e);lineArea_->setGeometry(contentsRect().left(),contentsRect().top(),lineAreaWidth(),contentsRect().height());}

@@ -15,6 +15,8 @@ struct ModuleDefinition {
     std::vector<std::string> pins;
     std::map<std::string,std::pair<double,double>> pinPositions;
     std::vector<ModuleParameter> parameters;
+    std::map<std::string,double> pullups;
+    double idleCurrent=.001;
     double width=18,height=24,minVoltage=3,maxVoltage=3.6;
     int address=0,spiMode=0;
     unsigned maxClock=400000;

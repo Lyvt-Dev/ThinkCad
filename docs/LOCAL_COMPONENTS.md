@@ -38,7 +38,11 @@ A minimal sensor with a read-only identity register and a temperature input:
 ```
 
 Coordinates and body size are millimetres. If positions are omitted, pins are
-arranged along the two sides. Models may use I2C or SPI register banks. Register
+arranged along the two sides. Models may use I2C or SPI register banks.
+`pullups` optionally maps signal pin names to resistances (330–100000 ohms) to
+the supply pin. `idleCurrent` is the approximate idle load at 3.3 V in amperes;
+the solver represents this as a resistive load, not a regulated constant current.
+Register
 addresses and values are bytes. A parameter mapping encodes `value × scale` in
 1–4 bytes; signed values use two's complement. Parameter registers represent
 inputs and cannot be overwritten by the sketch. Other non-read-only registers

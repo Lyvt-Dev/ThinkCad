@@ -237,6 +237,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
     }
     }
     for(const auto& p:parts_) {
+        if(p.kind==PartKind::Module){const auto& model=ModuleRegistry::get(p.model);if(model.idleCurrent>0)resistors.push_back({nodes.node({p.id,model.power}),nodes.node({p.id,model.ground}),3.3/model.idleCurrent});for(const auto& [pin,resistance]:model.pullups)resistors.push_back({nodes.node({p.id,pin}),nodes.node({p.id,model.power}),resistance});}
         if(p.kind==PartKind::ServoMotor)resistors.push_back({nodes.node({p.id,"VCC"}),nodes.node({p.id,"GND"}),1000});
         if(p.kind==PartKind::DcMotor){double companion=memory?parameter(p,"inductance",1)*.001/dt:0,current=memory&&memory->motorCurrent.contains(p.id)?memory->motorCurrent.at(p.id):0,speed=memory&&memory->motorSpeed.contains(p.id)?memory->motorSpeed.at(p.id):0;resistors.push_back({nodes.node({p.id,"+"}),nodes.node({p.id,"-"}),p.value+companion,.02*speed-companion*current});}
         if(p.kind==PartKind::Capacitor&&memory){
