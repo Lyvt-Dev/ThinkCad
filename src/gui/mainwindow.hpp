@@ -15,6 +15,7 @@
 #include "thinkercad/pixelbus.hpp"
 #include "thinkercad/uartbus.hpp"
 #include "thinkercad/interrupts.hpp"
+#include "localcollaboration.hpp"
 #include <QMainWindow>
 class QPlainTextEdit;
 class QLineEdit;
@@ -31,6 +32,8 @@ class QListWidget;
 class QDockWidget;
 class ModuleControls;
 class DebugTools;
+class CollaborationTools;
+class QMenu;
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
@@ -41,6 +44,9 @@ public:
     bool loadExample(const QString& id);
     void startSimulation();
     void startDebugging();
+    bool hostCollaboration(const QHostAddress& address=QHostAddress::AnyIPv4,quint16 port=0);
+    void joinCollaboration(const QString& address,quint16 port,const QString& ticket);
+    LocalCollaboration* collaboration(){return &collaboration_;}
     void resetSimulation();
     void showStartPage();
     bool startPageVisible() const;
@@ -60,6 +66,21 @@ public:
     bool setExecutionMode(thinkercad::ExecutionMode mode);
     QString sketchText()const;
 private:
+    LocalCollaboration collaboration_{this};
+    CollaborationTools* collaborationTools_=nullptr;
+    QTimer collaborationDebounce_;
+    QJsonObject collaborationBase_,submittedLocal_;
+    QString collaborationDraftPath_;
+    bool saveCollaborationDraft();
+    bool collaborationApplying_=false,collaborationJoining_=false,collaborationSubmitted_=false,collaborationConflict_=false,collaborationQueued_=false;
+    void setupCollaboration(QMenu* view);
+    void scheduleCollaboration();
+    void publishCollaboration();
+    void receiveCollaboration(const QJsonObject& document,quint64 revision,const QString& origin);
+    void applyCollaboration(const QJsonObject& document);
+    void flagCollaborationConflict(const QStringList& paths);
+    void resolveCollaboration(bool preferLocal);
+    void compareCollaboration();
     struct BoardRuntime {
         explicit BoardRuntime(QObject* parent):interpreter(parent){}
         thinkercad::Simulator clock;

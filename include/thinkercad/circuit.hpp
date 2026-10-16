@@ -62,8 +62,10 @@ public:
     static int displayHeight(const CircuitPart& part){return part.model=="ssd1306-128x32"?32:64;}
     std::string addPart(PartKind kind,double x,double y);
     void insertPart(CircuitPart part);
+    void setIdentityNamespace(const std::string& prefix);
     void removePart(const std::string& id);
     std::string connect(Endpoint a,Endpoint b,std::string color="#0d9488");
+    void insertWire(CircuitWire wire);
     void removeWire(const std::string& id);
     bool connected(const Endpoint& a,const Endpoint& b) const;
     void clearWires();
@@ -76,6 +78,7 @@ private:
     friend class TransientSimulation;
     CircuitState solveStep(const std::map<std::string,const Esp8266Board*>& boards,const ReactiveState* memory,double dt,double time)const;
     std::string activeBoard_;
+    std::string identityNamespace_;
     std::vector<CircuitPart> parts_;
     std::vector<CircuitWire> wires_;
     std::uint64_t nextPart_=1,nextWire_=1;

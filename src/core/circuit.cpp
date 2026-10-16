@@ -162,8 +162,12 @@ void CircuitDocument::insertPart(CircuitPart p) {
     if(p.kind==PartKind::Module){if(p.model.empty())p.model="bme280";const auto& definition=ModuleRegistry::get(p.model);for(const auto& param:definition.parameters){const auto value=parameter(p,param.name,param.initial);if(!std::isfinite(value)||value<param.min||value>param.max)throw std::invalid_argument("Module parameter outside range: "+param.name);}}
     parts_.push_back(std::move(p));
 }
+void CircuitDocument::setIdentityNamespace(const std::string& prefix){
+    if(prefix.size()>32||std::any_of(prefix.begin(),prefix.end(),[](unsigned char c){return !((c>='a'&&c<='z')||(c>='A'&&c<='Z')||(c>='0'&&c<='9')||c=='_'||c=='-');}))throw std::invalid_argument("Invalid identity namespace");
+    identityNamespace_=prefix;
+}
 std::string CircuitDocument::addPart(PartKind kind,double x,double y) {
-    std::string id;do{id="part_"+std::to_string(nextPart_++);}while(std::any_of(parts_.begin(),parts_.end(),[&](const auto& p){return p.id==id;}));
+    std::string id;do{id=identityNamespace_+"part_"+std::to_string(nextPart_++);}while(std::any_of(parts_.begin(),parts_.end(),[&](const auto& p){return p.id==id;}));
     insertPart({id,kind,x,y,componentSpec(kind).initial,kind==PartKind::NfcTestCard,"#fb586b",{},0,{}, {}});return id;
 }
 void CircuitDocument::removePart(const std::string& id) {
@@ -174,7 +178,12 @@ std::string CircuitDocument::connect(Endpoint a,Endpoint b,std::string color) {
     validateEndpoint(a);validateEndpoint(b);if(a==b)throw std::invalid_argument("Connect two different pins");
     if(wires_.size()>=300)throw std::invalid_argument("Maximum 300 wires");
     for(const auto& w:wires_)if((w.a==a&&w.b==b)||(w.a==b&&w.b==a))throw std::invalid_argument("These pins are already connected");
-    const auto id="wire_"+std::to_string(nextWire_++);wires_.push_back({id,std::move(a),std::move(b),std::move(color),{}});return id;
+    std::string id;do{id=identityNamespace_+"wire_"+std::to_string(nextWire_++);}while(std::any_of(wires_.begin(),wires_.end(),[&](const auto& wire){return wire.id==id;}));wires_.push_back({id,std::move(a),std::move(b),std::move(color),{}});return id;
+}
+void CircuitDocument::insertWire(CircuitWire wire){
+    if(wire.id.empty()||wire.id.size()>80||std::any_of(wires_.begin(),wires_.end(),[&](const auto& existing){return existing.id==wire.id;}))throw std::invalid_argument("Invalid or duplicate wire identity");
+    if(wire.points.size()>64||std::any_of(wire.points.begin(),wire.points.end(),[](const auto& point){return !std::isfinite(point.x)||!std::isfinite(point.y)||std::abs(point.x)>10000||std::abs(point.y)>10000;}))throw std::invalid_argument("Invalid wire bends");
+    connect(wire.a,wire.b,wire.color);wires_.back()=std::move(wire);
 }
 void CircuitDocument::removeWire(const std::string& id){auto old=wires_.size();std::erase_if(wires_,[&](const auto& w){return w.id==id;});if(old==wires_.size())throw std::invalid_argument("Unknown wire");}
 void CircuitDocument::clearWires(){wires_.clear();}
@@ -201,7 +210,7 @@ void CircuitDocument::validate() const {
         }
     }
     for(const auto& p:parts_){if(p.kind==PartKind::Note&&p.model.size()>4000)throw std::invalid_argument("Note exceeds 4000 UTF-8 bytes");if(p.rotation<0||p.rotation>=360||p.rotation%90)throw std::invalid_argument("Invalid component rotation");if(p.kind==PartKind::NfcTestCard&&p.model.size()>96)throw std::invalid_argument("NFC test text exceeds 96 bytes");if((p.kind==PartKind::InfraredRemote||p.kind==PartKind::RadioTransceiver)&&std::floor(p.value)!=p.value)throw std::invalid_argument("IR command must be an integer");if(p.kind==PartKind::Esp8266)(void)BoardProfile::get(p.model);if(p.kind==PartKind::Module){(void)ModuleRegistry::get(p.model);if(p.model=="ws2812"&&parameter(p,"pixels",8)!=std::floor(parameter(p,"pixels",8)))throw std::invalid_argument("Pixel count must be an integer");}}
-    for(const auto& w:wires_){validateEndpoint(w.a);validateEndpoint(w.b);if(w.points.size()>64)throw std::invalid_argument("Maximum 64 wire bends");for(const auto& point:w.points)if(!std::isfinite(point.x)||!std::isfinite(point.y)||std::abs(point.x)>10000||std::abs(point.y)>10000)throw std::invalid_argument("Invalid wire bend");}
+    ids.clear();for(const auto& w:wires_){if(w.id.empty()||w.id.size()>80||!ids.insert(w.id).second)throw std::invalid_argument("Invalid or duplicate wire identity");validateEndpoint(w.a);validateEndpoint(w.b);if(w.points.size()>64)throw std::invalid_argument("Maximum 64 wire bends");for(const auto& point:w.points)if(!std::isfinite(point.x)||!std::isfinite(point.y)||std::abs(point.x)>10000||std::abs(point.y)>10000)throw std::invalid_argument("Invalid wire bend");}
 }
 bool CircuitDocument::connected(const Endpoint& a,const Endpoint& b) const {validateEndpoint(a);validateEndpoint(b);Nodes nodes(*this);return nodes.node(a)==nodes.node(b);}
 CircuitState CircuitDocument::solve(const Esp8266Board& board) const {
