@@ -41,6 +41,7 @@ jobs:
           SIGNING_PFX_BASE64: ${{ secrets.SIGNING_PFX_BASE64 }}
           SIGNING_PFX_PASSWORD: ${{ secrets.SIGNING_PFX_PASSWORD }}
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+          QT_QPA_FONTDIR: C:/Windows/Fonts
         run: |
           $fingerprint = ''
           if ($env:SIGNING_PFX_BASE64) {
@@ -64,6 +65,7 @@ jobs:
           & ctest --test-dir build --output-on-failure
           $testExitCode = $LASTEXITCODE
           if (Test-Path build/desktop-tests.txt) { Get-Content build/desktop-tests.txt | Write-Host }
+          if (Test-Path build/experience-tests.txt) { Get-Content build/experience-tests.txt | Write-Host }
           if ($testExitCode -ne 0) { throw "CTest failed with exit code $testExitCode" }
           Invoke-Checked "$pwd/build/library_tests.exe" @('--live')
           Invoke-Checked cmake @('--install', 'build', '--prefix', "$pwd/out/stage")
