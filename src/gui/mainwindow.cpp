@@ -87,7 +87,8 @@ QToolButton* addSimulationButton(QToolBar* bar,QAction* action,const char* name)
     bar->addAction(action);
     auto* button=qobject_cast<QToolButton*>(bar->widgetForAction(action));
     button->setObjectName(name);button->setProperty("flatControl",true);
-    button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);button->setAutoRaise(true);
+    const bool simulationControl=QStringList{"runButton","resetButton","pauseButton","stepButton"}.contains(QString::fromLatin1(name));button->setProperty("simulationControl",simulationControl);
+    button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);button->setAutoRaise(!simulationControl);
     return button;
 }
 SketchProject blink(){SketchProject p;p.order={"sketch.ino"};p.files["sketch.ino"]="// ESP8266: Die eingebaute LED an GPIO2 ist aktiv-low.\nvoid setup() {\n    pinMode(LED_BUILTIN, OUTPUT);\n}\n\nvoid loop() {\n    digitalWrite(LED_BUILTIN, LOW);\n    delay(500);\n    digitalWrite(LED_BUILTIN, HIGH);\n    delay(500);\n}\n";return p;}
@@ -127,6 +128,7 @@ MainWindow::MainWindow(bool smokeTest):updater_(this),smokeTest_(smokeTest){
     auto* reset=new QAction("Reset",this);reset->setObjectName("resetSimulation");reset->setToolTip(Language::text("Simulation zurücksetzen · laufenden Sketch neu starten"));connect(reset,&QAction::triggered,this,&MainWindow::resetSimulation);
     run_->setIcon(AppIcons::icon(AppIcons::Symbol::Play));reset->setIcon(AppIcons::icon(AppIcons::Symbol::Reset));addSimulationButton(bar,run_,"runButton");addSimulationButton(bar,reset,"resetButton");
     addToolBarBreak();auto* speedBar=addToolBar(Language::text("Simulationstempo"));speedBar->setObjectName("speedBar");speedBar->setMovable(false);
+    auto* speedSpace=new QWidget;speedSpace->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);speedBar->addWidget(speedSpace);
     speedBar->addWidget(new QLabel(Language::text("Simulationsgeschwindigkeit")));auto* speed=new QSlider(Qt::Horizontal);speed->setObjectName("simulationSpeed");speed->setRange(0,80);speed->setValue(40);speed->setFixedWidth(140);speed->setAccessibleName(Language::text("Simulationsgeschwindigkeit"));speedBar->addWidget(speed);
     auto* speedInput=new QDoubleSpinBox;speedInput->setObjectName("simulationSpeedInput");speedInput->setRange(.1,10);speedInput->setDecimals(3);speedInput->setSingleStep(.1);speedInput->setValue(1);speedInput->setSuffix("×");speedInput->setKeyboardTracking(false);speedInput->setFixedWidth(108);speedInput->setAccessibleName(Language::text("Simulationsgeschwindigkeit"));speedBar->addWidget(speedInput);
     auto* normalSpeed=speedBar->addAction("1×");connect(normalSpeed,&QAction::triggered,speedInput,[speedInput]{speedInput->setValue(1);});
@@ -240,7 +242,7 @@ MainWindow::MainWindow(bool smokeTest):updater_(this),smokeTest_(smokeTest){
     auto* autosaveTimer=new QTimer(this);autosaveTimer->setInterval(15000);connect(autosaveTimer,&QTimer::timeout,this,&MainWindow::autosave);autosaveTimer->start();
     canvas_->clipboardSketches=[this]{syncBoardSketches();return boardSketches_;};canvas_->importClipboardSketches=[this](const auto& sketches){for(auto it=sketches.begin();it!=sketches.end();++it)boardSketches_[it.key()]=it.value();sketchesDirty_=true;syncBoardSketches();refreshTitle();};
     newProject();resizeDocks({partsDock,codeDock},{240,400},Qt::Horizontal);resizeDocks({consoleDock},{120},Qt::Vertical);
-    for(auto* button:bar->findChildren<QToolButton*>()){button->setAutoRaise(true);if(button->defaultAction()==pause_||button->defaultAction()==step||button->defaultAction()==wire||button->defaultAction()==color)button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);}
+    for(auto* button:bar->findChildren<QToolButton*>()){button->setAutoRaise(!button->property("simulationControl").toBool());if(button->defaultAction()==pause_||button->defaultAction()==step||button->defaultAction()==wire||button->defaultAction()==color)button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);}
     QTimer::singleShot(0,this,[this,partsDock,codeDock,consoleDock]{const auto area=screen()?screen()->availableGeometry():QRect(0,0,1280,800);const auto size=QSize(std::max(600,std::min(1360,area.width()-60)),std::max(420,std::min(850,area.height()-70)));resize(size);move(area.center()-rect().center());if(area.width()<1000&&!smokeTest_)codeDock->hide();if(smokeTest_&&QCoreApplication::arguments().join(' ').contains("--screenshot="))resize(1440,880);resizeDocks({partsDock,codeDock},{240,430},Qt::Horizontal);resizeDocks({consoleDock},{120},Qt::Vertical);QTimer::singleShot(0,canvas_,&CircuitCanvas::fitCircuit);});
     if(!smokeTest_)QTimer::singleShot(500,this,[this]{if(!ProjectRecovery::available().isEmpty())appendLog(Language::text("Wiederherstellbare Projekte gefunden: Datei → Projekte wiederherstellen…"));});
     if(smokeTest_){loadDemo();QTimer::singleShot(0,this,&MainWindow::startSimulation);QTimer::singleShot(std::clamp(qEnvironmentVariableIntValue("THINKCAD_SMOKE_TIMEOUT_MS")?qEnvironmentVariableIntValue("THINKCAD_SMOKE_TIMEOUT_MS"):20000,20000,300000),this,[]{std::cerr<<"Desktop smoke timed out\n";QCoreApplication::exit(1);});}else QTimer::singleShot(3000,&updater_,&Updater::check);

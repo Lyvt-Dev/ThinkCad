@@ -1,4 +1,5 @@
 #include "componentdesign.hpp"
+#include "notelayout.hpp"
 #include "language.hpp"
 #include <QFont>
 #include <QApplication>
@@ -152,7 +153,7 @@ QString ComponentDesign::current(){return preference();}
 void ComponentDesign::set(const QString& design){preference()=design=="realistic"?"realistic":"blocks";QSettings().setValue("componentDesign",preference());}
 bool ComponentDesign::realistic(){return current()=="realistic";}
 namespace {
-QRectF artBounds(const CircuitPart& part){if(part.kind==PartKind::Note)return {0,0,260,180};
+QRectF artBounds(const CircuitPart& part){if(part.kind==PartKind::Note)return noteBounds(part);
     if(part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd)return {-10,-10,250,160};
     if(part.kind==PartKind::Junction)return {-12,-12,24,24};if(part.kind==PartKind::NetLabel)return {-8,-26,150,42};
     if(part.kind==PartKind::Esp8266){const auto profile=BoardProfile::get(part.model);

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(ThinkCad VERSION 1.2.1 LANGUAGES CXX)
+project(ThinkCad VERSION 1.2.2 LANGUAGES CXX)
 if(APPLE)
   message(FATAL_ERROR "ThinkCad supports Windows and Linux only. macOS is not supported.")
 endif()

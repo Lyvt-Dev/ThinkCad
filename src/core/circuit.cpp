@@ -183,7 +183,8 @@ void CircuitDocument::validate() const {
         if(p.parameters.size()>16)throw std::invalid_argument("Too many component parameters");
         for(const auto& [key,value]:p.parameters){
             if(!std::isfinite(value))throw std::invalid_argument("Non-finite component parameter");
-            bool valid=p.kind==PartKind::FunctionGenerator&&((key=="amplitude"&&value>=0&&value<=25)||(key=="offset"&&std::abs(value)<=25)||(key=="duty"&&value>=0.01&&value<=0.99)||(key=="waveform"&&value>=0&&value<=3&&std::floor(value)==value));
+            bool valid=p.kind==PartKind::Note&&(key=="noteWidth"||key=="noteHeight")&&value>=32&&value<=4096;
+            valid|=p.kind==PartKind::FunctionGenerator&&((key=="amplitude"&&value>=0&&value<=25)||(key=="offset"&&std::abs(value)<=25)||(key=="duty"&&value>=0.01&&value<=0.99)||(key=="waveform"&&value>=0&&value<=3&&std::floor(value)==value));
             valid|=p.kind==PartKind::Inductor&&key=="resistance"&&value>=0.001&&value<=100000;
             valid|=(p.kind==PartKind::NMosfet||p.kind==PartKind::PMosfet)&&key=="k"&&value>=0.00001&&value<=10;
             valid|=p.kind==PartKind::Resistor&&key=="powerRating"&&value>=.01&&value<=1000;

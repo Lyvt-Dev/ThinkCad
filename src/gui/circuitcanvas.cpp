@@ -1,3 +1,5 @@
+#include "notelayout.hpp"
+#include <QGraphicsSceneHoverEvent>
 #include <QGraphicsSimpleTextItem>
 #include <QDragEnterEvent>
 #include <QMimeData>
@@ -35,7 +37,7 @@ QPainterPath wirePath(QPointF a,QPointF b) {QPainterPath p(a);p.lineTo(b);return
 QString partName(PartKind kind){return Language::text(QString::fromStdString(componentSpec(kind).label));}
 bool switchable(PartKind kind){return kind==PartKind::InfraredRemote||kind==PartKind::NfcTestCard||kind==PartKind::ToggleSwitch||kind==PartKind::Button||kind==PartKind::SlideSwitch||kind==PartKind::TiltSwitch||kind==PartKind::ReedSwitch;}
 double blockBoardScale(const CircuitPart& part){return part.kind==PartKind::Esp8266&&BoardProfile::get(part.model).arduino()?1.25:1.0;}
-QRectF blockBounds(const CircuitPart& part){const double scale=blockBoardScale(part);if(part.kind==PartKind::Note)return QRectF(0,0,260,180);return part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd?QRectF(-10,-10,250,160):part.kind==PartKind::Junction?QRectF(-12,-12,24,24):part.kind==PartKind::NetLabel?QRectF(-8,-26,150,42):part.kind==PartKind::Esp8266?QRectF(-10*scale,-10*scale,230*scale,scale*std::max(370,202+static_cast<int>((CircuitDocument::pins(part).size()+1)/2-1)*24)):part.kind==PartKind::Oled?QRectF(-10,-10,310,224):part.kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*20));}
+QRectF blockBounds(const CircuitPart& part){const double scale=blockBoardScale(part);if(part.kind==PartKind::Note)return noteBounds(part);return part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd?QRectF(-10,-10,250,160):part.kind==PartKind::Junction?QRectF(-12,-12,24,24):part.kind==PartKind::NetLabel?QRectF(-8,-26,150,42):part.kind==PartKind::Esp8266?QRectF(-10*scale,-10*scale,230*scale,scale*std::max(370,202+static_cast<int>((CircuitDocument::pins(part).size()+1)/2-1)*24)):part.kind==PartKind::Oled?QRectF(-10,-10,310,224):part.kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*20));}
 QPointF localPin(const CircuitPart& part,const std::string& pin) {if(ComponentDesign::realistic())return ComponentDesign::pinPosition(part,pin);const auto kind=part.kind;
     if(kind==PartKind::CharacterLcd||kind==PartKind::I2cCharacterLcd){const auto names=CircuitDocument::pins(part);const auto i=std::find(names.begin(),names.end(),pin)-names.begin();return {10.+i*(kind==PartKind::CharacterLcd?14.:60.),140};}
     if(kind==PartKind::Junction||kind==PartKind::NetLabel)return {0,0};
@@ -101,21 +103,72 @@ class PartItem final:public QGraphicsItem {
     bool initializing_=true;
     bool realistic_=ComponentDesign::realistic();
     QRectF bounds_;
+    Qt::Edges resizeEdges_;
+    QRectF resizeStart_;
+    QPointF resizePointer_;
+    bool noteHover_=false;
+    Qt::Edges edgesAt(QPointF point)const{
+        const auto transform=canvas_->viewportTransform();
+        const double tolerance=std::min({bounds_.width()/4,bounds_.height()/4,6./std::max(.05,std::hypot(transform.m11(),transform.m12()))});
+        Qt::Edges edges;
+        if(std::abs(point.x()-bounds_.left())<=tolerance)edges|=Qt::LeftEdge;
+        else if(std::abs(point.x()-bounds_.right())<=tolerance)edges|=Qt::RightEdge;
+        if(std::abs(point.y()-bounds_.top())<=tolerance)edges|=Qt::TopEdge;
+        else if(std::abs(point.y()-bounds_.bottom())<=tolerance)edges|=Qt::BottomEdge;
+        return edges;
+    }
+    void noteCursor(QPointF point){
+        auto edges=edgesAt(point);bool horizontal=edges.testFlag(Qt::LeftEdge)||edges.testFlag(Qt::RightEdge),vertical=edges.testFlag(Qt::TopEdge)||edges.testFlag(Qt::BottomEdge);
+        const bool quarterTurn=int(rotation())%180!=0;
+        if(horizontal&&vertical){bool forward=(edges.testFlag(Qt::LeftEdge)&&edges.testFlag(Qt::TopEdge))||(edges.testFlag(Qt::RightEdge)&&edges.testFlag(Qt::BottomEdge));setCursor(forward!=quarterTurn?Qt::SizeFDiagCursor:Qt::SizeBDiagCursor);}
+        else if(horizontal||vertical)setCursor(horizontal!=quarterTurn?Qt::SizeHorCursor:Qt::SizeVerCursor);
+        else setCursor(Qt::OpenHandCursor);
+    }
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event)override{if(kind==PartKind::Note&&canvas_->editingEnabled()){noteHover_=true;noteCursor(event->pos());update();}QGraphicsItem::hoverEnterEvent(event);}
+    void hoverMoveEvent(QGraphicsSceneHoverEvent* event)override{if(kind==PartKind::Note&&canvas_->editingEnabled()){noteHover_=true;noteCursor(event->pos());update();}QGraphicsItem::hoverMoveEvent(event);}
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event)override{noteHover_=false;if(kind==PartKind::Note)setCursor(canvas_->editingEnabled()?Qt::OpenHandCursor:Qt::ArrowCursor);update();QGraphicsItem::hoverLeaveEvent(event);}
+
 public:
     std::string id;PartKind kind;CircuitState state;Frame visible;double brightness=1;
-    PartItem(CircuitCanvas* c,const CircuitPart& p):canvas_(c),bounds_(realistic_&&p.kind!=PartKind::Note?ComponentDesign::bounds(p):blockBounds(p)),id(p.id),kind(p.kind){setData(0,"part");setData(1,QString::fromStdString(id));setFlags(ItemIsSelectable|ItemIsMovable|ItemSendsGeometryChanges);setZValue(1);setPos(p.x,p.y);setTransformOriginPoint(boundingRect().center());setRotation(p.rotation);initializing_=false;setCursor(Qt::OpenHandCursor);if(kind==PartKind::Note)setToolTip(QString::fromStdString(p.model));for(const auto& pin:CircuitDocument::pins(p)){auto point=localPin(p,pin);auto* port=new PinItem(c,{id,pin},this);port->setPos(point);if(kind!=PartKind::Esp8266&&(kind!=PartKind::Oled||realistic_)&&kind!=PartKind::Breadboard30&&kind!=PartKind::NetLabel&&kind!=PartKind::Junction){auto* badge=new QGraphicsRectItem(this);auto* name=new QGraphicsSimpleTextItem(QString::fromStdString(pin),badge);QFont font("Sans Serif");font.setPixelSize(8);name->setFont(font);name->setBrush(QColor("#203b44"));auto size=name->boundingRect().size();badge->setRect(0,0,size.width()+4,size.height()+2);badge->setPen(Qt::NoPen);badge->setBrush(QColor(255,255,255,235));name->setPos(2,1);double x=point.x()<bounds_.center().x()?point.x()+8:point.x()-size.width()-12;double y=point.y()-size.height()-4;if(point.y()>bounds_.bottom()-30)x=point.x()-size.width()/2-2;if(kind==PartKind::Oled){x=point.x()-size.width()/2-2;y=point.y()+7;}badge->setPos(x,y);badge->setTransformOriginPoint(badge->rect().center());badge->setRotation((kind==PartKind::Oled?-90:0)-p.rotation);badge->setZValue(5);badge->setAcceptedMouseButtons(Qt::NoButton);badge->setData(0,"pinLabel");badge->setData(1,QString::fromStdString(id));badge->setData(2,QString::fromStdString(pin));name->setAcceptedMouseButtons(Qt::NoButton);}}}
+    PartItem(CircuitCanvas* c,const CircuitPart& p):canvas_(c),bounds_(realistic_&&p.kind!=PartKind::Note?ComponentDesign::bounds(p):blockBounds(p)),id(p.id),kind(p.kind){setData(0,"part");setData(1,QString::fromStdString(id));setFlags(ItemIsSelectable|ItemIsMovable|ItemSendsGeometryChanges);setZValue(1);setPos(p.x,p.y);setTransformOriginPoint(boundingRect().center());setRotation(p.rotation);initializing_=false;setCursor(Qt::OpenHandCursor);if(kind==PartKind::Note){setToolTip(QString::fromStdString(p.model));setAcceptHoverEvents(true);}for(const auto& pin:CircuitDocument::pins(p)){auto point=localPin(p,pin);auto* port=new PinItem(c,{id,pin},this);port->setPos(point);if(kind!=PartKind::Esp8266&&(kind!=PartKind::Oled||realistic_)&&kind!=PartKind::Breadboard30&&kind!=PartKind::NetLabel&&kind!=PartKind::Junction){auto* badge=new QGraphicsRectItem(this);auto* name=new QGraphicsSimpleTextItem(QString::fromStdString(pin),badge);QFont font("Sans Serif");font.setPixelSize(8);name->setFont(font);name->setBrush(QColor("#203b44"));auto size=name->boundingRect().size();badge->setRect(0,0,size.width()+4,size.height()+2);badge->setPen(Qt::NoPen);badge->setBrush(QColor(255,255,255,235));name->setPos(2,1);double x=point.x()<bounds_.center().x()?point.x()+8:point.x()-size.width()-12;double y=point.y()-size.height()-4;if(point.y()>bounds_.bottom()-30)x=point.x()-size.width()/2-2;if(kind==PartKind::Oled){x=point.x()-size.width()/2-2;y=point.y()+7;}badge->setPos(x,y);badge->setTransformOriginPoint(badge->rect().center());badge->setRotation((kind==PartKind::Oled?-90:0)-p.rotation);badge->setZValue(5);badge->setAcceptedMouseButtons(Qt::NoButton);badge->setData(0,"pinLabel");badge->setData(1,QString::fromStdString(id));badge->setData(2,QString::fromStdString(pin));name->setAcceptedMouseButtons(Qt::NoButton);}}}
     QRectF boundingRect()const override{return bounds_;}
     QVariant itemChange(GraphicsItemChange change,const QVariant& v)override{
         if(change==ItemPositionChange&&!initializing_){auto pos=v.toPointF();pos=canvas_->snapped(pos);return QPointF(std::clamp(pos.x(),-9500.0,9500.0),std::clamp(pos.y(),-9500.0,9500.0));}
         if(change==ItemPositionHasChanged&&!initializing_){try{auto& p=const_cast<CircuitDocument&>(canvas_->document()).part(id);p.x=pos().x();p.y=pos().y();}catch(const std::exception&){} }
         return QGraphicsItem::itemChange(change,v);
     }
-    void mousePressEvent(QGraphicsSceneMouseEvent* e)override{before_=canvas_->document();QGraphicsItem::mousePressEvent(e);}
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent* e)override{QGraphicsItem::mouseReleaseEvent(e);if(canvas_->editingEnabled()){const auto& a=before_.part(id);const auto& b=canvas_->document().part(id);if(a.x!=b.x||a.y!=b.y){const auto old=before_;QTimer::singleShot(0,canvas_,[c=canvas_,old]{c->recordMove(old);});}}}
+    void mousePressEvent(QGraphicsSceneMouseEvent* e)override{
+        before_=canvas_->document();
+        if(kind==PartKind::Note&&canvas_->editingEnabled()&&e->button()==Qt::LeftButton){resizeEdges_=edgesAt(e->pos());if(resizeEdges_){resizeStart_=bounds_;resizePointer_=e->pos();setSelected(true);e->accept();return;}}
+        QGraphicsItem::mousePressEvent(e);
+    }
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* e)override{
+        if(resizeEdges_){if(canvas_->editingEnabled()){
+            auto rect=resizeStart_;const auto delta=mapFromScene(e->scenePos())-resizePointer_;
+            if(resizeEdges_.testFlag(Qt::LeftEdge))rect.setLeft(std::clamp(rect.left()+delta.x(),rect.right()-4096,rect.right()-32));
+            if(resizeEdges_.testFlag(Qt::RightEdge))rect.setRight(std::clamp(rect.right()+delta.x(),rect.left()+32,rect.left()+4096));
+            if(resizeEdges_.testFlag(Qt::TopEdge))rect.setTop(std::clamp(rect.top()+delta.y(),rect.bottom()-4096,rect.bottom()-32));
+            if(resizeEdges_.testFlag(Qt::BottomEdge))rect.setBottom(std::clamp(rect.bottom()+delta.y(),rect.top()+32,rect.top()+4096));
+            prepareGeometryChange();bounds_=rect;update();
+        }e->accept();return;}QGraphicsItem::mouseMoveEvent(e);
+    }
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent* e)override{
+        if(resizeEdges_){resizeEdges_={};const auto rect=bounds_;
+            if(canvas_->editingEnabled()&&rect!=resizeStart_){
+                const auto corner=mapToScene(rect.topLeft()),center=QPointF(rect.width()/2,rect.height()/2);QTransform rotate;rotate.rotate(rotation());const auto position=corner-center+rotate.map(center);
+                QTimer::singleShot(0,canvas_,[c=canvas_,partId=id,position,size=rect.size()]{if(!c->editingEnabled())return;c->mutate(Language::text("Notiz bearbeiten"),[&](auto& doc){auto& part=doc.part(partId);part.x=position.x();part.y=position.y();part.parameters["noteWidth"]=size.width();part.parameters["noteHeight"]=size.height();});});
+            }
+            // Restore the preview before the deferred transaction; failed or cancelled
+            // edits must leave the item consistent with the saved document.
+            prepareGeometryChange();bounds_=blockBounds(canvas_->document().part(id));update();
+            e->accept();return;
+        }
+        QGraphicsItem::mouseReleaseEvent(e);if(canvas_->editingEnabled()){const auto& a=before_.part(id);const auto& b=canvas_->document().part(id);if(a.x!=b.x||a.y!=b.y){const auto old=before_;QTimer::singleShot(0,canvas_,[c=canvas_,old]{c->recordMove(old);});}}}
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* e)override{if(kind==PartKind::Note&&canvas_->editingEnabled()){canvas_->editNote(id);e->accept();return;}if(switchable(kind)){canvas_->toggleButton(id);e->accept();}else QGraphicsItem::mouseDoubleClickEvent(e);}
     void paint(QPainter* p,const QStyleOptionGraphicsItem*,QWidget*)override{
         const auto& part=canvas_->document().part(id);p->setRenderHint(QPainter::Antialiasing);
-        if(kind==PartKind::Note){p->setPen(QPen(isSelected()?QColor("#168a9e"):QColor("#cfb866"),isSelected()?2:1));p->setBrush(QColor("#fff2b9"));p->drawRoundedRect(QRectF(0,0,260,180),7,7);p->setPen(QColor("#4e431e"));p->setFont(QFont("Sans Serif",10));p->drawText(QRectF(14,12,232,156),Qt::TextWordWrap|Qt::AlignLeft|Qt::AlignTop,part.model.empty()?Language::text("Notiz doppelklicken, um Text zu bearbeiten."):QString::fromStdString(part.model));return;}
+        if(kind==PartKind::Note){p->setPen(QPen(isSelected()?QColor("#168a9e"):QColor("#cfb866"),isSelected()?2:1));p->setBrush(QColor("#fff2b9"));p->drawRoundedRect(bounds_.adjusted(1,1,-1,-1),4,4);p->save();p->setClipRect(bounds_.adjusted(8,8,-8,-8));p->setPen(QColor("#4e431e"));p->setFont(noteFont());p->drawText(bounds_.adjusted(8,8,-8,-8),Qt::TextWordWrap|Qt::TextWrapAnywhere|Qt::AlignLeft|Qt::AlignTop,noteText(part));p->restore();
+            if(canvas_->editingEnabled()&&(isSelected()||noteHover_)){p->setPen(QPen(QColor("#168a9e"),1));p->setBrush(Qt::white);const auto r=bounds_.adjusted(3,3,-3,-3);for(auto point:{r.topLeft(),r.topRight(),r.bottomLeft(),r.bottomRight(),QPointF(r.center().x(),r.top()),QPointF(r.center().x(),r.bottom()),QPointF(r.left(),r.center().y()),QPointF(r.right(),r.center().y())})p->drawRect(QRectF(point-QPointF(2,2),QSizeF(4,4)));}return;}
         if(kind==PartKind::CharacterLcd||kind==PartKind::I2cCharacterLcd){p->setPen(QPen(isSelected()?QColor("#2563eb"):QColor("#215b47"),2));p->setBrush(QColor("#187454"));p->drawRoundedRect(QRectF(0,0,230,130),4,4);p->setBrush(QColor("#172c21"));p->drawRect(QRectF(10,20,210,90));p->setBrush(brightness>.5?QColor("#a8be67"):QColor("#788065"));p->drawRect(QRectF(17,27,196,76));p->setPen(QColor("#d9e4d3"));p->setFont(QFont("Sans Serif",8));p->drawText(QRectF(10,1,210,18),Qt::AlignCenter,part.model=="lcd-20x4"?"HD44780 · 20 × 4":"HD44780 · 16 × 2");int cols=part.model=="lcd-20x4"?20:16,rows=part.model=="lcd-20x4"?4:2;double sx=190.0/(cols*6),sy=68.0/(rows*10);p->setPen(Qt::NoPen);p->setBrush(QColor("#263d22"));for(int y=0;y<rows*10;++y)for(int x=0;x<cols*6;++x)if(visible.pixel(x,y))p->drawRect(QRectF(20+x*sx,31+y*sy,std::max(.5,sx-.3),std::max(.5,sy-.3)));return;}
         if(kind==PartKind::Junction){p->setPen(Qt::NoPen);p->setBrush(isSelected()?QColor("#2563eb"):QColor("#0d9488"));p->drawEllipse(QPointF(0,0),5,5);return;}
         if(kind==PartKind::NetLabel){p->setPen(isSelected()?QColor("#2563eb"):QColor("#0d9488"));p->drawLine(QPointF(0,0),QPointF(140,0));p->setFont(QFont("Sans Serif",9));p->drawText(QRectF(10,-24,135,22),Qt::AlignLeft|Qt::AlignVCenter,QString::fromStdString(part.netName));return;}

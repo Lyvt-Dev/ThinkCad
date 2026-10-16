@@ -5,8 +5,9 @@
 #include <QApplication>
 #include <QStyle>
 QIcon AppIcons::icon(Symbol symbol){
-    if(symbol==Symbol::NewProject||symbol==Symbol::Folder||symbol==Symbol::Save||symbol==Symbol::Pause||symbol==Symbol::Step||symbol==Symbol::Wire||symbol==Symbol::Palette){QPixmap pixmap(48,48);pixmap.fill(Qt::transparent);QPainter p(&pixmap);p.setRenderHint(QPainter::Antialiasing);p.scale(2,2);p.setPen(QPen(QColor("#168a9e"),1.8,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin));p.setBrush(Qt::NoBrush);
-        if(symbol==Symbol::Folder){QPainterPath path;path.moveTo(3,19);path.lineTo(3,6);path.lineTo(9,6);path.lineTo(11,9);path.lineTo(21,9);path.lineTo(19,19);path.closeSubpath();p.drawPath(path);p.drawLine(4,12,19,12);}
+    if(symbol==Symbol::Home||symbol==Symbol::NewProject||symbol==Symbol::Folder||symbol==Symbol::Save||symbol==Symbol::Pause||symbol==Symbol::Step||symbol==Symbol::Wire||symbol==Symbol::Palette){QPixmap pixmap(48,48);pixmap.fill(Qt::transparent);QPainter p(&pixmap);p.setRenderHint(QPainter::Antialiasing);p.scale(2,2);p.setPen(QPen(QColor("#168a9e"),1.8,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin));p.setBrush(Qt::NoBrush);
+        if(symbol==Symbol::Home){QPainterPath path;path.moveTo(3,11);path.lineTo(12,3);path.lineTo(21,11);p.drawPath(path);path=QPainterPath();path.moveTo(5,10);path.lineTo(5,21);path.lineTo(10,21);path.lineTo(10,15);path.lineTo(14,15);path.lineTo(14,21);path.lineTo(19,21);path.lineTo(19,10);p.drawPath(path);}
+        else if(symbol==Symbol::Folder){QPainterPath path;path.moveTo(3,19);path.lineTo(3,6);path.lineTo(9,6);path.lineTo(11,9);path.lineTo(21,9);path.lineTo(19,19);path.closeSubpath();p.drawPath(path);p.drawLine(4,12,19,12);}
         else if(symbol==Symbol::Save){p.drawRoundedRect(QRectF(3,3,18,18),4,4);p.drawLine(12,6,12,15);p.drawLine(8,11,12,15);p.drawLine(12,15,16,11);p.drawLine(7,18,17,18);}
         else if(symbol==Symbol::NewProject){p.drawRoundedRect(QRectF(5,3,14,18),2,2);p.drawLine(8,12,16,12);p.drawLine(12,8,12,16);}
         else if(symbol==Symbol::Pause){p.drawLine(8,5,8,19);p.drawLine(16,5,16,19);}

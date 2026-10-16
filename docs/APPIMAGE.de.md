@@ -12,19 +12,19 @@ Bibliotheken und Zugriff auf das USB-Gerät.
 
 ## Starten – auch auf Gentoo
 
-Im GitHub-Release `ThinkCad-1.2.0-x86_64.AppImage` herunterladen. Die Datei in einem
+Im GitHub-Release `ThinkCad-1.2.2-x86_64.AppImage` herunterladen. Die Datei in einem
 vom eigenen Benutzer beschreibbaren Ordner ablegen, zum Beispiel `~/Applications`.
 Nach dem Download dort ausführen:
 
 ```sh
-chmod +x ThinkCad-1.2.0-x86_64.AppImage
-./ThinkCad-1.2.0-x86_64.AppImage
+chmod +x ThinkCad-1.2.2-x86_64.AppImage
+./ThinkCad-1.2.2-x86_64.AppImage
 ```
 
 Falls FUSE fehlt, funktioniert die Extraktionsvariante ohne Root-Rechte:
 
 ```sh
-APPIMAGE_EXTRACT_AND_RUN=1 ./ThinkCad-1.2.0-x86_64.AppImage
+APPIMAGE_EXTRACT_AND_RUN=1 ./ThinkCad-1.2.2-x86_64.AppImage
 ```
 
 Voraussetzungen: x86_64-Linux mit **glibc ≥2.35**, eine grafische X11- oder
@@ -52,7 +52,7 @@ kann den Austausch blockieren. Es werden keine Root-Rechte angefordert.
 Eine über Portage, DEB oder RPM installierte Kopie wird weiterhin mit ihrer
 Paketverwaltung aktualisiert. Wer auf Gentoo die integrierte Aktualisierung
 verwenden möchte, startet stattdessen die AppImage. Ein Update aus 1.0.0 kann keine
-AppImage-Funktion nachrüsten: dazu die 1.2.0-AppImage einmal herunterladen.
+AppImage-Funktion nachrüsten: dazu die aktuelle AppImage einmal herunterladen.
 
 ## Bauen und Prüfen
 

@@ -9,6 +9,18 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.2.2
+
+- Simulationsgeschwindigkeit wieder rechts in der Werkzeugleiste, mit Regler und Zahlenfeld.
+- Die Schaltfläche Startseite zeigt ein eindeutig erkennbares Haus-Symbol.
+- Simulation starten, Reset, Pause und Zeitschritt haben sichtbare Flächen,
+  Rahmen und Zustände für Hover, Drücken und Pause – im hellen und dunklen Design.
+
+- Neue Notizen passen sich dem Text an und lassen sich an Kanten und Ecken
+  vergrößern oder verkleinern. Größe und Position werden mitgespeichert.
+
+[Release Notes 1.2.2](docs/RELEASE_NOTES_1.2.2.md)
+
 ## Neu in 1.2.1
 
 - Laufende Schaltungen lassen sich nicht auswählen oder verkabeln; Taster
@@ -149,7 +161,7 @@ prüft es und baut die Anwendung.
 
 Diese Anleitung setzt einen vorhandenen **Gentoo-Desktop auf amd64** mit
 eingerichtetem Gentoo-Repository, funktionierendem Internetzugang und einer X11-
-oder Wayland-Sitzung voraus. Das Ebuild für 1.2.0 benötigt **Qt ≥6.11**,
+oder Wayland-Sitzung voraus. Das aktuelle Ebuild benötigt **Qt ≥6.11**,
 **GCC ≥12 mit C++-Unterstützung**, CMake, Ninja und zlib. Die folgenden Befehle
 aktivieren Beispielsketches, beide Anzeige-Backends und die Testsuite.
 Für die Anwendung muss derzeit die Lizenz `all-rights-reserved` akzeptiert werden;
@@ -357,7 +369,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=1.2.1 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=1.2.2 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

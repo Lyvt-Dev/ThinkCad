@@ -168,7 +168,7 @@ private slots:
         auto* run=window.findChild<QToolButton*>("runButton");auto* reset=window.findChild<QToolButton*>("resetButton");QVERIFY(run&&reset);QVERIFY(run->isVisible()&&reset->isVisible());QVERIFY2(reset->geometry().left()-run->geometry().right()>=10,qPrintable(QString("Run %1,%2 Reset %3,%4").arg(run->x()).arg(run->width()).arg(reset->x()).arg(reset->width())));QCOMPARE(run->height(),reset->height());
         for(const auto* name:{"runButton","resetButton","pauseButton","stepButton","wireButton","wireColorButton"}){
             auto* button=window.findChild<QToolButton*>(name);QVERIFY(button);QCOMPARE(button->height(),run->height());
-            QVERIFY(!button->icon().isNull());QVERIFY(button->autoRaise());QCOMPARE(button->toolButtonStyle(),Qt::ToolButtonTextBesideIcon);
+            QVERIFY(!button->icon().isNull());QCOMPARE(button->autoRaise(),!button->property("simulationControl").toBool());QCOMPARE(button->toolButtonStyle(),Qt::ToolButtonTextBesideIcon);
         }
     }
     void pinNamesAndPhysicalScale(){
