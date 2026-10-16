@@ -10,6 +10,11 @@ on:
         description: Successful Linux and Gentoo build run
         required: true
         type: string
+      allow_failed_gentoo:
+        description: Publish successful Windows/Ubuntu/Fedora builds despite a failed Gentoo job
+        required: false
+        default: false
+        type: boolean
       tag:
         description: Existing release tag
         required: true
@@ -26,6 +31,7 @@ jobs:
       RUN_ID: ${{ inputs.run_id }}
       TAG: ${{ inputs.tag }}
       LINUX_RUN_ID: ${{ inputs.linux_run_id }}
+      ALLOW_FAILED_GENTOO: ${{ inputs.allow_failed_gentoo }}
     steps:
       - name: Validate build provenance
         shell: bash
@@ -41,7 +47,11 @@ jobs:
           test "$build_sha" = "$tag_sha"
           [[ "$LINUX_RUN_ID" =~ ^[0-9]+$ ]]
           gh api "repos/$GH_REPO/actions/runs/$LINUX_RUN_ID" > linux-run.json
-          test "$(jq -r '.conclusion' linux-run.json)" = success
+          if test "$(jq -r '.conclusion' linux-run.json)" != success; then
+            test "$ALLOW_FAILED_GENTOO" = true
+            gh api "repos/$GH_REPO/actions/runs/$LINUX_RUN_ID/jobs" > linux-jobs.json
+            jq -e '([.jobs[] | select(.name == "ubuntu" and .conclusion == "success")] | length) == 1 and ([.jobs[] | select(.name == "fedora" and .conclusion == "success")] | length) == 1' linux-jobs.json
+          fi
           test "$(jq -r '.name' linux-run.json)" = 'Linux and Gentoo'
           test "$(jq -r '.head_sha' linux-run.json)" = "$tag_sha"
       - name: Retrieve verified installer and corresponding sources
@@ -49,6 +59,12 @@ jobs:
           gh run download "$RUN_ID" --repo "$GH_REPO" --name ThinkCad-Windows --dir installer
           gh run download "$LINUX_RUN_ID" --repo "$GH_REPO" --name ThinkCad-Linux-Ubuntu --dir installer
           gh run download "$LINUX_RUN_ID" --repo "$GH_REPO" --name ThinkCad-Linux-Fedora --dir installer
+      - name: Record Gentoo validation status
+        shell: bash
+        run: |
+          if test "$(jq -r '.conclusion' linux-run.json)" != success; then
+            printf '\n\nGentoo CI failed; its overlay is included but CI validation is not green. Windows, Ubuntu and Fedora passed. Details: https://github.com/%s/actions/runs/%s\n' "$GH_REPO" "$LINUX_RUN_ID" >> installer/RELEASE_NOTES.md
+          fi
       - name: Verify published payload checksums
         working-directory: installer
         shell: bash
