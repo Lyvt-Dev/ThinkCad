@@ -152,7 +152,7 @@ QString ComponentDesign::current(){return preference();}
 void ComponentDesign::set(const QString& design){preference()=design=="realistic"?"realistic":"blocks";QSettings().setValue("componentDesign",preference());}
 bool ComponentDesign::realistic(){return current()=="realistic";}
 namespace {
-QRectF artBounds(const CircuitPart& part){
+QRectF artBounds(const CircuitPart& part){if(part.kind==PartKind::Note)return {0,0,260,180};
     if(part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd)return {-10,-10,250,160};
     if(part.kind==PartKind::Junction)return {-12,-12,24,24};if(part.kind==PartKind::NetLabel)return {-8,-26,150,42};
     if(part.kind==PartKind::Esp8266){const auto profile=BoardProfile::get(part.model);
@@ -234,7 +234,7 @@ QTransform physicalTransform(const CircuitPart& part){
     case PartKind::ServoMotor:case PartKind::DcMotor:drawing={160,130};millimetres={25,20};break;
     case PartKind::AndGate:case PartKind::NandGate:case PartKind::OrGate:case PartKind::NorGate:case PartKind::XorGate:case PartKind::XnorGate:case PartKind::NotGate:drawing={160,130};millimetres={18,14};break;
     case PartKind::CharacterLcd:case PartKind::I2cCharacterLcd:drawing={6,6};millimetres={1,1};break;
-    case PartKind::Junction:case PartKind::NetLabel:drawing={6,6};millimetres={1,1};break;
+    case PartKind::Note:case PartKind::Junction:case PartKind::NetLabel:drawing={6,6};millimetres={1,1};break;
     case PartKind::Esp8266:{const auto id=BoardProfile::get(part.model).id;
         if(id=="arduino-uno"){drawing={300,220};millimetres={85.75,66.75};}
         else if(id=="arduino-nano"){drawing={100,272};millimetres={22.5,56.25};}
@@ -317,7 +317,8 @@ void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitSta
         if(powered){auto light=QColor("#87e8ff");light.setAlphaF(brightness);p.setBrush(light);const double sx=244.0/frame.width,sy=screenHeight/CircuitDocument::displayHeight(part);
             for(int y=0;y<std::min(frame.height,CircuitDocument::displayHeight(part));++y)for(int x=0;x<frame.width;++x)if(frame.pixel(x,y))p.drawRect(QRectF(24+x*sx,24+y*sy,sx*0.9,sy*0.9));}
         const double pitch=15.24/scale.m11();header(p,{146-2*pitch,height-15.24/scale.m22(),4*pitch,15.24/scale.m22()});
-        if(!small)label(p,{30,height-52,232,16},"SSD1306",Qt::white,7);break;}
+        if(!small)label(p,{30,height-52,232,16},"SSD1306",Qt::white,7);
+        break;}
     case PartKind::Breadboard30:{
         body(p,{0,0,570,260},QColor("#eeeae1"),8);p.setPen(Qt::NoPen);p.setBrush(QColor("#c9c6bf"));p.drawRoundedRect(10,126,550,15,3,3);
         for(int i=0;i<30;++i){if(i==0||(i+1)%5==0)label(p,{12.0+i*18,9,18,19},QString::number(i+1),QColor("#77766f"),7);}

@@ -118,3 +118,31 @@ jobs:
           path: out/linux
       - name: Compile through Portage with USE flags
         run: docker run --rm -v "$PWD:/src:ro" -v "$PWD/out/linux:/release:ro" gentoo/stage3:latest bash /src/packaging/gentoo/ci-test.sh
+
+  appimage:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build portable AppImage with bundled sketch compiler
+        run: |
+          docker build -t thinkcad-appimage packaging/appimage
+          docker run --rm -v "$PWD:/src" thinkcad-appimage
+      - uses: actions/attest-build-provenance@v3
+        if: github.event_name != 'pull_request'
+        id: appimage_provenance
+        with:
+          subject-path: out/appimage/ThinkCad-*.AppImage
+      - name: Keep AppImage verification bundle
+        if: github.event_name != 'pull_request'
+        run: |
+          image=$(find out/appimage -maxdepth 1 -name '*.AppImage' -print -quit)
+          sudo cp '${{ steps.appimage_provenance.outputs.bundle-path }}' "$image.sigstore.jsonl"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ThinkCad-AppImage
+          path: out/appimage/ThinkCad-*

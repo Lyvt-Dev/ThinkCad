@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+APPDIR=${APPDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)}
+export APPDIR
+export THINKCAD_ORIGINAL_LD_LIBRARY_PATH=${LD_LIBRARY_PATH-}
+export THINKCAD_ORIGINAL_QT_PLUGIN_PATH=${QT_PLUGIN_PATH-}
+export THINKCAD_ORIGINAL_QT_QPA_PLATFORM_PLUGIN_PATH=${QT_QPA_PLATFORM_PLUGIN_PATH-}
+export LD_LIBRARY_PATH="$APPDIR/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+for hook in "$APPDIR"/apprun-hooks/*.sh "$APPDIR"/usr/apprun-hooks/*.sh; do
+    if [ -f "$hook" ]; then . "$hook"; fi
+done
+export QT_PLUGIN_PATH="$APPDIR/usr/plugins"
+export QT_QPA_PLATFORM_PLUGIN_PATH="$APPDIR/usr/plugins/platforms"
+export ZIG_GLOBAL_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/thinkcad/zig"
+export ZIG_LOCAL_CACHE_DIR="$ZIG_GLOBAL_CACHE_DIR/local"
+exec "$APPDIR/usr/bin/thinkcad" "$@"

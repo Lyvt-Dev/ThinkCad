@@ -1,10 +1,10 @@
 # ThinkCad – neue Arbeitsabläufe
 
-Dieses Handbuch beschreibt ThinkCad 1.0.0 und seine Modellgrenzen.
+Dieses Handbuch beschreibt ThinkCad 1.2.0 und seine Modellgrenzen.
 
 ## Schaltungen bearbeiten
 
-Komponenten suchen, platzieren und Pins verbinden. Strg+C/X/V kopiert, schneidet aus
+Komponenten suchen, aus der Palette auf die Arbeitsfläche ziehen und Pins verbinden. Ein Klick in der Palette platziert kein Bauteil. Strg+C/X/V kopiert, schneidet aus
 und fügt ein; Strg+D dupliziert. Interne Kabel, Knicke, Eigenschaften und die
 Sketches kopierter Boards werden übernommen. Externe Verbindungen werden nicht
 kopiert. Gleiche Netzlabel bleiben auch nach dem Kopieren elektrisch verbunden.
@@ -21,8 +21,7 @@ lässt sich im Eigenschaftenfeld umbenennen; Enter übernimmt den Namen.
 
 Einstellungen → **Raster einstellen** / **Am Raster einrasten**. Alt hebt das
 Einrasten beim Verschieben kurzzeitig auf. Die Eigenschaften stehen in einem
-separaten Dock neben der Komponentenpalette. Beim Auswählen eines Bauteils öffnet
-sich dieses Dock. Bei Widerständen ist auch die Belastbarkeit einstellbar.
+separaten Dock neben der Komponentenpalette. Den Tab Eigenschaften zum Bearbeiten ausdrücklich auswählen. Bei Widerständen ist auch die Belastbarkeit einstellbar.
 
 ## Simulation und Diagnose
 
@@ -156,3 +155,17 @@ IR und ASK übertragen logische Nachrichten; nRF24 modelliert Paketkonfiguration
 ACK und FIFO. Die NFC-Karte ist ein synthetischer UID-/NDEF-Tag in Kartenform,
 keine Zahlungskarte. Vollständige Anschlüsse, APIs und Modellgrenzen:
 [IR-, NFC- und Funkmodule](WIRELESS_MODULES.de.md).
+
+## Arbeitsfläche in 1.2
+
+Rechtsklick auf freie Arbeitsfläche fügt eine Notiz hinzu; Doppelklick bearbeitet
+sie. Notizen werden mit dem Projekt gespeichert. Nach dem ersten Speichern
+werden Änderungen jede Minute in die benannte Projektdatei geschrieben
+(in den Einstellungen abschaltbar). Die separate Wiederherstellung bleibt erhalten.
+Während der Simulation lassen sich Bedienelemente direkt anklicken; Kabel und
+statische Bauteile sind nicht auswählbar. Die Simulationsgeschwindigkeit hat
+weiterhin einen Schieberegler und ein Eingabefeld für Werte von 0,1× bis 10×.
+Im Startmenü öffnen Tutorials acht aufeinander aufbauende Übungen.
+Einstellungen → Einstellungen öffnen bündelt Darstellung, Speichern und Simulation.
+
+Für portable Linux-Installation und Updates siehe [AppImage-Anleitung](APPIMAGE.de.md).

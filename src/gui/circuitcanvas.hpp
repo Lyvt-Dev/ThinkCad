@@ -38,6 +38,7 @@ public:
     void zoom(double factor);
     void cancelWire();
     void connectPin(const thinkercad::Endpoint& pin);
+    void editNote(const std::string& id);
     void toggleButton(const std::string& id);
     void changeValue(const std::string& id,double value);
     void recordMove(const thinkercad::CircuitDocument& before);
@@ -55,6 +56,9 @@ signals:
     void inputValueChanged();
     void notice(const QString& text);
 protected:
+    void dragEnterEvent(QDragEnterEvent*) override;
+    void dragMoveEvent(QDragMoveEvent*) override;
+    void dropEvent(QDropEvent*) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;

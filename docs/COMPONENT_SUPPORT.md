@@ -9,6 +9,7 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 
 | Bauteil | Modell und Grenzen |
 | --- | --- |
+| Notiz (1.2.0) | Nicht elektrisch; Text per Kontextmenü/Doppelklick, verschiebbar und im Projekt gespeichert |
 | Kondensator / Spule | Zustandsbehaftete Backward-Euler-Modelle; µF bzw. mH, Spule standardmäßig 0,1 Ω Wicklungswiderstand |
 | NPN / PNP | Generisches Ebers-Moll-Modell mit einstellbarem β; keine Hersteller-/Temperaturparameter |
 | N-/P-MOSFET | Generisches quadratisches Level-1-Modell mit Bodydiode; einstellbare Schwellspannung |

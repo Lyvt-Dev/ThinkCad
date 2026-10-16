@@ -45,7 +45,8 @@ const std::vector<ComponentSpec>& componentCatalog(){static const std::vector<Co
 {PartKind::NfcTestCard,"NFC-Testkarte","",0,0,0,false},
 {PartKind::RadioTransmitter,"433-MHz-Sender (ASK)"," MHz",433.92,300,928,true},
 {PartKind::RadioReceiver,"433-MHz-Empfänger (ASK)"," MHz",433.92,300,928,true},
-{PartKind::RadioTransceiver,"nRF24L01+ (SPI)"," Kanal",76,0,125,true}
+{PartKind::RadioTransceiver,"nRF24L01+ (SPI)"," Kanal",76,0,125,true},
+{PartKind::Note,"Notiz","",0,0,0,false}
 };return types;}
 double parameter(const CircuitPart& part,const std::string& name,double fallback){auto found=part.parameters.find(name);return found==part.parameters.end()?fallback:found->second;}
 const ComponentSpec& componentSpec(PartKind kind){for(const auto& type:componentCatalog())if(type.kind==kind)return type;throw std::invalid_argument("Unknown component type");}
@@ -108,7 +109,7 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
     if(k==PartKind::NMosfet||k==PartKind::PMosfet)return {"D","G","S"};
     if(k==PartKind::InfraredLed)return {"A","K"};
     if(k==PartKind::InfraredReceiver)return {"VCC","GND","OUT"};
-    if(k==PartKind::InfraredRemote||k==PartKind::NfcTestCard)return {};
+    if(k==PartKind::Note||k==PartKind::InfraredRemote||k==PartKind::NfcTestCard)return {};
     if(k==PartKind::NfcReader)return {"VCC","GND","SDA","SCL","IRQ","RST"};
     if(k==PartKind::RadioTransmitter||k==PartKind::RadioReceiver)return {"VCC","GND","DATA"};
     if(k==PartKind::RadioTransceiver)return {"VCC","GND","SCK","MISO","MOSI","CSN","CE","IRQ"};
@@ -193,7 +194,7 @@ void CircuitDocument::validate() const {
             if(!valid)throw std::invalid_argument("Invalid component parameter: "+key);
         }
     }
-    for(const auto& p:parts_){if(p.rotation<0||p.rotation>=360||p.rotation%90)throw std::invalid_argument("Invalid component rotation");if(p.kind==PartKind::NfcTestCard&&p.model.size()>96)throw std::invalid_argument("NFC test text exceeds 96 bytes");if((p.kind==PartKind::InfraredRemote||p.kind==PartKind::RadioTransceiver)&&std::floor(p.value)!=p.value)throw std::invalid_argument("IR command must be an integer");if(p.kind==PartKind::Esp8266)(void)BoardProfile::get(p.model);}
+    for(const auto& p:parts_){if(p.kind==PartKind::Note&&p.model.size()>4000)throw std::invalid_argument("Note exceeds 4000 UTF-8 bytes");if(p.rotation<0||p.rotation>=360||p.rotation%90)throw std::invalid_argument("Invalid component rotation");if(p.kind==PartKind::NfcTestCard&&p.model.size()>96)throw std::invalid_argument("NFC test text exceeds 96 bytes");if((p.kind==PartKind::InfraredRemote||p.kind==PartKind::RadioTransceiver)&&std::floor(p.value)!=p.value)throw std::invalid_argument("IR command must be an integer");if(p.kind==PartKind::Esp8266)(void)BoardProfile::get(p.model);}
     for(const auto& w:wires_){validateEndpoint(w.a);validateEndpoint(w.b);if(w.points.size()>64)throw std::invalid_argument("Maximum 64 wire bends");for(const auto& point:w.points)if(!std::isfinite(point.x)||!std::isfinite(point.y)||std::abs(point.x)>10000||std::abs(point.y)>10000)throw std::invalid_argument("Invalid wire bend");}
 }
 bool CircuitDocument::connected(const Endpoint& a,const Endpoint& b) const {validateEndpoint(a);validateEndpoint(b);Nodes nodes(*this);return nodes.node(a)==nodes.node(b);}

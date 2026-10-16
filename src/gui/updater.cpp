@@ -1,3 +1,6 @@
+#include "appimageupdate.hpp"
+#include <QProcessEnvironment>
+#include <QSysInfo>
 #include "language.hpp"
 #include "updater.hpp"
 #include <QCoreApplication>
@@ -41,14 +44,17 @@ bool allowedResponse(QNetworkReply* reply) {
     return url.scheme()=="https" && (url.host()=="api.github.com" || url.host()=="github.com" || url.host()=="release-assets.githubusercontent.com" || url.host()=="objects.githubusercontent.com");
 }
 }
-Updater::Updater(QObject* parent) : QObject(parent), network_(this) {}
+Updater::Updater(QObject* parent) : QObject(parent), network_(this) {appImagePath_=QFileInfo(qEnvironmentVariable("APPIMAGE")).canonicalFilePath();}
 void Updater::check() {
     if(busy_ || ready()) return;
 #ifndef Q_OS_WIN
+    if(appImagePath_.isEmpty()){
     if(busy_)return;
     busy_=true;auto* linuxReply=network_.get(request("https://api.github.com/repos/Lyvt-Dev/ThinkCad/releases/latest"));
     connect(linuxReply,&QNetworkReply::readyRead,linuxReply,[linuxReply]{if(linuxReply->bytesAvailable()>1048576)linuxReply->abort();});
     connect(linuxReply,&QNetworkReply::finished,this,[this,linuxReply]{busy_=false;linuxReply->deleteLater();const auto bytes=linuxReply->readAll();const auto release=QJsonDocument::fromJson(bytes).object();const auto version=QRegularExpression("^v([0-9]+\\.[0-9]+\\.[0-9]+)$").match(release["tag_name"].toString());if(linuxReply->error()!=QNetworkReply::NoError||!allowedResponse(linuxReply)||bytes.size()>1048576||!version.hasMatch()){emit message(Language::text("Update-Abfrage fehlgeschlagen."));return;}if(release["draft"].toBool()||release["prerelease"].toBool())return;if(QVersionNumber::fromString(version.captured(1))>QVersionNumber::fromString(THINKERCAD_VERSION))emit message("ThinkCad "+version.captured(1)+Language::text(" ist verfügbar. Linux: über die Paketverwaltung aktualisieren; Gentoo: Overlay aktualisieren und emerge --ask --oneshot media-gfx/thinkcad. Downloads: https://github.com/Lyvt-Dev/ThinkCad/releases/latest"));else emit message(Language::text("ThinkCad ist aktuell."));});return;
+    }
+    if(QSysInfo::currentCpuArchitecture()!="x86_64"){emit message("AppImage updates are currently available for x86_64 Linux.");return;}
 #endif
     busy_=true;
     auto* reply=network_.get(request("https://api.github.com/repos/Lyvt-Dev/ThinkCad/releases/latest"));
@@ -62,7 +68,11 @@ void Updater::check() {
         if(!match.hasMatch() || release["prerelease"].toBool() || release["draft"].toBool()) {busy_=false;emit message(Language::text("Kein gültiges stabiles Release gefunden."));return;}
         const auto version=match.captured(1);
         if(QVersionNumber::fromString(version)<=QVersionNumber::fromString(THINKERCAD_VERSION)) {busy_=false;emit message(Language::text("ThinkCad ist aktuell."));return;}
+#ifdef Q_OS_WIN
         const auto filename="ThinkCad-Setup-"+version+".exe";
+#else
+        const auto filename="ThinkCad-"+version+"-x86_64.AppImage";
+#endif
         QString installerUrl,checksumUrl,attestationUrl;
         for(const auto& value:release["assets"].toArray()) {
             auto asset=value.toObject(); const auto name=asset["name"].toString(); const auto url=asset["browser_download_url"].toString();
@@ -109,15 +119,20 @@ void Updater::download(const QString& url,const QString& filename,const QString&
         if(state->failed || !state->bytes || reply->error()!=QNetworkReply::NoError || !allowedResponse(reply) || state->hash.result()!=expected || !file->commit()) {
             file->cancelWriting(); emit message(Language::text("Update verworfen: Download oder SHA-256-Prüfung fehlgeschlagen."));return;
         }
-        verifyDownload(file->fileName(),version);
+        verifiedHash_=expected;verifyDownload(file->fileName(),version);
     });
 }
 void Updater::verifyDownload(const QString& path,const QString& version){
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 #ifdef Q_OS_WIN
-    const auto verifier=QCoreApplication::applicationDirPath()+"/verifier/gh.exe",roots=QCoreApplication::applicationDirPath()+"/verifier/trusted_root.jsonl";if(!QFileInfo::exists(verifier)||!QFileInfo::exists(roots)){QFile::remove(path);emit message(Language::text("Update-Verifizierer fehlt in dieser Installation."));return;}
+    const auto tool=QString("gh.exe"),workflow=QString("windows.yml");
+#else
+    const auto tool=QString("gh"),workflow=QString("linux.yml");
+#endif
+    const auto verifier=QCoreApplication::applicationDirPath()+"/verifier/"+tool,roots=QCoreApplication::applicationDirPath()+"/verifier/trusted_root.jsonl";if(!QFileInfo::exists(verifier)||!QFileInfo::exists(roots)){QFile::remove(path);emit message(Language::text("Update-Verifizierer fehlt in dieser Installation."));return;}
     busy_=true;auto* check=new QProcess(this);auto finished=std::make_shared<bool>(false);auto complete=[this,check,path,version,finished](bool ok){if(*finished)return;*finished=true;busy_=false;check->deleteLater();if(!ok){QFile::remove(path);emit message(Language::text("Update verworfen: GitHub-Buildnachweis oder Release-Commit ungültig."));return;}installer_=path;emit updateReady(version);};
     connect(check,qOverload<int,QProcess::ExitStatus>(&QProcess::finished),this,[complete](int code,QProcess::ExitStatus status){complete(code==0&&status==QProcess::NormalExit);});connect(check,&QProcess::errorOccurred,this,[complete](QProcess::ProcessError error){if(error==QProcess::FailedToStart)complete(false);});QTimer::singleShot(60000,check,[check]{if(check->state()!=QProcess::NotRunning)check->kill();});
-    check->start(verifier,{"attestation","verify",path,"--bundle",path+".sigstore.jsonl","--custom-trusted-root",roots,"--repo","Lyvt-Dev/ThinkCad","--signer-workflow","Lyvt-Dev/ThinkCad/.github/workflows/windows.yml","--source-ref","refs/heads/main","--source-digest",expectedCommit_,"--deny-self-hosted-runners"});
+    check->start(verifier,{"attestation","verify",path,"--bundle",path+".sigstore.jsonl","--custom-trusted-root",roots,"--repo","Lyvt-Dev/ThinkCad","--signer-workflow","Lyvt-Dev/ThinkCad/.github/workflows/"+workflow,"--source-ref","refs/heads/main","--source-digest",expectedCommit_,"--deny-self-hosted-runners"});
 #else
     Q_UNUSED(path);Q_UNUSED(version);
 #endif
@@ -130,6 +145,10 @@ bool Updater::restartAndInstall() {
     if(!QFile::copy(QCoreApplication::applicationDirPath()+"/ThinkCadUpdater.exe",helper)) {emit message(Language::text("Update-Helfer konnte nicht bereitgestellt werden."));return false;}
     if(!QProcess::startDetached(helper,{QString::number(QCoreApplication::applicationPid()),installer_,QCoreApplication::applicationDirPath(),expectedCommit_})) {QFile::remove(helper);emit message(Language::text("Update-Helfer konnte nicht gestartet werden."));return false;}
     return true;
+#elif defined(Q_OS_LINUX)
+    if(appImagePath_.isEmpty()){emit message("Use your package manager for this installation, or run the portable AppImage.");return false;}
+    QString error;if(!replaceAppImage(appImagePath_,installer_,verifiedHash_,&error)){emit message(error);return false;}
+    QProcess launcher;auto env=QProcessEnvironment::systemEnvironment();for(auto name:{"LD_LIBRARY_PATH","QT_PLUGIN_PATH","QT_QPA_PLATFORM_PLUGIN_PATH"}){auto original="THINKCAD_ORIGINAL_"+QString::fromLatin1(name);if(env.contains(original))env.insert(name,env.value(original));else env.remove(name);}env.remove("APPDIR");env.remove("APPIMAGE");launcher.setProcessEnvironment(env);launcher.setProgram(appImagePath_);launcher.setWorkingDirectory(QDir::homePath());installer_.clear();if(!launcher.startDetached()){emit message("AppImage updated. Close and reopen it to use the new version.");return false;}return true;
 #else
     return false;
 #endif

@@ -36,6 +36,7 @@ public:
     void showStartPage();
     bool startPageVisible() const;
     void autosave();
+    void saveLocalAutomatically();
     bool recoverProject(const QString& path);
     void recoveryDialog();
     bool saveProjectTo(const QString& path);
@@ -64,6 +65,9 @@ private:
     QMap<QString,SketchProject> boardSketches_;
     std::string sketchBoard_;
     bool sketchesDirty_=false,starting_=false,stopping_=false;
+    QString activeLesson_;
+    qsizetype lessonSerialStart_=0;
+    void checkLesson();
     double speed_=1.0;
     bool analogRunning_=false,paused_=false;
     thinkercad::Microseconds runUntil_=0;
