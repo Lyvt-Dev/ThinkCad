@@ -28,14 +28,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          xvfb-run -a env QT_QPA_PLATFORM=xcb ./build/thinkcad --smoke-test
+          xvfb-run -a env GST_DEBUG=2 QT_QPA_PLATFORM=xcb ./build/thinkcad --smoke-test
           export XDG_RUNTIME_DIR=$(mktemp -d)
           chmod 700 "$XDG_RUNTIME_DIR"
           weston --backend=headless-backend.so --socket=thinkcad-wayland --idle-time=0 --use-pixman > /tmp/thinkcad-weston.log 2>&1 &
           compositor=$!
           trap 'kill "$compositor" || true' EXIT
           for i in $(seq 1 50); do test -S "$XDG_RUNTIME_DIR/thinkcad-wayland" && break; sleep 0.1; done
-          WAYLAND_DISPLAY=thinkcad-wayland QT_QPA_PLATFORM=wayland ./build/thinkcad --smoke-test
+          GST_DEBUG=2 WAYLAND_DISPLAY=thinkcad-wayland QT_QPA_PLATFORM=wayland ./build/thinkcad --smoke-test
       - name: Package and test installation
         shell: bash
         run: |
@@ -79,7 +79,7 @@ jobs:
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
           cmake --build build --parallel 2
           ctest --test-dir build --output-on-failure
-          xvfb-run -a env QT_QPA_PLATFORM=xcb ./build/thinkcad --smoke-test
+          xvfb-run -a env GST_DEBUG=2 QT_QPA_PLATFORM=xcb ./build/thinkcad --smoke-test
       - name: Build and install RPM
         shell: bash
         run: |

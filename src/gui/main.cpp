@@ -15,6 +15,12 @@
 #include <windows.h>
 #endif
 int main(int argc,char** argv){
+#if defined(Q_OS_LINUX) && QT_VERSION < QT_VERSION_CHECK(6,5,0)
+    // Qt 6.4 otherwise initializes GL image conversion on the UI thread.
+    // GStreamer's 300 ms rendering timeout can expire during shader compilation.
+    // This app uses raster widgets; keep video readback on the CPU as well.
+    QCoreApplication::setAttribute(Qt::AA_ForceRasterWidgets);
+#endif
 #ifdef Q_OS_WIN
     HANDLE mutex=CreateMutexW(nullptr,FALSE,L"ThinkerCadDesktopMain");
     if(!mutex||GetLastError()==ERROR_ALREADY_EXISTS){if(mutex)CloseHandle(mutex);return 1;}
