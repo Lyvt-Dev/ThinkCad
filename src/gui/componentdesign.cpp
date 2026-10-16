@@ -1,3 +1,4 @@
+#include "breadboardlayout.hpp"
 #include "componentdesign.hpp"
 #include "notelayout.hpp"
 #include "language.hpp"
@@ -18,7 +19,9 @@ namespace {
 QString& preference(){static QString value=QSettings().value("componentDesign","blocks").toString()=="realistic"?"realistic":"blocks";return value;}
 QRectF artBounds(const CircuitPart& part);
 QPointF artPin(const CircuitPart& part,const std::string& pin);
+QTransform physicalTransform(const CircuitPart& part);
 QColor metal("#b9c4cd");
+constexpr double unoPitch=15.24/(6*68.6/300),nanoPitch=15.24/(6*45./272);
 void label(QPainter& p,QRectF rect,const QString& text,QColor color=QColor("#334155"),int size=8){
     QFont font("Sans Serif");font.setPixelSize(std::max(3,size));
     QFontMetricsF metrics(font);
@@ -64,29 +67,29 @@ void mountingHole(QPainter& p,QPointF point){p.setBrush(QColor("#c7ae73"));p.set
 QPointF boardPin(const CircuitPart& part,const std::string& pin){
     const auto profile=BoardProfile::get(part.model);
     if(profile.id=="arduino-uno"){
-        if(pin=="5V")return {116,208};if(pin=="3V3")return {102,208};if(pin=="GND")return {130,208};if(pin=="GND2")return {144,208};
+        if(pin=="5V")return {60+4*unoPitch,208};if(pin=="3V3")return {60+3*unoPitch,208};if(pin=="GND")return {60+5*unoPitch,208};if(pin=="GND2")return {60+6*unoPitch,208};
         const int number=profile.pinNumber(pin);
-        if(number<14)return {284.0-number*14-(number>=8?8:0),12};
-        return {200.0+(number-14)*14,208};
+        if(number<14)return {284.-number*unoPitch-(number>=8?8:0),12};
+        return {200.+(number-14)*unoPitch,208};
     }
     if(profile.id=="arduino-nano"){
-        if(pin=="3V3")return {8,40};if(pin=="5V")return {8,200};if(pin=="GND")return {8,232};if(pin=="GND2")return {92,200};
+        if(pin=="3V3")return {8,24+nanoPitch};if(pin=="5V")return {8,24+11*nanoPitch};if(pin=="GND")return {8,24+13*nanoPitch};if(pin=="GND2")return {92.6666667,24+11*nanoPitch};
         const int number=profile.pinNumber(pin);
-        if(number==13)return {8,24};if(number>=14)return {8,72.0+(number-14)*16};
-        return {92,24.0+(number<2?13+number:12-number)*16};
+        if(number==13)return {8,24};if(number>=14)return {8,24+(number-11)*nanoPitch};
+        return {92.6666667,24+(number<2?13+number:12-number)*nanoPitch};
     }
+    const auto transform=physicalTransform(part);const double pitch=15.24/transform.m22();
+    const double right=8+std::round(134*transform.m11()/15.24)*15.24/transform.m11();
     if(profile.id=="esp8266"){
-        if(pin=="A0")return {8,24};if(pin=="GND")return {8,186};if(pin=="3V3")return {8,204};
-        if(pin=="3V3_2")return {142,114};if(pin=="GND2")return {142,132};
-        const auto number=profile.pinNumber(pin);
-        const std::array<int,11> gpio{16,5,4,0,2,14,12,13,15,3,1};
-        const auto found=std::find(gpio.begin(),gpio.end(),number);const int i=static_cast<int>(found-gpio.begin());
-        return {142,24.0+(i<5?i:i+2)*18};
+        const double top=(artBounds(part).height()-24-14*pitch)/2;
+        if(pin=="A0")return {8,top};if(pin=="GND")return {8,top+9*pitch};if(pin=="3V3")return {8,top+10*pitch};
+        if(pin=="3V3_2")return {right,top+5*pitch};if(pin=="GND2")return {right,top+6*pitch};
+        const auto number=profile.pinNumber(pin);const std::array<int,11> gpio{16,5,4,0,2,14,12,13,15,3,1};
+        const auto found=std::find(gpio.begin(),gpio.end(),number);const int i=static_cast<int>(found-gpio.begin());return {right,top+(i<5?i:i+2)*pitch};
     }
     const auto names=CircuitDocument::pins(part);const int i=static_cast<int>(std::find(names.begin(),names.end(),pin)-names.begin());
-    const int half=static_cast<int>((names.size()+1)/2);const auto rect=artBounds(part);
-    const double spacing=(rect.height()-74)/std::max(1,half-1);
-    return {i<half?8.0:142.0,24+(i%half)*spacing};
+    const int half=static_cast<int>((names.size()+1)/2);const double top=(artBounds(part).height()-24-(half-1)*pitch)/2;
+    return {i<half?8.:right,top+(i%half)*pitch};
 }
 void board(QPainter& p,const CircuitPart& part,const CircuitState& state){
     const auto profile=BoardProfile::get(part.model);const auto extent=artBounds(part);
@@ -131,9 +134,9 @@ void board(QPainter& p,const CircuitPart& part,const CircuitState& state){
     p.setPen(Qt::NoPen);p.setBrush(lit?QColor("#67e89b"):QColor("#344f43"));p.drawRoundedRect(QRectF(ledPoint-QPointF(4,2),QSizeF(8,4)),1,1);
     // Physical header sockets include unmodeled power/reset positions in muted colors.
     auto socket=[&](QPointF point){p.setPen(QPen(QColor("#738777"),1));p.setBrush(QColor("#182b2e"));p.drawRoundedRect(QRectF(point-QPointF(3,3),QSizeF(6,6)),1,1);};
-    if(nano)for(int i=0;i<15;++i){socket({8,24.0+i*16});socket({92,24.0+i*16});}
-    if(profile.id=="esp8266")for(int i=0;i<15;++i){socket({8,24.0+i*18});socket({142,24.0+i*18});}
-    if(uno)for(int i=0;i<8;++i)socket({60.0+i*14,208});
+    if(nano)for(int i=0;i<15;++i){socket({8,24.+i*nanoPitch});socket({92.6666667,24.+i*nanoPitch});}
+    if(profile.id=="esp8266"){const auto transform=physicalTransform(part);const double pitch=15.24/transform.m22(),top=(extent.height()-24-14*pitch)/2,right=8+std::round(134*transform.m11()/15.24)*15.24/transform.m11();for(int i=0;i<15;++i){socket({8,top+i*pitch});socket({right,top+i*pitch});}}
+    if(uno)for(int i=0;i<8;++i)socket({60.+i*unoPitch,208});
     for(const auto& name:CircuitDocument::pins(part)){
         const auto point=boardPin(part,name);auto text=QString::fromStdString(name);text.replace("GPIO","");
         if(text=="3V3_2")text="3V3";if(text=="GND2")text="GND";
@@ -154,7 +157,7 @@ QString ComponentDesign::current(){return preference();}
 void ComponentDesign::set(const QString& design){preference()=design=="realistic"?"realistic":"blocks";QSettings().setValue("componentDesign",preference());}
 bool ComponentDesign::realistic(){return current()=="realistic";}
 namespace {
-QRectF artBounds(const CircuitPart& part){if(part.kind==PartKind::Note)return noteBounds(part);
+QRectF artBounds(const CircuitPart& part){if(poweredBoard(part))return {-6,-6,515,342};if(part.kind==PartKind::Note)return noteBounds(part);
     if(part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd)return {-10,-10,250,160};
     if(part.kind==PartKind::Junction)return {-12,-12,24,24};if(part.kind==PartKind::NetLabel)return {-8,-26,150,42};
     if(part.kind==PartKind::Esp8266){const auto profile=BoardProfile::get(part.model);
@@ -164,6 +167,9 @@ QRectF artBounds(const CircuitPart& part){if(part.kind==PartKind::Note)return no
     if(part.kind==PartKind::Breadboard30)return {-12,-12,594,284};
     if(part.kind==PartKind::Oled)return {-12,-12,316,CircuitDocument::displayHeight(part)==32?160.0:228.0};
     switch(part.kind){
+    case PartKind::RotaryEncoder:return {0,0,160,170};
+    case PartKind::Keypad:return {0,0,160,180};
+    case PartKind::Keyboard:return {0,0,400,158};
     case PartKind::Capacitor:case PartKind::Inductor:return {28,8,104,136};
     case PartKind::NpnTransistor:case PartKind::PnpTransistor:case PartKind::NMosfet:case PartKind::PMosfet:return {30,5,100,140};
     case PartKind::OpAmp:return {0,0,160,130};
@@ -193,6 +199,9 @@ QPointF artPin(const CircuitPart& part,const std::string& pin){
     if(part.kind==PartKind::Esp8266)return boardPin(part,pin);
     const auto names=CircuitDocument::pins(part);const int i=static_cast<int>(std::find(names.begin(),names.end(),pin)-names.begin());
     switch(part.kind){
+    case PartKind::RotaryEncoder:return {50.+i*20,160};
+    case PartKind::Keypad:return {59.68+i*5.8057,174};
+    case PartKind::Keyboard:return {172.06+i*5.08,150};
     case PartKind::Breadboard30:{const int column=std::stoi(pin.substr(1))-1,row=pin[0]-'a';return {20.0+column*18,40.0+row*18+(row>=5?25:0)};}
     case PartKind::Oled:return {47.0+i*66,CircuitDocument::displayHeight(part)==32?132.0:200.0};
     case PartKind::Capacitor:case PartKind::Inductor:return {i?100.0:60.0,136};
@@ -202,7 +211,7 @@ QPointF artPin(const CircuitPart& part,const std::string& pin){
     case PartKind::FunctionGenerator:case PartKind::CurrentProbe:return {i?115.0:45.0,138};
     case PartKind::Oscilloscope:return {40.0+i*40,138};
     case PartKind::LogicAnalyzer:return {16.0+i*16,138};
-    case PartKind::InfraredLed:case PartKind::Led:return {i?100.0:60.0,i?118.0:140.0};
+    case PartKind::InfraredLed:case PartKind::Led:return {i?95.24:64.76,118.0};
     case PartKind::InfraredReceiver:return {50.+i*30,145};
     case PartKind::RadioTransceiver:return {25.+(i%4)*36,130.+(i/4)*20};
     case PartKind::RadioTransmitter:case PartKind::RadioReceiver:return {40.+i*40,145};
@@ -224,8 +233,12 @@ QPointF artPin(const CircuitPart& part,const std::string& pin){
 // Shared scene scale: six scene units per millimetre. Dimensions describe
 // representative modules, not an interchangeable manufacturer footprint.
 QTransform physicalTransform(const CircuitPart& part){
+    if(poweredBoard(part))return {};
     QSizeF drawing(1,1),millimetres(1,1);
     switch(part.kind){
+    case PartKind::RotaryEncoder:drawing={160,160};millimetres={15,15};break;
+    case PartKind::Keypad:drawing={160,170};millimetres={70,77};break;
+    case PartKind::Keyboard:drawing={400,140};millimetres={200,70};break;
     case PartKind::InfraredRemote:drawing={90,155};millimetres={45,140};break;
     case PartKind::NfcTestCard:drawing={160,120};millimetres={85.6,54};break;
     case PartKind::NfcReader:drawing={160,160};millimetres={43,41};break;
@@ -238,8 +251,8 @@ QTransform physicalTransform(const CircuitPart& part){
     case PartKind::CharacterLcd:case PartKind::I2cCharacterLcd:drawing={6,6};millimetres={1,1};break;
     case PartKind::Note:case PartKind::Junction:case PartKind::NetLabel:drawing={6,6};millimetres={1,1};break;
     case PartKind::Esp8266:{const auto id=BoardProfile::get(part.model).id;
-        if(id=="arduino-uno"){drawing={300,220};millimetres={85.75,66.75};}
-        else if(id=="arduino-nano"){drawing={100,272};millimetres={22.5,56.25};}
+        if(id=="arduino-uno"){drawing={300,220};millimetres={68.6,53.4};}
+        else if(id=="arduino-nano"){drawing={100,272};millimetres={18,45};}
         else{drawing={150,artBounds(part).height()-24};millimetres=id=="esp8266"?QSizeF(31,58):id=="esp32-s3"?QSizeF(25.4,69):QSizeF(25.4,54.6);}break;}
     case PartKind::Capacitor:case PartKind::Inductor:drawing={100,130};millimetres={8,12};break;
     case PartKind::NpnTransistor:case PartKind::PnpTransistor:drawing={100,130};millimetres={5,10};break;
@@ -255,7 +268,7 @@ QTransform physicalTransform(const CircuitPart& part){
     case PartKind::Oled:drawing={292,CircuitDocument::displayHeight(part)==32?136.0:204.0};millimetres=CircuitDocument::displayHeight(part)==32?QSizeF(38,12):QSizeF(27.3,27.8);break;
     case PartKind::Breadboard30:drawing={570,260};millimetres={83.8,35.6};break;
     case PartKind::InfraredLed:case PartKind::Led:case PartKind::RGBLed:drawing={60,66};millimetres={5,8.6};break;
-    case PartKind::Resistor:drawing={86,30};millimetres={6.3,2.3};break;
+    case PartKind::Resistor:drawing={160,30};millimetres={12.7,2.3};break;
     case PartKind::Button:drawing={76,76};millimetres={6,6};break;
     case PartKind::Potentiometer:drawing={88,65};millimetres={9.5,9.5};break;
     case PartKind::Photoresistor:case PartKind::Thermistor:drawing={60,60};millimetres={5,5};break;
@@ -273,13 +286,16 @@ QTransform physicalTransform(const CircuitPart& part){
 }
 }
 QRectF ComponentDesign::bounds(const CircuitPart& part){return physicalTransform(part).mapRect(artBounds(part)).adjusted(-7,-7,7,7);}
-QPointF ComponentDesign::pinPosition(const CircuitPart& part,const std::string& pin){if(part.kind==PartKind::Oled){const auto pins=CircuitDocument::pins(part);const auto i=std::find(pins.begin(),pins.end(),pin)-pins.begin();const bool small=CircuitDocument::displayHeight(part)==32;const double width=small?38:27.3,height=small?12:27.8;return {6*((width-7.62)/2+i*2.54),6*(height-1.3)};}if(part.kind==PartKind::Breadboard30){const int column=std::stoi(pin.substr(1))-1,row=pin[0]-'a';return {6*(3.5+column*2.54),6*(5.0+row*2.54+(row>=5?2.54:0))};}return physicalTransform(part).map(artPin(part,pin));}
+QPointF ComponentDesign::pinPosition(const CircuitPart& part,const std::string& pin){if(poweredBoard(part))return railBoardPin(pin);if(part.kind==PartKind::Oled){const auto pins=CircuitDocument::pins(part);const auto i=std::find(pins.begin(),pins.end(),pin)-pins.begin();const bool small=CircuitDocument::displayHeight(part)==32;const double width=small?38:27.3,height=small?12:27.8;return {6*((width-7.62)/2+i*2.54),6*(height-1.3)};}if(part.kind==PartKind::Breadboard30){const int column=std::stoi(pin.substr(1))-1,row=pin[0]-'a';return {6*(3.5+column*2.54),6*(5.0+row*2.54+(row>=5?2.54:0))};}return physicalTransform(part).map(artPin(part,pin));}
 void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitState& state,const Frame& frame,double brightness,bool selected){
     p.save();p.setTransform(physicalTransform(part),true);p.setRenderHint(QPainter::Antialiasing);
     if(selected){p.setPen(QPen(QColor("#14b8a6"),1.5,Qt::DashLine));p.setBrush(Qt::NoBrush);p.drawRoundedRect(artBounds(part).adjusted(3,3,-3,-3),6,6);}
     const auto current=[&](const std::string& channel){auto it=state.ledCurrent.find(part.id+channel);return it==state.ledCurrent.end()?0.0:it->second;};
     switch(part.kind){
     case PartKind::Esp8266:board(p,part,state);break;
+    case PartKind::RotaryEncoder:{body(p,{12,18,136,120},QColor("#b7c1c5"),4);p.setBrush(QColor("#273741"));p.setPen(QPen(QColor("#667985"),3));p.drawEllipse(QPointF(80,70),48,48);p.setPen(QPen(QColor("#e5e7eb"),4));p.drawLine(QPointF(80,70),QPointF(80+35*std::sin(parameter(part,"phase",0)*1.5708),70-35*std::cos(parameter(part,"phase",0)*1.5708)));break;}
+    case PartKind::Keypad:{body(p,{0,0,160,160},QColor("#334a59"),8);const QStringList names{"1","2","3","A","4","5","6","B","7","8","9","C","*","0","#","D"};const auto mask=uint32_t(parameter(part,"keys",0));for(int k=0;k<16;++k){QRectF r(9+(k%4)*37,9+(k/4)*37,31,31);body(p,r,mask&(1u<<k)?QColor("#20c1ad"):QColor(k%4==3?"#cf6265":"#e2e9ed"),4);label(p,r,names[k],QColor("#263b45"),14);}break;}
+    case PartKind::Keyboard:{body(p,{0,0,400,140},QColor("#263741"),5);const auto mask=uint32_t(parameter(part,"keys",0));int white=0;auto isBlack=[](int n){n%=12;return n==1||n==3||n==6||n==8||n==10;};for(int k=0;k<25;++k)if(!isBlack(k)){QRectF r(13+white++*25,28,24,100);body(p,r,mask&(1u<<k)?QColor("#20c1ad"):QColor("#f1f3f5"),1);}white=0;for(int k=0;k<25;++k){if(!isBlack(k)){++white;continue;}body(p,{13+white*25-7.,28,14,62},mask&(1u<<k)?QColor("#20c1ad"):QColor("#15202b"),1);}label(p,{10,4,380,20},"25 KEY · MATRIX / MIDI",QColor("#d0dce1"),8);break;}
     case PartKind::InfraredRemote:{body(p,{35,0,90,155},QColor("#2d3540"),8);label(p,{40,130,80,16},"NEC · TV",Qt::white,10);p.setBrush(part.pressed?QColor("#fb923c"):QColor("#dc4545"));p.setPen(Qt::NoPen);p.drawEllipse(QPointF(60,24),10,10);for(int row=0;row<4;++row)for(int col=0;col<3;++col){p.setBrush(QColor("#c1c8d0"));p.drawRoundedRect(QRectF(45+col*23,48+row*18,16,11),3,3);}break;}
     case PartKind::NfcTestCard:{body(p,{0,15,160,120},part.pressed?QColor("#225f9b"):QColor("#738194"),8);body(p,{15,43,30,28},QColor("#d6b35e"),4);label(p,{50,30,98,24},"NFC TEST",Qt::white,16);label(p,{10,90,140,25},"SYNTHETIC TAG",Qt::white,10);p.setPen(QPen(Qt::white,2));for(int i=0;i<3;++i)p.drawArc(QRectF(102-i*6,55-i*6,24+i*12,24+i*12),-60*16,120*16);break;}
     case PartKind::InfraredReceiver:{for(const auto& pin:CircuitDocument::pins(part)){auto point=artPin(part,pin);lead(p,point,{point.x(),90});label(p,{point.x()-14,122,28,12},QString::fromStdString(pin),QColor("#334155"),6);}body(p,{23,13,114,93},QColor("#242729"),6);p.setBrush(QColor("#373c40"));p.setPen(Qt::NoPen);p.drawEllipse(QPointF(80,58),34,36);label(p,{35,90,90,12},"38 kHz",QColor("#c3c8cc"),8);break;}
@@ -322,6 +338,7 @@ void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitSta
         if(!small)label(p,{30,height-52,232,16},"SSD1306",Qt::white,7);
         break;}
     case PartKind::Breadboard30:{
+        if(poweredBoard(part)){paintRailBoard(p);break;}
         body(p,{0,0,570,260},QColor("#eeeae1"),8);p.setPen(Qt::NoPen);p.setBrush(QColor("#c9c6bf"));p.drawRoundedRect(10,126,550,15,3,3);
         for(int i=0;i<30;++i){if(i==0||(i+1)%5==0)label(p,{12.0+i*18,9,18,19},QString::number(i+1),QColor("#77766f"),7);}
         for(int row=0;row<10;++row)label(p,{1,32.0+row*18+(row>=5?25:0),13,16},QString(QChar('a'+row)),QColor("#77766f"),6);
@@ -337,7 +354,7 @@ void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitSta
         for(const auto& name:CircuitDocument::pins(part)){
             const auto point=artPin(part,name);
             if(part.kind==PartKind::Led&&name=="A"){
-                lead(p,{60,76},{60,96});lead(p,{60,96},{69,105});lead(p,{69,105},{60,114});lead(p,{60,114},point);
+                const double x=point.x();lead(p,{x,76},{x,96});lead(p,{x,96},{x+9,104});lead(p,{x+9,104},{x,112});lead(p,{x,112},point);
             }else lead(p,{point.x(),76},point);
         }
         QColor color=QColor(QString::fromStdString(part.color));double light=current("");
@@ -345,7 +362,7 @@ void ComponentDesign::paint(QPainter& p,const CircuitPart& part,const CircuitSta
         QPainterPath dome({50,77});dome.lineTo(50,44);dome.cubicTo(50,8,110,8,110,44);dome.lineTo(110,77);dome.closeSubpath();
         p.setBrush(light>1e-5?color.lighter(125):color.darker(115));p.setPen(QPen(color.darker(160),1));p.drawPath(dome);
         body(p,{45,73,70,9},color,2);
-        // Flat cathode edge and unequal leads make polarity visible without tooltips.
+        // Flat cathode edge and the anode kink make polarity visible without tooltips.
         p.setPen(QPen(color.darker(180),2));p.drawLine(109,61,109,77);break;}
     case PartKind::PiezoBuzzer:case PartKind::Speaker:{
         const bool piezo=part.kind==PartKind::PiezoBuzzer;

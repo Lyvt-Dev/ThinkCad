@@ -1,5 +1,5 @@
 #ifndef Version
-  #define Version "1.2.3"
+  #define Version "1.2.4"
 #endif
 #ifndef StagingDir
   #define StagingDir "..\..\out\stage"

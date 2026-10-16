@@ -2,12 +2,21 @@
 
 Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, für **Windows und Linux**. **macOS wird nicht unterstützt.**
 ThinkCad bietet ESP8266-, ESP32-, ESP32-S3-,
-Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, 58 elektrische Bauteiltypen und Notizen,
+Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, 61 elektrische Bauteiltypen und Notizen,
 SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
 ![ThinkCad: native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
+
+## Neu in 1.2.4: Montage und MIDI
+
+Direkt steckbare Kontakte mit Vorschau, Kabel über Bauteilen, Breadboard mit
+Stromschienen, Matrix-Keypad, 25-Tasten-Keyboard, Drehencoder, serieller
+MIDI-Monitor/-Übersetzer und ein separates 88-Tasten-Piano für den Piezo.
+[Release Notes 1.2.4](docs/RELEASE_NOTES_1.2.4.md)
+
+[Bedienung, Beispiele und Modellgrenzen](docs/ASSEMBLY_AND_MIDI.md)
 
 ## Neu in 1.2.3
 
@@ -381,7 +390,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=1.2.3 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=1.2.4 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

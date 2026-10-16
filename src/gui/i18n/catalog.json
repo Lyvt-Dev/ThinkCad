@@ -535,9 +535,9 @@
   ],
   "Connect a serial port first.": [
     "Сначала подключите последовательный порт.",
-    "Спочатку під'єднайте послідовний порт.",
+    "Спочатку підключіть послідовний порт.",
     "Conecta primero un puerto serie.",
-    "Connectez d'abord un port série."
+    "Connectez d’abord un port série."
   ],
   "Cancel": [
     "Отмена",
@@ -3208,5 +3208,173 @@
     "Зберегти",
     "Guardar",
     "Enregistrer"
+  ],
+  "Inputs and MIDI": [
+    "Входы и MIDI",
+    "Входи та MIDI",
+    "Entradas y MIDI",
+    "Entrées et MIDI"
+  ],
+  "4×4 matrix keypad": [
+    "Матричная клавиатура 4×4",
+    "Матрична клавіатура 4×4",
+    "Teclado matricial 4×4",
+    "Clavier matriciel 4×4"
+  ],
+  "25-key keyboard (matrix / MIDI)": [
+    "Клавиатура на 25 клавиш (матрица / MIDI)",
+    "Клавіатура на 25 клавіш (матриця / MIDI)",
+    "Teclado de 25 teclas (matriz / MIDI)",
+    "Clavier à 25 touches (matrice / MIDI)"
+  ],
+  "Rotary encoder with push button": [
+    "Поворотный энкодер с кнопкой",
+    "Поворотний енкодер із кнопкою",
+    "Codificador rotatorio con pulsador",
+    "Encodeur rotatif avec bouton"
+  ],
+  "400-contact breadboard · power rails": [
+    "Макетная плата на 400 контактов · шины питания",
+    "Макетна плата на 400 контактів · шини живлення",
+    "Placa de 400 contactos · carriles de alimentación",
+    "Plaque de 400 contacts · rails d’alimentation"
+  ],
+  "Open keys": [
+    "Открыть клавиши",
+    "Відкрити клавіші",
+    "Abrir teclas",
+    "Ouvrir les touches"
+  ],
+  "Open piano · 88 keys": [
+    "Открыть пианино · 88 клавиш",
+    "Відкрити піаніно · 88 клавіш",
+    "Abrir piano · 88 teclas",
+    "Ouvrir le piano · 88 touches"
+  ],
+  "Piezo piano · 88 keys": [
+    "Пьезопианино · 88 клавиш",
+    "П’єзопіаніно · 88 клавіш",
+    "Piano piezoeléctrico · 88 teclas",
+    "Piano piézo · 88 touches"
+  ],
+  "Press a key · A0–C8 · A4 = 440 Hz": [
+    "Нажмите клавишу · A0–C8 · A4 = 440 Гц",
+    "Натисніть клавішу · A0–C8 · A4 = 440 Гц",
+    "Pulsa una tecla · A0–C8 · A4 = 440 Hz",
+    "Appuyez sur une touche · A0–C8 · A4 = 440 Hz"
+  ],
+  "Unchanged": [
+    "Без изменений",
+    "Без змін",
+    "Sin cambios",
+    "Inchangé"
+  ],
+  "Pass MIDI through": [
+    "Передавать MIDI",
+    "Передавати MIDI",
+    "Pasar MIDI",
+    "Transmettre MIDI"
+  ],
+  "Note → Control Change": [
+    "Нота → Control Change",
+    "Нота → Control Change",
+    "Nota → Control Change",
+    "Note → Control Change"
+  ],
+  "Target channel (0 = original)": [
+    "Целевой канал (0 = исходный)",
+    "Цільовий канал (0 = початковий)",
+    "Canal de destino (0 = original)",
+    "Canal cible (0 = original)"
+  ],
+  "Transpose (semitones)": [
+    "Транспонирование (полутоны)",
+    "Транспонування (півтони)",
+    "Transponer (semitonos)",
+    "Transposer (demi-tons)"
+  ],
+  "Translation": [
+    "Преобразование",
+    "Перетворення",
+    "Traducción",
+    "Traduction"
+  ],
+  "CC number": [
+    "Номер CC",
+    "Номер CC",
+    "Número CC",
+    "Numéro CC"
+  ],
+  "Translate and send the last MIDI event": [
+    "Преобразовать и отправить последнее событие MIDI",
+    "Перетворити й надіслати останню подію MIDI",
+    "Traducir y enviar el último evento MIDI",
+    "Traduire et envoyer le dernier événement MIDI"
+  ],
+  "Encoder push button": [
+    "Кнопка энкодера",
+    "Кнопка енкодера",
+    "Pulsador del codificador",
+    "Bouton de l’encodeur"
+  ],
+  "Send MIDI to the sketch serial input": [
+    "Отправлять MIDI на последовательный вход скетча",
+    "Надсилати MIDI на послідовний вхід скетчу",
+    "Enviar MIDI a la entrada serie del sketch",
+    "Envoyer MIDI à l’entrée série du sketch"
+  ],
+  "Hold a key to connect its row and column. Use INPUT_PULLUP; without isolation diodes, ghosting is possible.": [
+    "Удерживайте клавишу, чтобы соединить её строку и столбец. Используйте INPUT_PULLUP; без развязывающих диодов возможно ложное срабатывание.",
+    "Утримуйте клавішу, щоб з’єднати її рядок і стовпець. Використовуйте INPUT_PULLUP; без розв’язувальних діодів можливі хибні спрацювання.",
+    "Mantén una tecla para conectar su fila y columna. Usa INPUT_PULLUP; sin diodos de aislamiento pueden aparecer pulsaciones fantasma.",
+    "Maintenez une touche pour relier sa ligne et sa colonne. Utilisez INPUT_PULLUP ; sans diodes d’isolation, des touches fantômes sont possibles."
+  ],
+  "One click generates four quadrature edges. Read A/B and SW with INPUT_PULLUP; connect GND to board ground.": [
+    "Один щелчок создаёт четыре квадратурных фронта. Читайте A/B и SW с INPUT_PULLUP; соедините GND с землёй платы.",
+    "Один клік створює чотири квадратурні фронти. Читайте A/B і SW з INPUT_PULLUP; з’єднайте GND із землею плати.",
+    "Un clic genera cuatro flancos en cuadratura. Lee A/B y SW con INPUT_PULLUP; conecta GND a la masa de la placa.",
+    "Un clic génère quatre fronts en quadrature. Lisez A/B et SW avec INPUT_PULLUP ; reliez GND à la masse de la carte."
+  ],
+  "Keypad: scan a 4×4 matrix": [
+    "Клавиатура: сканирование матрицы 4×4",
+    "Клавіатура: сканування матриці 4×4",
+    "Teclado: escanear una matriz 4×4",
+    "Clavier : scanner une matrice 4×4"
+  ],
+  "MIDI: 25-key keyboard": [
+    "MIDI: клавиатура на 25 клавиш",
+    "MIDI: клавіатура на 25 клавіш",
+    "MIDI: teclado de 25 teclas",
+    "MIDI : clavier à 25 touches"
+  ],
+  "DJ: encoder, fader and MIDI pad": [
+    "DJ: энкодер, фейдер и MIDI-пэд",
+    "DJ: енкодер, фейдер і MIDI-пед",
+    "DJ: codificador, fader y pad MIDI",
+    "DJ : encodeur, fader et pad MIDI"
+  ],
+  "Uno D2–D5: rows; D6–D9: columns. Open the key window and hold a key.": [
+    "Uno D2–D5: строки; D6–D9: столбцы. Откройте окно клавиш и удерживайте клавишу.",
+    "Uno D2–D5: рядки; D6–D9: стовпці. Відкрийте вікно клавіш і утримуйте клавішу.",
+    "Uno D2–D5: filas; D6–D9: columnas. Abre la ventana de teclas y mantén una tecla.",
+    "Uno D2–D5 : lignes ; D6–D9 : colonnes. Ouvrez la fenêtre des touches et maintenez une touche."
+  ],
+  "Electrical 4×8 matrix on D2–D13. Sketch-generated MIDI notes appear in the MIDI tab; direct MIDI injection is unnecessary.": [
+    "Электрическая матрица 4×8 на D2–D13. MIDI-ноты скетча отображаются на вкладке MIDI; прямая отправка MIDI не требуется.",
+    "Електрична матриця 4×8 на D2–D13. MIDI-ноти скетчу відображаються на вкладці MIDI; пряме надсилання MIDI не потрібне.",
+    "Matriz eléctrica 4×8 en D2–D13. Las notas MIDI del sketch aparecen en la pestaña MIDI; no hace falta inyección directa de MIDI.",
+    "Matrice électrique 4×8 sur D2–D13. Les notes MIDI du sketch apparaissent dans l’onglet MIDI ; aucune injection MIDI directe n’est nécessaire."
+  ],
+  "Uno with quadrature encoder, analog fader and button. View and translate MIDI CC and Note On/Off in the MIDI tab.": [
+    "Uno с квадратурным энкодером, аналоговым фейдером и кнопкой. Просматривайте и преобразуйте MIDI CC и Note On/Off на вкладке MIDI.",
+    "Uno з квадратурним енкодером, аналоговим фейдером і кнопкою. Переглядайте й перетворюйте MIDI CC та Note On/Off на вкладці MIDI.",
+    "Uno con codificador en cuadratura, fader analógico y pulsador. Visualiza y traduce MIDI CC y Note On/Off en la pestaña MIDI.",
+    "Uno avec encodeur en quadrature, fader analogique et bouton. Consultez et traduisez MIDI CC et Note On/Off dans l’onglet MIDI."
+  ],
+  "Change the value while the simulation runs.": [
+    "Изменяйте значение во время симуляции.",
+    "Змінюйте значення під час симуляції.",
+    "Cambia el valor durante la simulación.",
+    "Modifiez la valeur pendant la simulation."
   ]
 }

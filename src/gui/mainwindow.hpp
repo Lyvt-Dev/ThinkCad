@@ -11,6 +11,7 @@
 #include "peripheralhub.hpp"
 #include "i2cdevices.hpp"
 #include <QMainWindow>
+#include <deque>
 class QPlainTextEdit;
 class QLineEdit;
 class QLabel;
@@ -33,6 +34,7 @@ public:
     void loadDemo();
     bool loadExample(const QString& id);
     void startSimulation();
+    void turnEncoder(const std::string& id,int direction);
     void resetSimulation();
     void showStartPage();
     bool startPageVisible() const;
@@ -83,6 +85,8 @@ private:
     QDockWidget* inspectorDock_=nullptr;
     bool hadInstruments_=false;
     QDoubleSpinBox* powerRating_;
+    struct EncoderEvent {thinkercad::Microseconds at;std::string id;int phase;};
+    std::deque<EncoderEvent> encoderEvents_;
     PeripheralHub peripherals_;
     I2cDevices i2cDevices_;
     QLineEdit* netName_;
@@ -127,6 +131,8 @@ private:
     void examplesDialog();
     void appendLog(const QString& message);
     void updateCircuit(bool stopOnError=false);
+    void closeInputControls();
+    void openInputControls(const std::string& id);
     void updateInspector();
     void refreshTitle();
     void setSketch(const SketchProject& sketch);

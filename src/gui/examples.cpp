@@ -7,6 +7,9 @@
 #include <algorithm>
 using namespace thinkercad;
 QList<CircuitExample> ExampleCatalog::entries(){return {
+    {"keypad_matrix",Language::text("Keypad: 4×4-Matrix scannen"),Language::text("Uno D2–D5: Zeilen; D6–D9: Spalten. Tastenfenster öffnen und gedrückt halten.")},
+    {"midi_keyboard",Language::text("MIDI: 25-Tasten-Keyboard"),Language::text("Elektrische 4×8-Matrix an D2–D13. MIDI-Noten aus dem Sketch im MIDI-Tab; keine direkte MIDI-Injektion nötig.")},
+    {"dj_controller",Language::text("DJ: Encoder, Fader und MIDI-Pad"),Language::text("Uno mit Quadratur-Encoder, analogem Fader und Taster. MIDI-CC und Note On/Off im MIDI-Tab ansehen und übersetzen.")},
     {"ir_remote",Language::text("IR: TV-Fernbedienung testen"),Language::text("ESP32, 38-kHz-Empfänger und NEC-Testfernbedienung. Taste während der Simulation gedrückt halten.")},
     {"ir_loopback",Language::text("IR: Senden und Empfangen"),Language::text("GPIO2 mit 220 Ω und IR-LED; 38-kHz-Empfänger an GPIO4. NEC-Kommandos im seriellen Monitor.")},
     {"nfc_reader",Language::text("NFC: PN532 und Testkarte"),Language::text("ESP32 mit PN532 über I²C. Synthetische UID und NDEF lesen; Karte während der Simulation mit einem Klick entfernen oder auflegen.")},
@@ -45,7 +48,11 @@ SavedProject ExampleCatalog::create(const QString& id){
     auto oled=[&](double x,double y,int address){const auto display=doc.addPart(PartKind::Oled,x,y);doc.part(display).value=address;
         doc.connect({"board","3V3"},{display,"VCC"},"#ec5967");doc.connect({"board","GND"},{display,"GND"},"#64748b");doc.connect({"board","GPIO5"},{display,"SCL"},"#e9ad33");doc.connect({"board","GPIO4"},{display,"SDA"},"#378bcb");};
     auto power=[&](const std::string& board,const std::string& module){doc.connect({board,"3V3"},{module,"VCC"},"#ef4444");doc.connect({board,"GND"},{module,"GND"},"#64748b");};
-    if(id=="ir_remote"||id=="ir_loopback"){
+    if(id=="keypad_matrix"||id=="midi_keyboard"){
+        doc.part("board").model="arduino-uno";const auto input=doc.addPart(id=="keypad_matrix"?PartKind::Keypad:PartKind::Keyboard,650,100);for(int r=0;r<4;++r)doc.connect({input,"R"+std::to_string(r+1)},{"board","D"+std::to_string(2+r)});for(int c=0;c<(id=="keypad_matrix"?4:8);++c)doc.connect({input,"C"+std::to_string(c+1)},{"board","D"+std::to_string(6+c)});
+    }else if(id=="dj_controller"){
+        doc.part("board").model="arduino-uno";auto encoder=doc.addPart(PartKind::RotaryEncoder,650,0),fader=doc.addPart(PartKind::Potentiometer,650,220),pad=doc.addPart(PartKind::Button,650,420);for(const auto& item:std::vector<std::pair<std::string,std::string>>{{"A","D2"},{"B","D3"},{"SW","D4"},{"GND","GND"}})doc.connect({encoder,item.first},{"board",item.second});doc.connect({fader,"1"},{"board","GND"});doc.connect({fader,"2"},{"board","5V"});doc.connect({fader,"W"},{"board","A0"});doc.connect({pad,"1"},{"board","D5"});doc.connect({pad,"2"},{"board","GND"});
+    }else if(id=="ir_remote"||id=="ir_loopback"){
         doc.part("board").model="esp32";auto receiver=doc.addPart(PartKind::InfraredReceiver,500,30);power("board",receiver);doc.connect({"board","GPIO4"},{receiver,"OUT"});
         if(id=="ir_remote")doc.addPart(PartKind::InfraredRemote,750,30);
         else{auto resistor=doc.addPart(PartKind::Resistor,400,270),ir=doc.addPart(PartKind::InfraredLed,640,270);doc.connect({"board","GPIO2"},{resistor,"1"});doc.connect({resistor,"2"},{ir,"A"});doc.connect({ir,"K"},{"board","GND"});}

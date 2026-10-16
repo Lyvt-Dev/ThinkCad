@@ -154,14 +154,16 @@ inline void delayMicroseconds(unsigned int us) { thinker::advance(us); }
 inline void yield() { delayMicroseconds(0); }
 struct SerialPort : Stream {
     using Print::write;
-    void begin(unsigned long) {} explicit operator bool()const{return true;}
+    void begin(unsigned long baud) {binary_=baud==31250;} explicit operator bool()const{return true;}
     int available()override{return thinker::request("SERIAL_AVAILABLE");}
     int read()override{return thinker::request("SERIAL_READ");}
     int peek()override{return thinker::request("SERIAL_PEEK");}
     int availableForWrite()override{return 512;}
     void end(){}
     std::size_t write(std::uint8_t value)override{return write(&value,1);}
-    std::size_t write(const std::uint8_t* data,std::size_t size)override{constexpr char hex[]="0123456789abcdef";for(std::size_t start=0;start<size;start+=512){std::string encoded;for(std::size_t i=start;i<std::min(size,start+512);++i){encoded+=hex[data[i]>>4];encoded+=hex[data[i]&15];}std::cout<<"SERIAL "<<encoded<<std::endl;}std::cerr.write(reinterpret_cast<const char*>(data),size);return size;}
+    std::size_t write(const std::uint8_t* data,std::size_t size)override{constexpr char hex[]="0123456789abcdef";for(std::size_t start=0;start<size;start+=512){std::string encoded;for(std::size_t i=start;i<std::min(size,start+512);++i){encoded+=hex[data[i]>>4];encoded+=hex[data[i]&15];}std::cout<<"SERIAL "<<encoded<<std::endl;}if(!binary_)std::cerr.write(reinterpret_cast<const char*>(data),size);return size;}
+private:
+    bool binary_=false;
 protected:
     uint64_t streamClock()const override{return thinker::clockUs;}
     void streamWait(uint64_t us)override{thinker::advance(us);}
