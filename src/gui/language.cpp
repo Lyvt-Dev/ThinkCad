@@ -1,13 +1,75 @@
 #include "language.hpp"
 #include <QComboBox>
 #include <QMap>
+#include <QHash>
 #include <QLineEdit>
 #include <QObject>
 #include <QSettings>
 #include <QSignalBlocker>
 #include <QVariant>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QResource>
+#include <QLocale>
+static void initializeLanguageResources(){Q_INIT_RESOURCE(thinkcad_translations);}
 namespace {
 const QMap<QString,QString>& translations(){static const QMap<QString,QString> values{
+    {"Tutorial","Tutorial"},
+    {"Version ","Version "},
+    {"Videodateien","Video files"},
+    {"Alle Dateien","All files"},
+    {"Auto","Auto"},
+    {"Normal","Normal"},
+    {"Single","Single"},
+    {"ESP32: Sender GPIO25, Empfänger GPIO26; rc-switch Protokoll 1 mit 16-Bit-Testnachrichten.","ESP32: transmitter GPIO25, receiver GPIO26; rc-switch protocol 1 with 16-bit test messages."},
+    {"GPIO2 mit 220 Ω und IR-LED; 38-kHz-Empfänger an GPIO4. NEC-Kommandos im seriellen Monitor.","GPIO2 with 220 Ω and IR LED; 38 kHz receiver on GPIO4. NEC commands in the serial monitor."},
+    {"Zwei ESP32 mit nRF24L01, eigenen Sketches und ACK-Paketen auf Kanal 76. SPI18/19/23, CSN5, CE16.","Two ESP32 boards with nRF24L01, separate sketches and ACK packets on channel 76. SPI18/19/23, CSN5, CE16."},
+
+    {"Öffne Datei → Beispielschaltungen → LED blinken lassen. Ein Vorwiderstand schützt die LED.","Open File → Example circuits → Blink an LED. A series resistor protects the LED."},
+    {"Stoppe die Simulation zum Bearbeiten. Klicke einen Startpin, freie Stellen für Knicke und den Zielpin an. Ein Doppelklick auf ein Kabel fügt einen Knick hinzu. Esc bricht ab; Entf löscht die Auswahl.","Stop simulation to edit. Click a start pin, empty points for bends and the destination pin. Double-click a wire to add a bend. Esc cancels; Delete removes the selection."},
+    {"F5 oder Strg+R startet und stoppt. Während der Simulation sind Kabel und Bauteile nicht auswählbar. Taster und Fernbedienung gedrückt halten; Schalter und NFC-Karten mit einem Klick umschalten. Maustaste loslassen, um einen Taster freizugeben.","F5 or Ctrl+R starts and stops. Cables and parts cannot be selected during simulation. Hold pushbuttons and remote buttons; click switches and NFC cards once to toggle them. Release the mouse button to release a pushbutton."},
+    {"Jedes Board hat seinen eigenen Sketch, auswählbar über dem Code-Editor. Alle Boards laufen gleichzeitig. setup() läuft einmal, loop() wiederholt sich. Pause, Stopp und Reset wirken auf alle Boards.","Each board has its own sketch, selected above the code editor. All boards run simultaneously. setup() runs once; loop() repeats. Pause, stop and reset affect every board."},
+    {"ESP8266-OLED: VCC an 3V3, GND an GND, SDA an D2 und SCL an D1. Datei → Video in frames.h umwandeln exportiert einfarbige PROGMEM-Bitmaps. Wähle Auflösung, Bildrate und Clipdauer; maximal 256 KiB Bitmapdaten. Kopiere frames.h in den Sketch-Ordner.","ESP8266 OLED: VCC to 3V3, GND to GND, SDA to D2 and SCL to D1. File → Convert video to frames.h exports monochrome PROGMEM bitmaps. Choose resolution, frame rate and clip length; maximum 256 KiB bitmap data. Copy frames.h into the sketch folder."},
+    {"Strg+S speichert Verdrahtung und Code zusammen. Strg+O öffnet ein Projekt oder einen .ino-Sketch. Der Arduino-Export schreibt die Dateien für die echte IDE. Strg+Mausrad zoomt; die mittlere Maustaste verschiebt die Ansicht.","Ctrl+S saves wiring and code together. Ctrl+O opens a project or .ino sketch. Arduino export writes files for the physical IDE. Ctrl+wheel zooms; the middle mouse button pans."},
+    {"Modellgrenzen","Model limitations"},
+    {"Dies ist eine Host-API-Simulation, keine CPU-Emulation. Ein unverbundener Eingang ist nicht automatisch LOW. Verwende INPUT_PULLUP und beachte die Versorgung und ADC-Grenzen. Hardwarebibliotheken benötigen ein passendes Gerätemodell.","This is a host API simulation, not CPU emulation. A disconnected input is not automatically LOW. Use INPUT_PULLUP and respect supply and ADC limits. Hardware libraries need a matching device model."},
+    {"Nativer C++20-/Qt-Schaltungssimulator für Windows und Linux.","Native C++20 / Qt circuit simulator for Windows and Linux."},
+    {"Entwickelt von Lyvt-Dev. Quellcode, Releases und Fehlerberichte:","Developed by Lyvt-Dev. Source, releases and issue tracker:"},
+
+    {"Die ausgewählte Datei enthält keine Videospur.","The selected file has no video track."},
+    {"Video in frames.h umwandeln…","Convert video to frames.h…"},
+    {"Video in frames.h umwandeln","Convert video to frames.h"},
+    {"Video auswählen","Choose video"},
+    {"Monochrome OLED-Frames für Adafruit GFX. Seitenverhältnis bleibt erhalten; Audio wird nicht exportiert.","Monochrome OLED frames for Adafruit GFX. Aspect ratio is preserved; audio is not exported."},
+    {"Auflösung","Resolution"},
+    {"Bilder pro Sekunde","Frames per second"},
+    {"Startzeit (Sekunden)","Start time (seconds)"},
+    {"Clipdauer (Sekunden)","Clip duration (seconds)"},
+    {"Schwarz-Weiß-Schwelle","Black/white threshold"},
+    {"Farben umkehren","Invert colors"},
+    {"Video wird geladen…","Loading video…"},
+    {"frames.h exportieren…","Export frames.h…"},
+    {"frames.h exportieren","Export frames.h"},
+    {"Video konnte nicht gelesen werden: ","Could not read video: "},
+    {"Video-Decoder antwortet nicht.","Video decoder is not responding."},
+    {"%1 Frames · %2 KiB Bitmapdaten · maximal 256 KiB","%1 frames · %2 KiB bitmap data · 256 KiB maximum"},
+    {"Video wird umgewandelt…","Converting video…"},
+    {"frames.h wurde exportiert: ","Exported frames.h: "},
+    {"Ungültige Videoeinstellungen","Invalid video frame settings"},
+    {"Ungültiges Videobild","Invalid video frame"},
+    {"Video überschreitet 256 KiB Bitmapdaten. Bildrate, Clipdauer oder Auflösung verringern.","Video exceeds the 256 KiB bitmap limit. Reduce frame rate, clip length or resolution."},
+    {"Das Video lieferte keine lesbaren Bilder.","The video did not produce any readable frames."},
+    {"Videokonvertierung ist unvollständig.","Video conversion is incomplete."},
+    {"frames.h konnte nicht gespeichert werden.","Could not save frames.h."},
+    {"Zum Betätigen gedrückt halten","Press and hold to operate"},
+    {"Blöcke","Blocks"},
+    {"Realistisch","Realistic"},
+    {"ESP32, 38-kHz-Empfänger und NEC-Testfernbedienung. Taste während der Simulation gedrückt halten.","ESP32, 38 kHz receiver and NEC test remote. Press and hold its button during simulation."},
+    {"ESP32 mit PN532 über I²C. Synthetische UID und NDEF lesen; Karte während der Simulation mit einem Klick entfernen oder auflegen.","ESP32 with PN532 over I²C. Read synthetic UID and NDEF; click once during simulation to remove or present the card."},
+    {"Taster an D6 gegen GND, interner Pullup, LED an D5. Taster während der Simulation gedrückt halten oder Auswahl-Checkbox verwenden.","Button on D6 to GND, internal pullup, LED on D5. Press and hold during simulation, or use the inspector checkbox."},
+
     {"Keine Vorschau","No preview"},{"Projektvorschau","Project preview"},
     {"Darstellung und Sprache","Appearance and language"},{"Entfernen","Remove"},
     {"IR, NFC und Funk","IR, NFC and radio"},{" Kanal"," channel"},{" Kommando"," command"},{"IR-LED 940 nm","IR LED 940 nm"},{"IR-Empfänger 38 kHz","IR receiver 38 kHz"},{"TV-Fernbedienung (NEC)","TV remote (NEC)"},{"NFC-Leser PN532 (I²C)","NFC reader PN532 (I²C)"},{"NFC-Testkarte","NFC test card"},{"433-MHz-Sender (ASK)","433 MHz transmitter (ASK)"},{"433-MHz-Empfänger (ASK)","433 MHz receiver (ASK)"},{"TV-Taste gedrückt","TV button pressed"},{"Karte am Leser","Card present at reader"},{"Testgruppe","Test group"},{"NEC-Adresse","NEC address"},{"Übernehmen","Apply"},{"UID: 4 oder 7 Bytes als Hex eingeben.","UID: enter 4 or 7 bytes in hexadecimal."},{"NDEF: maximal 96 UTF-8-Bytes.","NDEF: maximum 96 UTF-8 bytes."},{"Funk-/NFC-Einstellungen ändern","Change wireless/NFC settings"},
@@ -248,7 +310,7 @@ const QMap<QString,QString>& translations(){static const QMap<QString,QString> v
     {"I²C-Adresse ändern","Change I²C address"},
     {"Update installieren und neu starten","Install update and restart"},
     {" · ungespeichert"," · unsaved"},
-    {"  ","  Pin → Pin verbindet ein Kabel"},
+    {"  ","  Pin → Pin connects a wire"},
     {"Beispiele nicht installiert","Examples not installed"},
     {"Die Beispielsketches wurden nicht installiert. Unter Gentoo das USE-Flag examples aktivieren und ThinkCad erneut installieren.","The example sketches are not installed. On Gentoo enable the examples USE flag and reinstall ThinkCad."},
     {"Fertige Schaltung mit passendem Arduino-Sketch öffnen","Open a complete circuit with a matching Arduino sketch"},
@@ -406,26 +468,42 @@ const QMap<QString,QString>& translations(){static const QMap<QString,QString> v
     {"Projektdatei konnte nicht vorbereitet werden.","Could not prepare project file."},
     {"Sketch konnte nicht gespeichert werden.","Could not save sketch."}
 };return values;}
-QString& selectedLanguage(){static QString language=QSettings().value("language","de").toString()=="en"?"en":"de";return language;}
+const QJsonObject& extraTranslations(){
+    static const auto data=[](){initializeLanguageResources();QFile file(":/i18n/catalog.json");if(!file.open(QIODevice::ReadOnly))return QJsonObject{};return QJsonDocument::fromJson(file.readAll()).object();}();return data;
+}
+QString& selectedLanguage(){static QString language=[](){const auto saved=QSettings().value("language",QLocale::system().name().section('_',0,0)).toString();return Language::codes().contains(saved)?saved:QString("en");}();return language;}
+QString germanSource(const QString& english){for(auto it=translations().cbegin();it!=translations().cend();++it)if(it.value()==english)return it.key();return english;}
 QString sourceText(const QString& value){
     if(translations().contains(value))return value;
-    for(auto it=translations().cbegin();it!=translations().cend();++it)if(it.value()==value)return it.key();
-    return value;
+    static const auto aliases=[](){
+        QHash<QString,QString> result;
+        for(auto it=translations().cbegin();it!=translations().cend();++it)if(!result.contains(it.value()))result.insert(it.value(),it.key());
+        for(auto it=extraTranslations().begin();it!=extraTranslations().end();++it){const auto original=germanSource(it.key());for(const auto& translation:it.value().toArray())if(!result.contains(translation.toString()))result.insert(translation.toString(),original);}
+        return result;
+    }();return aliases.value(value,value);
+}
+QString localized(const QString& original,const QString& locale){
+    if(locale=="de")return original;
+    const auto english=translations().value(original,original);if(locale=="en")return english;
+    const int index=QStringList{"ru","uk","es","fr"}.indexOf(locale);const auto row=extraTranslations().value(english).toArray();
+    return index>=0&&index<row.size()&&!row[index].toString().isEmpty()?row[index].toString():english;
 }
 }
+QStringList Language::sourceTexts(){QStringList values=translations().values();values.removeDuplicates();return values;}
+QStringList Language::codes(){return {"de","en","ru","uk","es","fr"};}
+QString Language::nativeName(const QString& code){static const QMap<QString,QString> names{{"de","Deutsch"},{"en","English"},{"ru","Русский"},{"uk","Українська"},{"es","Español"},{"fr","Français"}};return names.value(code,code);}
 QString Language::current(){return selectedLanguage();}
-void Language::set(const QString& language){selectedLanguage()=language=="en"?"en":"de";QSettings().setValue("language",selectedLanguage());}
+void Language::set(const QString& language){selectedLanguage()=codes().contains(language)?language:QString("de");QSettings().setValue("language",selectedLanguage());}
 QString Language::text(const QString& source){
-    for(const auto& prefix:{QString("Rückgängig "),QString("Undo "),QString("Wiederholen "),QString("Redo ")})
-        if(source.startsWith(prefix))return text(prefix.trimmed())+" "+text(source.mid(prefix.size()));
-    const auto original=sourceText(source);
-    if(current()=="de")return original;
-    return translations().value(original,original);
+    for(const auto& original:{QString("Rückgängig"),QString("Wiederholen")})for(const auto& code:codes()){
+        const auto prefix=localized(original,code)+" ";if(source.startsWith(prefix))return localized(original,current())+" "+text(source.mid(prefix.size()));
+    }
+    return localized(sourceText(source),current());
 }
 void Language::translateTree(QObject* root){
     QList<QObject*> objects{root};objects.append(root->findChildren<QObject*>());
     for(auto* object:objects){
-        if(object->objectName()=="projectLabel")continue;
+        if(object->objectName()=="projectLabel"||object->objectName()=="recentProject"||object->objectName()=="recentLocation")continue;
         for(const char* property:{"text","title","windowTitle","placeholderText","toolTip","statusTip","accessibleName"}){
             if(object->metaObject()->indexOfProperty(property)<0)continue;
             if(qobject_cast<QLineEdit*>(object)&&QByteArray(property)=="text")continue;
@@ -434,9 +512,26 @@ void Language::translateTree(QObject* root){
             if(value!=translated)object->setProperty(property,translated);
         }
         if(auto* combo=qobject_cast<QComboBox*>(object)){
-            if(combo->objectName()=="languageSelector")continue;
+            if(combo->objectName()=="languageSelector"||combo->objectName()=="languageChoice")continue;
             const QSignalBlocker block(combo);
             for(int i=0;i<combo->count();++i)combo->setItemText(i,text(combo->itemText(i)));
         }
     }
+}
+
+QString Language::tutorialHtml(){
+    QString html;
+    auto section=[&](const QString& title,const QString& body){html+="<h2>"+text(title).toHtmlEscaped()+"</h2><p>"+text(body).toHtmlEscaped()+"</p>";};
+    html="<h1>"+text("ThinkCad Tutorial").toHtmlEscaped()+"</h1>";
+    section("Projekt öffnen oder erstellen","Starte mit einem leeren Projekt oder öffne eine lokale Schaltung oder einen .ino-Sketch.");
+    section("Beispielschaltungen","Öffne Datei → Beispielschaltungen → LED blinken lassen. Ein Vorwiderstand schützt die LED.");
+    section("Kabel verbinden","Stoppe die Simulation zum Bearbeiten. Klicke einen Startpin, freie Stellen für Knicke und den Zielpin an. Ein Doppelklick auf ein Kabel fügt einen Knick hinzu. Esc bricht ab; Entf löscht die Auswahl.");
+    section("Simulation starten","F5 oder Strg+R startet und stoppt. Während der Simulation sind Kabel und Bauteile nicht auswählbar. Taster und Fernbedienung gedrückt halten; Schalter und NFC-Karten mit einem Klick umschalten. Maustaste loslassen, um einen Taster freizugeben.");
+    section("Sketch dieses Boards öffnen","Jedes Board hat seinen eigenen Sketch, auswählbar über dem Code-Editor. Alle Boards laufen gleichzeitig. setup() läuft einmal, loop() wiederholt sich. Pause, Stopp und Reset wirken auf alle Boards.");
+    section("OLED-Animation","ESP8266-OLED: VCC an 3V3, GND an GND, SDA an D2 und SCL an D1. Datei → Video in frames.h umwandeln exportiert einfarbige PROGMEM-Bitmaps. Wähle Auflösung, Bildrate und Clipdauer; maximal 256 KiB Bitmapdaten. Kopiere frames.h in den Sketch-Ordner.");
+    section("Projekt speichern","Strg+S speichert Verdrahtung und Code zusammen. Strg+O öffnet ein Projekt oder einen .ino-Sketch. Der Arduino-Export schreibt die Dateien für die echte IDE. Strg+Mausrad zoomt; die mittlere Maustaste verschiebt die Ansicht.");
+    section("Arduino-Bibliotheken","Official Arduino catalog. Installation includes dependencies. Hardware libraries also require a supported simulation model.");
+    section("Modellgrenzen","Dies ist eine Host-API-Simulation, keine CPU-Emulation. Ein unverbundener Eingang ist nicht automatisch LOW. Verwende INPUT_PULLUP und beachte die Versorgung und ADC-Grenzen. Hardwarebibliotheken benötigen ein passendes Gerätemodell.");
+    html+="<pre>"+QString("display.setCursor(0, 0);\ndisplay.setTextColor(SSD1306_WHITE);\ndisplay.println(\"ThinkCad\");\ndisplay.display();\n\n// #include \"frames.h\"\n// uint32_t index = (uint64_t(micros()) * FRAME_FPS / 1000000) % FRAME_COUNT;\n// display.drawBitmap(0, 0, frames[index], FRAME_WIDTH, FRAME_HEIGHT, SSD1306_WHITE);\n// display.display();").toHtmlEscaped()+"</pre>";
+    return html;
 }

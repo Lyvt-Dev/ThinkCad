@@ -18,7 +18,7 @@
 #include <QVBoxLayout>
 namespace {
 QLabel* label(const QString& text,const char* name,QWidget* parent=nullptr){auto* l=new QLabel(Language::text(text),parent);l->setObjectName(name);l->setTextFormat(Qt::PlainText);l->setWordWrap(true);return l;}
-QPushButton* button(const QString& text,const char* name){auto* b=new QPushButton(Language::text(text));b->setObjectName(name);b->setMinimumHeight(34);return b;}
+QPushButton* button(const QString& text,const char* name,bool translate=true){auto* b=new QPushButton(translate?Language::text(text):text);b->setObjectName(name);b->setMinimumHeight(34);return b;}
 }
 WelcomePage::WelcomePage(QWidget* parent):QWidget(parent){
     setObjectName("startPage");
@@ -35,7 +35,7 @@ WelcomePage::WelcomePage(QWidget* parent):QWidget(parent){
     auto* home=button("Meine Projekte","homeNavigation");home->setCheckable(true);home->setChecked(true);nav->addWidget(home);
     auto* settings=button("Einstellungen","settingsNavigation");settings->setCheckable(true);nav->addWidget(settings);auto* navigation=new QButtonGroup(this);navigation->addButton(home);navigation->addButton(settings);
     auto* tutorial=button("Tutorial","tutorialNavigation");nav->addWidget(tutorial);nav->addStretch();
-    auto* resume=button("Zum Editor","resumeEditor");nav->addWidget(resume);nav->addWidget(label("Version " THINKERCAD_VERSION,"muted"));root->addWidget(sidebar);auto* divider=new QFrame;divider->setObjectName("startDivider");divider->setFrameShape(QFrame::VLine);root->addWidget(divider);
+    auto* resume=button("Zum Editor","resumeEditor");nav->addWidget(resume);nav->addWidget(label(Language::text("Version ")+THINKERCAD_VERSION,"startVersion"));root->addWidget(sidebar);auto* divider=new QFrame;divider->setObjectName("startDivider");divider->setFrameShape(QFrame::VLine);root->addWidget(divider);
     pages_=new QStackedWidget;root->addWidget(pages_,1);
     auto* scroll=new QScrollArea;scroll->setWidgetResizable(true);scroll->setFrameShape(QFrame::NoFrame);auto* content=new QWidget;auto* layout=new QVBoxLayout(content);layout->setContentsMargins(28,28,28,28);layout->setSpacing(20);
     layout->addWidget(label("Projekte","welcomeTitle"));layout->addWidget(label("ThinkCad – Schaltungen und Arduino-Sketches","welcomeSubtitle"));
@@ -64,6 +64,7 @@ void WelcomePage::remember(const QString& path){
     paths.prepend(absolute);while(paths.size()>12)paths.removeLast();QSettings().setValue("recentProjects",paths);
 }
 void WelcomePage::refresh(){
+    findChild<QLabel*>("startVersion")->setText(Language::text("Version ")+THINKERCAD_VERSION);
     auto* dark=findChild<QCheckBox*>("startDarkMode");{QSignalBlocker block(dark);dark->setChecked(QSettings().value("darkMode",false).toBool());}
     while(auto* item=recentLayout_->takeAt(0)){delete item->widget();delete item;}
     const auto paths=QSettings().value("recentProjects").toStringList().mid(0,12);
@@ -74,7 +75,7 @@ void WelcomePage::refresh(){
         auto* preview=new QLabel(Language::text("Keine Vorschau"));preview->setObjectName("recentProjectPreview");preview->setFixedSize(120,72);preview->setAlignment(Qt::AlignCenter);preview->setWordWrap(true);preview->setFrameShape(QFrame::StyledPanel);preview->setAccessibleName(Language::text("Projektvorschau"));row->addWidget(preview);
         // Deferred and tied to the row lifetime: opening the menu remains immediate.
         QTimer::singleShot(0,preview,[preview,path]{const auto image=ProjectPreview::load(path);if(!image.isNull()){auto pixmap=QPixmap::fromImage(image).scaled(240,144,Qt::KeepAspectRatio,Qt::SmoothTransformation);pixmap.setDevicePixelRatio(2);preview->setPixmap(pixmap);}});
-        auto* open=button(file.fileName().replace("&","&&"),"recentProject");open->setProperty("projectPath",path);open->setToolTip(path);open->setMinimumWidth(160);open->setMaximumWidth(240);open->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);auto* detail=new QVBoxLayout;detail->setSpacing(6);detail->addWidget(open,0,Qt::AlignLeft);auto* location=label(file.absolutePath(),"recentLocation");location->setToolTip(path);location->setWordWrap(false);location->setMinimumWidth(0);location->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);detail->addWidget(location);row->addLayout(detail,1);
+        auto* open=button(file.fileName().replace("&","&&"),"recentProject",false);open->setProperty("projectPath",path);open->setToolTip(path);open->setMinimumWidth(160);open->setMaximumWidth(240);open->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);auto* detail=new QVBoxLayout;detail->setSpacing(6);detail->addWidget(open,0,Qt::AlignLeft);auto* location=label(file.absolutePath(),"recentLocation");location->setToolTip(path);location->setWordWrap(false);location->setMinimumWidth(0);location->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);detail->addWidget(location);row->addLayout(detail,1);
         auto* date=label(file.exists()?file.lastModified().toString("dd.MM.yyyy"):Language::text("Datei fehlt"),"muted");row->addWidget(date);open->setEnabled(file.isFile());auto* remove=button("Entfernen","removeRecentProject");remove->setAccessibleName(Language::text("Aus Liste entfernen"));remove->setToolTip(remove->accessibleName());row->addWidget(remove);
         connect(open,&QPushButton::clicked,this,[this,path]{emit recentRequested(path);});connect(remove,&QPushButton::clicked,this,[this,path]{auto list=QSettings().value("recentProjects").toStringList();list.removeAll(path);QSettings().setValue("recentProjects",list);QTimer::singleShot(0,this,&WelcomePage::refresh);});recentLayout_->addWidget(card);
     }

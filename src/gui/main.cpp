@@ -1,4 +1,8 @@
 #include "mainwindow.hpp"
+#include "videoimport.hpp"
+#include <QTemporaryDir>
+#include <QFile>
+#include <QDebug>
 #include <QApplication>
 #include <QFileInfo>
 #include <QPalette>
@@ -25,6 +29,11 @@ int main(int argc,char** argv){
     app.setDesktopFileName("io.github.LyvtDev.ThinkCad");
 #endif
     Theme::apply(QSettings().value("darkMode",false).toBool());
+    if(app.arguments().contains("--smoke-test")){
+        QTemporaryDir data;const auto source=data.filePath("frames.webm");QString error;
+        if(!QFile::copy(":/smoke/frames.webm",source)||!videoImportSmokeTest(source,&error)){qCritical()<<"Video import smoke failed:"<<error;return 1;}
+        qInfo()<<"Video import smoke passed";
+    }
     MainWindow window(app.arguments().contains("--smoke-test"));window.show();
     if(!app.arguments().contains("--smoke-test")){
         QString path;for(const auto& argument:app.arguments().mid(1))if(QFileInfo(argument).isFile()){path=argument;break;}

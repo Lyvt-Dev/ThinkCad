@@ -39,6 +39,7 @@ public:
     void cancelWire();
     void connectPin(const thinkercad::Endpoint& pin);
     void toggleButton(const std::string& id);
+    void setButtonPressed(const std::string& id,bool pressed);
     void changeValue(const std::string& id,double value);
     void recordMove(const thinkercad::CircuitDocument& before);
     void moveBend(const std::string& id,std::size_t index,QPointF position);
@@ -55,6 +56,7 @@ signals:
     void inputValueChanged();
     void notice(const QString& text);
 protected:
+    void focusOutEvent(QFocusEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
@@ -71,6 +73,7 @@ private:
     QColor wireColor_{"#0d9488"};
     bool editingEnabled_=true,wireMode_=false,panning_=false;
     QPoint panOrigin_;
+    std::string heldButton_;
     double gridSize_=10;bool snap_=true;
     std::vector<thinkercad::WirePoint> pendingBends_;
     QPointF lastPointer_;

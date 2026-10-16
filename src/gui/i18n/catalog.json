@@ -1,0 +1,3014 @@
+{
+  "No preview": [
+    "Нет предпросмотра",
+    "Немає попереднього перегляду",
+    "Sin vista previa",
+    "Aucun aperçu"
+  ],
+  "Project preview": [
+    "Предпросмотр проекта",
+    "Попередній перегляд проєкту",
+    "Vista previa del proyecto",
+    "Aperçu du projet"
+  ],
+  "Appearance and language": [
+    "Оформление и язык",
+    "Оформлення та мова",
+    "Apariencia e idioma",
+    "Apparence et langue"
+  ],
+  "Remove": [
+    "Удалить",
+    "Видалити",
+    "Quitar",
+    "Retirer"
+  ],
+  "IR, NFC and radio": [
+    "ИК, NFC и радио",
+    "ІЧ, NFC та радіо",
+    "IR, NFC y radio",
+    "IR, NFC et radio"
+  ],
+  " channel": [
+    " канал",
+    " канал",
+    " canal",
+    " canal"
+  ],
+  " command": [
+    " команда",
+    " команда",
+    " comando",
+    " commande"
+  ],
+  "IR LED 940 nm": [
+    "ИК-светодиод 940 нм",
+    "ІЧ-світлодіод 940 нм",
+    "LED IR de 940 nm",
+    "LED IR 940 nm"
+  ],
+  "IR receiver 38 kHz": [
+    "ИК-приёмник 38 кГц",
+    "ІЧ-приймач 38 кГц",
+    "Receptor IR de 38 kHz",
+    "Récepteur IR 38 kHz"
+  ],
+  "TV remote (NEC)": [
+    "ТВ-пульт (NEC)",
+    "ТБ-пульт (NEC)",
+    "Mando de TV (NEC)",
+    "Télécommande TV (NEC)"
+  ],
+  "NFC reader PN532 (I²C)": [
+    "NFC-считыватель PN532 (I²C)",
+    "NFC-зчитувач PN532 (I²C)",
+    "Lector NFC PN532 (I²C)",
+    "Lecteur NFC PN532 (I²C)"
+  ],
+  "NFC test card": [
+    "Тестовая NFC-карта",
+    "Тестова NFC-картка",
+    "Tarjeta NFC de prueba",
+    "Carte NFC de test"
+  ],
+  "433 MHz transmitter (ASK)": [
+    "Передатчик 433 МГц (ASK)",
+    "Передавач 433 МГц (ASK)",
+    "Transmisor de 433 MHz (ASK)",
+    "Émetteur 433 MHz (ASK)"
+  ],
+  "433 MHz receiver (ASK)": [
+    "Приёмник 433 МГц (ASK)",
+    "Приймач 433 МГц (ASK)",
+    "Receptor de 433 MHz (ASK)",
+    "Récepteur 433 MHz (ASK)"
+  ],
+  "TV button pressed": [
+    "Кнопка пульта нажата",
+    "Кнопку пульта натиснуто",
+    "Botón del mando pulsado",
+    "Bouton de télécommande enfoncé"
+  ],
+  "Card present at reader": [
+    "Карта у считывателя",
+    "Картка біля зчитувача",
+    "Tarjeta presente en el lector",
+    "Carte présente sur le lecteur"
+  ],
+  "Test group": [
+    "Тестовая группа",
+    "Тестова група",
+    "Grupo de prueba",
+    "Groupe de test"
+  ],
+  "NEC address": [
+    "Адрес NEC",
+    "Адреса NEC",
+    "Dirección NEC",
+    "Adresse NEC"
+  ],
+  "Apply": [
+    "Применить",
+    "Застосувати",
+    "Aplicar",
+    "Appliquer"
+  ],
+  "UID: enter 4 or 7 bytes in hexadecimal.": [
+    "UID: введите 4 или 7 байт в шестнадцатеричном виде.",
+    "UID: введіть 4 або 7 байтів у шістнадцятковому вигляді.",
+    "UID: introduce 4 o 7 bytes en hexadecimal.",
+    "UID : saisir 4 ou 7 octets en hexadécimal."
+  ],
+  "NDEF: maximum 96 UTF-8 bytes.": [
+    "NDEF: максимум 96 байт UTF-8.",
+    "NDEF: щонайбільше 96 байтів UTF-8.",
+    "NDEF: máximo 96 bytes UTF-8.",
+    "NDEF : 96 octets UTF-8 maximum."
+  ],
+  "Change wireless/NFC settings": [
+    "Настройки радио/NFC",
+    "Налаштування радіо/NFC",
+    "Cambiar ajustes de radio/NFC",
+    "Modifier les réglages radio/NFC"
+  ],
+  "IR: test TV remote": [
+    "ИК: проверить ТВ-пульт",
+    "ІЧ: перевірити ТБ-пульт",
+    "IR: probar mando de TV",
+    "IR : tester la télécommande TV"
+  ],
+  "IR: transmit and receive": [
+    "ИК: передача и приём",
+    "ІЧ: передавання та приймання",
+    "IR: transmisión y recepción",
+    "IR : émission et réception"
+  ],
+  "NFC: PN532 and test card": [
+    "NFC: PN532 и тестовая карта",
+    "NFC: PN532 і тестова картка",
+    "NFC: PN532 y tarjeta de prueba",
+    "NFC : PN532 et carte de test"
+  ],
+  "Radio: nRF24L01 transmitter and receiver": [
+    "Радио: передатчик и приёмник nRF24L01",
+    "Радіо: передавач і приймач nRF24L01",
+    "Radio: transmisor y receptor nRF24L01",
+    "Radio : émetteur et récepteur nRF24L01"
+  ],
+  "Radio: 433 MHz ASK pair": [
+    "Радио: пара ASK 433 МГц",
+    "Радіо: пара ASK 433 МГц",
+    "Radio: pareja ASK de 433 MHz",
+    "Radio : paire ASK 433 MHz"
+  ],
+  "Net name · Enter": [
+    "Имя цепи · Enter",
+    "Назва кола · Enter",
+    "Nombre de red · Intro",
+    "Nom du réseau · Entrée"
+  ],
+  "Net name": [
+    "Имя цепи",
+    "Назва кола",
+    "Nombre de red",
+    "Nom du réseau"
+  ],
+  "Manual: new features…": [
+    "Руководство: новые функции…",
+    "Посібник: нові функції…",
+    "Manual: nuevas funciones…",
+    "Manuel : nouvelles fonctions…"
+  ],
+  "Manual": [
+    "Руководство",
+    "Посібник",
+    "Manual",
+    "Manuel"
+  ],
+  "Manual missing. Check the installation.": [
+    "Руководство отсутствует. Проверьте установку.",
+    "Посібника немає. Перевірте встановлення.",
+    "Falta el manual. Comprueba la instalación.",
+    "Manuel introuvable. Vérifiez l'installation."
+  ],
+  "Project information…": [
+    "Сведения о проекте…",
+    "Відомості про проєкт…",
+    "Información del proyecto…",
+    "Informations du projet…"
+  ],
+  "Project information": [
+    "Сведения о проекте",
+    "Відомості про проєкт",
+    "Información del proyecto",
+    "Informations du projet"
+  ],
+  "Components: ": [
+    "Компоненты: ",
+    "Компоненти: ",
+    "Componentes: ",
+    "Composants : "
+  ],
+  "Wires: ": [
+    "Провода: ",
+    "Дроти: ",
+    "Cables: ",
+    "Fils : "
+  ],
+  "Bundled library files: ": [
+    "Встроенные файлы библиотек: ",
+    "Вбудовані файли бібліотек: ",
+    "Archivos de bibliotecas incluidos: ",
+    "Fichiers de bibliothèques inclus : "
+  ],
+  "MISSING: ": [
+    "ОТСУТСТВУЕТ: ",
+    "ВІДСУТНЄ: ",
+    "FALTA: ",
+    "MANQUANT : "
+  ],
+  "Arduino CLI: ": [
+    "Arduino CLI: ",
+    "Arduino CLI: ",
+    "Arduino CLI: ",
+    "Arduino CLI : "
+  ],
+  "Motors and actuators": [
+    "Двигатели и исполнительные устройства",
+    "Двигуни та виконавчі пристрої",
+    "Motores y actuadores",
+    "Moteurs et actionneurs"
+  ],
+  "Digital logic": [
+    "Цифровая логика",
+    "Цифрова логіка",
+    "Lógica digital",
+    "Logique numérique"
+  ],
+  "Snap to grid": [
+    "Привязка к сетке",
+    "Прив'язка до сітки",
+    "Ajustar a la cuadrícula",
+    "Aligner sur la grille"
+  ],
+  "Cut": [
+    "Вырезать",
+    "Вирізати",
+    "Cortar",
+    "Couper"
+  ],
+  "Automatic snapshots after an unexpected exit. Open sessions are excluded.": [
+    "Автоматические копии после аварийного завершения. Открытые сеансы исключены.",
+    "Автоматичні копії після аварійного завершення. Відкриті сеанси виключено.",
+    "Copias automáticas tras un cierre inesperado. Se excluyen las sesiones abiertas.",
+    "Copies automatiques après un arrêt inattendu. Les sessions ouvertes sont exclues."
+  ],
+  "Autosave failed: ": [
+    "Ошибка автосохранения: ",
+    "Помилка автозбереження: ",
+    "Error de guardado automático: ",
+    "Échec de l'enregistrement automatique : "
+  ],
+  "Change power rating": [
+    "Изменить допустимую мощность",
+    "Змінити допустиму потужність",
+    "Cambiar potencia nominal",
+    "Modifier la puissance nominale"
+  ],
+  "Duration in ms": [
+    "Длительность в мс",
+    "Тривалість у мс",
+    "Duración en ms",
+    "Durée en ms"
+  ],
+  "Duplicate": [
+    "Дублировать",
+    "Дублювати",
+    "Duplicar",
+    "Dupliquer"
+  ],
+  "Properties": [
+    "Свойства",
+    "Властивості",
+    "Propiedades",
+    "Propriétés"
+  ],
+  "Paste": [
+    "Вставить",
+    "Вставити",
+    "Pegar",
+    "Coller"
+  ],
+  "Error: ": [
+    "Ошибка: ",
+    "Помилка: ",
+    "Error: ",
+    "Erreur : "
+  ],
+  "Simulate for duration…": [
+    "Симулировать заданное время…",
+    "Симулювати заданий час…",
+    "Simular durante…",
+    "Simuler pendant une durée…"
+  ],
+  "Compile / upload hardware…": [
+    "Компиляция / загрузка на устройство…",
+    "Компіляція / завантаження на пристрій…",
+    "Compilar / cargar al dispositivo…",
+    "Compiler / téléverser sur le matériel…"
+  ],
+  "Align horizontally": [
+    "Выровнять по горизонтали",
+    "Вирівняти по горизонталі",
+    "Alinear horizontalmente",
+    "Aligner horizontalement"
+  ],
+  "Distribute horizontally": [
+    "Распределить по горизонтали",
+    "Розподілити по горизонталі",
+    "Distribuir horizontalmente",
+    "Répartir horizontalement"
+  ],
+  "No electrical errors detected. Model limitations still apply.": [
+    "Электрических ошибок нет. Учитывайте ограничения моделей.",
+    "Електричних помилок немає. Враховуйте обмеження моделей.",
+    "No se detectaron errores eléctricos. Se mantienen las limitaciones de los modelos.",
+    "Aucune erreur électrique détectée. Les limites des modèles restent applicables."
+  ],
+  "Copy": [
+    "Копировать",
+    "Копіювати",
+    "Copiar",
+    "Copier"
+  ],
+  "Pause": [
+    "Пауза",
+    "Пауза",
+    "Pausa",
+    "Pause"
+  ],
+  "Export portable project bundle…": [
+    "Экспортировать переносимый проект…",
+    "Експортувати переносний проєкт…",
+    "Exportar paquete portátil del proyecto…",
+    "Exporter un projet portable…"
+  ],
+  "Portable project bundle saved.": [
+    "Переносимый проект сохранён.",
+    "Переносний проєкт збережено.",
+    "Paquete portátil guardado.",
+    "Projet portable enregistré."
+  ],
+  "Project recovered. Please save under a new name.": [
+    "Проект восстановлен. Сохраните его под новым именем.",
+    "Проєкт відновлено. Збережіть його під новою назвою.",
+    "Proyecto recuperado. Guárdalo con otro nombre.",
+    "Projet récupéré. Enregistrez-le sous un nouveau nom."
+  ],
+  "Recover projects": [
+    "Восстановить проекты",
+    "Відновити проєкти",
+    "Recuperar proyectos",
+    "Récupérer les projets"
+  ],
+  "Recover projects…": [
+    "Восстановить проекты…",
+    "Відновити проєкти…",
+    "Recuperar proyectos…",
+    "Récupérer les projets…"
+  ],
+  "Project bundle with libraries": [
+    "Проект с библиотеками",
+    "Проєкт із бібліотеками",
+    "Proyecto con bibliotecas",
+    "Projet avec bibliothèques"
+  ],
+  "Grid": [
+    "Сетка",
+    "Сітка",
+    "Cuadrícula",
+    "Grille"
+  ],
+  "Configure grid…": [
+    "Настроить сетку…",
+    "Налаштувати сітку…",
+    "Configurar cuadrícula…",
+    "Configurer la grille…"
+  ],
+  "Grid spacing (hold Alt to bypass snapping)": [
+    "Шаг сетки (Alt отключает привязку)",
+    "Крок сітки (Alt вимикає прив'язку)",
+    "Paso de cuadrícula (Alt desactiva el ajuste)",
+    "Pas de grille (Alt désactive l'alignement)"
+  ],
+  "Circuit checks": [
+    "Проверка схемы",
+    "Перевірка схеми",
+    "Comprobaciones del circuito",
+    "Vérifications du circuit"
+  ],
+  "Serial tools": [
+    "Последовательный порт",
+    "Послідовний порт",
+    "Herramientas serie",
+    "Outils série"
+  ],
+  "Delete snapshot": [
+    "Удалить копию",
+    "Видалити копію",
+    "Eliminar copia",
+    "Supprimer la copie"
+  ],
+  "Simulation duration": [
+    "Длительность симуляции",
+    "Тривалість симуляції",
+    "Duración de la simulación",
+    "Durée de simulation"
+  ],
+  "Bill of materials": [
+    "Список компонентов",
+    "Перелік компонентів",
+    "Lista de materiales",
+    "Nomenclature"
+  ],
+  "Export bill of materials…": [
+    "Экспортировать список компонентов…",
+    "Експортувати перелік компонентів…",
+    "Exportar lista de materiales…",
+    "Exporter la nomenclature…"
+  ],
+  "Align vertically": [
+    "Выровнять по вертикали",
+    "Вирівняти по вертикалі",
+    "Alinear verticalmente",
+    "Aligner verticalement"
+  ],
+  "Distribute vertically": [
+    "Распределить по вертикали",
+    "Розподілити по вертикалі",
+    "Distribuir verticalmente",
+    "Répartir verticalement"
+  ],
+  "Recoverable projects found: File → Recover projects…": [
+    "Найдены восстанавливаемые проекты: Файл → Восстановить проекты…",
+    "Знайдено проєкти для відновлення: Файл → Відновити проєкти…",
+    "Hay proyectos recuperables: Archivo → Recuperar proyectos…",
+    "Projets récupérables trouvés : Fichier → Récupérer les projets…"
+  ],
+  "Time step": [
+    "Шаг времени",
+    "Крок часу",
+    "Paso de tiempo",
+    "Pas de temps"
+  ],
+  "Physical device": [
+    "Физическое устройство",
+    "Фізичний пристрій",
+    "Dispositivo físico",
+    "Périphérique physique"
+  ],
+  "No line ending": [
+    "Без окончания строки",
+    "Без закінчення рядка",
+    "Sin fin de línea",
+    "Sans fin de ligne"
+  ],
+  "Clear": [
+    "Очистить",
+    "Очистити",
+    "Limpiar",
+    "Effacer"
+  ],
+  "Refresh ports": [
+    "Обновить порты",
+    "Оновити порти",
+    "Actualizar puertos",
+    "Actualiser les ports"
+  ],
+  "Send": [
+    "Отправить",
+    "Надіслати",
+    "Enviar",
+    "Envoyer"
+  ],
+  "Serial input buffer full.": [
+    "Буфер последовательного ввода заполнен.",
+    "Буфер послідовного вводу заповнено.",
+    "Búfer de entrada serie lleno.",
+    "Tampon d'entrée série plein."
+  ],
+  "Serial monitor": [
+    "Монитор порта",
+    "Монітор порту",
+    "Monitor serie",
+    "Moniteur série"
+  ],
+  "Serial plotter": [
+    "График порта",
+    "Графік порту",
+    "Trazador serie",
+    "Traceur série"
+  ],
+  "Send text to selected device": [
+    "Отправить текст выбранному устройству",
+    "Надіслати текст вибраному пристрою",
+    "Enviar texto al dispositivo seleccionado",
+    "Envoyer du texte au périphérique sélectionné"
+  ],
+  "Disconnect": [
+    "Отключить",
+    "Від'єднати",
+    "Desconectar",
+    "Déconnecter"
+  ],
+  "Connect": [
+    "Подключить",
+    "Під'єднати",
+    "Conectar",
+    "Connecter"
+  ],
+  "Send numbers or name:value, e.g. Voltage:3.3 Current:0.02": [
+    "Отправляйте числа или имя:значение, например Напряжение:3.3 Ток:0.02",
+    "Надсилайте числа або назва:значення, наприклад Напруга:3.3 Струм:0.02",
+    "Envía números o nombre:valor, p. ej. Voltaje:3.3 Corriente:0.02",
+    "Envoyez des nombres ou nom:valeur, p. ex. Tension:3.3 Courant:0.02"
+  ],
+  "Connect a serial port first.": [
+    "Сначала подключите последовательный порт.",
+    "Спочатку під'єднайте послідовний порт.",
+    "Conecta primero un puerto serie.",
+    "Connectez d'abord un port série."
+  ],
+  "Cancel": [
+    "Отмена",
+    "Скасувати",
+    "Cancelar",
+    "Annuler"
+  ],
+  "Arduino CLI and the matching board core must be installed. The whole sketch is built for physical hardware. Upload writes to the connected board.": [
+    "Нужны Arduino CLI и ядро выбранной платы. Скетч компилируется для физического устройства. Загрузка записывает прошивку на подключённую плату.",
+    "Потрібні Arduino CLI та ядро вибраної плати. Скетч компілюється для фізичного пристрою. Завантаження записує прошивку на під'єднану плату.",
+    "Se necesitan Arduino CLI y el núcleo de la placa. El sketch se compila para hardware físico. La carga escribe en la placa conectada.",
+    "Arduino CLI et le cœur de carte correspondant sont requis. Le sketch est compilé pour le matériel physique. Le téléversement écrit sur la carte connectée."
+  ],
+  "Choose Arduino CLI": [
+    "Выбрать Arduino CLI",
+    "Вибрати Arduino CLI",
+    "Elegir Arduino CLI",
+    "Choisir Arduino CLI"
+  ],
+  "Uploading firmware…": [
+    "Загрузка прошивки…",
+    "Завантаження прошивки…",
+    "Cargando firmware…",
+    "Téléversement du firmware…"
+  ],
+  "Compile and upload hardware": [
+    "Компиляция и загрузка на устройство",
+    "Компіляція та завантаження на пристрій",
+    "Compilar y cargar al dispositivo",
+    "Compiler et téléverser sur le matériel"
+  ],
+  "Compiling hardware sketch…": [
+    "Компиляция скетча для устройства…",
+    "Компіляція скетчу для пристрою…",
+    "Compilando sketch para hardware…",
+    "Compilation du sketch pour le matériel…"
+  ],
+  "Upload": [
+    "Загрузить",
+    "Завантажити",
+    "Cargar",
+    "Téléverser"
+  ],
+  "Compile": [
+    "Компилировать",
+    "Компілювати",
+    "Compilar",
+    "Compiler"
+  ],
+  "Port": [
+    "Порт",
+    "Порт",
+    "Puerto",
+    "Port"
+  ],
+  "Close": [
+    "Закрыть",
+    "Закрити",
+    "Cerrar",
+    "Fermer"
+  ],
+  "Arm": [
+    "Запустить захват",
+    "Запустити захоплення",
+    "Armar captura",
+    "Armer la capture"
+  ],
+  "Could not save image.": [
+    "Не удалось сохранить изображение.",
+    "Не вдалося зберегти зображення.",
+    "No se pudo guardar la imagen.",
+    "Impossible d'enregistrer l'image."
+  ],
+  "Free run": [
+    "Свободный запуск",
+    "Вільний запуск",
+    "Captura continua",
+    "Acquisition libre"
+  ],
+  "No decoder": [
+    "Без декодера",
+    "Без декодера",
+    "Sin decodificador",
+    "Sans décodeur"
+  ],
+  "Save measurement view": [
+    "Сохранить вид измерений",
+    "Зберегти вигляд вимірювань",
+    "Guardar vista de medidas",
+    "Enregistrer la vue des mesures"
+  ],
+  "Create wire junction": [
+    "Создать соединение проводов",
+    "Створити з'єднання дротів",
+    "Crear unión de cables",
+    "Créer une jonction de fils"
+  ],
+  "Align components": [
+    "Выровнять компоненты",
+    "Вирівняти компоненти",
+    "Alinear componentes",
+    "Aligner les composants"
+  ],
+  "Paste components": [
+    "Вставить компоненты",
+    "Вставити компоненти",
+    "Pegar componentes",
+    "Coller les composants"
+  ],
+  "Distribute components": [
+    "Распределить компоненты",
+    "Розподілити компоненти",
+    "Distribuir componentes",
+    "Répartir les composants"
+  ],
+  "Toggle contact": [
+    "Переключить контакт",
+    "Перемкнути контакт",
+    "Conmutar contacto",
+    "Basculer le contact"
+  ],
+  "Highlight net": [
+    "Подсветить цепь",
+    "Підсвітити коло",
+    "Resaltar red",
+    "Surligner le réseau"
+  ],
+  "Net label": [
+    "Метка цепи",
+    "Мітка кола",
+    "Etiqueta de red",
+    "Étiquette de réseau"
+  ],
+  "Set net label": [
+    "Задать метку цепи",
+    "Задати мітку кола",
+    "Establecer etiqueta de red",
+    "Définir une étiquette de réseau"
+  ],
+  "Set net label…": [
+    "Задать метку цепи…",
+    "Задати мітку кола…",
+    "Establecer etiqueta de red…",
+    "Définir une étiquette de réseau…"
+  ],
+  "Net name (matching names connect pins)": [
+    "Имя цепи (одинаковые имена соединяют выводы)",
+    "Назва кола (однакові назви з'єднують виводи)",
+    "Nombre de red (los nombres iguales conectan pines)",
+    "Nom du réseau (les noms identiques relient les broches)"
+  ],
+  "5 V supply and DC motor: current falls as speed rises. Current probe in series.": [
+    "Питание 5 В и двигатель: ток падает с ростом скорости. Датчик тока включён последовательно.",
+    "Живлення 5 В і двигун: струм падає зі зростанням швидкості. Датчик струму ввімкнено послідовно.",
+    "Motor CC a 5 V: la corriente disminuye al aumentar la velocidad. Sonda de corriente en serie.",
+    "Moteur CC sous 5 V : le courant diminue avec la vitesse. Sonde de courant en série."
+  ],
+  "LCD 16×2: LiquidCrystal, 4-bit": [
+    "LCD 16×2: LiquidCrystal, 4 бита",
+    "LCD 16×2: LiquidCrystal, 4 біти",
+    "LCD 16×2: LiquidCrystal, 4 bits",
+    "LCD 16×2 : LiquidCrystal, 4 bits"
+  ],
+  "LCD 20×4: I²C backpack": [
+    "LCD 20×4: адаптер I²C",
+    "LCD 20×4: адаптер I²C",
+    "LCD 20×4: adaptador I²C",
+    "LCD 20×4 : adaptateur I²C"
+  ],
+  "Motor: startup and back-EMF": [
+    "Двигатель: запуск и противо-ЭДС",
+    "Двигун: запуск і проти-ЕРС",
+    "Motor: arranque y fuerza contraelectromotriz",
+    "Moteur : démarrage et force contre-électromotrice"
+  ],
+  "Servo.h drives SIGNAL on Uno D9. Supply 5 V/GND; sweeps from 15° to 165°.": [
+    "Servo.h управляет SIGNAL на Uno D9. Питание 5V/GND; угол меняется от 15° до 165°.",
+    "Servo.h керує SIGNAL на Uno D9. Живлення 5V/GND; кут змінюється від 15° до 165°.",
+    "Servo.h controla SIGNAL en Uno D9. Alimentación 5V/GND; barrido de 15° a 165°.",
+    "Servo.h pilote SIGNAL sur Uno D9. Alimentation 5V/GND ; balayage de 15° à 165°."
+  ],
+  "Servo: control angle": [
+    "Сервопривод: угол",
+    "Сервопривід: кут",
+    "Servo: ángulo de control",
+    "Servomoteur : angle"
+  ],
+  "Uno: RS=D12, E=D11, D4…D7=D5,D4,D3,D2. VCC=5V, GND/RW/VO=GND.": [
+    "Uno: RS=D12, E=D11, D4…D7=D5,D4,D3,D2. VCC=5V, GND/RW/VO=GND.",
+    "Uno: RS=D12, E=D11, D4…D7=D5,D4,D3,D2. VCC=5V, GND/RW/VO=GND.",
+    "Uno: RS=D12, E=D11, D4…D7=D5,D4,D3,D2. VCC=5V, GND/RW/VO=GND.",
+    "Uno : RS=D12, E=D11, D4…D7=D5,D4,D3,D2. VCC=5V, GND/RW/VO=GND."
+  ],
+  "Uno: SDA=A4, SCL=A5, address 0x27. LiquidCrystal_I2C with text and custom glyph.": [
+    "Uno: SDA=A4, SCL=A5, адрес 0x27. LiquidCrystal_I2C с текстом и собственным символом.",
+    "Uno: SDA=A4, SCL=A5, адреса 0x27. LiquidCrystal_I2C з текстом і власним символом.",
+    "Uno: SDA=A4, SCL=A5, dirección 0x27. LiquidCrystal_I2C con texto y carácter personalizado.",
+    "Uno : SDA=A4, SCL=A5, adresse 0x27. LiquidCrystal_I2C avec texte et caractère personnalisé."
+  ],
+  "Operation completed successfully.": [
+    "Операция выполнена.",
+    "Операцію виконано.",
+    "Operación completada.",
+    "Opération terminée."
+  ],
+  "Operation failed. Check the log.": [
+    "Ошибка операции. Проверьте журнал.",
+    "Помилка операції. Перевірте журнал.",
+    "La operación falló. Revisa el registro.",
+    "Échec de l'opération. Consultez le journal."
+  ],
+  "Junction": [
+    "Узел соединения",
+    "Вузол з'єднання",
+    "Unión",
+    "Jonction"
+  ],
+  "DC motor": [
+    "Двигатель постоянного тока",
+    "Двигун постійного струму",
+    "Motor de corriente continua",
+    "Moteur à courant continu"
+  ],
+  "HD44780 LCD (4-bit)": [
+    "LCD HD44780 (4 бита)",
+    "LCD HD44780 (4 біти)",
+    "LCD HD44780 (4 bits)",
+    "LCD HD44780 (4 bits)"
+  ],
+  "HD44780 LCD (I²C)": [
+    "LCD HD44780 (I²C)",
+    "LCD HD44780 (I²C)",
+    "LCD HD44780 (I²C)",
+    "LCD HD44780 (I²C)"
+  ],
+  " address": [
+    " адрес",
+    " адреса",
+    " dirección",
+    " adresse"
+  ],
+  " V threshold": [
+    " В порог",
+    " В поріг",
+    " V umbral",
+    " V seuil"
+  ],
+  "Capacitor": [
+    "Конденсатор",
+    "Конденсатор",
+    "Condensador",
+    "Condensateur"
+  ],
+  "Inductor": [
+    "Катушка индуктивности",
+    "Котушка індуктивності",
+    "Inductor",
+    "Bobine"
+  ],
+  "NPN transistor": [
+    "Транзистор NPN",
+    "Транзистор NPN",
+    "Transistor NPN",
+    "Transistor NPN"
+  ],
+  "PNP transistor": [
+    "Транзистор PNP",
+    "Транзистор PNP",
+    "Transistor PNP",
+    "Transistor PNP"
+  ],
+  "N-channel MOSFET": [
+    "N-канальный MOSFET",
+    "N-канальний MOSFET",
+    "MOSFET de canal N",
+    "MOSFET à canal N"
+  ],
+  "P-channel MOSFET": [
+    "P-канальный MOSFET",
+    "P-канальний MOSFET",
+    "MOSFET de canal P",
+    "MOSFET à canal P"
+  ],
+  "Operational amplifier": [
+    "Операционный усилитель",
+    "Операційний підсилювач",
+    "Amplificador operacional",
+    "Amplificateur opérationnel"
+  ],
+  "Ground": [
+    "Земля",
+    "Земля",
+    "Masa",
+    "Masse"
+  ],
+  "Function generator": [
+    "Генератор сигналов",
+    "Генератор сигналів",
+    "Generador de funciones",
+    "Générateur de fonctions"
+  ],
+  "Oscilloscope (2 channels)": [
+    "Осциллограф (2 канала)",
+    "Осцилограф (2 канали)",
+    "Osciloscopio (2 canales)",
+    "Oscilloscope (2 voies)"
+  ],
+  "Logic analyzer (8 channels)": [
+    "Логический анализатор (8 каналов)",
+    "Логічний аналізатор (8 каналів)",
+    "Analizador lógico (8 canales)",
+    "Analyseur logique (8 voies)"
+  ],
+  "Current probe": [
+    "Датчик тока",
+    "Датчик струму",
+    "Sonda de corriente",
+    "Sonde de courant"
+  ],
+  "Instruments": [
+    "Приборы",
+    "Прилади",
+    "Instrumentos",
+    "Instruments"
+  ],
+  "Freeze": [
+    "Заморозить",
+    "Заморозити",
+    "Congelar",
+    "Figer"
+  ],
+  "Export measurements": [
+    "Экспорт измерений",
+    "Експорт вимірювань",
+    "Exportar medidas",
+    "Exporter les mesures"
+  ],
+  "No samples. Start the simulation.": [
+    "Нет отсчётов. Запустите симуляцию.",
+    "Немає відліків. Запустіть симуляцію.",
+    "No hay muestras. Inicia la simulación.",
+    "Aucun échantillon. Lancez la simulation."
+  ],
+  "Add an oscilloscope, logic analyzer or current probe to the circuit.": [
+    "Добавьте осциллограф, логический анализатор или датчик тока.",
+    "Додайте осцилограф, логічний аналізатор або датчик струму.",
+    "Añade un osciloscopio, analizador lógico o sonda de corriente.",
+    "Ajoutez un oscilloscope, un analyseur logique ou une sonde de courant."
+  ],
+  "Sine": [
+    "Синус",
+    "Синус",
+    "Senoidal",
+    "Sinusoïde"
+  ],
+  "Square": [
+    "Прямоугольный",
+    "Прямокутний",
+    "Cuadrada",
+    "Signal carré"
+  ],
+  "Triangle": [
+    "Треугольный",
+    "Трикутний",
+    "Triangular",
+    "Triangle"
+  ],
+  "Sawtooth": [
+    "Пилообразный",
+    "Пилкоподібний",
+    "Diente de sierra",
+    "Dent de scie"
+  ],
+  "Waveform": [
+    "Форма сигнала",
+    "Форма сигналу",
+    "Forma de onda",
+    "Forme d'onde"
+  ],
+  "Amplitude": [
+    "Амплитуда",
+    "Амплітуда",
+    "Amplitud",
+    "Amplitude"
+  ],
+  "Offset": [
+    "Смещение",
+    "Зміщення",
+    "Desplazamiento",
+    "Décalage"
+  ],
+  "Duty cycle": [
+    "Коэффициент заполнения",
+    "Коефіцієнт заповнення",
+    "Ciclo de trabajo",
+    "Rapport cyclique"
+  ],
+  "Configure signal generator": [
+    "Настроить генератор",
+    "Налаштувати генератор",
+    "Configurar generador de señales",
+    "Configurer le générateur"
+  ],
+  "Analog time step…": [
+    "Аналоговый шаг времени…",
+    "Аналоговий крок часу…",
+    "Paso de tiempo analógico…",
+    "Pas de temps analogique…"
+  ],
+  "Analog time step": [
+    "Аналоговый шаг времени",
+    "Аналоговий крок часу",
+    "Paso de tiempo analógico",
+    "Pas de temps analogique"
+  ],
+  "Maximum time step (µs)": [
+    "Максимальный шаг (мкс)",
+    "Максимальний крок (мкс)",
+    "Paso máximo (µs)",
+    "Pas maximal (µs)"
+  ],
+  "Analog: RC low-pass filter": [
+    "Аналоговая схема: RC-фильтр НЧ",
+    "Аналогова схема: RC-фільтр НЧ",
+    "Analógico: filtro RC de paso bajo",
+    "Analogique : filtre passe-bas RC"
+  ],
+  "Analog: RL current response": [
+    "Аналоговая схема: ток RL",
+    "Аналогова схема: струм RL",
+    "Analógico: respuesta de corriente RL",
+    "Analogique : réponse en courant RL"
+  ],
+  "Analog: voltage follower": [
+    "Аналоговая схема: повторитель напряжения",
+    "Аналогова схема: повторювач напруги",
+    "Analógico: seguidor de tensión",
+    "Analogique : suiveur de tension"
+  ],
+  "Analog: NPN switch": [
+    "Аналоговая схема: ключ NPN",
+    "Аналогова схема: ключ NPN",
+    "Analógico: interruptor NPN",
+    "Analogique : commutateur NPN"
+  ],
+  "Arduino: PWM and RC filter": [
+    "Arduino: ШИМ и RC-фильтр",
+    "Arduino: ШІМ і RC-фільтр",
+    "Arduino: PWM y filtro RC",
+    "Arduino : PWM et filtre RC"
+  ],
+  "Square-wave generator, 1 kohm, 10 µF, two scope channels and current probe. Runs without a microcontroller.": [
+    "Прямоугольный генератор, 1 кОм, 10 мкФ, два канала осциллографа и датчик тока. Микроконтроллер не нужен.",
+    "Прямокутний генератор, 1 кОм, 10 мкФ, два канали осцилографа та датчик струму. Мікроконтролер не потрібен.",
+    "Generador cuadrado, 1 kohm, 10 µF, dos canales de osciloscopio y sonda de corriente. No necesita microcontrolador.",
+    "Générateur carré, 1 kohm, 10 µF, deux voies d'oscilloscope et sonde de courant. Sans microcontrôleur."
+  ],
+  "Square-wave generator, 100 ohms and 100 mH: voltage and delayed inductor current.": [
+    "Прямоугольный генератор, 100 Ом и 100 мГн: напряжение и запаздывающий ток катушки.",
+    "Прямокутний генератор, 100 Ом і 100 мГн: напруга та струм котушки із затримкою.",
+    "Generador cuadrado, 100 ohmios y 100 mH: tensión y corriente retardada del inductor.",
+    "Générateur carré, 100 ohms et 100 mH : tension et courant retardé dans la bobine."
+  ],
+  "Op-amp with 5 V supply and negative feedback. Compare input and output on the oscilloscope.": [
+    "Операционный усилитель с питанием 5 В и отрицательной обратной связью. Сравните вход и выход на осциллографе.",
+    "Операційний підсилювач із живленням 5 В і від'ємним зворотним зв'язком. Порівняйте вхід та вихід на осцилографі.",
+    "Amplificador operacional a 5 V con realimentación negativa. Compara entrada y salida en el osciloscopio.",
+    "Amplificateur opérationnel sous 5 V avec contre-réaction. Comparez entrée et sortie à l'oscilloscope."
+  ],
+  "Square wave through a base resistor drives an NPN with collector load. The output is inverted.": [
+    "Прямоугольный сигнал через базовый резистор управляет NPN с нагрузкой коллектора. Выход инвертирован.",
+    "Прямокутний сигнал через базовий резистор керує NPN з навантаженням колектора. Вихід інвертований.",
+    "Una onda cuadrada a través de una resistencia de base controla un NPN con carga de colector. Salida invertida.",
+    "Un signal carré via une résistance de base pilote un NPN avec charge au collecteur. Sortie inversée."
+  ],
+  "analogWrite(D5, 128): 980 Hz, scope, 8-channel logic analyzer and RC low-pass filter.": [
+    "analogWrite(D5, 128): 980 Гц, осциллограф, 8-канальный логический анализатор и RC-фильтр НЧ.",
+    "analogWrite(D5, 128): 980 Гц, осцилограф, 8-канальний логічний аналізатор і RC-фільтр НЧ.",
+    "analogWrite(D5, 128): 980 Hz, osciloscopio, analizador lógico de 8 canales y filtro RC.",
+    "analogWrite(D5, 128) : 980 Hz, oscilloscope, analyseur logique 8 voies et filtre passe-bas RC."
+  ],
+  "Melody with piezo and speaker": [
+    "Мелодия на пьезоизлучателе и динамике",
+    "Мелодія на п'єзовипромінювачі та динаміку",
+    "Melodía con piezo y altavoz",
+    "Mélodie avec piézo et haut-parleur"
+  ],
+  "Arduino D3: piezo directly, 8-ohm speaker through 470 ohms. tone() plays notes, noTone() creates pauses.": [
+    "Arduino D3: пьезо напрямую, динамик 8 Ом через 470 Ом. tone() играет ноты, noTone() создаёт паузы.",
+    "Arduino D3: п'єзо напряму, динамік 8 Ом через 470 Ом. tone() відтворює ноти, noTone() створює паузи.",
+    "Arduino D3: piezo directo, altavoz de 8 ohmios con 470 ohmios en serie. tone() reproduce notas; noTone() crea pausas.",
+    "Arduino D3 : piézo direct, haut-parleur 8 ohms via 470 ohms. tone() joue les notes, noTone() crée les pauses."
+  ],
+  "Measure temperature (TMP36)": [
+    "Измерение температуры (TMP36)",
+    "Вимірювання температури (TMP36)",
+    "Medir temperatura (TMP36)",
+    "Mesurer la température (TMP36)"
+  ],
+  "TMP36 on Arduino 5V/GND/A0. Adjust temperature in the inspector; the LED lights above 20 °C.": [
+    "TMP36 на Arduino 5V/GND/A0. Меняйте температуру в свойствах; светодиод загорается выше 20 °C.",
+    "TMP36 на Arduino 5V/GND/A0. Змінюйте температуру у властивостях; світлодіод засвічується вище 20 °C.",
+    "TMP36 en Arduino 5V/GND/A0. Ajusta la temperatura en propiedades; el LED se enciende por encima de 20 °C.",
+    "TMP36 sur Arduino 5V/GND/A0. Réglez la température dans les propriétés ; la LED s'allume au-dessus de 20 °C."
+  ],
+  "Piezo buzzer (passive)": [
+    "Пьезоизлучатель (пассивный)",
+    "П'єзовипромінювач (пасивний)",
+    "Zumbador piezoeléctrico (pasivo)",
+    "Buzzer piézo (passif)"
+  ],
+  "Mini speaker 8 Ω": [
+    "Мини-динамик 8 Ω",
+    "Мінідинамік 8 Ω",
+    "Mini altavoz de 8 Ω",
+    "Mini haut-parleur 8 Ω"
+  ],
+  "TMP36 temperature sensor": [
+    "Датчик температуры TMP36",
+    "Датчик температури TMP36",
+    "Sensor de temperatura TMP36",
+    "Capteur de température TMP36"
+  ],
+  "AA battery 1.5 V (ideal)": [
+    "Батарейка AA 1,5 В (идеальная)",
+    "Батарейка AA 1,5 В (ідеальна)",
+    "Pila AA de 1,5 V (ideal)",
+    "Pile AA 1,5 V (idéale)"
+  ],
+  "On/off switch SPST": [
+    "Выключатель SPST",
+    "Вимикач SPST",
+    "Interruptor SPST",
+    "Interrupteur SPST"
+  ],
+  "Enable sound": [
+    "Включить звук",
+    "Увімкнути звук",
+    "Activar sonido",
+    "Activer le son"
+  ],
+  "Switch position 2": [
+    "Положение переключателя 2",
+    "Положення перемикача 2",
+    "Posición del interruptor 2",
+    "Position 2 du commutateur"
+  ],
+  "Contact closed": [
+    "Контакт замкнут",
+    "Контакт замкнено",
+    "Contacto cerrado",
+    "Contact fermé"
+  ],
+  "No audio output device available. Simulation continues without sound.": [
+    "Нет аудиоустройства. Симуляция продолжается без звука.",
+    "Немає аудіопристрою. Симуляція триває без звуку.",
+    "No hay dispositivo de audio. La simulación continúa sin sonido.",
+    "Aucune sortie audio disponible. La simulation continue sans son."
+  ],
+  "Audio output failed. Check your audio device.": [
+    "Ошибка вывода звука. Проверьте аудиоустройство.",
+    "Помилка виведення звуку. Перевірте аудіопристрій.",
+    "Error de audio. Comprueba tu dispositivo.",
+    "Échec de la sortie audio. Vérifiez le périphérique audio."
+  ],
+  "Language…": [
+    "Язык…",
+    "Мова…",
+    "Idioma…",
+    "Langue…"
+  ],
+  "Component design…": [
+    "Вид компонентов…",
+    "Вигляд компонентів…",
+    "Diseño de componentes…",
+    "Apparence des composants…"
+  ],
+  "Projects": [
+    "Проекты",
+    "Проєкти",
+    "Proyectos",
+    "Projets"
+  ],
+  "ThinkCad – circuits and Arduino sketches": [
+    "ThinkCad — схемы и скетчи Arduino",
+    "ThinkCad — схеми та скетчі Arduino",
+    "ThinkCad: circuitos y sketches Arduino",
+    "ThinkCad – circuits et sketches Arduino"
+  ],
+  "Open or create a project": [
+    "Открыть или создать проект",
+    "Відкрити або створити проєкт",
+    "Abrir o crear un proyecto",
+    "Ouvrir ou créer un projet"
+  ],
+  "Help and examples": [
+    "Справка и примеры",
+    "Довідка та приклади",
+    "Ayuda y ejemplos",
+    "Aide et exemples"
+  ],
+  "Displays": [
+    "Дисплеи",
+    "Дисплеї",
+    "Pantallas",
+    "Afficheurs"
+  ],
+  "Inputs and sensors": [
+    "Входы и датчики",
+    "Входи та датчики",
+    "Entradas y sensores",
+    "Entrées et capteurs"
+  ],
+  "Power and measurement": [
+    "Питание и измерения",
+    "Живлення та вимірювання",
+    "Alimentación y medidas",
+    "Alimentation et mesures"
+  ],
+  "Basic components": [
+    "Основные компоненты",
+    "Основні компоненти",
+    "Componentes básicos",
+    "Composants de base"
+  ],
+  "Click to place": [
+    "Нажмите, чтобы разместить",
+    "Натисніть, щоб розмістити",
+    "Haz clic para colocar",
+    "Cliquez pour placer"
+  ],
+  "Edit sketch for this board": [
+    "Изменить скетч этой платы",
+    "Змінити скетч цієї плати",
+    "Editar sketch de esta placa",
+    "Modifier le sketch de cette carte"
+  ],
+  "Select sketch board": [
+    "Выбрать плату скетча",
+    "Вибрати плату скетчу",
+    "Seleccionar placa del sketch",
+    "Choisir la carte du sketch"
+  ],
+  "Open this board's sketch": [
+    "Открыть скетч этой платы",
+    "Відкрити скетч цієї плати",
+    "Abrir sketch de esta placa",
+    "Ouvrir le sketch de cette carte"
+  ],
+  "This board's sketch is open": [
+    "Открыт скетч этой платы",
+    "Відкрито скетч цієї плати",
+    "El sketch de esta placa está abierto",
+    "Le sketch de cette carte est ouvert"
+  ],
+  "Anode (+)": [
+    "Анод (+)",
+    "Анод (+)",
+    "Ánodo (+)",
+    "Anode (+)"
+  ],
+  "Cathode (−)": [
+    "Катод (−)",
+    "Катод (−)",
+    "Cátodo (−)",
+    "Cathode (−)"
+  ],
+  "Ground / reference (0 V)": [
+    "Земля / опорный потенциал (0 В)",
+    "Земля / опорний потенціал (0 В)",
+    "Masa / referencia (0 V)",
+    "Masse / référence (0 V)"
+  ],
+  "I²C data": [
+    "Данные I²C",
+    "Дані I²C",
+    "Datos I²C",
+    "Données I²C"
+  ],
+  "I²C clock": [
+    "Тактирование I²C",
+    "Тактування I²C",
+    "Reloj I²C",
+    "Horloge I²C"
+  ],
+  "Power supply": [
+    "Питание",
+    "Живлення",
+    "Alimentación",
+    "Alimentation"
+  ],
+  "Wiper": [
+    "Ползунок",
+    "Повзунок",
+    "Cursor",
+    "Curseur"
+  ],
+  "Common cathode": [
+    "Общий катод",
+    "Спільний катод",
+    "Cátodo común",
+    "Cathode commune"
+  ],
+  "Positive terminal": [
+    "Положительный вывод",
+    "Додатний вивід",
+    "Terminal positivo",
+    "Borne positive"
+  ],
+  "Negative terminal": [
+    "Отрицательный вывод",
+    "Від'ємний вивід",
+    "Terminal negativo",
+    "Borne négative"
+  ],
+  "GPIO / board connection": [
+    "GPIO / вывод платы",
+    "GPIO / вивід плати",
+    "GPIO / conexión de placa",
+    "GPIO / connexion de carte"
+  ],
+  "Terminal": [
+    "Вывод",
+    "Вивід",
+    "Terminal",
+    "Borne"
+  ],
+  "Click to connect": [
+    "Нажмите для соединения",
+    "Натисніть для з'єднання",
+    "Haz clic para conectar",
+    "Cliquez pour relier"
+  ],
+  "Home": [
+    "Главная",
+    "Головна",
+    "Inicio",
+    "Accueil"
+  ],
+  "My projects": [
+    "Мои проекты",
+    "Мої проєкти",
+    "Mis proyectos",
+    "Mes projets"
+  ],
+  "Back to editor": [
+    "Вернуться в редактор",
+    "Повернутися до редактора",
+    "Volver al editor",
+    "Retour à l'éditeur"
+  ],
+  "Your next project starts here.": [
+    "Ваш следующий проект начинается здесь.",
+    "Ваш наступний проєкт починається тут.",
+    "Tu próximo proyecto empieza aquí.",
+    "Votre prochain projet commence ici."
+  ],
+  "Design circuits, test Arduino code and explore your ideas.": [
+    "Создавайте схемы, проверяйте код Arduino и воплощайте идеи.",
+    "Створюйте схеми, перевіряйте код Arduino та втілюйте ідеї.",
+    "Diseña circuitos, prueba código Arduino y explora tus ideas.",
+    "Concevez des circuits, testez du code Arduino et explorez vos idées."
+  ],
+  "From idea to circuit": [
+    "От идеи к схеме",
+    "Від ідеї до схеми",
+    "De la idea al circuito",
+    "De l'idée au circuit"
+  ],
+  "Start with an empty project or open a local circuit or .ino sketch.": [
+    "Создайте пустой проект или откройте локальную схему либо скетч .ino.",
+    "Створіть порожній проєкт або відкрийте локальну схему чи скетч .ino.",
+    "Empieza con un proyecto vacío o abre un circuito local o sketch .ino.",
+    "Créez un projet vide ou ouvrez un circuit local ou un sketch .ino."
+  ],
+  "Open project…": [
+    "Открыть проект…",
+    "Відкрити проєкт…",
+    "Abrir proyecto…",
+    "Ouvrir un projet…"
+  ],
+  "Recent projects": [
+    "Недавние проекты",
+    "Нещодавні проєкти",
+    "Proyectos recientes",
+    "Projets récents"
+  ],
+  "Clear list": [
+    "Очистить список",
+    "Очистити список",
+    "Vaciar lista",
+    "Vider la liste"
+  ],
+  "No projects yet. Create a project or open an existing file.": [
+    "Проектов пока нет. Создайте проект или откройте существующий файл.",
+    "Проєктів ще немає. Створіть проєкт або відкрийте наявний файл.",
+    "Aún no hay proyectos. Crea uno o abre un archivo existente.",
+    "Aucun projet pour le moment. Créez un projet ou ouvrez un fichier existant."
+  ],
+  "Learn & explore": [
+    "Учиться и исследовать",
+    "Навчатися й досліджувати",
+    "Aprender y explorar",
+    "Apprendre et explorer"
+  ],
+  "Explore example circuits": [
+    "Посмотреть примеры схем",
+    "Переглянути приклади схем",
+    "Explorar circuitos de ejemplo",
+    "Découvrir les exemples de circuits"
+  ],
+  "Make ThinkCad fit your workspace.": [
+    "Настройте ThinkCad для своей работы.",
+    "Налаштуйте ThinkCad для своєї роботи.",
+    "Adapta ThinkCad a tu espacio de trabajo.",
+    "Adaptez ThinkCad à votre espace de travail."
+  ],
+  "File missing": [
+    "Файл отсутствует",
+    "Файла немає",
+    "Falta el archivo",
+    "Fichier manquant"
+  ],
+  "Remove from list": [
+    "Убрать из списка",
+    "Прибрати зі списку",
+    "Quitar de la lista",
+    "Retirer de la liste"
+  ],
+  "Simulation reset.": [
+    "Симуляция сброшена.",
+    "Симуляцію скинуто.",
+    "Simulación reiniciada.",
+    "Simulation réinitialisée."
+  ],
+  "Reset simulation · restart the running sketch": [
+    "Сбросить симуляцию · перезапустить скетч",
+    "Скинути симуляцію · перезапустити скетч",
+    "Reiniciar simulación · reiniciar el sketch",
+    "Réinitialiser la simulation · relancer le sketch"
+  ],
+  "Could not open project. See the output in the editor.": [
+    "Не удалось открыть проект. Подробности в выводе редактора.",
+    "Не вдалося відкрити проєкт. Подробиці у виводі редактора.",
+    "No se pudo abrir el proyecto. Consulta la salida del editor.",
+    "Impossible d'ouvrir le projet. Consultez la sortie de l'éditeur."
+  ],
+  "Rotate components": [
+    "Повернуть компоненты",
+    "Повернути компоненти",
+    "Girar componentes",
+    "Pivoter les composants"
+  ],
+  "Component Design": [
+    "Вид компонентов",
+    "Вигляд компонентів",
+    "Diseño de componentes",
+    "Apparence des composants"
+  ],
+  "Workspace": [
+    "Рабочая область",
+    "Робоча область",
+    "Espacio de trabajo",
+    "Espace de travail"
+  ],
+  "File": [
+    "Файл",
+    "Файл",
+    "Archivo",
+    "Fichier"
+  ],
+  "New project": [
+    "Новый проект",
+    "Новий проєкт",
+    "Nuevo proyecto",
+    "Nouveau projet"
+  ],
+  "Open project / .ino…": [
+    "Открыть проект / .ino…",
+    "Відкрити проєкт / .ino…",
+    "Abrir proyecto / .ino…",
+    "Ouvrir un projet / .ino…"
+  ],
+  "Save project": [
+    "Сохранить проект",
+    "Зберегти проєкт",
+    "Guardar proyecto",
+    "Enregistrer le projet"
+  ],
+  "Save project as…": [
+    "Сохранить проект как…",
+    "Зберегти проєкт як…",
+    "Guardar proyecto como…",
+    "Enregistrer le projet sous…"
+  ],
+  "Export Arduino sketch…": [
+    "Экспорт скетча Arduino…",
+    "Експорт скетчу Arduino…",
+    "Exportar sketch Arduino…",
+    "Exporter le sketch Arduino…"
+  ],
+  "Example circuits…": [
+    "Примеры схем…",
+    "Приклади схем…",
+    "Circuitos de ejemplo…",
+    "Exemples de circuits…"
+  ],
+  "Example circuits": [
+    "Примеры схем",
+    "Приклади схем",
+    "Circuitos de ejemplo",
+    "Exemples de circuits"
+  ],
+  "Quit": [
+    "Выход",
+    "Вихід",
+    "Salir",
+    "Quitter"
+  ],
+  "Edit": [
+    "Правка",
+    "Редагування",
+    "Editar",
+    "Édition"
+  ],
+  "Undo": [
+    "Отменить",
+    "Скасувати дію",
+    "Deshacer",
+    "Annuler l'action"
+  ],
+  "Redo": [
+    "Повторить",
+    "Повторити",
+    "Rehacer",
+    "Rétablir"
+  ],
+  "Delete selected components / wires": [
+    "Удалить выбранные компоненты / провода",
+    "Видалити вибрані компоненти / дроти",
+    "Eliminar componentes / cables seleccionados",
+    "Supprimer les composants / fils sélectionnés"
+  ],
+  "Connect wires": [
+    "Соединить провода",
+    "З'єднати дроти",
+    "Conectar cables",
+    "Relier les fils"
+  ],
+  "Click the start and destination pins · Esc: cancel": [
+    "Нажмите начальный и конечный выводы · Esc: отмена",
+    "Натисніть початковий і кінцевий виводи · Esc: скасувати",
+    "Haz clic en los pines de origen y destino · Esc: cancelar",
+    "Cliquez sur les broches de départ et d'arrivée · Échap : annuler"
+  ],
+  "Wire color": [
+    "Цвет провода",
+    "Колір дроту",
+    "Color del cable",
+    "Couleur du fil"
+  ],
+  "Start simulation": [
+    "Запустить симуляцию",
+    "Запустити симуляцію",
+    "Iniciar simulación",
+    "Démarrer la simulation"
+  ],
+  "Stop simulation": [
+    "Остановить симуляцию",
+    "Зупинити симуляцію",
+    "Detener simulación",
+    "Arrêter la simulation"
+  ],
+  "Simulation speed": [
+    "Скорость симуляции",
+    "Швидкість симуляції",
+    "Velocidad de simulación",
+    "Vitesse de simulation"
+  ],
+  "  Speed  ": [
+    "  Скорость  ",
+    "  Швидкість  ",
+    "  Velocidad  ",
+    "  Vitesse  "
+  ],
+  "0.1× to 10× · adjustable during simulation": [
+    "От 0,1× до 10× · меняется во время симуляции",
+    "Від 0,1× до 10× · змінюється під час симуляції",
+    "De 0,1× a 10× · ajustable durante la simulación",
+    "De 0,1× à 10× · réglable pendant la simulation"
+  ],
+  "Restore normal simulation speed": [
+    "Восстановить нормальную скорость симуляции",
+    "Відновити звичайну швидкість симуляції",
+    "Restaurar velocidad normal",
+    "Rétablir la vitesse normale"
+  ],
+  "Components": [
+    "Компоненты",
+    "Компоненти",
+    "Componentes",
+    "Composants"
+  ],
+  "Build a circuit": [
+    "Собрать схему",
+    "Скласти схему",
+    "Construir un circuito",
+    "Construire un circuit"
+  ],
+  "Add a component, move it and connect its pins.": [
+    "Добавьте компонент, переместите его и соедините выводы.",
+    "Додайте компонент, перемістіть його та з'єднайте виводи.",
+    "Añade un componente, muévelo y conecta sus pines.",
+    "Ajoutez un composant, déplacez-le et reliez ses broches."
+  ],
+  "Search components…": [
+    "Поиск компонентов…",
+    "Пошук компонентів…",
+    "Buscar componentes…",
+    "Rechercher des composants…"
+  ],
+  "Add component": [
+    "Добавить компонент",
+    "Додати компонент",
+    "Añadir componente",
+    "Ajouter un composant"
+  ],
+  "Select a component": [
+    "Выберите компонент",
+    "Виберіть компонент",
+    "Selecciona un componente",
+    "Sélectionnez un composant"
+  ],
+  "Simulate this board": [
+    "Симулировать эту плату",
+    "Симулювати цю плату",
+    "Simular esta placa",
+    "Simuler cette carte"
+  ],
+  "Active simulation board": [
+    "Активная плата симуляции",
+    "Активна плата симуляції",
+    "Placa activa de simulación",
+    "Carte active de simulation"
+  ],
+  "Select simulation board": [
+    "Выбрать плату симуляции",
+    "Вибрати плату симуляції",
+    "Seleccionar placa de simulación",
+    "Choisir la carte de simulation"
+  ],
+  "I²C address 0x3C": [
+    "Адрес I²C 0x3C",
+    "Адреса I²C 0x3C",
+    "Dirección I²C 0x3C",
+    "Adresse I²C 0x3C"
+  ],
+  "I²C address 0x3D": [
+    "Адрес I²C 0x3D",
+    "Адреса I²C 0x3D",
+    "Dirección I²C 0x3D",
+    "Adresse I²C 0x3D"
+  ],
+  "Button pressed": [
+    "Кнопка нажата",
+    "Кнопку натиснуто",
+    "Botón pulsado",
+    "Bouton enfoncé"
+  ],
+  "Libraries…": [
+    "Библиотеки…",
+    "Бібліотеки…",
+    "Bibliotecas…",
+    "Bibliothèques…"
+  ],
+  "＋ Add tab": [
+    "＋ Добавить вкладку",
+    "＋ Додати вкладку",
+    "＋ Añadir pestaña",
+    "＋ Ajouter un onglet"
+  ],
+  "New tab": [
+    "Новая вкладка",
+    "Нова вкладка",
+    "Nueva pestaña",
+    "Nouvel onglet"
+  ],
+  "File name": [
+    "Имя файла",
+    "Назва файлу",
+    "Nombre del archivo",
+    "Nom du fichier"
+  ],
+  "File name is invalid or already exists.": [
+    "Недопустимое или уже существующее имя файла.",
+    "Неприпустима або вже наявна назва файлу.",
+    "Nombre de archivo no válido o ya existente.",
+    "Nom de fichier invalide ou déjà utilisé."
+  ],
+  "Output": [
+    "Вывод",
+    "Вивід",
+    "Salida",
+    "Sortie"
+  ],
+  "View": [
+    "Вид",
+    "Вигляд",
+    "Ver",
+    "Affichage"
+  ],
+  "Fit circuit": [
+    "Показать всю схему",
+    "Показати всю схему",
+    "Ajustar circuito a la vista",
+    "Ajuster le circuit à la vue"
+  ],
+  "Zoom in": [
+    "Увеличить",
+    "Збільшити",
+    "Acercar",
+    "Zoom avant"
+  ],
+  "Zoom out": [
+    "Уменьшить",
+    "Зменшити",
+    "Alejar",
+    "Zoom arrière"
+  ],
+  "Settings": [
+    "Настройки",
+    "Налаштування",
+    "Ajustes",
+    "Paramètres"
+  ],
+  "Dark mode": [
+    "Тёмная тема",
+    "Темна тема",
+    "Modo oscuro",
+    "Mode sombre"
+  ],
+  "Choose sketch compiler…": [
+    "Выбрать компилятор скетча…",
+    "Вибрати компілятор скетчу…",
+    "Elegir compilador del sketch…",
+    "Choisir le compilateur du sketch…"
+  ],
+  "Choose g++": [
+    "Выбрать g++",
+    "Вибрати g++",
+    "Elegir g++",
+    "Choisir g++"
+  ],
+  "Import image as frame…": [
+    "Импортировать изображение как кадр…",
+    "Імпортувати зображення як кадр…",
+    "Importar imagen como fotograma…",
+    "Importer une image comme trame…"
+  ],
+  "Import frame": [
+    "Импорт кадра",
+    "Імпорт кадру",
+    "Importar fotograma",
+    "Importer une trame"
+  ],
+  "Could not open image.": [
+    "Не удалось открыть изображение.",
+    "Не вдалося відкрити зображення.",
+    "No se pudo abrir la imagen.",
+    "Impossible d'ouvrir l'image."
+  ],
+  "Language": [
+    "Язык",
+    "Мова",
+    "Idioma",
+    "Langue"
+  ],
+  "Help": [
+    "Справка",
+    "Довідка",
+    "Ayuda",
+    "Aide"
+  ],
+  "Tutorial: Your first circuit…": [
+    "Учебник: первая схема…",
+    "Навчання: перша схема…",
+    "Tutorial: tu primer circuito…",
+    "Tutoriel : votre premier circuit…"
+  ],
+  "ThinkCad tutorial": [
+    "Учебник ThinkCad",
+    "Навчання ThinkCad",
+    "Tutorial de ThinkCad",
+    "Tutoriel ThinkCad"
+  ],
+  "Check for updates": [
+    "Проверить обновления",
+    "Перевірити оновлення",
+    "Buscar actualizaciones",
+    "Rechercher des mises à jour"
+  ],
+  "About ThinkCad": [
+    "О ThinkCad",
+    "Про ThinkCad",
+    "Acerca de ThinkCad",
+    "À propos de ThinkCad"
+  ],
+  "Change I²C address": [
+    "Изменить адрес I²C",
+    "Змінити адресу I²C",
+    "Cambiar dirección I²C",
+    "Modifier l'adresse I²C"
+  ],
+  "Install update and restart": [
+    "Установить обновление и перезапустить",
+    "Установити оновлення й перезапустити",
+    "Instalar actualización y reiniciar",
+    "Installer la mise à jour et redémarrer"
+  ],
+  " · unsaved": [
+    " · не сохранено",
+    " · не збережено",
+    " · sin guardar",
+    " · non enregistré"
+  ],
+  "Examples not installed": [
+    "Примеры не установлены",
+    "Приклади не встановлено",
+    "Ejemplos no instalados",
+    "Exemples non installés"
+  ],
+  "The example sketches are not installed. On Gentoo enable the examples USE flag and reinstall ThinkCad.": [
+    "Скетчи примеров не установлены. В Gentoo включите USE-флаг examples и переустановите ThinkCad.",
+    "Скетчі прикладів не встановлено. У Gentoo увімкніть USE-прапорець examples і перевстановіть ThinkCad.",
+    "Los sketches de ejemplo no están instalados. En Gentoo activa el flag USE examples y reinstala ThinkCad.",
+    "Les sketches d'exemple ne sont pas installés. Sous Gentoo, activez l'option USE examples puis réinstallez ThinkCad."
+  ],
+  "Open a complete circuit with a matching Arduino sketch": [
+    "Открыть полную схему с подходящим скетчем Arduino",
+    "Відкрити повну схему з відповідним скетчем Arduino",
+    "Abrir circuito completo con su sketch Arduino",
+    "Ouvrir un circuit complet avec son sketch Arduino"
+  ],
+  "Opened: ": [
+    "Открыто: ",
+    "Відкрито: ",
+    "Abierto: ",
+    "Ouvert : "
+  ],
+  "Open project or Arduino sketch": [
+    "Открыть проект или скетч Arduino",
+    "Відкрити проєкт або скетч Arduino",
+    "Abrir proyecto o sketch Arduino",
+    "Ouvrir un projet ou un sketch Arduino"
+  ],
+  "Save circuit and sketch": [
+    "Сохранить схему и скетч",
+    "Зберегти схему та скетч",
+    "Guardar circuito y sketch",
+    "Enregistrer le circuit et le sketch"
+  ],
+  "Export Arduino project": [
+    "Экспортировать проект Arduino",
+    "Експортувати проєкт Arduino",
+    "Exportar proyecto Arduino",
+    "Exporter le projet Arduino"
+  ],
+  "Existing files": [
+    "Существующие файлы",
+    "Наявні файли",
+    "Archivos existentes",
+    "Fichiers existants"
+  ],
+  "Overwrite existing sketch files in this folder?": [
+    "Перезаписать существующие файлы скетча в этой папке?",
+    "Перезаписати наявні файли скетчу в цій теці?",
+    "¿Sobrescribir los archivos del sketch existentes en esta carpeta?",
+    "Écraser les fichiers du sketch existants dans ce dossier ?"
+  ],
+  "Export failed.": [
+    "Ошибка экспорта.",
+    "Помилка експорту.",
+    "Error de exportación.",
+    "Échec de l'exportation."
+  ],
+  "Arduino project exported.": [
+    "Проект Arduino экспортирован.",
+    "Проєкт Arduino експортовано.",
+    "Proyecto Arduino exportado.",
+    "Projet Arduino exporté."
+  ],
+  "Unsaved changes": [
+    "Несохранённые изменения",
+    "Незбережені зміни",
+    "Cambios sin guardar",
+    "Modifications non enregistrées"
+  ],
+  "Save circuit and sketch before continuing?": [
+    "Сохранить схему и скетч перед продолжением?",
+    "Зберегти схему та скетч перед продовженням?",
+    "¿Guardar circuito y sketch antes de continuar?",
+    "Enregistrer le circuit et le sketch avant de continuer ?"
+  ],
+  "Please add a microcontroller.": [
+    "Добавьте микроконтроллер.",
+    "Додайте мікроконтролер.",
+    "Añade un microcontrolador.",
+    "Ajoutez un microcontrôleur."
+  ],
+  "Missing protocol data": [
+    "Данные протокола отсутствуют",
+    "Дані протоколу відсутні",
+    "Faltan datos del protocolo",
+    "Données de protocole manquantes"
+  ],
+  "Invalid protocol data": [
+    "Недопустимые данные протокола",
+    "Неприпустимі дані протоколу",
+    "Datos de protocolo no válidos",
+    "Données de protocole invalides"
+  ],
+  "Invalid time": [
+    "Недопустимое время",
+    "Неприпустимий час",
+    "Tiempo no válido",
+    "Temps invalide"
+  ],
+  "Invalid pin mode": [
+    "Недопустимый режим вывода",
+    "Неприпустимий режим виводу",
+    "Modo de pin no válido",
+    "Mode de broche invalide"
+  ],
+  "Invalid GPIO level": [
+    "Недопустимый уровень GPIO",
+    "Неприпустимий рівень GPIO",
+    "Nivel GPIO no válido",
+    "Niveau GPIO invalide"
+  ],
+  "Input is disconnected or between HIGH and LOW. Check pullup / wiring.": [
+    "Вход не подключён или имеет уровень между HIGH и LOW. Проверьте подтяжку и соединения.",
+    "Вхід не під'єднано або його рівень між HIGH і LOW. Перевірте підтягування та з'єднання.",
+    "La entrada está desconectada o entre HIGH y LOW. Comprueba la resistencia pull-up y el cableado.",
+    "Entrée déconnectée ou entre HIGH et LOW. Vérifiez le rappel et le câblage."
+  ],
+  "GPIO has no ADC.": [
+    "У GPIO нет АЦП.",
+    "GPIO не має АЦП.",
+    "El GPIO no dispone de ADC.",
+    "Le GPIO n'a pas de CAN."
+  ],
+  "ADC voltage is missing or outside the board range.": [
+    "Напряжение АЦП отсутствует или вне диапазона платы.",
+    "Напруга АЦП відсутня або поза діапазоном плати.",
+    "La tensión del ADC falta o está fuera del rango de la placa.",
+    "Tension du CAN absente ou hors plage de la carte."
+  ],
+  "SDA and SCL must differ.": [
+    "SDA и SCL должны различаться.",
+    "SDA і SCL мають відрізнятися.",
+    "SDA y SCL deben ser distintos.",
+    "SDA et SCL doivent être différents."
+  ],
+  "OLED unavailable: check VCC, GND, SDA/SCL and I²C address.": [
+    "OLED недоступен: проверьте VCC, GND, SDA/SCL и адрес I²C.",
+    "OLED недоступний: перевірте VCC, GND, SDA/SCL та адресу I²C.",
+    "OLED no disponible: comprueba VCC, GND, SDA/SCL y la dirección I²C.",
+    "OLED indisponible : vérifiez VCC, GND, SDA/SCL et l'adresse I²C."
+  ],
+  "Display is not correctly connected or powered.": [
+    "Дисплей неправильно подключён или не получает питание.",
+    "Дисплей неправильно під'єднано або він не отримує живлення.",
+    "La pantalla no está bien conectada o alimentada.",
+    "Afficheur mal connecté ou non alimenté."
+  ],
+  "Invalid display data": [
+    "Недопустимые данные дисплея",
+    "Неприпустимі дані дисплея",
+    "Datos de pantalla no válidos",
+    "Données d'affichage invalides"
+  ],
+  "Invalid display brightness": [
+    "Недопустимая яркость дисплея",
+    "Неприпустима яскравість дисплея",
+    "Brillo de pantalla no válido",
+    "Luminosité d'affichage invalide"
+  ],
+  "setup() completed. Simulation running.": [
+    "setup() выполнен. Симуляция работает.",
+    "setup() виконано. Симуляція працює.",
+    "setup() completado. Simulación en marcha.",
+    "setup() terminé. Simulation en cours."
+  ],
+  "Unknown simulator message": [
+    "Неизвестное сообщение симулятора",
+    "Невідоме повідомлення симулятора",
+    "Mensaje del simulador desconocido",
+    "Message du simulateur inconnu"
+  ],
+  "Simulation stopped: ": [
+    "Симуляция остановлена: ",
+    "Симуляцію зупинено: ",
+    "Simulación detenida: ",
+    "Simulation arrêtée : "
+  ],
+  "Drag wire bend": [
+    "Перетащить изгиб провода",
+    "Перетягнути вигин дроту",
+    "Arrastrar codo del cable",
+    "Déplacer le coude du fil"
+  ],
+  " — click to connect": [
+    " — нажмите для соединения",
+    " — натисніть для з'єднання",
+    " — haz clic para conectar",
+    " — cliquer pour relier"
+  ],
+  "a–e / f–j: five contacts connected per column · no power rails": [
+    "a–e / f–j: по пять соединённых контактов в столбце · без шин питания",
+    "a–e / f–j: по п'ять з'єднаних контактів у стовпці · без шин живлення",
+    "a–e / f–j: cinco contactos conectados por columna · sin carriles de alimentación",
+    "a–e / f–j : cinq contacts reliés par colonne · sans rails d'alimentation"
+  ],
+  "Pressed": [
+    "Нажато",
+    "Натиснуто",
+    "Pulsado",
+    "Enfoncé"
+  ],
+  "Double-click to press": [
+    "Нажмите дважды",
+    "Натисніть двічі",
+    "Pulsa dos veces",
+    "Double-cliquer pour appuyer"
+  ],
+  "Stop simulation before editing the circuit.": [
+    "Остановите симуляцию перед изменением схемы.",
+    "Зупиніть симуляцію перед зміною схеми.",
+    "Detén la simulación antes de editar el circuito.",
+    "Arrêtez la simulation avant de modifier le circuit."
+  ],
+  "Stop simulation before editing wires.": [
+    "Остановите симуляцию перед изменением проводов.",
+    "Зупиніть симуляцію перед зміною дротів.",
+    "Detén la simulación antes de editar cables.",
+    "Arrêtez la simulation avant de modifier les fils."
+  ],
+  "Click the destination pin. Esc cancels the wire.": [
+    "Нажмите конечный вывод. Esc отменяет провод.",
+    "Натисніть кінцевий вивід. Esc скасовує дріт.",
+    "Haz clic en el pin de destino. Esc cancela el cable.",
+    "Cliquez sur la broche d'arrivée. Échap annule le fil."
+  ],
+  "Delete selection": [
+    "Удалить выбранное",
+    "Видалити вибране",
+    "Eliminar selección",
+    "Supprimer la sélection"
+  ],
+  "Move component": [
+    "Переместить компонент",
+    "Перемістити компонент",
+    "Mover componente",
+    "Déplacer le composant"
+  ],
+  "Move wire bend": [
+    "Переместить изгиб провода",
+    "Перемістити вигин дроту",
+    "Mover codo del cable",
+    "Déplacer un coude du fil"
+  ],
+  "Add wire bend": [
+    "Добавить изгиб провода",
+    "Додати вигин дроту",
+    "Añadir codo al cable",
+    "Ajouter un coude au fil"
+  ],
+  "Maximum 64 wire bends": [
+    "Максимум 64 изгиба провода",
+    "Щонайбільше 64 вигини дроту",
+    "Máximo 64 codos por cable",
+    "64 coudes maximum par fil"
+  ],
+  "Change component value": [
+    "Изменить значение компонента",
+    "Змінити значення компонента",
+    "Cambiar valor del componente",
+    "Modifier la valeur du composant"
+  ],
+  "Microcontroller": [
+    "Микроконтроллер",
+    "Мікроконтролер",
+    "Microcontrolador",
+    "Microcontrôleur"
+  ],
+  "Resistor": [
+    "Резистор",
+    "Резистор",
+    "Resistencia",
+    "Résistance"
+  ],
+  "Pushbutton": [
+    "Кнопка",
+    "Кнопка",
+    "Pulsador",
+    "Bouton-poussoir"
+  ],
+  "Analog source": [
+    "Аналоговый источник",
+    "Аналогове джерело",
+    "Fuente analógica",
+    "Source analogique"
+  ],
+  "10 kΩ potentiometer": [
+    "Потенциометр 10 кОм",
+    "Потенціометр 10 кОм",
+    "Potenciómetro de 10 kΩ",
+    "Potentiomètre 10 kΩ"
+  ],
+  "Photoresistor": [
+    "Фоторезистор",
+    "Фоторезистор",
+    "Fotorresistencia",
+    "Photorésistance"
+  ],
+  "NTC 10k B3950": [
+    "Термистор NTC 10k B3950",
+    "Термістор NTC 10k B3950",
+    "Termistor NTC 10k B3950",
+    "Thermistance NTC 10k B3950"
+  ],
+  "SPDT slide switch": [
+    "Ползунковый переключатель SPDT",
+    "Повзунковий перемикач SPDT",
+    "Interruptor deslizante SPDT",
+    "Commutateur à glissière SPDT"
+  ],
+  "Tilt switch": [
+    "Датчик наклона",
+    "Датчик нахилу",
+    "Interruptor de inclinación",
+    "Interrupteur d'inclinaison"
+  ],
+  "Reed switch": [
+    "Геркон",
+    "Геркон",
+    "Interruptor de láminas",
+    "Interrupteur à lames souples"
+  ],
+  "Silicon diode": [
+    "Кремниевый диод",
+    "Кремнієвий діод",
+    "Diodo de silicio",
+    "Diode au silicium"
+  ],
+  "3 V battery (ideal)": [
+    "Батарея 3 В (идеальная)",
+    "Батарея 3 В (ідеальна)",
+    "Pila de 3 V (ideal)",
+    "Pile 3 V (idéale)"
+  ],
+  "9 V battery (ideal)": [
+    "Батарея 9 В (идеальная)",
+    "Батарея 9 В (ідеальна)",
+    "Pila de 9 V (ideal)",
+    "Pile 9 V (idéale)"
+  ],
+  "DC power supply": [
+    "Источник постоянного напряжения",
+    "Джерело постійної напруги",
+    "Fuente de alimentación CC",
+    "Alimentation CC"
+  ],
+  "RGB LED (common cathode)": [
+    "RGB-светодиод (общий катод)",
+    "RGB-світлодіод (спільний катод)",
+    "LED RGB (cátodo común)",
+    "LED RGB (cathode commune)"
+  ],
+  "7-segment (common cathode)": [
+    "7-сегментный индикатор (общий катод)",
+    "7-сегментний індикатор (спільний катод)",
+    "Display de 7 segmentos (cátodo común)",
+    "Afficheur 7 segments (cathode commune)"
+  ],
+  "Voltmeter (ideal)": [
+    "Вольтметр (идеальный)",
+    "Вольтметр (ідеальний)",
+    "Voltímetro (ideal)",
+    "Voltmètre (idéal)"
+  ],
+  "300-contact breadboard": [
+    "Макетная плата на 300 контактов",
+    "Макетна плата на 300 контактів",
+    "Protoboard de 300 contactos",
+    "Plaque d'essai 300 contacts"
+  ],
+  "Manage libraries": [
+    "Управление библиотеками",
+    "Керування бібліотеками",
+    "Gestionar bibliotecas",
+    "Gérer les bibliothèques"
+  ],
+  "Official Arduino catalog. Installation includes dependencies. Hardware libraries also require a supported simulation model.": [
+    "Официальный каталог Arduino. Зависимости устанавливаются автоматически. Аппаратным библиотекам нужна поддерживаемая модель симуляции.",
+    "Офіційний каталог Arduino. Залежності встановлюються автоматично. Апаратним бібліотекам потрібна підтримувана модель симуляції.",
+    "Catálogo oficial de Arduino. La instalación incluye dependencias. Las bibliotecas de hardware necesitan un modelo de simulación compatible.",
+    "Catalogue officiel Arduino. Les dépendances sont installées automatiquement. Les bibliothèques matérielles exigent un modèle de simulation compatible."
+  ],
+  "Search libraries…": [
+    "Поиск библиотек…",
+    "Пошук бібліотек…",
+    "Buscar bibliotecas…",
+    "Rechercher des bibliothèques…"
+  ],
+  "Install selected library": [
+    "Установить выбранную библиотеку",
+    "Установити вибрану бібліотеку",
+    "Instalar biblioteca seleccionada",
+    "Installer la bibliothèque sélectionnée"
+  ],
+  "Refresh catalog": [
+    "Обновить каталог",
+    "Оновити каталог",
+    "Actualizar catálogo",
+    "Actualiser le catalogue"
+  ],
+  "Add local library folder…": [
+    "Добавить локальную папку библиотеки…",
+    "Додати локальну теку бібліотеки…",
+    "Añadir carpeta local de biblioteca…",
+    "Ajouter un dossier de bibliothèque local…"
+  ],
+  "Library folder": [
+    "Папка библиотеки",
+    "Тека бібліотеки",
+    "Carpeta de biblioteca",
+    "Dossier de bibliothèque"
+  ],
+  "Local library added: ": [
+    "Добавлена локальная библиотека: ",
+    "Додано локальну бібліотеку: ",
+    "Biblioteca local añadida: ",
+    "Bibliothèque locale ajoutée : "
+  ],
+  "Loading Arduino catalog…": [
+    "Загрузка каталога Arduino…",
+    "Завантаження каталогу Arduino…",
+    "Cargando catálogo Arduino…",
+    "Chargement du catalogue Arduino…"
+  ],
+  "Could not load catalog: ": [
+    "Не удалось загрузить каталог: ",
+    "Не вдалося завантажити каталог: ",
+    "No se pudo cargar el catálogo: ",
+    "Impossible de charger le catalogue : "
+  ],
+  "Library and dependencies installed. Available on the next sketch build.": [
+    "Библиотека и зависимости установлены. Они будут доступны при следующей компиляции скетча.",
+    "Бібліотеку та залежності встановлено. Вони будуть доступні під час наступної компіляції скетчу.",
+    "Biblioteca y dependencias instaladas. Estarán disponibles al volver a compilar el sketch.",
+    "Bibliothèque et dépendances installées. Disponibles à la prochaine compilation du sketch."
+  ],
+  "Library download failed: ": [
+    "Ошибка загрузки библиотеки: ",
+    "Помилка завантаження бібліотеки: ",
+    "Error al descargar la biblioteca: ",
+    "Échec du téléchargement de bibliothèque : "
+  ],
+  "Library checksum mismatch.": [
+    "Контрольная сумма библиотеки не совпадает.",
+    "Контрольна сума бібліотеки не збігається.",
+    "La suma de verificación de la biblioteca no coincide.",
+    "La somme de contrôle de la bibliothèque ne correspond pas."
+  ],
+  "Temporary library folder is missing.": [
+    "Отсутствует временная папка библиотеки.",
+    "Відсутня тимчасова тека бібліотеки.",
+    "Falta la carpeta temporal de la biblioteca.",
+    "Dossier temporaire de bibliothèque manquant."
+  ],
+  "Could not install library.": [
+    "Не удалось установить библиотеку.",
+    "Не вдалося встановити бібліотеку.",
+    "No se pudo instalar la biblioteca.",
+    "Impossible d'installer la bibliothèque."
+  ],
+  "Unsupported version requirement: ": [
+    "Неподдерживаемое требование версии: ",
+    "Непідтримувана вимога версії: ",
+    "Requisito de versión no compatible: ",
+    "Contrainte de version non prise en charge : "
+  ],
+  "Library index is too large.": [
+    "Индекс библиотек слишком велик.",
+    "Індекс бібліотек завеликий.",
+    "El índice de bibliotecas es demasiado grande.",
+    "Index des bibliothèques trop volumineux."
+  ],
+  "Invalid Arduino library index.": [
+    "Недопустимый индекс библиотек Arduino.",
+    "Неприпустимий індекс бібліотек Arduino.",
+    "Índice de bibliotecas Arduino no válido.",
+    "Index des bibliothèques Arduino invalide."
+  ],
+  "No valid library package in index.": [
+    "В индексе нет подходящего пакета библиотеки.",
+    "В індексі немає придатного пакета бібліотеки.",
+    "No hay paquetes de biblioteca válidos en el índice.",
+    "Aucun paquet de bibliothèque valide dans l'index."
+  ],
+  "Conflicting library dependencies: ": [
+    "Конфликт зависимостей библиотек: ",
+    "Конфлікт залежностей бібліотек: ",
+    "Conflicto de dependencias: ",
+    "Conflit de dépendances des bibliothèques : "
+  ],
+  "Too many library dependencies.": [
+    "Слишком много зависимостей библиотек.",
+    "Забагато залежностей бібліотек.",
+    "Demasiadas dependencias de bibliotecas.",
+    "Trop de dépendances de bibliothèques."
+  ],
+  "Dependency not found in index: ": [
+    "Зависимость не найдена в индексе: ",
+    "Залежність не знайдено в індексі: ",
+    "Dependencia no encontrada en el índice: ",
+    "Dépendance introuvable dans l'index : "
+  ],
+  "Invalid dependency.": [
+    "Недопустимая зависимость.",
+    "Неприпустима залежність.",
+    "Dependencia no válida.",
+    "Dépendance invalide."
+  ],
+  "OLED animation": [
+    "OLED-анимация",
+    "OLED-анімація",
+    "Animación OLED",
+    "Animation OLED"
+  ],
+  "ESP8266 and SSD1306: two PROGMEM bitmap frames with realistic I²C transfer timing.": [
+    "ESP8266 и SSD1306: два битовых кадра из PROGMEM с реалистичным временем передачи I²C.",
+    "ESP8266 і SSD1306: два бітові кадри з PROGMEM із реалістичним часом передавання I²C.",
+    "ESP8266 y SSD1306: dos fotogramas PROGMEM con tiempos de transferencia I²C realistas.",
+    "ESP8266 et SSD1306 : deux trames PROGMEM avec un temps de transfert I²C réaliste."
+  ],
+  "Blink an LED": [
+    "Мигание светодиода",
+    "Блимання світлодіода",
+    "LED intermitente",
+    "Faire clignoter une LED"
+  ],
+  "External LED on D5 with a 220 Ω series resistor. Compare blink speeds using the speed slider.": [
+    "Внешний светодиод на D5 с резистором 220 Ω. Сравните частоту мигания с помощью регулятора скорости.",
+    "Зовнішній світлодіод на D5 з резистором 220 Ω. Порівняйте частоту блимання регулятором швидкості.",
+    "LED externo en D5 con resistencia de 220 Ω. Compara velocidades de parpadeo con el regulador.",
+    "LED externe sur D5 avec résistance série de 220 Ω. Comparez les vitesses de clignotement avec le curseur."
+  ],
+  "Button controls LED": [
+    "Кнопка управляет светодиодом",
+    "Кнопка керує світлодіодом",
+    "El pulsador controla el LED",
+    "Bouton commandant une LED"
+  ],
+  "Button on D6 to GND, internal pullup, LED on D5. Press the button with a double-click or the inspector checkbox.": [
+    "Кнопка на D6 к GND, внутренняя подтяжка, светодиод на D5. Нажмите дважды или используйте флажок в свойствах.",
+    "Кнопка на D6 до GND, внутрішнє підтягування, світлодіод на D5. Натисніть двічі або скористайтеся прапорцем у властивостях.",
+    "Pulsador entre D6 y GND, pull-up interno y LED en D5. Pulsa dos veces o usa la casilla de propiedades.",
+    "Bouton entre D6 et GND, rappel interne, LED sur D5. Double-cliquez ou utilisez la case des propriétés."
+  ],
+  "Traffic lights": [
+    "Светофор",
+    "Світлофор",
+    "Semáforo",
+    "Feux de circulation"
+  ],
+  "Three LEDs on D5/D6/D7 with separate series resistors: red, red/amber, green, amber.": [
+    "Три светодиода на D5/D6/D7 с отдельными резисторами: красный, красный/жёлтый, зелёный, жёлтый.",
+    "Три світлодіоди на D5/D6/D7 з окремими резисторами: червоний, червоний/жовтий, зелений, жовтий.",
+    "Tres LED en D5/D6/D7 con resistencias independientes: rojo, rojo/ámbar, verde y ámbar.",
+    "Trois LED sur D5/D6/D7 avec résistances séparées : rouge, rouge/orange, vert, orange."
+  ],
+  "LED chaser": [
+    "Бегущие огни",
+    "Рухомі вогні",
+    "Secuencia de LED",
+    "Chenillard à LED"
+  ],
+  "Four LEDs on D1/D2/D5/D6, each with 220 Ω, are switched on in sequence.": [
+    "Четыре светодиода на D1/D2/D5/D6 с резисторами 220 Ω включаются по очереди.",
+    "Чотири світлодіоди на D1/D2/D5/D6 з резисторами 220 Ω вмикаються по черзі.",
+    "Cuatro LED en D1/D2/D5/D6 con resistencias de 220 Ω se encienden en secuencia.",
+    "Quatre LED sur D1/D2/D5/D6 avec résistances de 220 Ω s'allument successivement."
+  ],
+  "Analog threshold": [
+    "Аналоговый порог",
+    "Аналоговий поріг",
+    "Umbral analógico",
+    "Seuil analogique"
+  ],
+  "0–1 V source on A0. The LED lights at ADC value 512. Stop simulation, select the source and adjust its voltage.": [
+    "Источник 0–1 В на A0. Светодиод загорается при значении АЦП 512. Остановите симуляцию и выберите источник, чтобы изменить напряжение.",
+    "Джерело 0–1 В на A0. Світлодіод засвічується за значення АЦП 512. Зупиніть симуляцію та виберіть джерело, щоб змінити напругу.",
+    "Fuente de 0–1 V en A0. El LED se enciende en el valor ADC 512. Detén la simulación y selecciona la fuente para ajustar la tensión.",
+    "Source 0–1 V sur A0. La LED s'allume à la valeur CAN 512. Arrêtez la simulation et sélectionnez la source pour régler la tension."
+  ],
+  "ESP32: blink LED": [
+    "ESP32: мигание светодиода",
+    "ESP32: блимання світлодіода",
+    "ESP32: LED intermitente",
+    "ESP32 : clignotement LED"
+  ],
+  "ESP32 board profile, external LED on GPIO5 with a series resistor.": [
+    "Профиль платы ESP32, внешний светодиод на GPIO5 с последовательным резистором.",
+    "Профіль плати ESP32, зовнішній світлодіод на GPIO5 із послідовним резистором.",
+    "Perfil ESP32, LED externo en GPIO5 con resistencia en serie.",
+    "Profil de carte ESP32, LED externe sur GPIO5 avec résistance série."
+  ],
+  "ESP32-S3: analog threshold": [
+    "ESP32-S3: аналоговый порог",
+    "ESP32-S3: аналоговий поріг",
+    "ESP32-S3: umbral analógico",
+    "ESP32-S3 : seuil analogique"
+  ],
+  "12-bit ADC on A0/GPIO1. A 1.65 V source switches on the LED on GPIO5.": [
+    "12-битный АЦП на A0/GPIO1. Источник 1,65 В включает светодиод на GPIO5.",
+    "12-бітний АЦП на A0/GPIO1. Джерело 1,65 В вмикає світлодіод на GPIO5.",
+    "ADC de 12 bits en A0/GPIO1. Una fuente de 1,65 V enciende el LED en GPIO5.",
+    "CAN 12 bits sur A0/GPIO1. Une source de 1,65 V active la LED sur GPIO5."
+  ],
+  "OLED text 128×32": [
+    "Текст OLED 128×32",
+    "Текст OLED 128×32",
+    "Texto OLED 128×32",
+    "Texte OLED 128×32"
+  ],
+  "setCursor, setTextColor and text sizing on a correctly wired 128×32 SSD1306.": [
+    "setCursor, setTextColor и размер текста на правильно подключённом SSD1306 128×32.",
+    "setCursor, setTextColor і розмір тексту на правильно під'єднаному SSD1306 128×32.",
+    "setCursor, setTextColor y tamaño del texto en un SSD1306 128×32 bien conectado.",
+    "setCursor, setTextColor et taille du texte sur un SSD1306 128×32 correctement câblé."
+  ],
+  "Two OLEDs on the I²C bus": [
+    "Два OLED на шине I²C",
+    "Два OLED на шині I²C",
+    "Dos OLED en el bus I²C",
+    "Deux OLED sur le bus I²C"
+  ],
+  "Two displays share D2/SDA and D1/SCL. Addresses 0x3C and 0x3D; flash bitmaps move in opposite directions.": [
+    "Два дисплея используют D2/SDA и D1/SCL. Адреса 0x3C и 0x3D; битовые изображения из flash движутся навстречу.",
+    "Два дисплеї використовують D2/SDA і D1/SCL. Адреси 0x3C і 0x3D; зображення з flash рухаються назустріч.",
+    "Dos pantallas comparten D2/SDA y D1/SCL. Direcciones 0x3C y 0x3D; los bitmaps flash se mueven en sentidos opuestos.",
+    "Deux afficheurs partagent D2/SDA et D1/SCL. Adresses 0x3C et 0x3D ; les bitmaps flash se déplacent en sens opposés."
+  ],
+  "Example file is missing. Check the installation.": [
+    "Файл примера отсутствует. Проверьте установку.",
+    "Файл прикладу відсутній. Перевірте встановлення.",
+    "Falta el archivo de ejemplo. Comprueba la instalación.",
+    "Fichier d'exemple manquant. Vérifiez l'installation."
+  ],
+  "ThinkCad is up to date.": [
+    "Установлена актуальная версия ThinkCad.",
+    "Установлено актуальну версію ThinkCad.",
+    "ThinkCad está actualizado.",
+    "ThinkCad est à jour."
+  ],
+  "Update check failed.": [
+    "Ошибка проверки обновлений.",
+    "Помилка перевірки оновлень.",
+    "Error al buscar actualizaciones.",
+    "Échec de la recherche de mises à jour."
+  ],
+  "Update check failed (network issue or no release yet).": [
+    "Ошибка проверки обновлений: проблема сети или выпусков пока нет.",
+    "Помилка перевірки оновлень: проблема мережі або випусків ще немає.",
+    "Error al buscar actualizaciones: problema de red o aún no hay versiones.",
+    "Échec de la recherche : problème réseau ou aucune version disponible."
+  ],
+  "No valid stable release found.": [
+    "Не найден подходящий стабильный выпуск.",
+    "Не знайдено придатного стабільного випуску.",
+    "No se encontró una versión estable válida.",
+    "Aucune version stable valide trouvée."
+  ],
+  "Release has no installer with checksum and build attestation.": [
+    "В выпуске нет установщика с контрольной суммой и аттестацией сборки.",
+    "У випуску немає інсталятора з контрольною сумою та атестацією збірки.",
+    "La versión no contiene instalador con suma de verificación y atestación de compilación.",
+    "Cette version n'a pas d'installeur avec somme de contrôle et attestation de compilation."
+  ],
+  " is downloading in the background.": [
+    " загружается в фоне.",
+    " завантажується у фоні.",
+    " se está descargando en segundo plano.",
+    " se télécharge en arrière-plan."
+  ],
+  "Could not verify release commit.": [
+    "Не удалось проверить коммит выпуска.",
+    "Не вдалося перевірити коміт випуску.",
+    "No se pudo verificar el commit de la versión.",
+    "Impossible de vérifier le commit de la version."
+  ],
+  "Invalid update checksum.": [
+    "Недопустимая контрольная сумма обновления.",
+    "Неприпустима контрольна сума оновлення.",
+    "Suma de verificación de actualización no válida.",
+    "Somme de contrôle de mise à jour invalide."
+  ],
+  "Could not download build attestation.": [
+    "Не удалось загрузить аттестацию сборки.",
+    "Не вдалося завантажити атестацію збірки.",
+    "No se pudo descargar la atestación de compilación.",
+    "Impossible de télécharger l'attestation de compilation."
+  ],
+  "Could not save build attestation.": [
+    "Не удалось сохранить аттестацию сборки.",
+    "Не вдалося зберегти атестацію збірки.",
+    "No se pudo guardar la atestación de compilación.",
+    "Impossible d'enregistrer l'attestation de compilation."
+  ],
+  "Update directory is not writable.": [
+    "Нет записи в папку обновления.",
+    "Немає запису до теки оновлення.",
+    "No se puede escribir en la carpeta de actualización.",
+    "Dossier de mise à jour non accessible en écriture."
+  ],
+  "Could not create update file.": [
+    "Не удалось создать файл обновления.",
+    "Не вдалося створити файл оновлення.",
+    "No se pudo crear el archivo de actualización.",
+    "Impossible de créer le fichier de mise à jour."
+  ],
+  "Update rejected: download or SHA-256 verification failed.": [
+    "Обновление отклонено: ошибка загрузки или проверки SHA-256.",
+    "Оновлення відхилено: помилка завантаження або перевірки SHA-256.",
+    "Actualización rechazada: fallo de descarga o de verificación SHA-256.",
+    "Mise à jour rejetée : échec du téléchargement ou de la vérification SHA-256."
+  ],
+  "Update verifier is missing from this installation.": [
+    "В установке отсутствует средство проверки обновлений.",
+    "У встановленні відсутній засіб перевірки оновлень.",
+    "Falta el verificador de actualizaciones en la instalación.",
+    "Le vérificateur de mises à jour manque dans cette installation."
+  ],
+  "Update rejected: invalid GitHub build attestation or release commit.": [
+    "Обновление отклонено: неверная аттестация GitHub или коммит выпуска.",
+    "Оновлення відхилено: неправильна атестація GitHub або коміт випуску.",
+    "Actualización rechazada: atestación GitHub o commit no válidos.",
+    "Mise à jour rejetée : attestation GitHub ou commit de version invalide."
+  ],
+  "Update is no longer valid.": [
+    "Обновление больше не действительно.",
+    "Оновлення більше не є чинним.",
+    "La actualización ya no es válida.",
+    "La mise à jour n'est plus valide."
+  ],
+  "Update verifier is missing.": [
+    "Отсутствует средство проверки обновлений.",
+    "Відсутній засіб перевірки оновлень.",
+    "Falta el verificador de actualizaciones.",
+    "Vérificateur de mises à jour manquant."
+  ],
+  "Could not prepare update helper.": [
+    "Не удалось подготовить помощник обновления.",
+    "Не вдалося підготувати помічник оновлення.",
+    "No se pudo preparar el asistente de actualización.",
+    "Impossible de préparer l'assistant de mise à jour."
+  ],
+  "Could not start update helper.": [
+    "Не удалось запустить помощник обновления.",
+    "Не вдалося запустити помічник оновлення.",
+    "No se pudo iniciar el asistente de actualización.",
+    "Impossible de lancer l'assistant de mise à jour."
+  ],
+  "  |  Pin → Pin connects a wire": [
+    "  · Вывод → Вывод соединяет провод",
+    "  · Вивід → Вивід з'єднує дріт",
+    "  · Pin → Pin conecta un cable",
+    "  · Broche → Broche relie un fil"
+  ],
+  "Window": [
+    "Окно",
+    "Вікно",
+    "Ventana",
+    "Fenêtre"
+  ],
+  "Minimize": [
+    "Свернуть",
+    "Згорнути",
+    "Minimizar",
+    "Réduire"
+  ],
+  "Maximize": [
+    "Развернуть",
+    "Розгорнути",
+    "Maximizar",
+    "Agrandir"
+  ],
+  "Restore": [
+    "Восстановить",
+    "Відновити",
+    "Restaurar",
+    "Restaurer"
+  ],
+  "Arduino sketch": [
+    "Скетч Arduino",
+    "Скетч Arduino",
+    "Sketch Arduino",
+    "Sketch Arduino"
+  ],
+  "File name (.ino, .h or .cpp)": [
+    "Имя файла (.ino, .h или .cpp)",
+    "Назва файлу (.ino, .h або .cpp)",
+    "Nombre del archivo (.ino, .h o .cpp)",
+    "Nom du fichier (.ino, .h ou .cpp)"
+  ],
+  "Images (*.png *.bmp *.jpg)": [
+    "Изображения (*.png *.bmp *.jpg)",
+    "Зображення (*.png *.bmp *.jpg)",
+    "Imágenes (*.png *.bmp *.jpg)",
+    "Images (*.png *.bmp *.jpg)"
+  ],
+  "%1 ms · %2 wires": [
+    "%1 мс · %2 проводов",
+    "%1 мс · %2 дротів",
+    "%1 ms · %2 cables",
+    "%1 ms · %2 fils"
+  ],
+  "Arduino libraries": [
+    "Библиотеки Arduino",
+    "Бібліотеки Arduino",
+    "Bibliotecas Arduino",
+    "Bibliothèques Arduino"
+  ],
+  "Library": [
+    "Библиотека",
+    "Бібліотека",
+    "Biblioteca",
+    "Bibliothèque"
+  ],
+  "Architectures": [
+    "Архитектуры",
+    "Архітектури",
+    "Arquitecturas",
+    "Architectures"
+  ],
+  "Local library": [
+    "Локальная библиотека",
+    "Локальна бібліотека",
+    "Biblioteca local",
+    "Bibliothèque locale"
+  ],
+  "%1 libraries · %2 package versions": [
+    "%1 библиотек · %2 версий пакетов",
+    "%1 бібліотек · %2 версій пакетів",
+    "%1 bibliotecas · %2 versiones de paquetes",
+    "%1 bibliothèques · %2 versions de paquets"
+  ],
+  "Downloading ": [
+    "Загрузка ",
+    "Завантаження ",
+    "Descargando ",
+    "Téléchargement de "
+  ],
+  " is ready.": [
+    " готово.",
+    " готово.",
+    " está listo.",
+    " est prêt."
+  ],
+  " is available. Linux: update using the package manager; Gentoo: update the overlay and run emerge --ask --oneshot media-gfx/thinkcad. Downloads: https://github.com/Lyvt-Dev/ThinkCad/releases/latest": [
+    " доступно. Linux: обновите через менеджер пакетов; Gentoo: обновите оверлей и выполните emerge --ask --oneshot media-gfx/thinkcad. Загрузки: https://github.com/Lyvt-Dev/ThinkCad/releases/latest",
+    " доступне. Linux: оновіть через менеджер пакунків; Gentoo: оновіть оверлей і виконайте emerge --ask --oneshot media-gfx/thinkcad. Завантаження: https://github.com/Lyvt-Dev/ThinkCad/releases/latest",
+    " está disponible. Linux: actualiza con el gestor de paquetes; Gentoo: actualiza el overlay y ejecuta emerge --ask --oneshot media-gfx/thinkcad. Descargas: https://github.com/Lyvt-Dev/ThinkCad/releases/latest",
+    " est disponible. Linux : utilisez le gestionnaire de paquets ; Gentoo : mettez à jour l'overlay puis exécutez emerge --ask --oneshot media-gfx/thinkcad. Téléchargements : https://github.com/Lyvt-Dev/ThinkCad/releases/latest"
+  ],
+  "Execution stopped: timeout / no response.": [
+    "Выполнение остановлено: тайм-аут / нет ответа.",
+    "Виконання зупинено: тайм-аут / немає відповіді.",
+    "Ejecución detenida: tiempo agotado / sin respuesta.",
+    "Exécution arrêtée : délai dépassé / aucune réponse."
+  ],
+  "Compiler dependencies are too large.": [
+    "Зависимости компилятора слишком велики.",
+    "Залежності компілятора завеликі.",
+    "Las dependencias del compilador son demasiado grandes.",
+    "Dépendances du compilateur trop volumineuses."
+  ],
+  "Could not start compiler. Select a g++ compiler in Settings.": [
+    "Не удалось запустить компилятор. Выберите g++ в настройках.",
+    "Не вдалося запустити компілятор. Виберіть g++ у налаштуваннях.",
+    "No se pudo iniciar el compilador. Elige g++ en Ajustes.",
+    "Impossible de lancer le compilateur. Choisissez g++ dans les paramètres."
+  ],
+  "Temporary directory or simulator SDK is missing.": [
+    "Отсутствует временная папка или SDK симулятора.",
+    "Відсутня тимчасова тека або SDK симулятора.",
+    "Falta el directorio temporal o el SDK del simulador.",
+    "Dossier temporaire ou SDK du simulateur manquant."
+  ],
+  "Invalid project files.": [
+    "Недопустимые файлы проекта.",
+    "Неприпустимі файли проєкту.",
+    "Archivos de proyecto no válidos.",
+    "Fichiers de projet invalides."
+  ],
+  "Too many registered libraries.": [
+    "Зарегистрировано слишком много библиотек.",
+    "Зареєстровано забагато бібліотек.",
+    "Demasiadas bibliotecas registradas.",
+    "Trop de bibliothèques enregistrées."
+  ],
+  "Library contains too many source files.": [
+    "В библиотеке слишком много исходных файлов.",
+    "У бібліотеці забагато вихідних файлів.",
+    "La biblioteca contiene demasiados archivos fuente.",
+    "La bibliothèque contient trop de fichiers source."
+  ],
+  "Sketch protocol exceeds buffer limit.": [
+    "Протокол скетча превысил предел буфера.",
+    "Протокол скетчу перевищив межу буфера.",
+    "El protocolo del sketch supera el límite del búfer.",
+    "Le protocole du sketch dépasse la limite du tampon."
+  ],
+  "Sketch protocol overloaded. Use delay() or yield().": [
+    "Протокол скетча перегружен. Используйте delay() или yield().",
+    "Протокол скетчу перевантажено. Використовуйте delay() або yield().",
+    "Protocolo del sketch sobrecargado. Usa delay() o yield().",
+    "Protocole du sketch surchargé. Utilisez delay() ou yield()."
+  ],
+  "Too many library source files in use.": [
+    "Слишком много исходных файлов библиотек.",
+    "Забагато вихідних файлів бібліотек.",
+    "Demasiados archivos fuente de bibliotecas.",
+    "Trop de fichiers source de bibliothèques."
+  ],
+  "Library dependency resolution limit exceeded.": [
+    "Превышен предел разрешения зависимостей библиотек.",
+    "Перевищено межу розв'язання залежностей бібліотек.",
+    "Se superó el límite de resolución de dependencias.",
+    "Limite de résolution des dépendances dépassée."
+  ],
+  "Could not prepare project file.": [
+    "Не удалось подготовить файл проекта.",
+    "Не вдалося підготувати файл проєкту.",
+    "No se pudo preparar el archivo del proyecto.",
+    "Impossible de préparer le fichier du projet."
+  ],
+  "Could not save sketch.": [
+    "Не удалось сохранить скетч.",
+    "Не вдалося зберегти скетч.",
+    "No se pudo guardar el sketch.",
+    "Impossible d'enregistrer le sketch."
+  ],
+  "Convert video to frames.h…": [
+    "Преобразовать видео в frames.h…",
+    "Перетворити відео на frames.h…",
+    "Convertir vídeo a frames.h…",
+    "Convertir une vidéo en frames.h…"
+  ],
+  "Convert video to frames.h": [
+    "Преобразовать видео в frames.h",
+    "Перетворити відео на frames.h",
+    "Convertir vídeo a frames.h",
+    "Convertir une vidéo en frames.h"
+  ],
+  "Choose video": [
+    "Выбрать видео",
+    "Вибрати відео",
+    "Elegir vídeo",
+    "Choisir une vidéo"
+  ],
+  "Monochrome OLED frames for Adafruit GFX. Aspect ratio is preserved; audio is not exported.": [
+    "Монохромные OLED-кадры для Adafruit GFX. Пропорции сохраняются; звук не экспортируется.",
+    "Монохромні OLED-кадри для Adafruit GFX. Пропорції зберігаються; звук не експортується.",
+    "Fotogramas OLED monocromos para Adafruit GFX. Se conserva la proporción; no se exporta audio.",
+    "Trames OLED monochromes pour Adafruit GFX. Les proportions sont conservées ; le son n'est pas exporté."
+  ],
+  "Resolution": [
+    "Разрешение",
+    "Роздільність",
+    "Resolución",
+    "Résolution"
+  ],
+  "Frames per second": [
+    "Кадров в секунду",
+    "Кадрів за секунду",
+    "Fotogramas por segundo",
+    "Images par seconde"
+  ],
+  "Start time (seconds)": [
+    "Начало (секунды)",
+    "Початок (секунди)",
+    "Inicio (segundos)",
+    "Début (secondes)"
+  ],
+  "Clip duration (seconds)": [
+    "Длительность фрагмента (секунды)",
+    "Тривалість фрагмента (секунди)",
+    "Duración del clip (segundos)",
+    "Durée de l'extrait (secondes)"
+  ],
+  "Black/white threshold": [
+    "Порог чёрного и белого",
+    "Поріг чорного та білого",
+    "Umbral blanco/negro",
+    "Seuil noir/blanc"
+  ],
+  "Invert colors": [
+    "Инвертировать цвета",
+    "Інвертувати кольори",
+    "Invertir colores",
+    "Inverser les couleurs"
+  ],
+  "Loading video…": [
+    "Загрузка видео…",
+    "Завантаження відео…",
+    "Cargando vídeo…",
+    "Chargement de la vidéo…"
+  ],
+  "Export frames.h…": [
+    "Экспорт frames.h…",
+    "Експорт frames.h…",
+    "Exportar frames.h…",
+    "Exporter frames.h…"
+  ],
+  "Export frames.h": [
+    "Экспорт frames.h",
+    "Експорт frames.h",
+    "Exportar frames.h",
+    "Exporter frames.h"
+  ],
+  "Could not read video: ": [
+    "Не удалось прочитать видео: ",
+    "Не вдалося прочитати відео: ",
+    "No se pudo leer el vídeo: ",
+    "Impossible de lire la vidéo : "
+  ],
+  "Video decoder is not responding.": [
+    "Видеодекодер не отвечает.",
+    "Відеодекодер не відповідає.",
+    "El decodificador de vídeo no responde.",
+    "Le décodeur vidéo ne répond pas."
+  ],
+  "%1 frames · %2 KiB bitmap data · 256 KiB maximum": [
+    "%1 кадров · %2 КиБ битовых данных · максимум 256 КиБ",
+    "%1 кадрів · %2 КіБ бітових даних · щонайбільше 256 КіБ",
+    "%1 fotogramas · %2 KiB de datos bitmap · máximo 256 KiB",
+    "%1 trames · %2 Kio de données bitmap · 256 Kio maximum"
+  ],
+  "Converting video…": [
+    "Преобразование видео…",
+    "Перетворення відео…",
+    "Convirtiendo vídeo…",
+    "Conversion de la vidéo…"
+  ],
+  "Exported frames.h: ": [
+    "frames.h экспортирован: ",
+    "frames.h експортовано: ",
+    "frames.h exportado: ",
+    "frames.h exporté : "
+  ],
+  "Invalid video frame settings": [
+    "Недопустимые настройки видеокадров",
+    "Неприпустимі налаштування відеокадрів",
+    "Ajustes de fotogramas no válidos",
+    "Réglages de trames vidéo invalides"
+  ],
+  "Invalid video frame": [
+    "Недопустимый видеокадр",
+    "Неприпустимий відеокадр",
+    "Fotograma de vídeo no válido",
+    "Trame vidéo invalide"
+  ],
+  "Video exceeds the 256 KiB bitmap limit. Reduce frame rate, clip length or resolution.": [
+    "Видео превышает 256 КиБ битовых данных. Уменьшите частоту кадров, длительность или разрешение.",
+    "Відео перевищує 256 КіБ бітових даних. Зменште частоту кадрів, тривалість або роздільність.",
+    "El vídeo supera los 256 KiB de bitmaps. Reduce FPS, duración o resolución.",
+    "La vidéo dépasse 256 Kio de bitmaps. Réduisez la fréquence, la durée ou la résolution."
+  ],
+  "The video did not produce any readable frames.": [
+    "Видео не содержит читаемых кадров.",
+    "Відео не містить читабельних кадрів.",
+    "El vídeo no produjo fotogramas legibles.",
+    "La vidéo n'a produit aucune trame lisible."
+  ],
+  "Video conversion is incomplete.": [
+    "Преобразование видео не завершено.",
+    "Перетворення відео не завершено.",
+    "La conversión del vídeo está incompleta.",
+    "La conversion vidéo est incomplète."
+  ],
+  "Could not save frames.h.": [
+    "Не удалось сохранить frames.h.",
+    "Не вдалося зберегти frames.h.",
+    "No se pudo guardar frames.h.",
+    "Impossible d'enregistrer frames.h."
+  ],
+  "Press and hold to operate": [
+    "Нажмите и удерживайте",
+    "Натисніть і утримуйте",
+    "Mantén pulsado para accionar",
+    "Maintenir enfoncé pour actionner"
+  ],
+  "Blocks": [
+    "Блоки",
+    "Блоки",
+    "Bloques",
+    "Blocs"
+  ],
+  "Realistic": [
+    "Реалистичный",
+    "Реалістичний",
+    "Realista",
+    "Réaliste"
+  ],
+  "ESP32, 38 kHz receiver and NEC test remote. Press and hold its button during simulation.": [
+    "ESP32, приёмник 38 кГц и тестовый пульт NEC. Удерживайте кнопку во время симуляции.",
+    "ESP32, приймач 38 кГц і тестовий пульт NEC. Утримуйте кнопку під час симуляції.",
+    "ESP32, receptor de 38 kHz y mando NEC de prueba. Mantén el botón pulsado durante la simulación.",
+    "ESP32, récepteur 38 kHz et télécommande NEC de test. Maintenez le bouton enfoncé pendant la simulation."
+  ],
+  "ESP32 with PN532 over I²C. Read synthetic UID and NDEF; click once during simulation to remove or present the card.": [
+    "ESP32 с PN532 по I²C. Чтение синтетических UID и NDEF; один щелчок во время симуляции убирает или подносит карту.",
+    "ESP32 з PN532 через I²C. Читання синтетичних UID і NDEF; один клік під час симуляції прибирає або підносить картку.",
+    "ESP32 con PN532 por I²C. Lee UID y NDEF sintéticos; un clic durante la simulación retira o presenta la tarjeta.",
+    "ESP32 avec PN532 via I²C. Lecture d'UID et NDEF synthétiques ; un clic pendant la simulation retire ou présente la carte."
+  ],
+  "Button on D6 to GND, internal pullup, LED on D5. Press and hold during simulation, or use the inspector checkbox.": [
+    "Кнопка между D6 и GND, внутренняя подтяжка, светодиод на D5. Удерживайте кнопку во время симуляции или используйте флажок свойств.",
+    "Кнопка між D6 і GND, внутрішнє підтягування, світлодіод на D5. Утримуйте кнопку під час симуляції або скористайтеся прапорцем властивостей.",
+    "Pulsador entre D6 y GND, pull-up interno y LED en D5. Mantén pulsado durante la simulación o usa la casilla de propiedades.",
+    "Bouton entre D6 et GND, rappel interne, LED sur D5. Maintenez-le pendant la simulation ou utilisez la case des propriétés."
+  ],
+  "Reset": [
+    "Сброс",
+    "Скинути",
+    "Reiniciar",
+    "Réinitialiser"
+  ],
+  "The selected file has no video track.": [
+    "В выбранном файле нет видеодорожки.",
+    "Вибраний файл не має відеодоріжки.",
+    "El archivo seleccionado no tiene pista de vídeo.",
+    "Le fichier sélectionné n'a pas de piste vidéo."
+  ],
+  "Open File → Example circuits → Blink an LED. A series resistor protects the LED.": [
+    "Откройте Файл → Примеры схем → Мигание светодиода. Последовательный резистор защищает светодиод.",
+    "Відкрийте Файл → Приклади схем → Блимання світлодіода. Послідовний резистор захищає світлодіод.",
+    "Abre Archivo → Circuitos de ejemplo → LED intermitente. Una resistencia en serie protege el LED.",
+    "Ouvrez Fichier → Exemples de circuits → Faire clignoter une LED. Une résistance série protège la LED."
+  ],
+  "Stop simulation to edit. Click a start pin, empty points for bends and the destination pin. Double-click a wire to add a bend. Esc cancels; Delete removes the selection.": [
+    "Остановите симуляцию для редактирования. Нажмите начальный вывод, свободные точки изгибов и конечный вывод. Двойной щелчок по проводу добавляет изгиб. Esc отменяет, Delete удаляет выбранное.",
+    "Зупиніть симуляцію для редагування. Натисніть початковий вивід, вільні точки вигинів і кінцевий вивід. Подвійний клік по дроту додає вигин. Esc скасовує, Delete видаляє вибране.",
+    "Detén la simulación para editar. Haz clic en el pin inicial, los puntos de los codos y el pin final. Doble clic en un cable añade un codo. Esc cancela; Supr elimina la selección.",
+    "Arrêtez la simulation pour modifier le circuit. Cliquez sur la broche de départ, les points des coudes et la broche d'arrivée. Un double-clic sur un fil ajoute un coude. Échap annule ; Suppr efface la sélection."
+  ],
+  "F5 or Ctrl+R starts and stops. Cables and parts cannot be selected during simulation. Hold pushbuttons and remote buttons; click switches and NFC cards once to toggle them. Release the mouse button to release a pushbutton.": [
+    "F5 или Ctrl+R запускает и останавливает симуляцию. Провода и детали нельзя выбирать во время работы. Кнопки и пульт удерживайте; переключатели и NFC-карты переключаются одним щелчком. Отпустите мышь, чтобы отпустить кнопку.",
+    "F5 або Ctrl+R запускає та зупиняє симуляцію. Дроти й деталі не можна вибирати під час роботи. Кнопки й пульт утримуйте; перемикачі та NFC-картки перемикаються одним кліком. Відпустіть мишу, щоб відпустити кнопку.",
+    "F5 o Ctrl+R inicia y detiene. Durante la simulación no se pueden seleccionar cables ni piezas. Mantén pulsados los botones y el mando; conmuta interruptores y tarjetas NFC con un clic. Suelta el ratón para liberar un pulsador.",
+    "F5 ou Ctrl+R démarre et arrête. Les fils et composants ne sont pas sélectionnables pendant la simulation. Maintenez les boutons et la télécommande ; un clic bascule les interrupteurs et les cartes NFC. Relâchez la souris pour relâcher un bouton."
+  ],
+  "Each board has its own sketch, selected above the code editor. All boards run simultaneously. setup() runs once; loop() repeats. Pause, stop and reset affect every board.": [
+    "У каждой платы свой скетч, выбираемый над редактором кода. Все платы работают одновременно. setup() выполняется один раз, loop() повторяется. Пауза, остановка и сброс действуют на все платы.",
+    "Кожна плата має власний скетч, який вибирається над редактором коду. Усі плати працюють одночасно. setup() виконується один раз, loop() повторюється. Пауза, зупинка та скидання діють на всі плати.",
+    "Cada placa tiene su sketch, seleccionable sobre el editor. Todas se ejecutan a la vez. setup() se ejecuta una vez; loop() se repite. Pausa, parada y reinicio afectan a todas las placas.",
+    "Chaque carte a son sketch, sélectionné au-dessus de l'éditeur. Toutes fonctionnent simultanément. setup() s'exécute une fois ; loop() se répète. Pause, arrêt et réinitialisation concernent toutes les cartes."
+  ],
+  "ESP8266 OLED: VCC to 3V3, GND to GND, SDA to D2 and SCL to D1. File → Convert video to frames.h exports monochrome PROGMEM bitmaps. Choose resolution, frame rate and clip length; maximum 256 KiB bitmap data. Copy frames.h into the sketch folder.": [
+    "OLED для ESP8266: VCC к 3V3, GND к GND, SDA к D2, SCL к D1. Файл → Преобразовать видео в frames.h экспортирует монохромные битовые кадры PROGMEM. Выберите разрешение, частоту и длительность; максимум 256 КиБ данных. Скопируйте frames.h в папку скетча.",
+    "OLED для ESP8266: VCC до 3V3, GND до GND, SDA до D2, SCL до D1. Файл → Перетворити відео на frames.h експортує монохромні кадри PROGMEM. Виберіть роздільність, частоту й тривалість; щонайбільше 256 КіБ даних. Скопіюйте frames.h до теки скетчу.",
+    "OLED ESP8266: VCC a 3V3, GND a GND, SDA a D2 y SCL a D1. Archivo → Convertir vídeo a frames.h exporta bitmaps monocromos PROGMEM. Elige resolución, FPS y duración; máximo 256 KiB. Copia frames.h en la carpeta del sketch.",
+    "OLED ESP8266 : VCC vers 3V3, GND vers GND, SDA vers D2 et SCL vers D1. Fichier → Convertir une vidéo en frames.h exporte des bitmaps monochromes PROGMEM. Choisissez résolution, fréquence et durée ; 256 Kio maximum. Copiez frames.h dans le dossier du sketch."
+  ],
+  "Ctrl+S saves wiring and code together. Ctrl+O opens a project or .ino sketch. Arduino export writes files for the physical IDE. Ctrl+wheel zooms; the middle mouse button pans.": [
+    "Ctrl+S сохраняет схему и код вместе. Ctrl+O открывает проект или скетч .ino. Экспорт Arduino создаёт файлы для настоящей IDE. Ctrl+колесо меняет масштаб; средняя кнопка мыши перемещает вид.",
+    "Ctrl+S зберігає схему та код разом. Ctrl+O відкриває проєкт або скетч .ino. Експорт Arduino створює файли для справжньої IDE. Ctrl+колесо змінює масштаб; середня кнопка миші пересуває вигляд.",
+    "Ctrl+S guarda cableado y código. Ctrl+O abre un proyecto o sketch .ino. La exportación Arduino escribe los archivos para la IDE real. Ctrl+rueda hace zoom; el botón central desplaza la vista.",
+    "Ctrl+S enregistre câblage et code. Ctrl+O ouvre un projet ou un sketch .ino. L'export Arduino crée les fichiers pour l'IDE réelle. Ctrl+molette zoome ; le bouton central déplace la vue."
+  ],
+  "Model limitations": [
+    "Ограничения моделей",
+    "Обмеження моделей",
+    "Limitaciones de los modelos",
+    "Limites des modèles"
+  ],
+  "This is a host API simulation, not CPU emulation. A disconnected input is not automatically LOW. Use INPUT_PULLUP and respect supply and ADC limits. Hardware libraries need a matching device model.": [
+    "Это симуляция API на компьютере, а не эмуляция процессора. Неподключённый вход не обязательно LOW. Используйте INPUT_PULLUP и соблюдайте пределы питания и АЦП. Аппаратным библиотекам нужна подходящая модель устройства.",
+    "Це симуляція API на комп'ютері, а не емуляція процесора. Непід'єднаний вхід не обов'язково LOW. Використовуйте INPUT_PULLUP і дотримуйтеся меж живлення та АЦП. Апаратним бібліотекам потрібна відповідна модель пристрою.",
+    "Es una simulación de API en el PC, no una emulación de CPU. Una entrada desconectada no es automáticamente LOW. Usa INPUT_PULLUP y respeta los límites de alimentación y ADC. Las bibliotecas de hardware necesitan un modelo compatible.",
+    "Il s'agit d'une simulation d'API sur ordinateur, pas d'une émulation CPU. Une entrée déconnectée n'est pas forcément LOW. Utilisez INPUT_PULLUP et respectez les limites d'alimentation et du CAN. Les bibliothèques matérielles exigent un modèle adapté."
+  ],
+  "Native C++20 / Qt circuit simulator for Windows and Linux.": [
+    "Симулятор схем на C++20 / Qt для Windows и Linux.",
+    "Симулятор схем на C++20 / Qt для Windows і Linux.",
+    "Simulador nativo de circuitos C++20 / Qt para Windows y Linux.",
+    "Simulateur natif de circuits C++20 / Qt pour Windows et Linux."
+  ],
+  "Developed by Lyvt-Dev. Source, releases and issue tracker:": [
+    "Разработчик: Lyvt-Dev. Исходный код, выпуски и сообщения об ошибках:",
+    "Розробник: Lyvt-Dev. Вихідний код, випуски та повідомлення про помилки:",
+    "Desarrollado por Lyvt-Dev. Código fuente, versiones e incidencias:",
+    "Développé par Lyvt-Dev. Code source, versions et suivi des problèmes :"
+  ],
+  "Tutorial": [
+    "Учебник",
+    "Навчання",
+    "Tutorial",
+    "Tutoriel"
+  ],
+  "Version ": [
+    "Версия ",
+    "Версія ",
+    "Versión ",
+    "Version "
+  ],
+  "Video files": [
+    "Видеофайлы",
+    "Відеофайли",
+    "Archivos de vídeo",
+    "Fichiers vidéo"
+  ],
+  "All files": [
+    "Все файлы",
+    "Усі файли",
+    "Todos los archivos",
+    "Tous les fichiers"
+  ],
+  "Auto": [
+    "Авто",
+    "Авто",
+    "Automático",
+    "Auto"
+  ],
+  "Normal": [
+    "Обычный",
+    "Звичайний",
+    "Normal",
+    "Normal"
+  ],
+  "Single": [
+    "Однократный",
+    "Одноразовий",
+    "Único",
+    "Unique"
+  ],
+  "ESP32: transmitter GPIO25, receiver GPIO26; rc-switch protocol 1 with 16-bit test messages.": [
+    "ESP32: передатчик GPIO25, приёмник GPIO26; протокол rc-switch 1 с 16-битными тестовыми сообщениями.",
+    "ESP32: передавач GPIO25, приймач GPIO26; протокол rc-switch 1 з 16-бітними тестовими повідомленнями.",
+    "ESP32: transmisor GPIO25, receptor GPIO26; protocolo rc-switch 1 con mensajes de prueba de 16 bits.",
+    "ESP32 : émetteur GPIO25, récepteur GPIO26 ; protocole rc-switch 1 avec messages de test 16 bits."
+  ],
+  "GPIO2 with 220 Ω and IR LED; 38 kHz receiver on GPIO4. NEC commands in the serial monitor.": [
+    "GPIO2 с резистором 220 Ω и ИК-светодиодом; приёмник 38 кГц на GPIO4. Команды NEC в мониторе порта.",
+    "GPIO2 з резистором 220 Ω та ІЧ-світлодіодом; приймач 38 кГц на GPIO4. Команди NEC у моніторі порту.",
+    "GPIO2 con 220 Ω y LED IR; receptor de 38 kHz en GPIO4. Comandos NEC en el monitor serie.",
+    "GPIO2 avec 220 Ω et LED IR ; récepteur 38 kHz sur GPIO4. Commandes NEC dans le moniteur série."
+  ],
+  "Two ESP32 boards with nRF24L01, separate sketches and ACK packets on channel 76. SPI18/19/23, CSN5, CE16.": [
+    "Две ESP32 с nRF24L01, отдельными скетчами и пакетами ACK на канале 76. SPI18/19/23, CSN5, CE16.",
+    "Дві ESP32 з nRF24L01, окремими скетчами та пакетами ACK на каналі 76. SPI18/19/23, CSN5, CE16.",
+    "Dos placas ESP32 con nRF24L01, sketches separados y paquetes ACK en el canal 76. SPI18/19/23, CSN5, CE16.",
+    "Deux ESP32 avec nRF24L01, sketches séparés et paquets ACK sur le canal 76. SPI18/19/23, CSN5, CE16."
+  ],
+  "  Pin → Pin connects a wire": [
+    "  Вывод → Вывод соединяет провод",
+    "  Вивід → Вивід з'єднує дріт",
+    "  Pin → Pin conecta un cable",
+    "  Broche → Broche relie un fil"
+  ]
+}

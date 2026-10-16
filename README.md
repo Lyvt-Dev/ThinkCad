@@ -9,6 +9,17 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.2.1
+
+- Laufende Schaltungen lassen sich nicht auswählen oder verkabeln; Taster
+  reagieren auf Drücken/Loslassen, Schalter auf einen Klick.
+- Deutsch, Englisch, Russisch, Ukrainisch, Spanisch und Französisch mit
+  integrierten Offline-Übersetzungen und lokalisiertem Tutorial.
+- **Datei → Video in frames.h umwandeln…** exportiert monochrome
+  PROGMEM-Frames für Adafruit GFX. Auflösung, Bildrate und Clipdauer sind wählbar.
+
+[Video-Export](docs/VIDEO_FRAMES.md) · [Release Notes 1.2.1](docs/RELEASE_NOTES_1.2.1.md)
+
 ## Neu in 1.1.1
 
 Gleich große, erhabene Textbuttons für die Simulationssteuerung und echte
@@ -324,7 +335,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=1.1.1 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=1.2.1 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

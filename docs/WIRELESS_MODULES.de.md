@@ -67,8 +67,8 @@ Emulation**. Kreditkartennummern, Zahlung, Schlüssel und Authentifizierung sind
 nicht modelliert. Die äußere Kartenform ändert das Protokoll nicht.
 
 Karte auswählen: UID mit vier oder sieben Hex-Bytes und NDEF-Text mit maximal
-96 UTF-8-Bytes eingeben, dann **Übernehmen**. Doppelklick oder **Karte am Leser**
-steuert die Präsenz während des Laufs. Eine Karte muss innerhalb von 320
+96 UTF-8-Bytes eingeben, dann **Übernehmen**. Ein Klick auf die Karte
+steuert die Präsenz während des Laufs; Eigenschaften werden vor dem Start bearbeitet. Eine Karte muss innerhalb von 320
 Szeneneinheiten zum Leser liegen und dieselbe Testgruppe besitzen. Keine oder
 mehrere passende Karten ergeben keinen ausgewählten Tag. Das ist keine vollständige
 Antikollisionssimulation. Die synthetischen Seiten 0–39 sind lesbar; ab Seite 4

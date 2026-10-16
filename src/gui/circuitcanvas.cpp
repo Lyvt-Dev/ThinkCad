@@ -14,6 +14,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
+#include <QFocusEvent>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -22,6 +23,7 @@
 #include <QUndoCommand>
 #include <QWheelEvent>
 #include <cmath>
+#include <utility>
 using namespace thinkercad;
 namespace {
 QPainterPath wirePath(QPointF a,QPointF b) {QPainterPath p(a);p.lineTo(b);return p;}
@@ -130,7 +132,7 @@ public:
             p->drawRoundedRect(0,0,150,boundingRect().height()-16,12,12);p->setPen(QColor("#334155"));p->setFont(QFont("Segoe UI",10,QFont::DemiBold));p->drawText(QRectF(8,8,134,22),Qt::AlignCenter,partName(kind));
             if(kind==PartKind::Led||kind==PartKind::InfraredLed){const auto current=state.ledCurrent.contains(id)?state.ledCurrent.at(id):0;p->setPen(Qt::NoPen);p->setBrush(current>1e-5?QColor(QString::fromStdString(part.color)):QColor("#b6bfc9"));if(current>1e-5){auto glow=QColor(QString::fromStdString(part.color));glow.setAlpha(35);p->setBrush(glow);p->drawEllipse(QPointF(75,58),27,27);p->setBrush(QColor(QString::fromStdString(part.color)));}p->drawEllipse(QPointF(75,58),17,17);p->setPen(QColor("#64748b"));p->setFont(QFont("Segoe UI",8));p->drawText(QRectF(8,81,134,18),Qt::AlignCenter,QString("%1 mA · A → K").arg(current*1000,0,'f',1));}
             if(kind==PartKind::Resistor){p->setBrush(QColor("#e7c99b"));p->setPen(Qt::NoPen);p->drawRoundedRect(30,45,90,25,5,5);p->setBrush(QColor("#926a40"));for(int x:{48,61,83,102})p->drawRect(x,45,5,25);p->setPen(QColor("#64748b"));p->setFont(QFont("Segoe UI",8));p->drawText(QRectF(8,81,134,18),Qt::AlignCenter,QString("%1 Ω").arg(part.value));}
-            if(switchable(kind)){p->setBrush(part.pressed?QColor("#0d9488"):QColor("#e2e8f0"));p->drawRoundedRect(50,39,50,34,8,8);p->setPen(QColor("#64748b"));p->setFont(QFont("Segoe UI",8));p->drawText(QRectF(8,81,134,18),Qt::AlignCenter,part.pressed?Language::text("Gedrückt"):Language::text("Doppelklick: drücken"));}
+            if(switchable(kind)){p->setBrush(part.pressed?QColor("#0d9488"):QColor("#e2e8f0"));p->drawRoundedRect(50,39,50,34,8,8);p->setPen(QColor("#64748b"));p->setFont(QFont("Segoe UI",8));p->drawText(QRectF(8,81,134,18),Qt::AlignCenter,part.pressed?Language::text("Gedrückt"):Language::text("Zum Betätigen gedrückt halten"));}
             const auto& spec=componentSpec(kind);if(spec.adjustable&&kind!=PartKind::Resistor&&kind!=PartKind::AnalogSource){p->setPen(QColor("#0d9488"));p->setFont(QFont("Segoe UI",12,QFont::DemiBold));p->drawText(QRectF(20,42,110,40),Qt::AlignCenter,QString::number(part.value,'g',4)+QString::fromStdString(spec.unit));}
             if(kind==PartKind::Diode){p->setPen(QPen(QColor("#334155"),3));p->drawLine(35,64,115,64);p->setBrush(QColor("#334155"));p->drawRect(53,52,37,24);p->setPen(QPen(Qt::white,3));p->drawLine(83,52,83,76);}
             if(kind==PartKind::BatteryAA||kind==PartKind::Battery3V||kind==PartKind::Battery9V||kind==PartKind::PowerSupply){p->setPen(QColor("#0d9488"));p->setFont(QFont("Segoe UI",14,QFont::Bold));p->drawText(QRectF(22,40,106,42),Qt::AlignCenter,QString("%1 V").arg(part.value));}
@@ -163,16 +165,16 @@ void CircuitCanvas::rebuild(){
     scene()->clear();parts_.clear();
     for(const auto& part:document_.parts()){
         auto* item=new PartItem(this,part);
-        item->setFlag(QGraphicsItem::ItemIsMovable,editingEnabled_&&!wireMode_);
+        item->setFlag(QGraphicsItem::ItemIsMovable,editingEnabled_&&!wireMode_);item->setFlag(QGraphicsItem::ItemIsSelectable,editingEnabled_);
         scene()->addItem(item);parts_[part.id]=item;
         item->setSelected(selectedParts.contains(part.id));
     }
     for(const auto& wire:document_.wires()){
-        auto* item=new WireItem(wire,routedWire(wire));scene()->addItem(item);
+        auto* item=new WireItem(wire,routedWire(wire));item->setFlag(QGraphicsItem::ItemIsSelectable,editingEnabled_);scene()->addItem(item);
         item->setSelected(selectedWires.contains(wire.id));
     }
     scene()->setSceneRect(scene()->itemsBoundingRect().adjusted(-500,-350,600,400));
-    viewport()->update();sceneSignals.unblock();emit selectionChanged();
+    setEditingEnabled(editingEnabled_);viewport()->update();sceneSignals.unblock();emit selectionChanged();
 }
 QPainterPath CircuitCanvas::routedWire(const CircuitWire& wire) const {
     QPainterPath path(pinPosition(wire.a));
@@ -181,8 +183,23 @@ QPainterPath CircuitCanvas::routedWire(const CircuitWire& wire) const {
 }
 
 void CircuitCanvas::redrawWires(){for(auto* item:scene()->items())if(item->data(0)=="wire"){const auto id=item->data(1).toString().toStdString();for(const auto& w:document_.wires())if(w.id==id){auto* path=static_cast<QGraphicsPathItem*>(item);auto rendered=w;for(auto* handle:scene()->items())if(handle->data(0)=="bend"&&handle->data(1).toString().toStdString()==w.id){const auto i=handle->data(2).toInt();if(i>=0&&i<static_cast<int>(rendered.points.size()))rendered.points[i]={handle->pos().x(),handle->pos().y()};}const auto next=routedWire(rendered);if(next!=path->path())path->setPath(next);break;}}}
-void CircuitCanvas::setEditingEnabled(bool enabled){editingEnabled_=enabled;cancelWire();for(auto& [id,item]:parts_){(void)id;item->setFlag(QGraphicsItem::ItemIsMovable,enabled&&!wireMode_);}history_.setActive(enabled);refreshBendHandles();}
-void CircuitCanvas::setWireMode(bool enabled){wireMode_=enabled;cancelWire();setDragMode(enabled?NoDrag:RubberBandDrag);for(auto& [id,item]:parts_){(void)id;item->setFlag(QGraphicsItem::ItemIsMovable,editingEnabled_&&!enabled);}}
+void CircuitCanvas::setEditingEnabled(bool enabled){
+    if(enabled&&!heldButton_.empty()){const auto id=std::exchange(heldButton_,{});setButtonPressed(id,false);}
+    editingEnabled_=enabled;cancelWire();
+    if(!enabled)scene()->clearSelection();
+    setDragMode(enabled&&!wireMode_?RubberBandDrag:NoDrag);
+    for(auto* item:scene()->items()){
+        if(item->data(0)=="part"||item->data(0)=="wire")item->setFlag(QGraphicsItem::ItemIsSelectable,enabled);
+        if(auto* pin=dynamic_cast<PinItem*>(item)){
+            pin->setCursor(enabled?Qt::CrossCursor:Qt::ArrowCursor);
+            auto tooltip=pin->toolTip();const auto line=tooltip.lastIndexOf('\n');if(line>=0)tooltip=tooltip.left(line+1);
+            pin->setToolTip(tooltip+Language::text(enabled?"Zum Verbinden klicken":"Simulation zuerst stoppen, um Kabel zu ändern."));
+        }
+    }
+    for(auto& [id,item]:parts_){item->setFlag(QGraphicsItem::ItemIsMovable,enabled&&!wireMode_);item->setCursor(enabled?Qt::OpenHandCursor:switchable(document_.part(id).kind)?Qt::PointingHandCursor:Qt::ArrowCursor);}
+    history_.setActive(enabled);refreshBendHandles();
+}
+void CircuitCanvas::setWireMode(bool enabled){wireMode_=enabled;cancelWire();setDragMode(enabled||!editingEnabled_?NoDrag:RubberBandDrag);for(auto& [id,item]:parts_){(void)id;item->setFlag(QGraphicsItem::ItemIsMovable,editingEnabled_&&!enabled);}}
 QPointF CircuitCanvas::pinPosition(const Endpoint& ep)const{return parts_.at(ep.part)->mapToScene(localPin(document_.part(ep.part),ep.pin));}
 void CircuitCanvas::connectPin(const Endpoint& pin){if(!editingEnabled_){emit notice(Language::text("Simulation zuerst stoppen, um Kabel zu ändern."));return;}if(!wireStart_){wireStart_=pin;preview_=scene()->addPath(wirePath(pinPosition(pin),pinPosition(pin)),QPen(wireColor_,2,Qt::DashLine));preview_->setZValue(4);emit notice(Language::text("Zielpin anklicken. Esc bricht das Kabel ab."));return;}const auto a=*wireStart_;const auto bends=pendingBends_;cancelWire();if(a==pin)return;const auto color=wireColor_.name().toStdString();QTimer::singleShot(0,this,[this,a,pin,color,bends]{mutate(Language::text("Kabel verbinden"),[&](auto& doc){doc.connect(a,pin,color);const_cast<CircuitWire&>(doc.wires().back()).points=bends;});});}
 void CircuitCanvas::cancelWire(){wireStart_.reset();pendingBends_.clear();if(preview_){scene()->removeItem(preview_);delete preview_;preview_=nullptr;}}
@@ -197,16 +214,40 @@ void CircuitCanvas::rotateSelected(){
     });
 }
 void CircuitCanvas::recordMove(const CircuitDocument& before){history_.push(new Snapshot(this,before,document_,Language::text("Bauteil verschieben")));}
-void CircuitCanvas::toggleButton(const std::string& id){if(editingEnabled_){mutate(Language::text("Kontakt umschalten"),[&](auto& doc){doc.part(id).pressed=!doc.part(id).pressed;});return;}auto& p=document_.part(id);p.pressed=!p.pressed;parts_.at(id)->update();emit inputValueChanged();emit runtimeInputChanged();}
+void CircuitCanvas::setButtonPressed(const std::string& id,bool pressed){
+    if(document_.part(id).pressed==pressed)return;
+    if(editingEnabled_){mutate(Language::text("Kontakt umschalten"),[&](auto& doc){doc.part(id).pressed=pressed;});return;}
+    document_.part(id).pressed=pressed;if(parts_.contains(id))parts_.at(id)->update();if(document_.part(id).kind!=PartKind::Button&&document_.part(id).kind!=PartKind::InfraredRemote)emit inputValueChanged();emit runtimeInputChanged();
+}
+void CircuitCanvas::toggleButton(const std::string& id){setButtonPressed(id,!document_.part(id).pressed);}
+void CircuitCanvas::focusOutEvent(QFocusEvent* event){
+    if(!heldButton_.empty()){const auto id=std::exchange(heldButton_,{});setButtonPressed(id,false);}
+    QGraphicsView::focusOutEvent(event);
+}
 void CircuitCanvas::fitCircuit(){fitInView(scene()->itemsBoundingRect().adjusted(-50,-50,50,50),Qt::KeepAspectRatio);if(transform().m11()>1.4){resetTransform();scale(1.4,1.4);}}
 void CircuitCanvas::zoom(double factor){const auto target=transform().m11()*factor;if(target>=0.25&&target<=3.5)scale(factor,factor);}
 void CircuitCanvas::updateSimulation(const CircuitState& state,const std::map<std::string,OledDisplay>& displays){for(auto& [id,item]:parts_){item->state=state;if(displays.contains(id)){item->visible=displays.at(id).frame();item->brightness=displays.at(id).brightness();}}viewport()->update();}
 QString CircuitCanvas::selectedPart()const{for(auto* item:scene()->selectedItems())if(item->data(0)=="part")return item->data(1).toString();return {};}
 void CircuitCanvas::selectPart(const std::string& id){scene()->clearSelection();if(parts_.contains(id))parts_.at(id)->setSelected(true);}
 void CircuitCanvas::mouseMoveEvent(QMouseEvent* e){if(panning_){const auto delta=e->pos()-panOrigin_;panOrigin_=e->pos();horizontalScrollBar()->setValue(horizontalScrollBar()->value()-delta.x());verticalScrollBar()->setValue(verticalScrollBar()->value()-delta.y());e->accept();return;}QGraphicsView::mouseMoveEvent(e);if(preview_&&wireStart_)preview_->setPath(previewPath(mapToScene(e->pos())));}
-void CircuitCanvas::mousePressEvent(QMouseEvent* e){if(e->button()==Qt::RightButton){auto* item=itemAt(e->pos());QMenu menu(this);if(auto* pin=dynamic_cast<PinItem*>(item)){auto ep=pin->endpoint();menu.addAction(Language::text("Netz hervorheben"),this,[this,ep]{highlightNet(ep);});if(editingEnabled_)menu.addAction(Language::text("Netzlabel setzen…"),this,[this,ep]{bool ok=false;auto name=QInputDialog::getText(this,Language::text("Netzlabel"),Language::text("Netzname (gleicher Name verbindet Pins)"),QLineEdit::Normal,{},&ok);if(ok&&!name.isEmpty()){auto point=pinPosition(ep)+QPointF(30,-30);mutate(Language::text("Netzlabel setzen"),[&](auto& doc){auto id=doc.addPart(PartKind::NetLabel,point.x(),point.y());doc.part(id).netName=name.toStdString();doc.connect(ep,{id,"NET"});});}});}else if(item&&item->data(0)=="wire"&&editingEnabled_){auto id=item->data(1).toString().toStdString();auto pos=mapToScene(e->pos());menu.addAction(Language::text("Abzweigung erstellen"),this,[this,id,pos]{branchWire(id,pos);});}if(!menu.isEmpty()){menu.exec(e->globalPosition().toPoint());e->accept();return;}}
+void CircuitCanvas::mousePressEvent(QMouseEvent* e){
+    if(!editingEnabled_&&e->button()!=Qt::MiddleButton){
+        auto* hit=itemAt(e->pos());
+        if(e->button()==Qt::LeftButton&&!dynamic_cast<PinItem*>(hit)&&!(hit&&hit->data(0)=="wire")){
+            while(hit&&hit->parentItem())hit=hit->parentItem();
+            if(auto* part=dynamic_cast<PartItem*>(hit);part&&switchable(part->kind)){
+                if(part->kind==PartKind::Button||part->kind==PartKind::InfraredRemote){heldButton_=part->id;setButtonPressed(part->id,true);}
+                else toggleButton(part->id);
+            }
+        }
+        e->accept();return;
+    }
+if(e->button()==Qt::RightButton){auto* item=itemAt(e->pos());QMenu menu(this);if(auto* pin=dynamic_cast<PinItem*>(item)){auto ep=pin->endpoint();menu.addAction(Language::text("Netz hervorheben"),this,[this,ep]{highlightNet(ep);});if(editingEnabled_)menu.addAction(Language::text("Netzlabel setzen…"),this,[this,ep]{bool ok=false;auto name=QInputDialog::getText(this,Language::text("Netzlabel"),Language::text("Netzname (gleicher Name verbindet Pins)"),QLineEdit::Normal,{},&ok);if(ok&&!name.isEmpty()){auto point=pinPosition(ep)+QPointF(30,-30);mutate(Language::text("Netzlabel setzen"),[&](auto& doc){auto id=doc.addPart(PartKind::NetLabel,point.x(),point.y());doc.part(id).netName=name.toStdString();doc.connect(ep,{id,"NET"});});}});}else if(item&&item->data(0)=="wire"&&editingEnabled_){auto id=item->data(1).toString().toStdString();auto pos=mapToScene(e->pos());menu.addAction(Language::text("Abzweigung erstellen"),this,[this,id,pos]{branchWire(id,pos);});}if(!menu.isEmpty()){menu.exec(e->globalPosition().toPoint());e->accept();return;}}
 if(e->button()==Qt::LeftButton){for(auto* candidate:items(e->pos()))if(auto* pin=dynamic_cast<PinItem*>(candidate)){connectPin(pin->endpoint());e->accept();return;}}if(e->button()==Qt::LeftButton&&wireStart_&&!dynamic_cast<PinItem*>(itemAt(e->pos()))){if(pendingBends_.size()<64){auto point=mapToScene(e->pos());point=snapped(point);pendingBends_.push_back({point.x(),point.y()});if(preview_)preview_->setPath(previewPath(point));}e->accept();return;}if(e->button()==Qt::MiddleButton){panning_=true;panOrigin_=e->pos();viewport()->setCursor(Qt::ClosedHandCursor);e->accept();return;}QGraphicsView::mousePressEvent(e);}
-void CircuitCanvas::mouseReleaseEvent(QMouseEvent* e){if(e->button()==Qt::MiddleButton&&panning_){panning_=false;viewport()->unsetCursor();e->accept();return;}QGraphicsView::mouseReleaseEvent(e);}
+void CircuitCanvas::mouseReleaseEvent(QMouseEvent* e){
+    if(e->button()==Qt::LeftButton&&!heldButton_.empty()){const auto id=std::exchange(heldButton_,{});setButtonPressed(id,false);e->accept();return;}
+    if(!editingEnabled_&&e->button()!=Qt::MiddleButton){e->accept();return;}
+if(e->button()==Qt::MiddleButton&&panning_){panning_=false;viewport()->unsetCursor();e->accept();return;}QGraphicsView::mouseReleaseEvent(e);}
 void CircuitCanvas::keyPressEvent(QKeyEvent* e){if(e->key()==Qt::Key_Escape){cancelWire();e->accept();}else if(e->key()==Qt::Key_Delete){removeSelected();e->accept();}else QGraphicsView::keyPressEvent(e);}
 void CircuitCanvas::wheelEvent(QWheelEvent* e){if(e->modifiers()&Qt::ControlModifier){zoom(e->angleDelta().y()>0?1.15:1/1.15);e->accept();}else QGraphicsView::wheelEvent(e);}
 QPointF CircuitCanvas::snapped(QPointF pos)const{if(!snap_||(QApplication::keyboardModifiers()&Qt::AltModifier))return pos;return {std::round(pos.x()/gridSize_)*gridSize_,std::round(pos.y()/gridSize_)*gridSize_};}
@@ -216,7 +257,7 @@ QPainterPath CircuitCanvas::previewPath(QPointF end)const{QPainterPath path(pinP
 void CircuitCanvas::refreshBendHandles(){for(auto* item:scene()->items())if(item->data(0)=="bend")delete item;if(!editingEnabled_)return;for(auto* item:scene()->selectedItems())if(item->data(0)=="wire"){const auto id=item->data(1).toString().toStdString();for(const auto& wire:document_.wires())if(wire.id==id)for(std::size_t i=0;i<wire.points.size();++i)scene()->addItem(new BendHandle(this,id,i,{wire.points[i].x,wire.points[i].y}));}}
 void CircuitCanvas::moveBend(const std::string& id,std::size_t index,QPointF point){mutate(Language::text("Kabelknick verschieben"),[&](auto& doc){for(auto& wire:const_cast<std::vector<CircuitWire>&>(doc.wires()))if(wire.id==id){auto target=snapped(point);wire.points.at(index)={target.x(),target.y()};}});}
 void CircuitCanvas::addBend(const std::string& id,QPointF point){mutate(Language::text("Kabelknick hinzufügen"),[&](auto& doc){for(auto& wire:const_cast<std::vector<CircuitWire>&>(doc.wires()))if(wire.id==id){if(wire.points.size()>=64)throw std::runtime_error(Language::text("Maximal 64 Kabelknicke").toStdString());auto position=wire.points.end();double distance=1e100;QPointF previous=pinPosition(wire.a);for(std::size_t i=0;i<=wire.points.size();++i){const QPointF next=i<wire.points.size()?QPointF(wire.points[i].x,wire.points[i].y):pinPosition(wire.b);const double candidate=QLineF(previous,point).length()+QLineF(point,next).length()-QLineF(previous,next).length();if(candidate<distance){distance=candidate;position=wire.points.begin()+i;}previous=next;}auto target=snapped(point);wire.points.insert(position,{target.x(),target.y()});}});}
-void CircuitCanvas::mouseDoubleClickEvent(QMouseEvent* event){auto* item=itemAt(event->pos());if(item&&item->data(0)=="wire"){addBend(item->data(1).toString().toStdString(),mapToScene(event->pos()));event->accept();return;}QGraphicsView::mouseDoubleClickEvent(event);}
+void CircuitCanvas::mouseDoubleClickEvent(QMouseEvent* event){if(!editingEnabled_){mousePressEvent(event);return;}auto* item=itemAt(event->pos());if(item&&item->data(0)=="wire"){addBend(item->data(1).toString().toStdString(),mapToScene(event->pos()));event->accept();return;}QGraphicsView::mouseDoubleClickEvent(event);}
 
 void CircuitCanvas::changeValue(const std::string& id,double value){if(editingEnabled_){mutate(Language::text("Bauteilwert ändern"),[&](auto& doc){doc.part(id).value=value;});return;}auto next=document_;next.part(id).value=value;try{next.validate();document_=std::move(next);emit inputValueChanged();emit runtimeInputChanged();viewport()->update();}catch(const std::exception& error){emit notice(QString::fromUtf8(error.what()));}}
 

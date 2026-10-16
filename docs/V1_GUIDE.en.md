@@ -134,10 +134,10 @@ CC1101/sub-GHz transceivers and 125 kHz RFID are not implemented.
 
 Use IRremote.hpp's modern IrSender/IrReceiver NEC API, Adafruit_PN532's I²C API,
 RF24, or RCSwitch protocol 1. The TV remote sends on a rising button press;
-double-click or use its inspector checkbox, then release before pressing again.
+press and hold the mouse button while simulation runs, then release before pressing again.
 Command defaults to 0x45 and address to 0. IR sender LED needs a series resistor.
 The NFC card has a synthetic 4/7-byte UID and read-only Type-2 NDEF text, not
-payment credentials or EMV. Double-click removes/presents it; select it to edit
+payment credentials or EMV. A single click during simulation removes/presents it; stop simulation and select it to edit
 UID and NDEF, then Apply. Only one nearby card in the same test group is selected.
 
 ESP32 wiring: IR TX2/RX4; PN532 SDA21/SCL22/IRQ27/RST26; nRF24 SCK18/MISO19/

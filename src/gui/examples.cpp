@@ -7,9 +7,9 @@
 #include <algorithm>
 using namespace thinkercad;
 QList<CircuitExample> ExampleCatalog::entries(){return {
-    {"ir_remote",Language::text("IR: TV-Fernbedienung testen"),Language::text("ESP32, 38-kHz-Empfänger und NEC-Testfernbedienung. Taste per Doppelklick oder Eigenschaften drücken.")},
+    {"ir_remote",Language::text("IR: TV-Fernbedienung testen"),Language::text("ESP32, 38-kHz-Empfänger und NEC-Testfernbedienung. Taste während der Simulation gedrückt halten.")},
     {"ir_loopback",Language::text("IR: Senden und Empfangen"),Language::text("GPIO2 mit 220 Ω und IR-LED; 38-kHz-Empfänger an GPIO4. NEC-Kommandos im seriellen Monitor.")},
-    {"nfc_reader",Language::text("NFC: PN532 und Testkarte"),Language::text("ESP32 mit PN532 über I²C. Synthetische UID und NDEF lesen; Karte per Doppelklick entfernen.")},
+    {"nfc_reader",Language::text("NFC: PN532 und Testkarte"),Language::text("ESP32 mit PN532 über I²C. Synthetische UID und NDEF lesen; Karte während der Simulation mit einem Klick entfernen oder auflegen.")},
     {"nrf24_pair",Language::text("Funk: nRF24L01 Sender und Empfänger"),Language::text("Zwei ESP32 mit nRF24L01, eigenen Sketches und ACK-Paketen auf Kanal 76. SPI18/19/23, CSN5, CE16.")},
     {"ask_pair",Language::text("Funk: 433-MHz-ASK-Paar"),Language::text("ESP32: Sender GPIO25, Empfänger GPIO26; rc-switch Protokoll 1 mit 16-Bit-Testnachrichten.")},
     {"lcd_parallel",Language::text("LCD 16×2: LiquidCrystal, 4 Bit"),Language::text("Uno: RS=D12, E=D11, D4…D7=D5,D4,D3,D2. VCC=5V, GND/RW/VO=GND.")},
@@ -25,7 +25,7 @@ QList<CircuitExample> ExampleCatalog::entries(){return {
     {"tmp36_temperature",Language::text("Temperatur messen (TMP36)"),Language::text("TMP36 an Arduino 5V/GND/A0. Temperatur im Eigenschaftenfeld ändern; über 20 °C leuchtet die LED.")},
     {"animation",Language::text("OLED-Animation"),Language::text("ESP8266 und SSD1306: zwei Bitmap-Frames aus PROGMEM mit realistischer I²C-Transferzeit.")},
     {"led_blink",Language::text("LED blinken lassen"),Language::text("Externe LED an D5 mit 220-Ω-Vorwiderstand. Mit dem Temporegler die Blinkgeschwindigkeit vergleichen.")},
-    {"button_led",Language::text("Taster schaltet LED"),Language::text("Taster an D6 gegen GND, interner Pullup, LED an D5. Taster per Doppelklick oder Auswahl-Checkbox drücken.")},
+    {"button_led",Language::text("Taster schaltet LED"),Language::text("Taster an D6 gegen GND, interner Pullup, LED an D5. Taster während der Simulation gedrückt halten oder Auswahl-Checkbox verwenden.")},
     {"traffic_light",Language::text("Ampelschaltung"),Language::text("Drei LEDs an D5/D6/D7 mit eigenen Vorwiderständen: Rot, Rot/Gelb, Grün, Gelb.")},
     {"led_chaser",Language::text("Lauflicht"),Language::text("Vier LEDs an D1/D2/D5/D6 mit jeweils 220 Ω werden der Reihe nach eingeschaltet.")},
     {"analog_threshold",Language::text("Analoger Schwellwert"),Language::text("0–1-V-Quelle an A0. Ab ADC-Wert 512 leuchtet die LED. Simulation stoppen, Quelle auswählen und Spannung verändern.")},

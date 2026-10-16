@@ -19,7 +19,7 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 | LCD 16×2 / 20×4 | LiquidCrystal 4 Bit oder LiquidCrystal_I2C; 5-V-Versorgung und Verdrahtungsprüfung, Text/Custom-Glyphs; API-Adapter, keine HD44780-/PCF8574-Registeremulation |
 | AND/NAND/OR/NOR/XOR/XNOR/NOT | Versorgte generische Gatter, 1,8–5,5 V; keine Laufzeit-/Fan-out-/Gehäusemodelle |
 | Servo | Servo.h und gemessene 50-Hz-Pulse; 4,5–6-V-Versorgung, Winkelanzeige; keine mechanische Last-/Getriebesimulation |
-| IR-LED / 38-kHz-Empfänger / TV-Fernbedienung | Elektrische 1,2-V-IR-Diode mit Vorwiderstand; Arduino-IRremote-NEC-Adapter mit Adresse, Kommando, Repeat-Flag, decode/resume. Testfernbedienung per Doppelklick. Keine optische Ausbreitung oder Träger-/Pulsformsimulation |
+| IR-LED / 38-kHz-Empfänger / TV-Fernbedienung | Elektrische 1,2-V-IR-Diode mit Vorwiderstand; Arduino-IRremote-NEC-Adapter mit Adresse, Kommando, Repeat-Flag, decode/resume. Testfernbedienung während der Simulation mit der Maustaste gedrückt halten. Keine optische Ausbreitung oder Träger-/Pulsformsimulation |
 | PN532 / NFC-Testkarte | Verdrahteter I²C-Adapter, ISO14443A-Test-UID (4/7 Bytes), synthetischer Type-2-Tag mit lesbarem NDEF-Text. Kartenpräsenz, Testgruppe und Abstand. Keine EMV-/Zahlungsdaten, MIFARE-Authentifizierung oder NFC-Rohprotokolle |
 | nRF24L01+ | SPI-/CE-/CSN-Verdrahtung, 1,9–3,6 V, RF24-API, Kanal 0–125, 250/1000/2000 kbit/s, 5-Byte-Adressen, RX-Pipes, CRC-Konfiguration, ACK und 3-Paket-FIFO. Paketmodell, keine HF-/Störungs-/Registeremulation |
 | 433-MHz-ASK-Sender / -Empfänger | rc-switch-Protokoll 1, 1–32 Bit, Frequenzabgleich, DATA-Pins und Versorgung. Nachrichtenmodell, keine rohe Pulsfolge; eigene Komponente je Richtung |
@@ -46,7 +46,7 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 | Mini-Lautsprecher | Resistive 8-Ω-Last; hörbare, bandbegrenzte Rechtecksignale von `tone()`; Amplitude folgt dem Spannungsabfall. Kein Dateiplayer oder vollständiges Membranmodell |
 | TMP36 | Einstellbar −40…125 °C, Ausgang 0,5 V + 0,01 V/°C, Versorgung 2,7…5,5 V. Ohne ausreichende Versorgung bleibt OUT unbeschaltet; verpolte Versorgung erzeugt einen Fehler. Idealer Ausgang, keine Einschwingzeit |
 | AA-Batterie | Ideale 1,5-V-Quelle mit gemeinsamer Board-Masse |
-| SPST-Ein-/Ausschalter | Rastender idealer Schließer; Doppelklick oder Zustands-Checkbox öffnet/schließt den Kontakt |
+| SPST-Ein-/Ausschalter | Rastender idealer Schließer; Ein Klick während der Simulation oder die Zustands-Checkbox öffnet/schließt den Kontakt |
 | Breadboard | 300 Kontakte; a–e und f–j jeweils pro Spalte verbunden; keine Stromschienen |
 
 Release 0.5.4 enthält 25 Typen; Version 1.0.0 enthält
