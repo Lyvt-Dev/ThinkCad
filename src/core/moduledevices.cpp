@@ -115,3 +115,7 @@ void ModuleDevices::radio(State& s,const CircuitPart& part){
 std::array<std::uint8_t,256> ModuleDevices::registers(const CircuitPart& part,Microseconds now){return prepare(part,now).reg;}
 std::uint8_t ModuleDevices::crc8(const std::vector<std::uint8_t>& bytes){std::uint8_t crc=0;for(auto value:bytes){crc^=value;for(int bit=0;bit<8;++bit)crc=(crc>>1)^((crc&1)?0x8c:0);}return crc;}
 }
+
+std::optional<std::array<std::uint8_t,256>> thinkercad::ModuleDevices::peekRegisters(const std::string& id)const{
+    const auto found=states_.find(id);if(found==states_.end()||!found->second.initialized)return std::nullopt;return found->second.reg;
+}

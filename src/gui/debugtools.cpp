@@ -17,7 +17,7 @@ DebugTools::DebugTools(QWidget* parent):QWidget(parent){
     button(text("Nächste Zeile","Next line"),"debugNext",[this]{if(auto* s=selected())s->next();});
     button(text("Hinein","Step into"),"debugStep",[this]{if(auto* s=selected())s->step();});
     button(text("Heraus","Step out"),"debugFinish",[this]{if(auto* s=selected())s->finish();});
-    button(text("Beenden","Stop"),"debugStop",[this]{emit stopRequested();});actions->addStretch();
+    button(text("Stopp","Stop"),"debugStop",[this]{emit stopRequested();});actions->addStretch();
     boards_=new QComboBox;boards_->setObjectName("debugBoardSelector");layout->addWidget(boards_);status_=new QLabel(text("Lokales GDB · Haltepunkte am Zeilenrand setzen.","Local GDB · Click the line gutter to set breakpoints."));status_->setWordWrap(true);layout->addWidget(status_);
     auto* tabs=new QTabWidget;layout->addWidget(tabs);locals_=new QTreeWidget;locals_->setObjectName("debugVariables");locals_->setHeaderLabels({text("Variable","Variable"),text("Wert","Value")});tabs->addTab(locals_,text("Lokale Variablen","Local variables"));registers_=new QTreeWidget;registers_->setObjectName("debugHostRegisters");registers_->setHeaderLabels({text("PC-CPU-Register","Host CPU register"),text("Wert","Value")});tabs->addTab(registers_,text("PC-CPU (kein MCU)","Host CPU (not MCU)"));
     connect(boards_,qOverload<int>(&QComboBox::currentIndexChanged),this,[this]{locals_->clear();registers_->clear();if(auto* s=selected()){if(s->stopped()){s->inspectVariables();s->inspectRegisters();status_->setText(text("Angehalten","Stopped"));}else status_->setText(text("Läuft / wird vorbereitet","Running / preparing"));}});

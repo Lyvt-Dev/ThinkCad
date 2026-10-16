@@ -17,6 +17,7 @@ public:
     void setCard(const std::string& id,std::vector<std::uint8_t> uid){cards_[id]=std::move(uid);}
     void setAnalog(const std::string& id,const std::array<double,8>& volts,double reference);
     std::array<std::uint8_t,256> registers(const CircuitPart&,Microseconds now);
+    std::optional<std::array<std::uint8_t,256>> peekRegisters(const std::string& id)const;
     static std::uint8_t crc8(const std::vector<std::uint8_t>& bytes);
 private:
     struct State {

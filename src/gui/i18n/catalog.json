@@ -3208,5 +3208,785 @@
     "Зберегти",
     "Guardar",
     "Enregistrer"
+  ],
+  " peers": [
+    " участников",
+    " учасників",
+    " participantes",
+    " participants"
+  ],
+  " · overwritten: ": [
+    " · перезаписано: ",
+    " · перезаписано: ",
+    " · sobrescritas: ",
+    " · remplacées : "
+  ],
+  "Acceleration X": [
+    "Ускорение X",
+    "Прискорення X",
+    "Aceleración X",
+    "Accélération X"
+  ],
+  "Acceleration Y": [
+    "Ускорение Y",
+    "Прискорення Y",
+    "Aceleración Y",
+    "Accélération Y"
+  ],
+  "Acceleration Z": [
+    "Ускорение Z",
+    "Прискорення Z",
+    "Aceleración Z",
+    "Accélération Z"
+  ],
+  "Accept host version": [
+    "Принять версию ведущего",
+    "Прийняти версію хоста",
+    "Aceptar versión del anfitrión",
+    "Accepter la version de l’hôte"
+  ],
+  "All buses": [
+    "Все шины",
+    "Усі шини",
+    "Todos los buses",
+    "Tous les bus"
+  ],
+  "Angular velocity X": [
+    "Угловая скорость X",
+    "Кутова швидкість X",
+    "Velocidad angular X",
+    "Vitesse angulaire X"
+  ],
+  "Angular velocity Y": [
+    "Угловая скорость Y",
+    "Кутова швидкість Y",
+    "Velocidad angular Y",
+    "Vitesse angulaire Y"
+  ],
+  "Angular velocity Z": [
+    "Угловая скорость Z",
+    "Кутова швидкість Z",
+    "Velocidad angular Z",
+    "Vitesse angulaire Z"
+  ],
+  "Apply my conflicting changes": [
+    "Применить мои правки",
+    "Застосувати мої правки",
+    "Aplicar mis cambios en conflicto",
+    "Appliquer mes modifications en conflit"
+  ],
+  "Automatic": [
+    "Автоматически",
+    "Автоматично",
+    "Automático",
+    "Automatique"
+  ],
+  "Automatic: local GDB": [
+    "Автоматически: локальный GDB",
+    "Автоматично: локальний GDB",
+    "Automático: GDB local",
+    "Automatique : GDB local"
+  ],
+  "Batch changes": [
+    "Объединять изменения",
+    "Групувати зміни",
+    "Agrupar cambios",
+    "Regrouper les modifications"
+  ],
+  "Board": [
+    "Плата",
+    "Плата",
+    "Placa",
+    "Carte"
+  ],
+  "Board / port": [
+    "Плата / порт",
+    "Плата / порт",
+    "Placa / puerto",
+    "Carte / port"
+  ],
+  "Bounded history: ": [
+    "Ограниченный журнал: ",
+    "Обмежений журнал: ",
+    "Historial limitado: ",
+    "Historique limité : "
+  ],
+  "Bus": [
+    "Шина",
+    "Шина",
+    "Bus",
+    "Bus"
+  ],
+  "Bus traffic": [
+    "Обмен по шинам",
+    "Обмін шинами",
+    "Tráfico de buses",
+    "Trafic des bus"
+  ],
+  "Capture while open": [
+    "Записывать, пока окно открыто",
+    "Записувати, поки вікно відкрите",
+    "Capturar mientras esté abierto",
+    "Capturer tant que l’outil est ouvert"
+  ],
+  "Change at µs": [
+    "Изменение в мкс",
+    "Зміна в мкс",
+    "Cambio en µs",
+    "Changement à µs"
+  ],
+  "Change module parameter": [
+    "Изменить параметр модуля",
+    "Змінити параметр модуля",
+    "Cambiar parámetro del módulo",
+    "Modifier le paramètre du module"
+  ],
+  "Change sensor values while running. Address and geometry stay locked.": [
+    "Меняйте показания датчиков во время работы. Адрес и геометрия остаются заблокированы.",
+    "Змінюйте показники датчиків під час роботи. Адреса й геометрія залишаються заблокованими.",
+    "Cambia los valores de sensores durante la ejecución. La dirección y la geometría siguen bloqueadas.",
+    "Modifiez les valeurs des capteurs pendant l’exécution. L’adresse et la géométrie restent verrouillées."
+  ],
+  "Choose component package": [
+    "Выбрать пакет компонентов",
+    "Вибрати пакет компонентів",
+    "Elegir paquete de componentes",
+    "Choisir un paquet de composants"
+  ],
+  "Choose local GDB": [
+    "Выбрать локальный GDB",
+    "Вибрати локальний GDB",
+    "Elegir GDB local",
+    "Choisir un GDB local"
+  ],
+  "Choose local component folder": [
+    "Выбрать локальную папку компонентов",
+    "Вибрати локальну теку компонентів",
+    "Elegir carpeta local de componentes",
+    "Choisir le dossier local de composants"
+  ],
+  "Code font size": [
+    "Размер шрифта кода",
+    "Розмір шрифту коду",
+    "Tamaño de letra del código",
+    "Taille de police du code"
+  ],
+  "Collaboration": [
+    "Совместная работа",
+    "Спільна робота",
+    "Colaboración",
+    "Collaboration"
+  ],
+  "Collision": [
+    "Коллизия",
+    "Колізія",
+    "Colisión",
+    "Collision"
+  ],
+  "Compare drafts": [
+    "Сравнить черновики",
+    "Порівняти чернетки",
+    "Comparar borradores",
+    "Comparer les brouillons"
+  ],
+  "Component": [
+    "Компонент",
+    "Компонент",
+    "Componente",
+    "Composant"
+  ],
+  "Components & Plugins": [
+    "Компоненты и плагины",
+    "Компоненти та плагіни",
+    "Componentes y complementos",
+    "Composants et extensions"
+  ],
+  "Conflict: your local draft is preserved. Choose a resolution.\n": [
+    "Конфликт: локальный черновик сохранён. Выберите способ разрешения.\n",
+    "Конфлікт: локальну чернетку збережено. Виберіть спосіб розв’язання.\n",
+    "Conflicto: se conserva tu borrador local. Elige una resolución.\n",
+    "Conflit : votre brouillon local est conservé. Choisissez une résolution.\n"
+  ],
+  "Connected · synchronizing local changes": [
+    "Подключено · синхронизация локальных изменений",
+    "Підключено · синхронізація локальних змін",
+    "Conectado · sincronizando cambios locales",
+    "Connecté · synchronisation des modifications locales"
+  ],
+  "Connected: ": [
+    "Соединены: ",
+    "З’єднано: ",
+    "Conectados: ",
+    "Connectés : "
+  ],
+  "Contention": [
+    "Конфликт выходов",
+    "Конфлікт виходів",
+    "Conflicto de salidas",
+    "Conflit de sorties"
+  ],
+  "Continue": [
+    "Продолжить",
+    "Продовжити",
+    "Continuar",
+    "Continuer"
+  ],
+  "Could not save component package.": [
+    "Не удалось сохранить пакет компонентов.",
+    "Не вдалося зберегти пакет компонентів.",
+    "No se pudo guardar el paquete de componentes.",
+    "Impossible d’enregistrer le paquet de composants."
+  ],
+  "Current host version": [
+    "Текущая версия ведущего",
+    "Поточна версія хоста",
+    "Versión actual del anfitrión",
+    "Version actuelle de l’hôte"
+  ],
+  "Data packages from local files or Git working copies. Components stay on this computer; no plugin code is executed.": [
+    "Пакеты данных из локальных файлов или рабочих копий Git. Компоненты остаются на этом компьютере; код плагинов не выполняется.",
+    "Пакети даних із локальних файлів або робочих копій Git. Компоненти залишаються на цьому комп’ютері; код плагінів не виконується.",
+    "Paquetes de datos desde archivos locales o copias de trabajo de Git. Los componentes permanecen en este equipo; no se ejecuta código de complementos.",
+    "Paquets de données issus de fichiers locaux ou de copies de travail Git. Les composants restent sur cet ordinateur ; aucun code d’extension n’est exécuté."
+  ],
+  "Data packages stay local. Used models remain embedded in the project. New folders are loaded on the next start.": [
+    "Пакеты данных остаются локальными. Используемые модели встроены в проект. Новые папки загружаются при следующем запуске.",
+    "Пакети даних залишаються локальними. Використані моделі вбудовано в проєкт. Нові теки завантажуються під час наступного запуску.",
+    "Los paquetes de datos siguen siendo locales. Los modelos usados se incluyen en el proyecto. Las carpetas nuevas se cargan en el próximo inicio.",
+    "Les paquets de données restent locaux. Les modèles utilisés restent intégrés au projet. Les nouveaux dossiers sont chargés au prochain démarrage."
+  ],
+  "Debug": [
+    "Отладка",
+    "Налагодження",
+    "Depurar",
+    "Déboguer"
+  ],
+  "Debugger stopped": [
+    "Отладчик остановлен",
+    "Налагоджувач зупинено",
+    "Depurador detenido",
+    "Débogueur arrêté"
+  ],
+  "Debugging requires a board.": [
+    "Для отладки нужна плата.",
+    "Для налагодження потрібна плата.",
+    "La depuración requiere una placa.",
+    "Le débogage nécessite une carte."
+  ],
+  "Default for new projects": [
+    "По умолчанию для новых проектов",
+    "Типово для нових проєктів",
+    "Predeterminado para proyectos nuevos",
+    "Valeur par défaut des nouveaux projets"
+  ],
+  "Device registers": [
+    "Регистры устройств",
+    "Регістри пристроїв",
+    "Registros de dispositivos",
+    "Registres des périphériques"
+  ],
+  "Distance": [
+    "Расстояние",
+    "Відстань",
+    "Distancia",
+    "Distance"
+  ],
+  "Each shortcut must be unique.": [
+    "Каждое сочетание клавиш должно быть уникальным.",
+    "Кожна комбінація клавіш має бути унікальною.",
+    "Cada atajo de teclado debe ser único.",
+    "Chaque raccourci clavier doit être unique."
+  ],
+  "Editor / Code": [
+    "Редактор / код",
+    "Редактор / код",
+    "Editor / código",
+    "Éditeur / code"
+  ],
+  "Emulation": [
+    "Эмуляция",
+    "Емуляція",
+    "Emulación",
+    "Émulation"
+  ],
+  "Environment / sensors": [
+    "Среда / датчики",
+    "Середовище / датчики",
+    "Entorno / sensores",
+    "Environnement / capteurs"
+  ],
+  "Execution mode for this project. Stop execution to change it.": [
+    "Режим выполнения проекта. Для смены режима остановите выполнение.",
+    "Режим виконання проєкту. Для зміни режиму зупиніть виконання.",
+    "Modo de ejecución del proyecto. Detén la ejecución para cambiarlo.",
+    "Mode d’exécution du projet. Arrêtez l’exécution pour le modifier."
+  ],
+  "Existing projects keep their mode. Emulation models peripherals and bus timing; sketches run on the local CPU.": [
+    "Существующие проекты сохраняют свой режим. Эмуляция моделирует периферию и временные параметры шин; скетчи выполняются на локальном процессоре.",
+    "Наявні проєкти зберігають свій режим. Емуляція моделює периферію й часові параметри шин; скетчі виконуються на локальному процесорі.",
+    "Los proyectos existentes conservan su modo. La emulación modela periféricos y tiempos de buses; los sketches se ejecutan en la CPU local.",
+    "Les projets existants conservent leur mode. L’émulation modélise les périphériques et les temps des bus ; les sketches s’exécutent sur le processeur local."
+  ],
+  "Format": [
+    "Формат",
+    "Формат",
+    "Formato",
+    "Format"
+  ],
+  "Framing": [
+    "Ошибки кадра",
+    "Помилки кадру",
+    "Errores de trama",
+    "Erreurs de trame"
+  ],
+  "General": [
+    "Общие",
+    "Загальні",
+    "General",
+    "Général"
+  ],
+  "Host": [
+    "Создать сеанс",
+    "Створити сеанс",
+    "Alojar",
+    "Héberger"
+  ],
+  "Host CPU (not MCU)": [
+    "Процессор ПК (не МК)",
+    "Процесор ПК (не МК)",
+    "CPU del PC (no MCU)",
+    "Processeur du PC (pas du MCU)"
+  ],
+  "Host CPU register": [
+    "Регистр процессора ПК",
+    "Регістр процесора ПК",
+    "Registro de CPU del PC",
+    "Registre du processeur du PC"
+  ],
+  "Host address": [
+    "Адрес ведущего компьютера",
+    "Адреса головного комп’ютера",
+    "Dirección del anfitrión",
+    "Adresse de l’hôte"
+  ],
+  "Hosting · ": [
+    "Ведущий компьютер · ",
+    "Головний комп’ютер · ",
+    "Alojando · ",
+    "Hébergement · "
+  ],
+  "Humidity": [
+    "Влажность",
+    "Вологість",
+    "Humedad",
+    "Humidité"
+  ],
+  "Import package…": [
+    "Импортировать пакет…",
+    "Імпортувати пакет…",
+    "Importar paquete…",
+    "Importer un paquet…"
+  ],
+  "Input": [
+    "Вход",
+    "Вхід",
+    "Entrada",
+    "Entrée"
+  ],
+  "Interrupt": [
+    "Приостановить",
+    "Призупинити",
+    "Interrumpir",
+    "Interrompre"
+  ],
+  "I²C address": [
+    "Адрес I²C",
+    "Адреса I²C",
+    "Dirección I²C",
+    "Adresse I²C"
+  ],
+  "Join": [
+    "Подключиться",
+    "Приєднатися",
+    "Unirse",
+    "Rejoindre"
+  ],
+  "Join port": [
+    "Порт для подключения",
+    "Порт для підключення",
+    "Puerto de conexión",
+    "Port de connexion"
+  ],
+  "LAN changes will be applied after stopping the simulation.": [
+    "Изменения из локальной сети будут применены после остановки симуляции.",
+    "Зміни з локальної мережі буде застосовано після зупинки симуляції.",
+    "Los cambios de la red local se aplicarán al detener la simulación.",
+    "Les modifications du réseau local seront appliquées après l’arrêt de la simulation."
+  ],
+  "LAN: ": [
+    "Локальная сеть: ",
+    "Локальна мережа: ",
+    "Red local: ",
+    "Réseau local : "
+  ],
+  "Limits display refresh; virtual simulation time and electrical calculations stay independent.": [
+    "Ограничивает обновление изображения; виртуальное время симуляции и электрические расчёты остаются независимыми.",
+    "Обмежує оновлення зображення; віртуальний час симуляції та електричні розрахунки залишаються незалежними.",
+    "Limita la actualización visual; el tiempo virtual y los cálculos eléctricos siguen siendo independientes.",
+    "Limite le rafraîchissement visuel ; le temps virtuel et les calculs électriques restent indépendants."
+  ],
+  "Local GDB is unavailable. Choose a debugger under Settings / Editor.": [
+    "Локальный GDB недоступен. Выберите отладчик в Настройки / Редактор.",
+    "Локальний GDB недоступний. Виберіть налагоджувач у Налаштування / Редактор.",
+    "GDB local no está disponible. Elige un depurador en Ajustes / Editor.",
+    "GDB local n’est pas disponible. Choisissez un débogueur dans Paramètres / Éditeur."
+  ],
+  "Local GDB · Click the line gutter to set breakpoints.": [
+    "Локальный GDB · Щёлкните поле номеров строк, чтобы задать точки останова.",
+    "Локальний GDB · Клацніть поле номерів рядків, щоб установити точки зупинки.",
+    "GDB local · Haz clic en el margen de líneas para poner puntos de interrupción.",
+    "GDB local · Cliquez dans la marge des lignes pour placer des points d’arrêt."
+  ],
+  "Local collaboration": [
+    "Работа в локальной сети",
+    "Співпраця в локальній мережі",
+    "Colaboración local",
+    "Collaboration locale"
+  ],
+  "Local component folder": [
+    "Локальная папка компонентов",
+    "Локальна тека компонентів",
+    "Carpeta local de componentes",
+    "Dossier local de composants"
+  ],
+  "Local components and plugins": [
+    "Локальные компоненты и плагины",
+    "Локальні компоненти та плагіни",
+    "Componentes y complementos locales",
+    "Composants et extensions locaux"
+  ],
+  "Local components and plugins…": [
+    "Локальные компоненты и плагины…",
+    "Локальні компоненти та плагіни…",
+    "Componentes y complementos locales…",
+    "Composants et extensions locaux…"
+  ],
+  "Local conflict draft: ": [
+    "Локальный черновик конфликта: ",
+    "Локальна чернетка конфлікту: ",
+    "Borrador local del conflicto: ",
+    "Brouillon local du conflit : "
+  ],
+  "Local draft": [
+    "Локальный черновик",
+    "Локальна чернетка",
+    "Borrador local",
+    "Brouillon local"
+  ],
+  "Local draft / host version": [
+    "Локальный черновик / версия ведущего",
+    "Локальна чернетка / версія хоста",
+    "Borrador local / versión del anfitrión",
+    "Brouillon local / version de l’hôte"
+  ],
+  "Local repository…": [
+    "Локальный репозиторий…",
+    "Локальний репозиторій…",
+    "Repositorio local…",
+    "Dépôt local…"
+  ],
+  "Local variables": [
+    "Локальные переменные",
+    "Локальні змінні",
+    "Variables locales",
+    "Variables locales"
+  ],
+  "Logic": [
+    "Логика",
+    "Логіка",
+    "Lógica",
+    "Logique"
+  ],
+  "Maximum LAN peers": [
+    "Максимум участников в локальной сети",
+    "Максимум учасників у локальній мережі",
+    "Máximo de participantes LAN",
+    "Nombre maximal de participants LAN"
+  ],
+  "Maximum bus entries": [
+    "Максимум записей шин",
+    "Максимум записів шин",
+    "Máximo de entradas de buses",
+    "Nombre maximal d’entrées de bus"
+  ],
+  "Maximum refresh rate": [
+    "Максимальная частота обновления",
+    "Максимальна частота оновлення",
+    "Frecuencia máxima de actualización",
+    "Fréquence de rafraîchissement maximale"
+  ],
+  "Mode / output": [
+    "Режим / выход",
+    "Режим / вихід",
+    "Modo / salida",
+    "Mode / sortie"
+  ],
+  "Modeled registers; inspecting them does not change device state.": [
+    "Моделируемые регистры; просмотр не изменяет состояние устройства.",
+    "Модельовані регістри; перегляд не змінює стан пристрою.",
+    "Registros modelados; inspeccionarlos no cambia el estado del dispositivo.",
+    "Registres modélisés ; leur inspection ne modifie pas l’état du périphérique."
+  ],
+  "Next line": [
+    "Следующая строка",
+    "Наступний рядок",
+    "Siguiente línea",
+    "Ligne suivante"
+  ],
+  "No active session": [
+    "Нет активного сеанса",
+    "Немає активного сеансу",
+    "No hay sesión activa",
+    "Aucune session active"
+  ],
+  "No automatic connections. Host / Join under View → Local collaboration. Peer limit and port apply to the next session; the batching interval applies immediately.": [
+    "Нет автоматического подключения. Создание сеанса и подключение доступны в Вид → Работа в локальной сети. Лимит участников и порт применяются к следующему сеансу, интервал объединения — сразу.",
+    "Автоматичного підключення немає. Створення сеансу й приєднання доступні у Вигляд → Співпраця в локальній мережі. Ліміт учасників і порт діють для наступного сеансу, інтервал групування — відразу.",
+    "Sin conexiones automáticas. Aloja o únete desde Ver → Colaboración local. El límite de participantes y el puerto se aplican a la próxima sesión; el intervalo de agrupación se aplica de inmediato.",
+    "Aucune connexion automatique. Hébergez ou rejoignez une session via Affichage → Collaboration locale. La limite de participants et le port s’appliquent à la prochaine session ; l’intervalle de regroupement s’applique immédiatement."
+  ],
+  "Open component folder": [
+    "Открыть папку компонентов",
+    "Відкрити теку компонентів",
+    "Abrir carpeta de componentes",
+    "Ouvrir le dossier de composants"
+  ],
+  "Overrun": [
+    "Переполнение",
+    "Переповнення",
+    "Desbordamiento",
+    "Débordement"
+  ],
+  "Performance": [
+    "Производительность",
+    "Продуктивність",
+    "Rendimiento",
+    "Performances"
+  ],
+  "Pin": [
+    "Вывод",
+    "Вивід",
+    "Pin",
+    "Broche"
+  ],
+  "Pins": [
+    "Выводы",
+    "Виводи",
+    "Pines",
+    "Broches"
+  ],
+  "Pins & nets": [
+    "Выводы и сети",
+    "Виводи й мережі",
+    "Pines y redes",
+    "Broches et réseaux"
+  ],
+  "Pixel count": [
+    "Количество пикселей",
+    "Кількість пікселів",
+    "Número de píxeles",
+    "Nombre de pixels"
+  ],
+  "Port for new host sessions": [
+    "Порт для новых сеансов ведущего",
+    "Порт для нових сеансів хоста",
+    "Puerto para nuevas sesiones anfitrionas",
+    "Port des nouvelles sessions hôtes"
+  ],
+  "Pressure": [
+    "Давление",
+    "Тиск",
+    "Presión",
+    "Pression"
+  ],
+  "RX (hex)": [
+    "RX (hex)",
+    "RX (hex)",
+    "RX (hex)",
+    "RX (hex)"
+  ],
+  "Running": [
+    "Выполняется",
+    "Виконується",
+    "En ejecución",
+    "En cours"
+  ],
+  "Running / preparing": [
+    "Выполнение / подготовка",
+    "Виконання / підготовка",
+    "Ejecutando / preparando",
+    "Exécution / préparation"
+  ],
+  "Save CSV…": [
+    "Сохранить CSV…",
+    "Зберегти CSV…",
+    "Guardar CSV…",
+    "Enregistrer un CSV…"
+  ],
+  "Save bus traffic": [
+    "Сохранить обмен по шинам",
+    "Зберегти обмін шинами",
+    "Guardar tráfico de buses",
+    "Enregistrer le trafic des bus"
+  ],
+  "Save example package": [
+    "Сохранить пример пакета",
+    "Зберегти приклад пакета",
+    "Guardar paquete de ejemplo",
+    "Enregistrer le paquet d’exemple"
+  ],
+  "Save example package…": [
+    "Сохранить пример пакета…",
+    "Зберегти приклад пакета…",
+    "Guardar paquete de ejemplo…",
+    "Enregistrer le paquet d’exemple…"
+  ],
+  "Session ticket": [
+    "Ключ сеанса",
+    "Код сеансу",
+    "Clave de sesión",
+    "Code de session"
+  ],
+  "Shortcuts": [
+    "Сочетания клавиш",
+    "Комбінації клавіш",
+    "Atajos de teclado",
+    "Raccourcis clavier"
+  ],
+  "Simulation & Emulation": [
+    "Симуляция и эмуляция",
+    "Симуляція та емуляція",
+    "Simulación y emulación",
+    "Simulation et émulation"
+  ],
+  "Simulation inspector": [
+    "Инспектор симуляции",
+    "Інспектор симуляції",
+    "Inspector de simulación",
+    "Inspecteur de simulation"
+  ],
+  "Source": [
+    "Источник",
+    "Джерело",
+    "Origen",
+    "Source"
+  ],
+  "Source debugger": [
+    "Отладчик исходного кода",
+    "Налагоджувач вихідного коду",
+    "Depurador de código fuente",
+    "Débogueur de code source"
+  ],
+  "Source debugger (optional)": [
+    "Отладчик исходного кода (необязательно)",
+    "Налагоджувач вихідного коду (необов’язково)",
+    "Depurador de código fuente (opcional)",
+    "Débogueur de code source (facultatif)"
+  ],
+  "Status": [
+    "Состояние",
+    "Стан",
+    "Estado",
+    "État"
+  ],
+  "Step into": [
+    "Шаг с заходом",
+    "Крок із входом",
+    "Entrar",
+    "Pas à pas détaillé"
+  ],
+  "Step out": [
+    "Шаг с выходом",
+    "Крок із виходом",
+    "Salir de función",
+    "Sortir de la fonction"
+  ],
+  "Stop": [
+    "Остановить",
+    "Зупинити",
+    "Detener",
+    "Arrêter"
+  ],
+  "Stopped": [
+    "Остановлено",
+    "Зупинено",
+    "Detenido",
+    "Arrêté"
+  ],
+  "TX (hex)": [
+    "TX (hex)",
+    "TX (hex)",
+    "TX (hex)",
+    "TX (hex)"
+  ],
+  "Tab width in spaces": [
+    "Ширина табуляции в пробелах",
+    "Ширина табуляції у пробілах",
+    "Ancho de tabulación en espacios",
+    "Largeur des tabulations en espaces"
+  ],
+  "Target": [
+    "Устройство",
+    "Пристрій",
+    "Destino",
+    "Cible"
+  ],
+  "Temperature": [
+    "Температура",
+    "Температура",
+    "Temperatura",
+    "Température"
+  ],
+  "UART state": [
+    "Состояние UART",
+    "Стан UART",
+    "Estado de UART",
+    "État UART"
+  ],
+  "Undefined / floating": [
+    "Неопределённый / свободный",
+    "Невизначений / вільний",
+    "Indefinido / flotante",
+    "Indéfini / flottant"
+  ],
+  "Value": [
+    "Значение",
+    "Значення",
+    "Valor",
+    "Valeur"
+  ],
+  "Variable": [
+    "Переменная",
+    "Змінна",
+    "Variable",
+    "Variable"
+  ],
+  "Voltage": [
+    "Напряжение",
+    "Напруга",
+    "Tensión",
+    "Tension"
+  ],
+  "Work together on your local network. Sessions start explicitly; no account. LAN transport is unencrypted. Each participant installs libraries locally.": [
+    "Работайте вместе в локальной сети. Сеансы запускаются вручную, учётная запись не нужна. Передача по локальной сети не зашифрована. Каждый участник устанавливает библиотеки локально.",
+    "Працюйте разом у локальній мережі. Сеанси запускаються вручну, обліковий запис не потрібен. Передавання локальною мережею не зашифроване. Кожен учасник установлює бібліотеки локально.",
+    "Trabaja en tu red local. Las sesiones se inician de forma explícita, sin cuenta. La conexión LAN no está cifrada. Cada participante instala las bibliotecas localmente.",
+    "Travaillez ensemble sur votre réseau local. Les sessions démarrent explicitement, sans compte. Le transport LAN n’est pas chiffré. Chaque participant installe les bibliothèques localement."
+  ],
+  "Wrap long code lines": [
+    "Переносить длинные строки кода",
+    "Переносити довгі рядки коду",
+    "Ajustar líneas largas de código",
+    "Renvoyer les longues lignes de code"
   ]
 }

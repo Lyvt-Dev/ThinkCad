@@ -16,6 +16,7 @@
 #include "thinkercad/uartbus.hpp"
 #include "thinkercad/interrupts.hpp"
 #include "localcollaboration.hpp"
+#include "thinkercad/bustraffic.hpp"
 #include <QMainWindow>
 class QPlainTextEdit;
 class QLineEdit;
@@ -33,6 +34,7 @@ class QDockWidget;
 class ModuleControls;
 class DebugTools;
 class CollaborationTools;
+class SimulationInspector;
 class QMenu;
 class MainWindow final : public QMainWindow {
     Q_OBJECT
@@ -47,6 +49,7 @@ public:
     bool hostCollaboration(const QHostAddress& address=QHostAddress::AnyIPv4,quint16 port=0);
     void joinCollaboration(const QString& address,quint16 port,const QString& ticket);
     LocalCollaboration* collaboration(){return &collaboration_;}
+    thinkercad::BusTraffic& busTraffic(){return busTraffic_;}
     void resetSimulation();
     void showStartPage();
     bool startPageVisible() const;
@@ -66,6 +69,9 @@ public:
     bool setExecutionMode(thinkercad::ExecutionMode mode);
     QString sketchText()const;
 private:
+    thinkercad::BusTraffic busTraffic_;
+    SimulationInspector* simulationInspector_=nullptr;
+    void setupSimulationInspector(QMenu* view);
     LocalCollaboration collaboration_{this};
     CollaborationTools* collaborationTools_=nullptr;
     QTimer collaborationDebounce_;
@@ -90,7 +96,7 @@ private:
         struct LcdBinding{std::string id;std::vector<int> pins;int address=-1;};
         std::map<int,LcdBinding> lcdBindings;
         int busSda=4,busScl=5,writes=0;
-        bool busStarted=false;
+        bool busStarted=false,busHeld=false;
         std::string id;
     };
     std::map<std::string,std::unique_ptr<BoardRuntime>> runtimes_;
