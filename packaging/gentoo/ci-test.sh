@@ -12,12 +12,14 @@ CONF
 getuto
 mkdir -p /etc/portage/package.use
 printf 'sys-libs/zlib minizip\n' > /etc/portage/package.use/thinkcad-audio
-# Prefer signed Gentoo binaries. Qt SerialPort is not present in every binhost snapshot.
+# Dependencies must come from signed Gentoo binary packages; the app is compiled below.
 emerge --getbinpkgonly --binpkg-respect-use=y --backtrack=100 --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase dev-qt/qtmultimedia virtual/zlib media-fonts/dejavu
-# Allow the small SerialPort module to build from the verified Portage sources.
-emerge --getbinpkg --binpkg-respect-use=y --backtrack=100 --oneshot dev-qt/qtserialport
 version=$(sed -n 's/project(ThinkCad VERSION \([0-9.]*\).*/\1/p' /src/CMakeLists.txt)
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+# QtSerialPort is not always available on the signed binary server. Build this
+# small module from its Manifest-verified source when no matching binpkg exists.
+printf 'dev-qt/qtserialport ~amd64\n' > /etc/portage/package.accept_keywords/thinkcad-serialport
+emerge --getbinpkg --binpkg-respect-use=y --backtrack=100 --oneshot dev-qt/qtserialport
 mkdir -p /var/db/repos/thinkcad
 tar -xJf "/release/ThinkCad-${version}-Gentoo-overlay.tar.xz" -C /var/db/repos/thinkcad --strip-components=1
 cat > /etc/portage/repos.conf/thinkcad.conf <<'CONF'

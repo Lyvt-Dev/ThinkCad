@@ -50,7 +50,7 @@ jobs:
           if test "$(jq -r '.conclusion' linux-run.json)" != success; then
             test "$ALLOW_FAILED_GENTOO" = true
             gh api "repos/$GH_REPO/actions/runs/$LINUX_RUN_ID/jobs" > linux-jobs.json
-            jq -e '([.jobs[] | select(.name == "ubuntu" and .conclusion == "success")] | length) == 1 and ([.jobs[] | select(.name == "fedora" and .conclusion == "success")] | length) == 1' linux-jobs.json
+            jq -e '([.jobs[] | select(.name == "ubuntu" and .conclusion == "success")] | length) == 1 and ([.jobs[] | select(.name == "fedora" and .conclusion == "success")] | length) == 1 and ([.jobs[] | select(.name == "appimage" and .conclusion == "success")] | length) == 1' linux-jobs.json
           fi
           test "$(jq -r '.name' linux-run.json)" = 'Linux and Gentoo'
           test "$(jq -r '.head_sha' linux-run.json)" = "$tag_sha"
@@ -59,6 +59,7 @@ jobs:
           gh run download "$RUN_ID" --repo "$GH_REPO" --name ThinkCad-Windows --dir installer
           gh run download "$LINUX_RUN_ID" --repo "$GH_REPO" --name ThinkCad-Linux-Ubuntu --dir installer
           gh run download "$LINUX_RUN_ID" --repo "$GH_REPO" --name ThinkCad-Linux-Fedora --dir installer
+          gh run download "$LINUX_RUN_ID" --repo "$GH_REPO" --name ThinkCad-AppImage --dir installer
       - name: Record Gentoo validation status
         shell: bash
         run: |
@@ -81,10 +82,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for checksum in ThinkCad-*.deb.sha256 ThinkCad-*.rpm.sha256 ThinkCad-*.tar.gz.sha256 ThinkCad-*.tar.xz.sha256; do sha256sum --check "$checksum"; done
+          for checksum in ThinkCad-*.deb.sha256 ThinkCad-*.rpm.sha256 ThinkCad-*.tar.gz.sha256 ThinkCad-*.tar.xz.sha256 ThinkCad-*.AppImage.sha256; do sha256sum --check "$checksum"; done
           build_sha=$(gh api "repos/$GH_REPO/actions/runs/$LINUX_RUN_ID" --jq .head_sha)
           for file in ThinkCad-*.deb ThinkCad-*.tar.gz ThinkCad-*.tar.xz; do
             gh attestation verify "$file" --bundle ubuntu.sigstore.jsonl --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/linux.yml" --source-ref refs/heads/main --source-digest "$build_sha" --deny-self-hosted-runners
+          done
+          for file in ThinkCad-*.AppImage; do
+            gh attestation verify "$file" --bundle "$file.sigstore.jsonl" --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/linux.yml" --source-ref refs/heads/main --source-digest "$build_sha" --deny-self-hosted-runners
           done
           for file in ThinkCad-*.rpm; do
             gh attestation verify "$file" --bundle fedora.sigstore.jsonl --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/linux.yml" --source-ref refs/heads/main --source-digest "$build_sha" --deny-self-hosted-runners

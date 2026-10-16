@@ -6,6 +6,6 @@ and other Qt placeholders, technical identifiers, and leading/trailing spaces.
 The catalogs are compiled into the desktop library; no network is required.
 `Language::sourceTexts()` supplies the complete base catalog for coverage tests.
 
-The extended Markdown reference guides are German/English. The in-app tutorial
+The extended Markdown reference guides and guided lessons are German/English. The getting-started tutorial
 and normal UI catalog support all six languages. Compiler and external backend
 output retains the language used by that tool.

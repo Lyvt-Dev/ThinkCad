@@ -2,7 +2,7 @@
 
 Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, für **Windows und Linux**. **macOS wird nicht unterstützt.**
 ThinkCad bietet ESP8266-, ESP32-, ESP32-S3-,
-Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, 58 Bauteiltypen,
+Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, 58 elektrische Bauteiltypen und Notizen,
 SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
 ![ThinkCad: native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
@@ -19,6 +19,28 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
   PROGMEM-Frames für Adafruit GFX. Auflösung, Bildrate und Clipdauer sind wählbar.
 
 [Video-Export](docs/VIDEO_FRAMES.md) · [Release Notes 1.2.1](docs/RELEASE_NOTES_1.2.1.md)
+
+## Neu in 1.2.0
+
+- Bauteile per Drag-and-drop aus der Palette platzieren. Auswahl und Platzierung
+  wechseln den Eigenschaften-Tab nicht mehr automatisch.
+- Während der Simulation bleiben Kabel und statische Komponenten unselektierbar.
+  Taster, Schalter und andere Eingaben sind direkt bedienbar; Kabel fangen keine Klicks ab.
+- Einmal gespeicherte Projekte werden jede Minute lokal gesichert. Separate
+  Wiederherstellungspunkte bleiben zusätzlich aktiv.
+- Simulationsgeschwindigkeit als Schieberegler plus direkt eingebbares Zahlenfeld
+  (0,1×–10×), flache Werkzeuge und neue Öffnen-/Speichern-Symbole.
+- Lernpfad im Hauptmenü: acht Übungen mit geprüften Zielen, freigeschalteten
+  Folgeschritten und gespeichertem Fortschritt.
+- Einstellungen mit Tabs für Darstellung, Editor/Speichern und Simulation.
+- Sichtbare Pinbezeichnungen, insbesondere GND/VCC/SCL/SDA bei SSD1306.
+- Rechtsklick auf freie Arbeitsfläche → **Notiz hinzufügen…**; Doppelklick bearbeitet
+  den Text. Notizen unterstützen Verschieben, Undo/Redo und Projektspeicherung.
+- Portable AppImage mit Qt, Sketch-Compiler und geprüftem In-App-Update für Linux,
+  auch Gentoo. [AppImage-Anleitung und Systemvoraussetzungen](docs/APPIMAGE.de.md).
+
+[Release Notes 1.2.0](docs/RELEASE_NOTES_1.2.0.md) ·
+[Screenshots](docs/V12_REVIEW.md)
 
 ## Neu in 1.1.1
 
@@ -92,7 +114,7 @@ Projekte werden mit Board-Sketches im Format 2 gespeichert; Format 1 bleibt lesb
 - `.ino`-Projekte mit weiteren Sketch-Tabs, Headern und C++-Quellen öffnen.
 - Schaltung und Code gemeinsam als portable `.thinkcad`-Datei (ältere `.thinkercad`-Dateien bleiben lesbar) speichern und wieder öffnen.
 - Live-Temporegler von 0,1× bis 10× mit 1×-Rücksetzung; virtuelle Sketch-Zeit bleibt korrekt.
-- Zwölf fertige Beispielschaltungen mit passendem Sketch und vollständiger Verdrahtung.
+- Verdrahtete Beispielschaltungen mit passendem Sketch und vollständiger Verdrahtung.
 - `PROGMEM`-/Flash-Adapter einschließlich `pgmspace.h`, `avr/pgmspace.h`, `pgm_read_*`, `PSTR` und `F`.
 - Eigener zeitbasierter Simulationskern mit deterministischer Ereignisreihenfolge.
 - GPIO-Pinmodi, externe Eingänge, schwebende Pegel und Treiberkonflikte.
@@ -127,7 +149,7 @@ prüft es und baut die Anwendung.
 
 Diese Anleitung setzt einen vorhandenen **Gentoo-Desktop auf amd64** mit
 eingerichtetem Gentoo-Repository, funktionierendem Internetzugang und einer X11-
-oder Wayland-Sitzung voraus. Das Ebuild für 1.0.0 benötigt **Qt ≥6.11**,
+oder Wayland-Sitzung voraus. Das Ebuild für 1.2.0 benötigt **Qt ≥6.11**,
 **GCC ≥12 mit C++-Unterstützung**, CMake, Ninja und zlib. Die folgenden Befehle
 aktivieren Beispielsketches, beide Anzeige-Backends und die Testsuite.
 Für die Anwendung muss derzeit die Lizenz `all-rights-reserved` akzeptiert werden;

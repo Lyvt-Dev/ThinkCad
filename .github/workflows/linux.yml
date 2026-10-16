@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install native dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++ qt6-base-dev qt6-multimedia-dev qt6-serialport-dev qt6-base-dev-tools qt6-qpa-plugins qt6-wayland zlib1g-dev xvfb xauth weston desktop-file-utils appstream dpkg-dev
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++ qt6-base-dev qt6-multimedia-dev gstreamer1.0-plugins-good qt6-serialport-dev qt6-base-dev-tools qt6-qpa-plugins qt6-wayland zlib1g-dev xvfb xauth weston desktop-file-utils appstream dpkg-dev
       - name: Build and test
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON
@@ -118,3 +118,34 @@ jobs:
           path: out/linux
       - name: Compile through Portage with USE flags
         run: docker run --rm -v "$PWD:/src:ro" -v "$PWD/out/linux:/release:ro" gentoo/stage3:latest bash /src/packaging/gentoo/ci-test.sh
+
+  appimage:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build portable AppImage with bundled sketch compiler
+        run: |
+          docker build -t thinkcad-appimage packaging/appimage
+          docker run --rm -v "$PWD:/src" thinkcad-appimage
+      - name: Test portable image on clean Gentoo without system Qt or compiler
+        run: |
+          docker run --rm -v "$PWD/out/appimage:/images:ro" -e QT_QPA_PLATFORM=offscreen -e APPIMAGE_EXTRACT_AND_RUN=1 -e THINKCAD_SMOKE_TIMEOUT_MS=300000 gentoo/stage3:latest bash -c 'exec /images/ThinkCad-*-x86_64.AppImage --smoke-test'
+      - uses: actions/attest-build-provenance@v3
+        if: github.event_name != 'pull_request'
+        id: appimage_provenance
+        with:
+          subject-path: out/appimage/ThinkCad-*.AppImage
+      - name: Keep AppImage verification bundle
+        if: github.event_name != 'pull_request'
+        run: |
+          image=$(find out/appimage -maxdepth 1 -name '*.AppImage' -print -quit)
+          sudo cp '${{ steps.appimage_provenance.outputs.bundle-path }}' "$image.sigstore.jsonl"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ThinkCad-AppImage
+          path: out/appimage/ThinkCad-*

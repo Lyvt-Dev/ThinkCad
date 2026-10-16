@@ -9,5 +9,5 @@
  <launchable type="desktop-id">io.github.LyvtDev.ThinkCad.desktop</launchable>
  <url type="homepage">https://github.com/Lyvt-Dev/ThinkCad</url>
  <provides><binary>thinkcad</binary></provides>
- <releases><release version="1.2.1" date="2026-10-16"/><release version="1.1.1" date="2026-10-16"/><release version="1.1.0" date="2026-10-16"/><release version="1.0.0" date="2026-10-16"/><release version="0.5.4" date="2026-10-15"/><release version="0.5.3" date="2026-10-15"/><release version="0.5.2" date="2026-10-15"/><release version="0.5.0" date="2026-10-15"/><release version="0.4.1" date="2026-10-15"/></releases>
+ <releases><release version="1.2.1" date="2026-10-16"/><release version="1.2.0" date="2026-10-16"/><release version="1.1.1" date="2026-10-16"/><release version="1.1.0" date="2026-10-16"/><release version="1.0.0" date="2026-10-16"/><release version="0.5.4" date="2026-10-15"/><release version="0.5.3" date="2026-10-15"/><release version="0.5.2" date="2026-10-15"/><release version="0.5.0" date="2026-10-15"/><release version="0.4.1" date="2026-10-15"/></releases>
 </component>

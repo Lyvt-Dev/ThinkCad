@@ -1,10 +1,10 @@
 # ThinkCad – new workflows
 
-This manual describes ThinkCad 1.0.0 and its model limitations.
+This manual describes ThinkCad 1.2.0 and its model limitations.
 
 ## Circuit editing
 
-Search and place components, then connect their pins. Ctrl+C/X/V copies, cuts and
+Search for components, drag them from the palette onto the canvas, then connect their pins. Clicking a palette entry does not place it. Select the Properties tab explicitly to edit a selection. Ctrl+C/X/V copies, cuts and
 pastes; Ctrl+D duplicates. Internal wires, bends, properties and board sketches
 travel with copied components. External connections are omitted. Matching net
 labels remain electrically connected after copying. Edit offers alignment and
@@ -160,3 +160,16 @@ For hardware builds install original IRremote, Adafruit PN532 (and Adafruit
 BusIO), RF24 and rc-switch libraries plus the real ESP32 core. Firmware upload
 uses original libraries, not these SDK adapters. Detailed API and wiring tables
 are in the bundled [module reference](WIRELESS_MODULES.de.md).
+
+## Workspace improvements in 1.2
+
+Right-click empty canvas space to add a note; double-click a note to edit it.
+Notes are saved with the project. Once saved to a named file, changed projects
+automatically save to that file every minute (configurable in Preferences).
+The separate recovery snapshots remain available. During simulation, click
+interactive controls directly; wires and static parts cannot be selected.
+Simulation speed keeps its slider and also accepts a typed multiplier from
+0.1× to 10×. Open Tutorials from the start menu for eight guided exercises.
+Settings → Preferences groups appearance, saving and simulation options.
+
+For portable Linux installation and updates, see [AppImage instructions](APPIMAGE.de.md).

@@ -1,5 +1,6 @@
 #pragma once
 #include <QObject>
+#include <QByteArray>
 #include <QNetworkAccessManager>
 class Updater final : public QObject {
     Q_OBJECT
@@ -13,7 +14,8 @@ signals:
     void updateReady(const QString& version);
 private:
     QNetworkAccessManager network_;
-    QString installer_,expectedCommit_;
+    QString installer_,expectedCommit_,appImagePath_;
+    QByteArray verifiedHash_;
     bool busy_=false;
     void fetchChecksum(const QString& url,const QString& installerUrl,const QString& filename,const QString& version);
     void download(const QString& url,const QString& filename,const QString& version,const QByteArray& hash);

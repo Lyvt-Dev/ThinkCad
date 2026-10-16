@@ -3010,5 +3010,203 @@
     "  Вивід → Вивід з'єднує дріт",
     "  Pin → Pin conecta un cable",
     "  Broche → Broche relie un fil"
+  ],
+  "Simulation: click": [
+    "Симуляция: нажмите",
+    "Симуляція: натисніть",
+    "Simulación: pulse",
+    "Simulation : cliquez"
+  ],
+  "Notes": [
+    "Заметки",
+    "Нотатки",
+    "Notas",
+    "Notes"
+  ],
+  "Note": [
+    "Заметка",
+    "Нотатка",
+    "Nota",
+    "Note"
+  ],
+  "Add note…": [
+    "Добавить заметку…",
+    "Додати нотатку…",
+    "Añadir nota…",
+    "Ajouter une note…"
+  ],
+  "Add note": [
+    "Добавить заметку",
+    "Додати нотатку",
+    "Añadir nota",
+    "Ajouter une note"
+  ],
+  "Edit note…": [
+    "Изменить заметку…",
+    "Змінити нотатку…",
+    "Editar nota…",
+    "Modifier la note…"
+  ],
+  "Edit note": [
+    "Изменить заметку",
+    "Змінити нотатку",
+    "Editar nota",
+    "Modifier la note"
+  ],
+  "Text": [
+    "Текст",
+    "Текст",
+    "Texto",
+    "Texte"
+  ],
+  "Double-click the note to edit its text.": [
+    "Дважды нажмите на заметку, чтобы изменить текст.",
+    "Двічі натисніть на нотатку, щоб змінити текст.",
+    "Haga doble clic en la nota para editar su texto.",
+    "Double-cliquez sur la note pour modifier son texte."
+  ],
+  "Drag into the workspace": [
+    "Перетащите в рабочую область",
+    "Перетягніть у робочу область",
+    "Arrastre al área de trabajo",
+    "Glisser dans l’espace de travail"
+  ],
+  "Project saved automatically.": [
+    "Проект сохранён автоматически.",
+    "Проєкт збережено автоматично.",
+    "Proyecto guardado automáticamente.",
+    "Projet enregistré automatiquement."
+  ],
+  "Learning path…": [
+    "Учебный курс…",
+    "Навчальний курс…",
+    "Curso guiado…",
+    "Parcours d’apprentissage…"
+  ],
+  "Current lesson": [
+    "Текущий урок",
+    "Поточний урок",
+    "Lección actual",
+    "Leçon actuelle"
+  ],
+  "Lesson complete! The next exercise is unlocked.": [
+    "Урок завершён! Следующее упражнение доступно.",
+    "Урок завершено! Наступну вправу розблоковано.",
+    "¡Lección completada! El siguiente ejercicio está disponible.",
+    "Leçon terminée ! L’exercice suivant est débloqué."
+  ],
+  "All settings…": [
+    "Все настройки…",
+    "Усі налаштування…",
+    "Todos los ajustes…",
+    "Tous les paramètres…"
+  ],
+  "Settings…": [
+    "Настройки…",
+    "Налаштування…",
+    "Ajustes…",
+    "Paramètres…"
+  ],
+  "Advanced": [
+    "Дополнительно",
+    "Додатково",
+    "Avanzado",
+    "Avancé"
+  ],
+  "Your workspace": [
+    "Ваше рабочее пространство",
+    "Ваш робочий простір",
+    "Su espacio de trabajo",
+    "Votre espace de travail"
+  ],
+  "Blocks · planning": [
+    "Блоки · планирование",
+    "Блоки · планування",
+    "Bloques · planificación",
+    "Blocs · conception"
+  ],
+  "Realistic · flat 2D view": [
+    "Реалистичный · плоский вид 2D",
+    "Реалістичний · плаский вигляд 2D",
+    "Realista · vista plana 2D",
+    "Réaliste · vue plane 2D"
+  ],
+  "Dark appearance": [
+    "Тёмное оформление",
+    "Темне оформлення",
+    "Aspecto oscuro",
+    "Apparence sombre"
+  ],
+  "Play audio": [
+    "Воспроизводить звук",
+    "Відтворювати звук",
+    "Reproducir audio",
+    "Activer le son"
+  ],
+  "Appearance": [
+    "Оформление",
+    "Оформлення",
+    "Apariencia",
+    "Apparence"
+  ],
+  "Grid spacing": [
+    "Шаг сетки",
+    "Крок сітки",
+    "Espaciado de cuadrícula",
+    "Espacement de la grille"
+  ],
+  "Snap to grid (Alt bypasses)": [
+    "Привязка к сетке (Alt отключает)",
+    "Прив’язка до сітки (Alt вимикає)",
+    "Ajustar a cuadrícula (Alt lo omite)",
+    "Aligner sur la grille (Alt désactive)"
+  ],
+  "Save named projects every minute": [
+    "Сохранять именованные проекты каждую минуту",
+    "Зберігати названі проєкти щохвилини",
+    "Guardar proyectos con nombre cada minuto",
+    "Enregistrer les projets nommés chaque minute"
+  ],
+  "Save a new project once first. Separate 15-second recovery snapshots remain active.": [
+    "Сначала сохраните новый проект. Отдельные снимки восстановления каждые 15 секунд остаются включены.",
+    "Спочатку збережіть новий проєкт. Окремі знімки відновлення кожні 15 секунд залишаються активними.",
+    "Guarde primero el proyecto nuevo. Las copias de recuperación cada 15 segundos siguen activas.",
+    "Enregistrez d’abord le nouveau projet. Les instantanés de récupération toutes les 15 secondes restent actifs."
+  ],
+  "Editor and saving": [
+    "Редактор и сохранение",
+    "Редактор і збереження",
+    "Editor y guardado",
+    "Éditeur et enregistrement"
+  ],
+  "Maximum analog time step": [
+    "Максимальный аналоговый шаг времени",
+    "Максимальний аналоговий крок часу",
+    "Paso de tiempo analógico máximo",
+    "Pas de temps analogique maximal"
+  ],
+  "Browse…": [
+    "Обзор…",
+    "Огляд…",
+    "Examinar…",
+    "Parcourir…"
+  ],
+  "Sketch compiler": [
+    "Компилятор скетчей",
+    "Компілятор скетчів",
+    "Compilador de sketches",
+    "Compilateur de sketches"
+  ],
+  "Simulation": [
+    "Симуляция",
+    "Симуляція",
+    "Simulación",
+    "Simulation"
+  ],
+  "Save": [
+    "Сохранить",
+    "Зберегти",
+    "Guardar",
+    "Enregistrer"
   ]
 }

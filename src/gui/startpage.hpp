@@ -7,6 +7,7 @@ class WelcomePage final:public QWidget {
 public:
     explicit WelcomePage(QWidget* parent=nullptr);
     void refresh();
+    void showCourse();
     static void remember(const QString& path);
 signals:
     void newRequested();
@@ -15,6 +16,8 @@ signals:
     void resumeRequested();
     void examplesRequested();
     void tutorialRequested();
+    void preferencesRequested();
+    void lessonRequested(const QString& id);
     void chooseLanguageRequested();
     void chooseDesignRequested();
     void darkModeChanged(bool enabled);

@@ -9,7 +9,7 @@ set(CPACK_PACKAGE_FILE_NAME "ThinkCad-${PROJECT_VERSION}-Linux-${CMAKE_SYSTEM_PR
 set(CPACK_GENERATOR "TGZ;DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Lyvt-Dev")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "g++, libqt6multimedia6, libqt6serialport6, qt6-qpa-plugins, qt6-wayland")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "g++, libqt6multimedia6, gstreamer1.0-plugins-good, libqt6serialport6, qt6-qpa-plugins, qt6-wayland")
 set(CPACK_DEBIAN_PACKAGE_SECTION education)
 set(CPACK_RPM_PACKAGE_LICENSE "Proprietary and BSD")
 set(CPACK_RPM_PACKAGE_REQUIRES "gcc-c++, qt6-qtmultimedia, qt6-qtserialport, qt6-qtbase-gui, qt6-qtwayland")

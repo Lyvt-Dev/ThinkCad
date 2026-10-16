@@ -71,7 +71,8 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
     "sketch"
 #endif
     );
-    pending_.clear(); linesThisSecond_=0; setActive(true); watchdog_.start(120000);
+    pending_.clear(); linesThisSecond_=0; setActive(true); // A portable compiler may build its standard library on first use.
+    watchdog_.start(300000);
     compiler_.setWorkingDirectory(temp_->path()); worker_.setWorkingDirectory(temp_->path());
     // MinGW runtime DLLs (e.g. winpthread) must remain discoverable for child sketches.
     auto environment=QProcessEnvironment::systemEnvironment();

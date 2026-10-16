@@ -1,3 +1,4 @@
+#include <QSettings>
 #include "paths.hpp"
 #include <QCoreApplication>
 #include <QDir>
@@ -14,3 +15,12 @@ QString AppPaths::dataRoot(){
 }
 QString AppPaths::sdk(){return dataRoot()+"/sdk";}
 QString AppPaths::examples(){return dataRoot()+"/examples";}
+
+QString AppPaths::bundledCompiler(){auto bundled=QCoreApplication::applicationDirPath()+
+#ifdef Q_OS_WIN
+"/toolchain/bin/g++.exe";
+#else
+"/toolchain/bin/g++";
+#endif
+return QFileInfo::exists(bundled)?bundled:QString();}
+QString AppPaths::compiler(){const auto bundled=bundledCompiler();return QSettings().value("compiler",bundled.isEmpty()?QString("g++"):bundled).toString();}

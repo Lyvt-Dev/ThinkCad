@@ -6,9 +6,9 @@
 - Pushbuttons and remote buttons respond to one press and release. Switches and
   NFC-card presence toggle with a single click during simulation.
 - Added Russian, Ukrainian, Spanish and French alongside German and English.
-  UI catalogs and tutorials are bundled offline; language selection persists.
+  UI catalogs and the getting-started tutorial are bundled offline; language selection persists.
   New installations choose a supported system language, with English fallback.
-  The extended reference guides remain available in German and English.
+  The extended reference guides and guided lessons remain available in German and English.
 - Added **File / Settings → Convert video to frames.h…**. Exports 128×64 or
   128×32 monochrome Adafruit GFX-compatible PROGMEM frames with adjustable FPS,
   clip range, threshold and inversion. The 256 KiB bitmap limit keeps generated
