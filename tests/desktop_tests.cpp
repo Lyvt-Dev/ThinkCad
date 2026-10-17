@@ -8,6 +8,7 @@
 #include "videoframes.hpp"
 #include "videoimport.hpp"
 #include "appicons.hpp"
+#include "updatecommit.hpp"
 #include <QStyle>
 #include <QDialogButtonBox>
 #include <QToolBar>
@@ -62,6 +63,19 @@ class DesktopTests final:public QObject{
     static QPoint port(CircuitCanvas* canvas,const QString& part,const QString& pin){for(auto* item:canvas->scene()->items())if(item->parentItem()&&item->parentItem()->data(1).toString()==part&&item->toolTip().startsWith(pin+" —"))return canvas->mapFromScene(item->scenePos());return {-1000,-1000};}
     static void stop(MainWindow& window){if(window.simulationActive())window.findChild<QAction*>("runSimulation")->trigger();}
 private slots:
+    void releaseCommitUsesBoundedShaResponse(){
+        const QUrl url("https://api.github.com/repos/Lyvt-Dev/ThinkCad/commits/v1.2.6");
+        const auto request=thinkcad_update::commitRequest(QNetworkRequest(url));
+        QCOMPARE(request.url(),url);
+        QCOMPARE(request.rawHeader("Accept"),QByteArray("application/vnd.github.sha"));
+        const QByteArray sha("21d3d4f55f931f74b66655cc4203db0f4f4fa9c8");
+        QCOMPARE(thinkcad_update::commitSha(sha+"\n"),QString::fromLatin1(sha));
+        QVERIFY(thinkcad_update::commitSha("{\"sha\":\""+sha+"\"}").isEmpty());
+        QVERIFY(thinkcad_update::commitSha(QByteArray(1128694,'x')).isEmpty());
+        QVERIFY(thinkcad_update::commitSha(sha.left(39)).isEmpty());
+        QVERIFY(thinkcad_update::commitSha(QByteArray(40,'g')).isEmpty());
+        QVERIFY(thinkcad_update::commitSha("API rate limit exceeded").isEmpty());
+    }
     void initTestCase(){qputenv("XDG_CACHE_HOME",(settingsDirectory_.path()+"/cache").toUtf8());QApplication::setQuitOnLastWindowClosed(false);QCoreApplication::setOrganizationName("ThinkCadTests");QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settingsDirectory_.path());Language::set("de");ComponentDesign::set("blocks");}
     void cleanup(){ComponentDesign::set("blocks");Language::set("de");}
     void analogAcquisitionAndPersistence(){
