@@ -10,6 +10,14 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.2.7
+
+- Robuste SHA-Abfrage im Updater auch für große Release-Commits.
+- Offline-Changelogs unter Hilfe und vollständige Einstellungen direkt im Hauptmenü.
+- Batterien und Gleichspannungsquellen auch in eigenständigen Stromkreisen und in Reihe.
+
+[Release Notes 1.2.7](docs/RELEASE_NOTES_1.2.7.md)
+
 ## Neu in 1.2.6
 
 - Projektmodus **Simulation / Emulation**, globaler Standard und kompatibles Laden alter Projekte.
@@ -408,7 +416,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=1.2.6 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=1.2.7 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

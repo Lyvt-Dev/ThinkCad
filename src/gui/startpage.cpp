@@ -34,7 +34,7 @@ WelcomePage::WelcomePage(QWidget* parent):QWidget(parent){
     auto* sidebar=new QFrame;sidebar->setObjectName("startSidebar");sidebar->setFixedWidth(210);auto* nav=new QVBoxLayout(sidebar);nav->setContentsMargins(18,28,18,20);nav->setSpacing(8);
     nav->addWidget(label("ThinkCad","startBrand"));nav->addWidget(label("Circuit Studio","muted"));nav->addSpacing(28);
     auto* home=button("Meine Projekte","homeNavigation");home->setCheckable(true);home->setChecked(true);nav->addWidget(home);
-    auto* settings=button("Einstellungen","settingsNavigation");settings->setCheckable(true);nav->addWidget(settings);auto* navigation=new QButtonGroup(this);navigation->addButton(home);navigation->addButton(settings);
+    auto* settings=button("Einstellungen","settingsNavigation");nav->addWidget(settings);auto* navigation=new QButtonGroup(this);navigation->addButton(home);
     auto* tutorial=button("Tutorial","tutorialNavigation");tutorial->setCheckable(true);navigation->addButton(tutorial);nav->addWidget(tutorial);nav->addStretch();
     auto* resume=button("Zum Editor","resumeEditor");nav->addWidget(resume);nav->addWidget(label(Language::text("Version ")+THINKERCAD_VERSION,"startVersion"));root->addWidget(sidebar);auto* divider=new QFrame;divider->setObjectName("startDivider");divider->setFrameShape(QFrame::VLine);root->addWidget(divider);
     pages_=new QStackedWidget;root->addWidget(pages_,1);
@@ -45,11 +45,9 @@ WelcomePage::WelcomePage(QWidget* parent):QWidget(parent){
     auto* heading=new QHBoxLayout;heading->addWidget(label("Zuletzt geöffnet","recentTitle"));heading->addStretch();auto* clear=button("Liste leeren","clearRecentProjects");heading->addWidget(clear);layout->addLayout(heading);
     recentLayout_=new QVBoxLayout;recentLayout_->setSpacing(0);layout->addLayout(recentLayout_);
     layout->addSpacing(4);layout->addWidget(label("Hilfe und Beispiele","recentTitle"));auto* examples=button("Beispielschaltungen entdecken","startExamples");layout->addWidget(examples,0,Qt::AlignLeft);layout->addStretch();scroll->setWidget(content);pages_->addWidget(scroll);
-    auto* settingsPage=new QWidget;auto* settingsLayout=new QVBoxLayout(settingsPage);settingsLayout->setContentsMargins(28,28,28,28);settingsLayout->setSpacing(20);settingsLayout->addWidget(label("Einstellungen","welcomeTitle"));settingsLayout->addWidget(label("Passe ThinkCad an deinen Arbeitsplatz an.","welcomeSubtitle"));
-    auto* dark=new QCheckBox(Language::text("Dark Mode"));dark->setObjectName("startDarkMode");auto* preferences=new QGroupBox(Language::text("Darstellung und Sprache"));auto* preferencesLayout=new QVBoxLayout(preferences);preferencesLayout->setContentsMargins(16,24,16,16);preferencesLayout->setSpacing(16);preferencesLayout->addWidget(dark);auto* languageButton=button("Sprache…","startChooseLanguage");preferencesLayout->addWidget(languageButton,0,Qt::AlignLeft);auto* designButton=button("Komponenten Design…","startChooseDesign");preferencesLayout->addWidget(designButton,0,Qt::AlignLeft);settingsLayout->addWidget(preferences);connect(languageButton,&QPushButton::clicked,this,&WelcomePage::chooseLanguageRequested);connect(designButton,&QPushButton::clicked,this,&WelcomePage::chooseDesignRequested);auto* allSettings=button("Alle Einstellungen…","startPreferences");preferencesLayout->addWidget(allSettings);connect(allSettings,&QPushButton::clicked,this,&WelcomePage::preferencesRequested);settingsLayout->addStretch();pages_->addWidget(settingsPage);auto* course=new TutorialCourse;pages_->addWidget(course);connect(course,&TutorialCourse::lessonRequested,this,&WelcomePage::lessonRequested);
+    auto* course=new TutorialCourse;pages_->addWidget(course);connect(course,&TutorialCourse::lessonRequested,this,&WelcomePage::lessonRequested);
     connect(home,&QPushButton::clicked,this,[this,home,settings]{pages_->setCurrentIndex(0);home->setChecked(true);settings->setChecked(false);});
-    connect(settings,&QPushButton::clicked,this,[this,home,settings]{pages_->setCurrentIndex(1);settings->setChecked(true);home->setChecked(false);});
-    connect(dark,&QCheckBox::toggled,this,&WelcomePage::darkModeChanged);
+    connect(settings,&QPushButton::clicked,this,&WelcomePage::preferencesRequested);
     connect(fresh,&QPushButton::clicked,this,&WelcomePage::newRequested);connect(open,&QPushButton::clicked,this,&WelcomePage::openRequested);connect(resume,&QPushButton::clicked,this,&WelcomePage::resumeRequested);connect(examples,&QPushButton::clicked,this,&WelcomePage::examplesRequested);connect(tutorial,&QPushButton::clicked,this,&WelcomePage::showCourse);
     connect(clear,&QPushButton::clicked,this,[this]{QSettings().remove("recentProjects");refresh();});refresh();
 }
@@ -66,7 +64,6 @@ void WelcomePage::remember(const QString& path){
 }
 void WelcomePage::refresh(){
     findChild<QLabel*>("startVersion")->setText(Language::text("Version ")+THINKERCAD_VERSION);
-    auto* dark=findChild<QCheckBox*>("startDarkMode");{QSignalBlocker block(dark);dark->setChecked(QSettings().value("darkMode",false).toBool());}
     while(auto* item=recentLayout_->takeAt(0)){delete item->widget();delete item;}
     const auto paths=QSettings().value("recentProjects").toStringList().mid(0,12);
     findChild<QPushButton*>("clearRecentProjects")->setEnabled(!paths.isEmpty());
@@ -83,4 +80,4 @@ void WelcomePage::refresh(){
     Language::translateTree(this);
 }
 
-void WelcomePage::showCourse(){findChild<QPushButton*>("homeNavigation")->setChecked(false);findChild<QPushButton*>("settingsNavigation")->setChecked(false);findChild<QPushButton*>("tutorialNavigation")->setChecked(true);findChild<TutorialCourse*>()->refresh();pages_->setCurrentIndex(2);}
+void WelcomePage::showCourse(){findChild<QPushButton*>("homeNavigation")->setChecked(false);findChild<QPushButton*>("settingsNavigation")->setChecked(false);findChild<QPushButton*>("tutorialNavigation")->setChecked(true);findChild<TutorialCourse*>()->refresh();pages_->setCurrentIndex(1);}

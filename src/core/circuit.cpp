@@ -235,6 +235,7 @@ CircuitState CircuitDocument::solve(const std::map<std::string,const Esp8266Boar
 }
 CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266Board*>& boards,const ReactiveState* memory,double dt,double time)const {
     validate();Nodes nodes(*this);CircuitState result;std::map<int,double> fixed;std::vector<Branch> resistors;
+    struct VoltageSource {int a,b;double voltage;};std::vector<VoltageSource> sources;
     auto driver=[&](int n,double v){if(fixed.contains(n)&&std::abs(fixed.at(n)-v)>1e-6){std::string endpoints;for(const auto& [ep,index]:nodes.index)if(nodes.find(index)==n)endpoints+=" "+ep.part+"."+ep.pin;result.errors.push_back("Kurzschluss: widersprüchliche Spannungsquellen auf einem Netz."+endpoints);}else fixed[n]=v;};
     std::set<int> grounds;for(const auto& part:parts_)if(part.kind==PartKind::Esp8266)grounds.insert(nodes.node({part.id,"GND"}));
     for(const auto& p:parts_)if(p.kind==PartKind::Ground){driver(nodes.node({p.id,"GND"}),0);grounds.insert(nodes.node({p.id,"GND"}));}
@@ -283,7 +284,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         if(p.kind==PartKind::Potentiometer){resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"W"}),std::max(0.01,100*p.value)});resistors.push_back({nodes.node({p.id,"W"}),nodes.node({p.id,"2"}),std::max(0.01,100*(100-p.value))});}
         if(p.kind==PartKind::Photoresistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),std::clamp(10000*std::pow(10/std::max(0.01,p.value),0.7),10.0,1e7)});
         if(p.kind==PartKind::Thermistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),10000*std::exp(3950*(1/(p.value+273.15)-1/298.15))});
-        if((p.kind==PartKind::BatteryAA||p.kind==PartKind::Battery3V||p.kind==PartKind::Battery9V||p.kind==PartKind::PowerSupply)&&grounds.contains(nodes.node({p.id,"-"})))driver(nodes.node({p.id,"+"}),p.value);
+        if(p.kind==PartKind::BatteryAA||p.kind==PartKind::Battery3V||p.kind==PartKind::Battery9V||p.kind==PartKind::PowerSupply)sources.push_back({nodes.node({p.id,"+"}),nodes.node({p.id,"-"}),p.value});
         if(p.kind==PartKind::Resistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),p.value});
         if(p.kind==PartKind::AnalogSource&&grounds.contains(nodes.node({p.id,"GND"})))driver(nodes.node({p.id,"OUT"}),p.value);
     }
@@ -295,6 +296,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
     }
     std::map<std::string,bool> conducting;std::map<int,std::string> logicOwners;std::map<int,double> volts=fixed;std::set<std::string> poweredSensors;
     std::map<std::string,std::array<int,4>> bridgeDrive;
+    std::map<std::pair<int,int>,double> sourceCurrents;
     const bool nonlinear=std::any_of(parts_.begin(),parts_.end(),[](const auto& p){return p.kind==PartKind::NpnTransistor||p.kind==PartKind::PnpTransistor||p.kind==PartKind::NMosfet||p.kind==PartKind::PMosfet||p.kind==PartKind::OpAmp;});
     for(int iteration=0;iteration<(nonlinear?400:124);++iteration) {
         auto branches=resistors;std::set<std::string> activeAmps,activeUltrasonic;
@@ -310,13 +312,42 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         for(const auto& p:parts_)if(p.kind==PartKind::NpnTransistor||p.kind==PartKind::PnpTransistor||p.kind==PartKind::NMosfet||p.kind==PartKind::PMosfet){
             const auto terminals=pins(p);for(int i=0;i<2;++i)branches.push_back({nodes.node({p.id,terminals[i]}),nodes.node({p.id,terminals[2]}),1e12});
         }else if(p.kind==PartKind::OpAmp){const int hi=nodes.node({p.id,"V+"}),lo=nodes.node({p.id,"V-"});if(volts.contains(hi)&&volts.contains(lo)&&volts.at(hi)-volts.at(lo)>.1){branches.push_back({nodes.node({p.id,"OUT"}),lo,50});activeAmps.insert(p.id);}}
-        std::set<int> anchored;for(const auto& [n,v]:fixed){(void)v;anchored.insert(n);}
-        bool grew=true;while(grew){grew=false;for(const auto& b:branches){if(anchored.contains(b.a)&&anchored.insert(b.b).second)grew=true;if(anchored.contains(b.b)&&anchored.insert(b.a).second)grew=true;}}
-        std::map<int,int> unknown;for(int n:anchored)if(!fixed.contains(n))unknown[n]=static_cast<int>(unknown.size());
-        std::vector<std::vector<double>> matrix(unknown.size(),std::vector<double>(unknown.size()));std::vector<double> rhs(unknown.size());
+        // Resolve ideal-source constraints first, rejecting contradictory loops
+        // and retaining only independent constraints for modified nodal analysis.
+        auto reference=fixed;std::vector<VoltageSource> activeSources;
+        std::map<int,std::vector<std::pair<int,double>>> sourceGraph;
+        for(const auto& s:sources){sourceGraph[s.a].push_back({s.b,-s.voltage});sourceGraph[s.b].push_back({s.a,s.voltage});}
+        std::set<int> visited;
+        for(const auto& [root,edges]:sourceGraph){
+            (void)edges;if(visited.contains(root))continue;
+            std::map<int,double> offset{{root,0}};std::vector<int> pending{root};std::vector<VoltageSource> tree;
+            std::optional<double> base;
+            for(std::size_t i=0;i<pending.size();++i){const int n=pending[i];visited.insert(n);
+                if(reference.contains(n)){const double candidate=reference.at(n)-offset.at(n);if(base&&std::abs(*base-candidate)>1e-6)result.errors.push_back("Kurzschluss: widersprüchliche Spannungsquellen.");else base=candidate;}
+                for(const auto& [next,delta]:sourceGraph.at(n)){const double expected=offset.at(n)+delta;
+                    if(offset.contains(next)){if(std::abs(offset.at(next)-expected)>1e-6)result.errors.push_back("Kurzschluss: widersprüchliche Spannungsquellen.");}
+                    else{offset[next]=expected;pending.push_back(next);tree.push_back({next,n,delta});}
+                }
+            }
+            if(base)for(const auto& [n,delta]:offset)reference[n]=*base+delta;
+            else activeSources.insert(activeSources.end(),tree.begin(),tree.end());
+        }
+        if(!result.errors.empty())return result;
+        std::set<int> anchored;for(const auto& [n,v]:reference){(void)v;anchored.insert(n);}
+        auto grow=[&]{bool grew=true;while(grew){grew=false;auto edge=[&](int a,int b){if(anchored.contains(a)&&anchored.insert(b).second)grew=true;if(anchored.contains(b)&&anchored.insert(a).second)grew=true;};for(const auto& b:branches)edge(b.a,b.b);for(const auto& s:activeSources)edge(s.a,s.b);}};
+        grow();
+        // A floating powered island needs one arbitrary voltage reference,
+        // independent of any microcontroller; voltage differences remain exact.
+        for(const auto& s:sources)if(!anchored.contains(s.b)){reference[s.b]=0;anchored.insert(s.b);grow();}
+        std::map<int,int> unknown;for(int n:anchored)if(!reference.contains(n))unknown[n]=static_cast<int>(unknown.size());
+        const auto dimension=unknown.size()+activeSources.size();
+        std::vector<std::vector<double>> matrix(dimension,std::vector<double>(dimension));std::vector<double> rhs(dimension);
         for(const auto& b:branches)if(b.a!=b.b&&anchored.contains(b.a)&&anchored.contains(b.b)) {
             const double g=1/b.resistance;
-            for(int side=0;side<2;++side){int a=side?b.b:b.a,c=side?b.a:b.b;double offset=side?-b.offset:b.offset;if(!unknown.contains(a))continue;int row=unknown.at(a);matrix[row][row]+=g;rhs[row]+=g*offset;if(unknown.contains(c))matrix[row][unknown.at(c)]-=g;else rhs[row]+=g*fixed.at(c);}
+            for(int side=0;side<2;++side){int a=side?b.b:b.a,c=side?b.a:b.b;double offset=side?-b.offset:b.offset;if(!unknown.contains(a))continue;int row=unknown.at(a);matrix[row][row]+=g;rhs[row]+=g*offset;if(unknown.contains(c))matrix[row][unknown.at(c)]-=g;else rhs[row]+=g*reference.at(c);}
+        }
+        for(std::size_t i=0;i<activeSources.size();++i){const auto& s=activeSources[i];const auto row=unknown.size()+i;rhs[row]=s.voltage;
+            for(const auto& [n,sign]:std::array<std::pair<int,double>,2>{{{s.a,1},{s.b,-1}}})if(unknown.contains(n)){matrix[unknown.at(n)][row]+=sign;matrix[row][unknown.at(n)]+=sign;}else rhs[row]-=sign*reference.at(n);
         }
         if(nonlinear&&iteration==0){
             // Start high-impedance control terminals at their passive bias, rather
@@ -325,7 +356,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
             for(const auto& p:parts_)if(p.kind==PartKind::NpnTransistor||p.kind==PartKind::PnpTransistor){const int b=nodes.node({p.id,"B"}),e=nodes.node({p.id,"E"});if(unknown.contains(b)&&volts.contains(e)){const double sign=p.kind==PartKind::NpnTransistor?1:-1;volts[b]=volts[e]+sign*std::clamp(sign*(volts[b]-volts[e]),-.6,.6);}}
         }
         // Newton linearization stamps device terminal currents and their Jacobians.
-        auto value=[&](int node){return volts.contains(node)?volts.at(node):0.0;};
+        auto value=[&](int node){return reference.contains(node)?reference.at(node):volts.contains(node)?volts.at(node):0.0;};
         std::vector<std::pair<std::vector<int>,std::function<std::vector<double>(std::vector<double>)>>> devices;
         auto stamp=[&](const std::vector<int>& terminals,const std::function<std::vector<double>(std::vector<double>)>& currents){
             devices.emplace_back(terminals,currents);
@@ -334,7 +365,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
             for(std::size_t col=0;col<terminals.size();++col){auto probe=guess;probe[col]+=1e-6;const auto next=currents(probe);for(std::size_t row=0;row<base.size();++row)jac[row][col]=(next[row]-base[row])/1e-6;}
             for(std::size_t r=0;r<terminals.size();++r)if(unknown.contains(terminals[r])){
                 const int row=unknown.at(terminals[r]);double affine=base[r];
-                for(std::size_t c=0;c<terminals.size();++c){affine-=jac[r][c]*guess[c];if(unknown.contains(terminals[c]))matrix[row][unknown.at(terminals[c])]+=jac[r][c];else if(fixed.contains(terminals[c]))rhs[row]-=jac[r][c]*fixed.at(terminals[c]);}
+                for(std::size_t c=0;c<terminals.size();++c){affine-=jac[r][c]*guess[c];if(unknown.contains(terminals[c]))matrix[row][unknown.at(terminals[c])]+=jac[r][c];else if(reference.contains(terminals[c]))rhs[row]-=jac[r][c]*reference.at(terminals[c]);}
                 rhs[row]-=affine;
             }
         };
@@ -367,14 +398,15 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
                 });
             }
         }
-        const auto previous=volts;const auto solved=linearSolve(std::move(matrix),std::move(rhs));volts=fixed;bool changed=false;
+        const auto previous=volts;const auto solved=linearSolve(std::move(matrix),std::move(rhs));volts=reference;bool changed=false;
         double alpha=1,residualSquared=0;
         if(nonlinear){
             double largest=0;for(const auto& [n,row]:unknown)largest=std::max(largest,std::abs(solved[row]-(previous.contains(n)?previous.at(n):0)));if(largest>.25)alpha=.25/largest;
-            auto residual=[&](const std::map<int,double>& trial){std::map<int,double> currents;auto v=[&](int n){return trial.contains(n)?trial.at(n):0;};for(const auto& b:branches)if(anchored.contains(b.a)&&anchored.contains(b.b)){double i=(v(b.a)-v(b.b)-b.offset)/b.resistance;currents[b.a]+=i;currents[b.b]-=i;}for(const auto& [terminals,model]:devices){std::vector<double> values;for(int n:terminals)values.push_back(v(n));auto i=model(values);for(std::size_t k=0;k<terminals.size();++k)currents[terminals[k]]+=i[k];}double norm=0;for(const auto& [n,row]:unknown){(void)row;norm+=currents[n]*currents[n];}return norm;};
-            const double base=residual(previous);
-            for(int search=0;search<24;++search){auto trial=fixed;for(const auto& [n,row]:unknown){double old=previous.contains(n)?previous.at(n):0;trial[n]=old+alpha*(solved[row]-old);}residualSquared=residual(trial);if(residualSquared<=base+1e-24)break;alpha*=.5;}
+            auto residual=[&](const std::map<int,double>& trial,double blend){std::map<int,double> currents;auto v=[&](int n){return trial.contains(n)?trial.at(n):0;};for(const auto& b:branches)if(anchored.contains(b.a)&&anchored.contains(b.b)){double i=(v(b.a)-v(b.b)-b.offset)/b.resistance;currents[b.a]+=i;currents[b.b]-=i;}for(const auto& [terminals,model]:devices){std::vector<double> values;for(int n:terminals)values.push_back(v(n));auto i=model(values);for(std::size_t k=0;k<terminals.size();++k)currents[terminals[k]]+=i[k];}for(std::size_t i=0;i<activeSources.size();++i){const auto& source=activeSources[i];const double old=sourceCurrents[{source.a,source.b}],current=old+blend*(solved[unknown.size()+i]-old);currents[source.a]+=current;currents[source.b]-=current;}double norm=0;for(const auto& source:activeSources){const double error=v(source.a)-v(source.b)-source.voltage;norm+=error*error;}for(const auto& [n,row]:unknown){(void)row;norm+=currents[n]*currents[n];}return norm;};
+            const double base=residual(previous,0);
+            for(int search=0;search<24;++search){auto trial=reference;for(const auto& [n,row]:unknown){double old=previous.contains(n)?previous.at(n):0;trial[n]=old+alpha*(solved[row]-old);}residualSquared=residual(trial,alpha);if(residualSquared<=base+1e-24)break;alpha*=.5;}
         }
+        for(std::size_t i=0;i<activeSources.size();++i){const auto& source=activeSources[i];auto& current=sourceCurrents[{source.a,source.b}];current+=alpha*(solved[unknown.size()+i]-current);}
         if(nonlinear&&residualSquared>1e-16)changed=true;
         for(const auto& [n,row]:unknown){const double old=previous.contains(n)?previous.at(n):0;const double next=old+alpha*(solved[row]-old);volts[n]=next;if(nonlinear&&std::abs(next-old)>1e-8)changed=true;}
         for(const auto& j:junctions){bool on=volts.contains(j.a)&&volts.contains(j.k)&&volts[j.a]-volts[j.k]>j.vf+1e-8;if(conducting[j.id]!=on){conducting[j.id]=on;changed=true;}}

@@ -3,6 +3,7 @@
 #include <QSysInfo>
 #include "language.hpp"
 #include "updater.hpp"
+#include "updatecommit.hpp"
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
@@ -81,10 +82,9 @@ void Updater::check() {
             if(name==filename+".sha256")checksumUrl=url;if(name==filename+".sigstore.jsonl"&&asset["size"].toDouble()<5*1024*1024)attestationUrl=url;
         }
         if(installerUrl.isEmpty()||checksumUrl.isEmpty()||attestationUrl.isEmpty()) {busy_=false;emit message(Language::text("Release enthält keinen Installer mit Prüfsumme und Buildnachweis."));return;}
-        emit message("Neue Version "+version+Language::text(" wird im Hintergrund heruntergeladen."));
-        auto* commit=network_.get(request("https://api.github.com/repos/Lyvt-Dev/ThinkCad/commits/v"+version));
-        connect(commit,&QNetworkReply::readyRead,commit,[commit]{if(commit->bytesAvailable()>1048576)commit->abort();});
-        connect(commit,&QNetworkReply::finished,this,[this,commit,checksumUrl,installerUrl,filename,version,attestationUrl]{commit->deleteLater();const auto bytes=commit->readAll();expectedCommit_=QJsonDocument::fromJson(bytes).object()["sha"].toString();if(commit->error()!=QNetworkReply::NoError||!allowedResponse(commit)||bytes.size()>1048576||!QRegularExpression("^[a-f0-9]{40}$").match(expectedCommit_).hasMatch()){busy_=false;emit message(Language::text("Release-Commit konnte nicht geprüft werden."));return;}Q_UNUSED(attestationUrl);fetchChecksum(checksumUrl,installerUrl,filename,version);});
+        auto* commit=network_.get(thinkcad_update::commitRequest(request("https://api.github.com/repos/Lyvt-Dev/ThinkCad/commits/v"+version)));
+        connect(commit,&QNetworkReply::readyRead,commit,[commit]{if(commit->bytesAvailable()>128)commit->abort();});
+        connect(commit,&QNetworkReply::finished,this,[this,commit,checksumUrl,installerUrl,filename,version,attestationUrl]{commit->deleteLater();const auto bytes=commit->readAll();expectedCommit_=thinkcad_update::commitSha(bytes);if(commit->error()!=QNetworkReply::NoError||!allowedResponse(commit)||expectedCommit_.isEmpty()){busy_=false;emit message(Language::text("Release-Commit konnte nicht geprüft werden."));return;}Q_UNUSED(attestationUrl);fetchChecksum(checksumUrl,installerUrl,filename,version);});
     });
 }
 void Updater::fetchChecksum(const QString& url,const QString& installerUrl,const QString& filename,const QString& version) {
@@ -106,6 +106,7 @@ void Updater::download(const QString& url,const QString& filename,const QString&
     if(!QDir().mkpath(dir)){busy_=false;emit message(Language::text("Update-Verzeichnis ist nicht beschreibbar."));return;}
     auto file=std::make_shared<QSaveFile>(dir+"/"+filename);
     if(!file->open(QIODevice::WriteOnly)){busy_=false;emit message(Language::text("Update-Datei kann nicht angelegt werden."));return;}
+    emit message("Neue Version "+version+Language::text(" wird im Hintergrund heruntergeladen."));
     struct State {QCryptographicHash hash{QCryptographicHash::Sha256}; qint64 bytes=0; bool failed=false;};
     auto state=std::make_shared<State>(); auto* reply=network_.get(request(url));
     auto consume=[reply,file,state] {
