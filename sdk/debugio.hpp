@@ -15,8 +15,11 @@
 #define NOUSER
 #define THINKCAD_DEBUG_RESTORE_NOUSER
 #endif
+// Preserve Arduino library identifiers when importing the socket platform API.
+#pragma push_macro("STATUS_TIMEOUT")
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#pragma pop_macro("STATUS_TIMEOUT")
 #ifdef THINKCAD_DEBUG_RESTORE_NOUSER
 #undef NOUSER
 #undef THINKCAD_DEBUG_RESTORE_NOUSER

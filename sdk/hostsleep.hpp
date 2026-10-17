@@ -10,7 +10,10 @@
 #define NOUSER
 #define THINKCAD_SLEEP_RESTORE_NOUSER
 #endif
+// WinNT's macro must not replace MFRC522::STATUS_TIMEOUT in user libraries.
+#pragma push_macro("STATUS_TIMEOUT")
 #include <windows.h>
+#pragma pop_macro("STATUS_TIMEOUT")
 #ifdef THINKCAD_SLEEP_RESTORE_NOUSER
 #undef NOUSER
 #undef THINKCAD_SLEEP_RESTORE_NOUSER
