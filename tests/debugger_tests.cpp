@@ -6,7 +6,12 @@
 #include <QFile>
 #include <QTemporaryDir>
 #include <QStandardPaths>
-#ifndef Q_OS_WIN
+#ifdef Q_OS_WIN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
 #include <signal.h>
 #include <cerrno>
 #endif
@@ -45,8 +50,14 @@ private slots:
         QString failures,transcript;GdbSession session;QSignalSpy ready(&session,&GdbSession::ready),halted(&session,&GdbSession::halted),variables(&session,&GdbSession::variables),evaluated(&session,&GdbSession::evaluated),registers(&session,&GdbSession::registers),running(&session,&GdbSession::running);connect(&session,&GdbSession::log,this,[&](const auto& text){transcript+=text;});connect(&session,&GdbSession::error,this,[&](const auto& text){failures+=text+'\n';});
         session.start(gdb,executable,QProcessEnvironment::systemEnvironment(),{{source,3}});QTRY_VERIFY2_WITH_TIMEOUT(ready.size()==1,qPrintable(failures+transcript),15000);session.run();QTRY_VERIFY2_WITH_TIMEOUT(halted.size()==1,qPrintable(failures+transcript),15000);QVERIFY2(failures.isEmpty(),qPrintable(failures));QCOMPARE(halted[0][1].toInt(),3);QVERIFY(session.stopped());QVERIFY(session.inferiorPid()>0);
         session.inspectVariables();QTRY_COMPARE(variables.size(),1);const auto locals=variables[0][0].toList();bool found=false;for(const auto& local:locals){const auto item=local.toMap();if(item["name"]=="counter"){QCOMPARE(item["value"].toString(),QString("7"));found=true;}}QVERIFY(found);
-        session.next();QTRY_COMPARE(halted.size(),2);QCOMPARE(halted[1][1].toInt(),4);session.evaluate("counter");QTRY_COMPARE(evaluated.size(),1);QCOMPARE(evaluated[0][1].toString(),QString("9"));session.inspectRegisters();QTRY_COMPARE(registers.size(),1);QVERIFY(!registers[0][0].toList().isEmpty());session.resume();QTRY_VERIFY(running.size()>=3);const auto child=session.inferiorPid();session.stop();QVERIFY(!session.active());QCOMPARE(session.inferiorPid(),qint64(0));
-#ifndef Q_OS_WIN
+        session.next();QTRY_COMPARE(halted.size(),2);QCOMPARE(halted[1][1].toInt(),4);session.evaluate("counter");QTRY_COMPARE(evaluated.size(),1);QCOMPARE(evaluated[0][1].toString(),QString("9"));session.inspectRegisters();QTRY_COMPARE(registers.size(),1);QVERIFY(!registers[0][0].toList().isEmpty());session.resume();QTRY_VERIFY(running.size()>=3);const auto child=session.inferiorPid();
+#ifdef Q_OS_WIN
+        const auto childHandle=OpenProcess(SYNCHRONIZE,FALSE,static_cast<DWORD>(child));QVERIFY(childHandle!=nullptr);
+#endif
+        session.stop();QVERIFY(!session.active());QCOMPARE(session.inferiorPid(),qint64(0));
+#ifdef Q_OS_WIN
+        const auto ended=WaitForSingleObject(childHandle,5000);CloseHandle(childHandle);QCOMPARE(ended,DWORD(WAIT_OBJECT_0));
+#else
         errno=0;QVERIFY(::kill(static_cast<pid_t>(child),0)==-1&&errno==ESRCH);
 #endif
     }

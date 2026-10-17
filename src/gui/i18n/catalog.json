@@ -4234,5 +4234,17 @@
     "Змінюйте значення під час симуляції.",
     "Cambia el valor durante la simulación.",
     "Modifiez la valeur pendant la simulation."
+  ],
+  "Sensors and modules": [
+    "Датчики и модули",
+    "Датчики та модулі",
+    "Sensores y módulos",
+    "Capteurs et modules"
+  ],
+  "Sensor module": [
+    "Сенсорный модуль",
+    "Сенсорний модуль",
+    "Módulo sensor",
+    "Module capteur"
   ]
 }

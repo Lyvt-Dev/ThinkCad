@@ -43,10 +43,17 @@ kein Login, kein zentraler Server, kein Electron und kein macOS-Paket.
   Ukrainisch, Spanisch und Französisch; aktualisiertes Tutorial. Fünf neue
   verdrahtete Beispiele für Pico/BME280, ESP32-S3/MPU6050, HC-SR04, NeoPixel
   und zwei getrennte ESP32-UART-Sketches.
-
 - **Linux-Videoimport:** Qt 6.4 initialisiert die erste Bildkonvertierung vor dem
   Abspielen, damit langsame Wayland-/EGL-Initialisierung den Decoder nicht
   während des ersten Frames blockiert.
+
+## Projektkompatibilität
+
+Die veröffentlichten Assembly-, MIDI-, Tastenfeld-, Keyboard- und Encoder-
+Funktionen aus 1.2.4 sind enthalten. Deren gespeicherte Bauteil-IDs bleiben
+erhalten. Projektformat 5 liest bestehende Projekte und migriert auch lokale
+1.2.6-Vorabprojekte im unveröffentlichten Format 4; direkte Verbindungen bleiben
+beim erneuten Speichern erhalten.
 
 ## Plattformen
 

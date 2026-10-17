@@ -136,6 +136,8 @@ const QMap<QString,QString>& translations(){static const QMap<QString,QString> v
     {"Treiberkonflikt","Contention"},
     {"UART-Zustand","UART state"},
     {"Umgebung / Sensoren","Environment / sensors"},
+    {"Sensoren und Module","Sensors and modules"},
+    {"Sensormodul","Sensor module"},
     {"Unbestimmt / offen","Undefined / floating"},
     {"Variable","Variable"},
     {"Verbunden · Änderungen werden lokal synchronisiert","Connected · synchronizing local changes"},
