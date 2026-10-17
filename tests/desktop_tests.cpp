@@ -10,6 +10,7 @@
 #include "appicons.hpp"
 #include "updatecommit.hpp"
 #include <QStyle>
+#include <QListWidget>
 #include <QDialogButtonBox>
 #include <QToolBar>
 #include <QToolButton>
@@ -63,6 +64,16 @@ class DesktopTests final:public QObject{
     static QPoint port(CircuitCanvas* canvas,const QString& part,const QString& pin){for(auto* item:canvas->scene()->items())if(item->parentItem()&&item->parentItem()->data(1).toString()==part&&item->toolTip().startsWith(pin+" —"))return canvas->mapFromScene(item->scenePos());return {-1000,-1000};}
     static void stop(MainWindow& window){if(window.simulationActive())window.findChild<QAction*>("runSimulation")->trigger();}
 private slots:
+    void batteryCircuitRunsWithoutBoardOrSketch(){
+        MainWindow window;std::string lamp;
+        window.canvas()->mutate("Battery circuit",[&](auto& circuit){circuit.removePart("board");auto cell=circuit.addPart(PartKind::Battery9V,0,0),resistor=circuit.addPart(PartKind::Resistor,100,0);lamp=circuit.addPart(PartKind::Led,200,0);circuit.part(resistor).value=1000;circuit.connect({cell,"+"},{resistor,"1"});circuit.connect({resistor,"2"},{lamp,"A"});circuit.connect({lamp,"K"},{cell,"-"});});
+        window.findChild<QAction*>("runSimulation")->trigger();QVERIFY(window.simulationActive());QTRY_VERIFY(window.circuitState().ledCurrent.at(lamp)>.006);QVERIFY(window.circuitState().errors.empty());stop(window);QVERIFY(!window.simulationActive());
+    }
+    void helpShowsOfflineChangelogs(){
+        MainWindow window;bool opened=false;
+        QTimer::singleShot(0,&window,[&]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());if(!dialog)return;QTimer::singleShot(1000,dialog,&QDialog::reject);opened=dialog->objectName()=="changelogDialog";auto* versions=dialog->findChild<QComboBox*>("changelogVersions");auto* text=dialog->findChild<QTextBrowser*>("changelogText");QVERIFY(versions&&text);QCOMPARE(versions->currentText(),QString("1.2.7"));QVERIFY(text->toPlainText().contains("ThinkCad 1.2.7"));const int previous=versions->findText("1.2.6");QVERIFY(previous>=0);versions->setCurrentIndex(previous);QVERIFY(text->toPlainText().contains("ThinkCad 1.2.6"));dialog->reject();});
+        auto* action=window.findChild<QAction*>("showChangelog");QVERIFY(action);action->trigger();QVERIFY(opened);
+    }
     void releaseCommitUsesBoundedShaResponse(){
         const QUrl url("https://api.github.com/repos/Lyvt-Dev/ThinkCad/commits/v1.2.6");
         const auto request=thinkcad_update::commitRequest(QNetworkRequest(url));
@@ -415,8 +426,8 @@ private slots:
         const auto recent=home->findChildren<QPushButton*>("recentProject");QCOMPARE(recent.size(),1);QCOMPARE(recent.front()->property("projectPath").toString(),QFileInfo(saved).canonicalFilePath());
         auto* thumbnail=home->findChild<QLabel*>("recentProjectPreview");QVERIFY(thumbnail);QTRY_VERIFY(!thumbnail->pixmap().isNull());
         const auto capture=qEnvironmentVariable("THINKCAD_UI_CAPTURE_DIR");if(!capture.isEmpty())window.grab().save(capture+"/home-light.png");
-        home->findChild<QPushButton*>("settingsNavigation")->click();auto* dark=home->findChild<QCheckBox*>("startDarkMode");QVERIFY(dark);dark->setChecked(true);QVERIFY(settings.value("darkMode").toBool());
-        auto chooseLanguage=[&](const QString& value){QTimer::singleShot(30,&window,[value]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());if(dialog){auto* choice=dialog->findChild<QComboBox*>();choice->setCurrentIndex(choice->findData(value));dialog->accept();}});home->findChild<QPushButton*>("startChooseLanguage")->click();};chooseLanguage("en");QCOMPARE(home->findChild<QPushButton*>("homeNavigation")->text(),QString("My projects"));chooseLanguage("de");
+        auto configure=[&](const QString& value){bool opened=false;QTimer::singleShot(30,&window,[&]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());if(!dialog)return;QTimer::singleShot(1000,dialog,&QDialog::reject);opened=dialog->objectName()=="preferencesDialog";auto* navigation=dialog->findChild<QListWidget*>("preferencesNavigation");QVERIFY(navigation);QCOMPARE(navigation->count(),7);auto* choice=dialog->findChild<QComboBox*>("preferencesLanguage");QVERIFY(choice);choice->setCurrentIndex(choice->findData(value));dialog->findChild<QCheckBox*>("preferencesDarkMode")->setChecked(true);dialog->findChild<QDialogButtonBox*>()->button(QDialogButtonBox::Save)->click();});home->findChild<QPushButton*>("settingsNavigation")->click();QVERIFY(opened);};
+        configure("en");QVERIFY(settings.value("darkMode").toBool());QCOMPARE(home->findChild<QPushButton*>("homeNavigation")->text(),QString("My projects"));configure("de");
         home->findChild<QPushButton*>("homeNavigation")->click();if(!capture.isEmpty())window.grab().save(capture+"/home-dark.png");
         home->findChild<QPushButton*>("resumeEditor")->click();QVERIFY(!window.startPageVisible());QCOMPARE(window.circuit().parts().size(),parts);QCOMPARE(window.sketchText(),sketch);QVERIFY(codeDock->isHidden());
         auto* run=window.findChild<QToolButton*>("runButton");auto* reset=window.findChild<QToolButton*>("resetButton");QVERIFY(run&&reset);QVERIFY(!reset->icon().isNull());QCOMPARE(run->height(),reset->height());
