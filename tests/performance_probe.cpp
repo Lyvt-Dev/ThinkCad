@@ -1,3 +1,4 @@
+#include "hostsleep.hpp"
 #include "thinkercad/circuit.hpp"
 #include "thinkercad/moduledevices.hpp"
 #include "thinkercad/bustraffic.hpp"
@@ -7,6 +8,14 @@
 using namespace thinkercad;
 using Clock=std::chrono::steady_clock;
 int main(){
+    const auto sleepBegin=Clock::now();
+    for(int i=0;i<100;++i)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    const auto sleepMiddle=Clock::now();
+    for(int i=0;i<100;++i)thinker::hostSleep(std::chrono::milliseconds(1));
+    const auto sleepEnd=Clock::now();
+    std::cout<<"sleep_samples=100 requested_ms=100 standard_sleep_ms="
+             <<std::chrono::duration<double,std::milli>(sleepMiddle-sleepBegin).count()
+             <<" host_sleep_ms="<<std::chrono::duration<double,std::milli>(sleepEnd-sleepMiddle).count()<<'\n';
     CircuitDocument document;document.part("board").model="esp32";Esp8266Board board;board.configure("esp32");std::vector<int> outputs;
     for(int pin:board.profile().gpio)if(std::find(board.profile().inputOnly.begin(),board.profile().inputOnly.end(),pin)==board.profile().inputOnly.end()&&outputs.size()<16){outputs.push_back(pin);board.pinMode(pin,PinMode::Output);const auto resistor=document.addPart(PartKind::Resistor,300,outputs.size()*40),led=document.addPart(PartKind::Led,500,outputs.size()*40);document.part(resistor).value=330;document.connect({"board",board.profile().pinName(pin)},{resistor,"1"});document.connect({resistor,"2"},{led,"A"});document.connect({led,"K"},{"board","GND"});}
     const auto begin=Clock::now();for(int step=0;step<500;++step){for(int pin:outputs)board.digitalWrite(pin,step%2);const auto state=document.solve(board);if(!state.errors.empty())throw std::runtime_error(state.errors.front());}

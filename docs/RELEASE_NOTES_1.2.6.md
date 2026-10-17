@@ -58,7 +58,9 @@ beim erneuten Speichern erhalten.
 ## Plattformen
 
 Windows-Installer mit gebündeltem Compiler und lokalem GDB samt zugehörigen
-Lizenzen/Quellpaketen. Linux-Pakete empfehlen GDB als optionales Werkzeug;
+Lizenzen/Quellpaketen. Kurze Sketch-Wartezeiten verwenden unter Windows einen
+hochauflösenden Timer ohne aktives Warten. Das UART-Beispiel berücksichtigt den
+unabhängigen Start des zweiten Boards. Linux-Pakete empfehlen GDB als optionales Werkzeug;
 AppImage kann ein lokal installiertes GDB verwenden. Gentoo erhält zusätzlich
 zum bisherigen `examples`, `test`, `X` und `wayland` das optionale USE-Flag
 `debugger`. Portage verwaltet dort weiterhin Installation und Updates.

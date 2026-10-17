@@ -63,6 +63,7 @@ jobs:
           . .github/scripts/Invoke-Checked.ps1
           Invoke-Checked cmake @('-S', '.', '-B', 'build', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_CXX_COMPILER=cl', "-DZLIB_ROOT=$env:ZLIB_ROOT", "-DZLIB_LIBRARY_RELEASE=$env:ZLIB_ROOT/lib/zs.lib", "-DTHINKERCAD_PUBLISHER_SHA256=$env:PUBLISHER_SHA256")
           Invoke-Checked cmake @('--build', 'build', '--parallel', '2')
+          Invoke-Checked "$pwd/build/performance_probe.exe" @()
           & ctest --test-dir build --output-on-failure
           $testExitCode = $LASTEXITCODE
           if (Test-Path build/desktop-tests.txt) { Get-Content build/desktop-tests.txt | Write-Host }

@@ -1,5 +1,6 @@
 #pragma once
 #include "debugio.hpp"
+#include "hostsleep.hpp"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -93,7 +94,7 @@ inline void advance(std::uint64_t us) {
         if(interruptsRegistered())step=std::min<std::uint64_t>(step,1000);
 #endif
         for(const auto& [pin,deadline]:toneDeadlines)if(deadline>clockUs)step=std::min(step,deadline-clockUs);
-        std::this_thread::sleep_for(std::chrono::microseconds(step * 1000 / speed));
+        hostSleep(std::chrono::microseconds(step * 1000 / speed));
         clockUs += step;us -= step;
         std::cout << "TIME " << clockUs << std::endl;
         for(auto it=toneDeadlines.begin();it!=toneDeadlines.end();){
