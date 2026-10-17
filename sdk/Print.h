@@ -10,7 +10,7 @@
 #include <vector>
 constexpr int DEC=10, HEX=16, OCT=8, BIN=2;
 class __FlashStringHelper;
-using String=std::string;
+#include "WString.h"
 class Print {
 public:
     virtual ~Print()=default;

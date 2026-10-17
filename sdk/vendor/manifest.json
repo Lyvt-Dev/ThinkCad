@@ -1,0 +1,166 @@
+[
+  {
+    "repository": "adafruit/Adafruit_BME280_Library",
+    "commit": "ef712e95147de926b4545e379f6296ad271529b5",
+    "tag": "2.3.0",
+    "directory": "bme280",
+    "files": [
+      {
+        "file": "Adafruit_BME280.cpp",
+        "sha256": "7298a9c56b33f4a47f3575c5fc5f69813fc6ebfd353c225a6e0ef74bb3ad9ea4"
+      },
+      {
+        "file": "Adafruit_BME280.h",
+        "sha256": "f729ff2105b1a1b45f6076db15738799532910b8027949e682e59e60a38f239a"
+      },
+      {
+        "file": "LICENSE",
+        "sha256": "13674a96d196c176979b16fac26c1740da570270bf691119f67d00c699507a90"
+      }
+    ]
+  },
+  {
+    "repository": "adafruit/Adafruit_MPU6050",
+    "commit": "502a7caccda630a151dfb03ecbdd4b8452809ef7",
+    "tag": "2.2.9",
+    "directory": "mpu6050",
+    "files": [
+      {
+        "file": "Adafruit_MPU6050.cpp",
+        "sha256": "dc18db3e4b03319b07f59de899d943d7d1d23c5f4e183535cb16ca6968500f1c"
+      },
+      {
+        "file": "Adafruit_MPU6050.h",
+        "sha256": "d4e744a8a1a87df4c9ceec8ded365b1d9d5b8bb2f3b3311aaa936011827c369a"
+      },
+      {
+        "file": "license.txt",
+        "sha256": "8dfcf676d6c02c97e3ffeceb4d26df8b7cb65528fb6139d6be35de60b6b909c8"
+      }
+    ]
+  },
+  {
+    "repository": "adafruit/Adafruit_BusIO",
+    "commit": "3b8364267c3ee6e16bad91bc2101aefbd5b5915f",
+    "tag": "1.17.4",
+    "directory": "busio",
+    "files": [
+      {
+        "file": "Adafruit_BusIO_Register.cpp",
+        "sha256": "9a0af578ea07956296834f4505e5b134ad7e1cc22ac9c9d84a640a07a94f870b"
+      },
+      {
+        "file": "Adafruit_BusIO_Register.h",
+        "sha256": "91560f9fc1b8cda42ab039ccdfe0abf92bf09c425a6142ff54af099809b9d47a"
+      },
+      {
+        "file": "Adafruit_GenericDevice.cpp",
+        "sha256": "c26d9c1207c3626fb95884f01cc1f8179fcd7c2c6b0583fff25187c4f2c814d2"
+      },
+      {
+        "file": "Adafruit_GenericDevice.h",
+        "sha256": "b12c364e359a0aba6aabc440bc64e375b825214a2835fa1bf38ac709f9e25546"
+      },
+      {
+        "file": "Adafruit_I2CDevice.cpp",
+        "sha256": "317c342821f1df676a0e034f65685b4d6bf240d2ab8dcea91d18f1e063326d37"
+      },
+      {
+        "file": "Adafruit_I2CDevice.h",
+        "sha256": "88b843d7a44e3f974950d883649e5682f21d9f8ce135daff3a42d015f7cd27e7"
+      },
+      {
+        "file": "Adafruit_I2CRegister.h",
+        "sha256": "8318d1f65d5468742c0aa48bd50a7e3bd4ddf02e3eba11bc01ad50cf9c20bc67"
+      },
+      {
+        "file": "Adafruit_SPIDevice.cpp",
+        "sha256": "f846ee438eee41bef174c6dbe1f689f7ccbbd732ca4261c7b9e9337b1e5d08b5"
+      },
+      {
+        "file": "Adafruit_SPIDevice.h",
+        "sha256": "58ff1433718cef7317638403160d5dd918d92c0f7b4204fb08ad401751d74508"
+      },
+      {
+        "file": "LICENSE",
+        "sha256": "86e9fafdb50d2a85d8fef369b4635b5a1b89160603e5b1f95484df0804b49508"
+      }
+    ]
+  },
+  {
+    "repository": "adafruit/Adafruit_Sensor",
+    "commit": "0a9127a1e886ff1adb4c1b6f5958b24108d55aa6",
+    "tag": "1.1.15",
+    "directory": "sensor",
+    "files": [
+      {
+        "file": "Adafruit_Sensor.cpp",
+        "sha256": "e6cc18df0ce4dd1894b224b232d3b589536cac8ed201025f6e900facd40e7bcb"
+      },
+      {
+        "file": "Adafruit_Sensor.h",
+        "sha256": "7f3a6d8889e9d852aecf1c64cdab9d66d801101ae03a9af28e86021245b04c64"
+      },
+      {
+        "file": "LICENSE.txt",
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      }
+    ]
+  },
+  {
+    "repository": "miguelbalboa/rfid",
+    "commit": "0456ce0cf149c8a5393fff03b1d8a9a8d6236437",
+    "tag": "1.4.12",
+    "directory": "mfrc522",
+    "files": [
+      {
+        "file": "UNLICENSE",
+        "sha256": "b5065838cbac452dfc855ba6e6e031481ad2c68406f70d21ead9321374653e6c"
+      },
+      {
+        "file": "MFRC522.cpp",
+        "sha256": "bcb6372c98c0ecaa5255c389d1aab846d049fb5a2771307fa38c94ca9fea26cb"
+      },
+      {
+        "file": "MFRC522.h",
+        "sha256": "f89dc0fd87ee32bb4b0a821b4aaf5d987e7d13c4317adab4a262919a699279e6"
+      },
+      {
+        "file": "MFRC522Extended.cpp",
+        "sha256": "a8b6d79a35373a98a5a38a13f4e07f43decf29c91a3e12eceec3233040e578e6"
+      },
+      {
+        "file": "MFRC522Extended.h",
+        "sha256": "39e6c7adaeb47e448fd142f5c0dc2a22831d835fc41c3f8494f2d433d8c700f3"
+      },
+      {
+        "file": "deprecated.h",
+        "sha256": "71a0b9ba0394cba3456f2ac4036def1f80f90a1fc0ea87fc085366909c737de2"
+      },
+      {
+        "file": "require_cpp11.h",
+        "sha256": "8699f331ace2dd84009e4e93395c7e0bb3a5d93b3fc9cb67ae4fefd7f3b78a25"
+      }
+    ]
+  },
+  {
+    "repository": "milesburton/Arduino-Temperature-Control-Library",
+    "commit": "3f570bbe2d0ad3cae55663cfaec1fedbc5b4fa50",
+    "tag": "4.0.6",
+    "directory": "dallas",
+    "files": [
+      {
+        "file": "DallasTemperature.cpp",
+        "sha256": "a1a02460c65649b238b1cef32291052eef8214dc1c2c8b54b83b2a1456b3bf10"
+      },
+      {
+        "file": "DallasTemperature.h",
+        "sha256": "4c0d12e1fe33653655f207847668833d378f34de3dfcc9c300a4fdaf8e3ac197"
+      },
+      {
+        "file": "LICENSE",
+        "sha256": "d1656adecdddcf223dfbb2d3056491226836acb671d9f1b09870008036633951"
+      }
+    ]
+  }
+]

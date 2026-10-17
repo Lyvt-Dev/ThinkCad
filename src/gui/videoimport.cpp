@@ -15,10 +15,25 @@
 #include <QUrl>
 #include <QVBoxLayout>
 #include <QVideoFrame>
+#include <QVideoFrameFormat>
 #include <algorithm>
 #include <exception>
 #include <stdexcept>
 VideoImportDialog::VideoImportDialog(const QString& source,QWidget* parent):QDialog(parent),source_(source){
+#if defined(Q_OS_LINUX) && QT_VERSION < QT_VERSION_CHECK(6,5,0)
+    // Qt 6.4 probes graphics capabilities lazily even with raster widgets.
+    // Do this before playback: first-frame EGL initialization can exceed
+    // GStreamer's render deadline on cold/headless Wayland systems.
+    static const bool readbackReady=[] {
+        QVideoFrame frame(QVideoFrameFormat(QSize(2,2),QVideoFrameFormat::Format_YUV420P));
+        if(frame.map(QVideoFrame::WriteOnly)){
+            for(int plane=0;plane<frame.planeCount();++plane)std::fill_n(frame.bits(plane),frame.mappedBytes(plane),uchar(0));
+            frame.unmap();(void)frame.toImage();
+        }
+        return true;
+    }();
+    Q_UNUSED(readbackReady);
+#endif
     setObjectName("videoImportDialog");setWindowTitle(Language::text("Video in frames.h umwandeln"));resize(540,520);
     auto* layout=new QVBoxLayout(this);layout->setContentsMargins(20,20,20,20);layout->setSpacing(14);
     auto* file=new QLabel(QFileInfo(source).fileName());file->setTextFormat(Qt::PlainText);file->setWordWrap(true);file->setToolTip(source);layout->addWidget(file);

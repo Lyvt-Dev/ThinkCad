@@ -1,5 +1,6 @@
 #include "language.hpp"
 #include "examples.hpp"
+#include "moduleexamples.hpp"
 #include "paths.hpp"
 #include <QCoreApplication>
 #include <QFile>
@@ -7,6 +8,11 @@
 #include <algorithm>
 using namespace thinkercad;
 QList<CircuitExample> ExampleCatalog::entries(){return {
+    {"pico_bme280",Language::text("Pico: BME280 über I²C"),Language::text("RP2040 mit BME280 an GPIO0/1. Sensorwerte im Simulationsinspektor ändern.")},
+    {"s3_mpu6050","ESP32-S3: MPU6050",Language::text("Beschleunigung und Drehrate über I²C an GPIO8/9; echte Adafruit-Bibliothek.")},
+    {"ultrasonic_distance",Language::text("HC-SR04: Abstand messen"),Language::text("Uno D2/D3, 5 V. Distanz im Simulationsinspektor verändern; Echozeit wird gemessen.")},
+    {"neopixel_strip",Language::text("WS2812: RGB-Animation"),Language::text("Acht RGB-Pixel an Uno D6 und 5 V. Animation mit modellierter Übertragungs- und Latch-Zeit.")},
+    {"uart_pair",Language::text("UART: zwei ESP32"),Language::text("Zwei getrennte Sketches mit gekreuzten RX/TX-Leitungen und gemeinsamem GND.")},
     {"keypad_matrix",Language::text("Keypad: 4×4-Matrix scannen"),Language::text("Uno D2–D5: Zeilen; D6–D9: Spalten. Tastenfenster öffnen und gedrückt halten.")},
     {"midi_keyboard",Language::text("MIDI: 25-Tasten-Keyboard"),Language::text("Elektrische 4×8-Matrix an D2–D13. MIDI-Noten aus dem Sketch im MIDI-Tab; keine direkte MIDI-Injektion nötig.")},
     {"dj_controller",Language::text("DJ: Encoder, Fader und MIDI-Pad"),Language::text("Uno mit Quadratur-Encoder, analogem Fader und Taster. MIDI-CC und Note On/Off im MIDI-Tab ansehen und übersetzen.")},
@@ -48,7 +54,8 @@ SavedProject ExampleCatalog::create(const QString& id){
     auto oled=[&](double x,double y,int address){const auto display=doc.addPart(PartKind::Oled,x,y);doc.part(display).value=address;
         doc.connect({"board","3V3"},{display,"VCC"},"#ec5967");doc.connect({"board","GND"},{display,"GND"},"#64748b");doc.connect({"board","GPIO5"},{display,"SCL"},"#e9ad33");doc.connect({"board","GPIO4"},{display,"SDA"},"#378bcb");};
     auto power=[&](const std::string& board,const std::string& module){doc.connect({board,"3V3"},{module,"VCC"},"#ef4444");doc.connect({board,"GND"},{module,"GND"},"#64748b");};
-    if(id=="keypad_matrix"||id=="midi_keyboard"){
+    if(configureModuleExample(id,result)){}
+    else if(id=="keypad_matrix"||id=="midi_keyboard"){
         doc.part("board").model="arduino-uno";const auto input=doc.addPart(id=="keypad_matrix"?PartKind::Keypad:PartKind::Keyboard,650,100);for(int r=0;r<4;++r)doc.connect({input,"R"+std::to_string(r+1)},{"board","D"+std::to_string(2+r)});for(int c=0;c<(id=="keypad_matrix"?4:8);++c)doc.connect({input,"C"+std::to_string(c+1)},{"board","D"+std::to_string(6+c)});
     }else if(id=="dj_controller"){
         doc.part("board").model="arduino-uno";auto encoder=doc.addPart(PartKind::RotaryEncoder,650,0),fader=doc.addPart(PartKind::Potentiometer,650,220),pad=doc.addPart(PartKind::Button,650,420);for(const auto& item:std::vector<std::pair<std::string,std::string>>{{"A","D2"},{"B","D3"},{"SW","D4"},{"GND","GND"}})doc.connect({encoder,item.first},{"board",item.second});doc.connect({fader,"1"},{"board","GND"});doc.connect({fader,"2"},{"board","5V"});doc.connect({fader,"W"},{"board","A0"});doc.connect({pad,"1"},{"board","D5"});doc.connect({pad,"2"},{"board","GND"});

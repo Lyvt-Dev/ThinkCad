@@ -28,7 +28,7 @@ jobs:
           msystem: UCRT64
           location: D:\ThinkCad-msys2
           update: true
-          install: mingw-w64-ucrt-x86_64-gcc
+          install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-gdb
       - name: Prepare native compression dependency
         shell: pwsh
         run: |
@@ -57,15 +57,23 @@ jobs:
       - name: Build and test
         shell: pwsh
         env:
+          THINKCAD_REQUIRE_GDB: "1"
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
           . .github/scripts/Invoke-Checked.ps1
           Invoke-Checked cmake @('-S', '.', '-B', 'build', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_CXX_COMPILER=cl', "-DZLIB_ROOT=$env:ZLIB_ROOT", "-DZLIB_LIBRARY_RELEASE=$env:ZLIB_ROOT/lib/zs.lib", "-DTHINKERCAD_PUBLISHER_SHA256=$env:PUBLISHER_SHA256")
+          $headers = @('-std=c++20', '-fsyntax-only', '-Isdk', '-Isdk/vendor/busio', '-Isdk/vendor/sensor', '-Isdk/vendor/bme280', '-Isdk/vendor/mpu6050', '-Isdk/vendor/mfrc522', '-Isdk/vendor/dallas', 'tests/vendor_sdk_headers.cpp')
+          Invoke-Checked g++ $headers
+          Invoke-Checked g++ ($headers + @('-DTHINKCAD_DEBUG_TRANSPORT=1'))
           Invoke-Checked cmake @('--build', 'build', '--parallel', '2')
+          Invoke-Checked "$pwd/build/performance_probe.exe" @()
           & ctest --test-dir build --output-on-failure
           $testExitCode = $LASTEXITCODE
           if (Test-Path build/desktop-tests.txt) { Get-Content build/desktop-tests.txt | Write-Host }
           if (Test-Path build/experience-tests.txt) { Get-Content build/experience-tests.txt | Write-Host }
+          foreach ($name in @('collaboration-tests.txt', 'debugger-tests.txt', 'feature126-tests.txt')) {
+            if (Test-Path "build/$name") { Get-Content "build/$name" | Write-Host }
+          }
           if ($testExitCode -ne 0) { throw "CTest failed with exit code $testExitCode" }
           Invoke-Checked "$pwd/build/library_tests.exe" @('--live')
           Invoke-Checked cmake @('--install', 'build', '--prefix', "$pwd/out/stage")

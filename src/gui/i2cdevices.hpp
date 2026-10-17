@@ -1,5 +1,6 @@
 #pragma once
 #include "thinkercad/circuit.hpp"
+#include "thinkercad/moduledevices.hpp"
 #include <array>
 #include <vector>
 
@@ -7,13 +8,18 @@
 class I2cDevices {
 public:
     struct Reply {int status=2;std::vector<uint8_t> bytes;std::string id;};
-    void reset(){devices_.clear();}
+    void reset(){devices_.clear();modules_.reset();}
+    void context(thinkercad::Microseconds now,bool emulation){now_=now;emulation_=emulation;modules_.setEmulation(emulation);}
+    thinkercad::ModuleDevices& modules(){return modules_;}
     Reply transfer(const thinkercad::CircuitDocument&,const thinkercad::CircuitState&,
                    const std::string& board,int sda,int scl,int address,
-                   const std::vector<uint8_t>& data,int readCount=-1);
+                   const std::vector<uint8_t>& data,int readCount=-1,unsigned clock=400000);
     thinkercad::Frame frame(const thinkercad::CircuitPart&)const;
     double brightness(const thinkercad::CircuitPart&)const;
 private:
+    thinkercad::ModuleDevices modules_;
+    thinkercad::Microseconds now_=0;
+    bool emulation_=false;
     struct Device {
         Device(){ddram.fill(' ');}
         std::array<uint8_t,128> ddram{};std::array<uint8_t,64> cgram{};

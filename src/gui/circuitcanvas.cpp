@@ -18,6 +18,7 @@
 #include "componentdesign.hpp"
 #include <QStyleOptionGraphicsItem>
 #include "circuitcanvas.hpp"
+#include "thinkercad/modules.hpp"
 #include <QGraphicsEllipseItem>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
@@ -223,7 +224,7 @@ public:
         }else if(kind==PartKind::Breadboard30&&poweredBoard(part)){paintRailBoard(*p);
         }else if(kind==PartKind::Breadboard30){p->setBrush(QColor("#e8edf0"));p->drawRoundedRect(0,0,570,260,12,12);p->setPen(QColor("#475569"));p->setFont(QFont("Segoe UI",7));for(int n=1;n<=30;++n)p->drawText(QRectF(12+(n-1)*18,10,18,20),Qt::AlignCenter,QString::number(n));p->drawText(QRectF(10,226,550,24),Qt::AlignCenter,Language::text("a–e / f–j: je fünf Kontakte pro Spalte verbunden · keine Stromschienen"));
         }else{
-            p->drawRoundedRect(0,0,150,boundingRect().height()-16,12,12);p->setPen(QColor("#334155"));p->setFont(QFont("Segoe UI",10,QFont::DemiBold));p->drawText(QRectF(8,8,134,22),Qt::AlignCenter,partName(kind));
+            p->drawRoundedRect(0,0,150,boundingRect().height()-16,12,12);p->setPen(QColor("#334155"));p->setFont(QFont("Segoe UI",10,QFont::DemiBold));p->drawText(QRectF(8,8,134,22),Qt::AlignCenter,kind==PartKind::Module?QString::fromStdString(ModuleRegistry::get(part.model).label):partName(kind));
             if(kind==PartKind::Led||kind==PartKind::InfraredLed){const auto current=state.ledCurrent.contains(id)?state.ledCurrent.at(id):0;p->setPen(Qt::NoPen);p->setBrush(current>1e-5?QColor(QString::fromStdString(part.color)):QColor("#b6bfc9"));if(current>1e-5){auto glow=QColor(QString::fromStdString(part.color));glow.setAlpha(35);p->setBrush(glow);p->drawEllipse(QPointF(75,58),27,27);p->setBrush(QColor(QString::fromStdString(part.color)));}p->drawEllipse(QPointF(75,58),17,17);p->setPen(QColor("#64748b"));p->setFont(QFont("Segoe UI",8));p->drawText(QRectF(8,81,134,18),Qt::AlignCenter,QString("%1 mA · A → K").arg(current*1000,0,'f',1));}
             if(kind==PartKind::Resistor){p->setBrush(QColor("#e7c99b"));p->setPen(Qt::NoPen);p->drawRoundedRect(30,45,90,25,5,5);p->setBrush(QColor("#926a40"));for(int x:{48,61,83,102})p->drawRect(x,45,5,25);p->setPen(QColor("#64748b"));p->setFont(QFont("Segoe UI",8));p->drawText(QRectF(8,81,134,18),Qt::AlignCenter,QString("%1 Ω").arg(part.value));}
             if(switchable(kind)){p->setBrush(part.pressed?QColor("#0d9488"):QColor("#e2e8f0"));p->drawRoundedRect(50,39,50,34,8,8);p->setPen(QColor("#64748b"));p->setFont(QFont("Segoe UI",8));p->drawText(QRectF(8,81,134,18),Qt::AlignCenter,part.pressed?Language::text("Gedrückt"):Language::text("Zum Betätigen gedrückt halten"));}
@@ -397,6 +398,14 @@ void CircuitCanvas::dropEvent(QDropEvent* e){
 
 void CircuitCanvas::editNote(const std::string& id){if(!editingEnabled_)return;QTimer::singleShot(0,this,[this,id]{if(!editingEnabled_||std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& part){return part.id==id&&part.kind==PartKind::Note;}))return;bool ok=false;auto text=QInputDialog::getMultiLineText(this,Language::text("Notiz bearbeiten"),Language::text("Text"),QString::fromStdString(document_.part(id).model),&ok);if(ok)mutate(Language::text("Notiz bearbeiten"),[&](auto& doc){doc.part(id).model=text.toStdString();});});}
 
+void CircuitCanvas::changeParameter(const std::string& id,const std::string& name,double value){
+    const auto& part=document_.part(id);if(part.kind!=PartKind::Module)throw std::invalid_argument("Not a module parameter");const auto& model=ModuleRegistry::get(part.model);bool valid=false;
+    for(const auto& field:model.parameters)if(field.name==name&&std::isfinite(value)&&value>=field.min&&value<=field.max)valid=true;
+    if(name=="address")valid=editingEnabled_&&model.bus=="i2c"&&value==std::floor(value)&&value>=(model.builtin?model.address:8)&&value<=(model.builtin?model.address+1:119);
+    if(model.implementation=="ws2812"&&name=="pixels")valid=valid&&editingEnabled_&&value==std::floor(value);
+    if(!valid)throw std::invalid_argument("Module parameter outside its allowed range");if(parameter(part,name,name=="address"?model.address:0)==value&&part.parameters.contains(name))return;
+    if(editingEnabled_)mutate(Language::text("Modulparameter ändern"),[&](auto& doc){doc.part(id).parameters[name]=value;});else{document_.part(id).parameters[name]=value;viewport()->update();emit inputValueChanged();emit runtimeInputChanged();}
+}
 void CircuitCanvas::setKeyPressed(const std::string& id,int key,bool pressed){auto it=std::find_if(document_.parts().begin(),document_.parts().end(),[&](const auto& p){return p.id==id;});if(it==document_.parts().end()||(it->kind!=PartKind::Keypad&&it->kind!=PartKind::Keyboard)||key<0||key>=(it->kind==PartKind::Keypad?16:25))return;auto& p=document_.part(id);auto mask=static_cast<uint32_t>(parameter(p,"keys",0));if(pressed)mask|=1u<<key;else mask&=~(1u<<key);if(mask)p.parameters["keys"]=mask;else p.parameters.erase("keys");if(parts_.contains(id))parts_.at(id)->update();emit runtimeInputChanged();}
 
 void CircuitCanvas::setEncoderInput(const std::string& id,int phase,int switchState){if(std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& p){return p.id==id&&p.kind==PartKind::RotaryEncoder;}))return;auto& part=document_.part(id);if(phase>=0)part.parameters["phase"]=phase%4;if(switchState>=0)part.parameters["switch"]=switchState?1:0;emit runtimeInputChanged();}

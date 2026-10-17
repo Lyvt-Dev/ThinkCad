@@ -9,6 +9,8 @@
 
 namespace thinkercad {
 using Microseconds = std::uint64_t;
+enum class ExecutionMode { Simulation, Emulation };
+inline const char* executionModeName(ExecutionMode mode){return mode==ExecutionMode::Emulation?"emulation":"simulation";}
 enum class PinMode { Input, InputPullup, Output };
 enum class Level { Floating, Low, High, Contention };
 struct Pin { PinMode mode = PinMode::Input; bool output = false; Level external = Level::Floating; unsigned frequency = 0; double duty = 0.5; bool pwm = false; };
@@ -40,9 +42,11 @@ struct BoardProfile {
     double voltage=3.3; int builtinLed=2;
     bool arduino()const{return id=="arduino-uno"||id=="arduino-nano";}
     bool supportsPwm(int gpio)const;
+    std::array<int,4> spiPins()const;
     std::string pinName(int gpio)const;
     int pinNumber(const std::string& name)const;
     static BoardProfile get(const std::string& id);
+    static std::vector<std::string> catalog();
 };
 class Esp8266Board final : public Board {
 public:

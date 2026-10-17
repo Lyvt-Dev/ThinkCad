@@ -1,13 +1,31 @@
 # ThinkCad
 
 Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, für **Windows und Linux**. **macOS wird nicht unterstützt.**
-ThinkCad bietet ESP8266-, ESP32-, ESP32-S3-,
-Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, 61 elektrische Bauteiltypen und Notizen,
+ThinkCad bietet ESP8266-, ESP32-Varianten, RP2040-/Pico-, STM32-Basis-,
+Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, elektrische Bauteile,
+erweiterbare Sensormodule und Notizen,
 SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
 ![ThinkCad: native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
+
+## Neu in 1.2.6
+
+- Projektmodus **Simulation / Emulation**, globaler Standard und kompatibles Laden alter Projekte.
+- Moderne Boardprofile und BME280, MPU6050, DHT22, HC-SR04, DS18B20,
+  WS2812B, RC522, L298N und MCP3008; echte ausgewählte Bibliotheken und lokale Datenpakete.
+- Native [Quellcode-Debugger](docs/SOURCE_DEBUGGER.md),
+  [Pin-/Register-/Bus-Inspektoren und Sensorsteuerung](docs/SIMULATION_INSPECTOR.md).
+- [Lokale LAN-Zusammenarbeit](docs/LOCAL_COLLABORATION.md) mit getrennten Speicherpfaden,
+  Konfliktauflösung und gesicherten lokalen Entwürfen; kein Konto oder zentraler Server.
+- Gruppierte Einstellungen und sechs Sprachen für die neuen Werkzeuge.
+- Fünf verdrahtete Beispiele, darunter Pico/BME280, ESP32-S3/MPU6050 und zwei UART-Sketches.
+- Gentoo: optionales USE-Flag `debugger` installiert lokales GDB; `examples`, `test`,
+  `X` und `wayland` bleiben verfügbar. Windows bündelt GDB; Linux-Pakete empfehlen es.
+
+[Release Notes 1.2.6](docs/RELEASE_NOTES_1.2.6.md) ·
+[Modellgrenzen](docs/development/1.2.6-device-matrix.md)
 
 ## Neu in 1.2.4: Montage und MIDI
 
@@ -390,7 +408,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=1.2.4 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=1.2.6 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,
