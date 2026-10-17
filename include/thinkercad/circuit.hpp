@@ -4,7 +4,8 @@
 #include <set>
 #include <tuple>
 namespace thinkercad {
-enum class PartKind { Esp8266, Oled, Led, Resistor, Button, AnalogSource, Potentiometer, Photoresistor, Thermistor, SlideSwitch, TiltSwitch, ReedSwitch, Diode, Battery3V, Battery9V, PowerSupply, RGBLed, SevenSegment, Voltmeter, Breadboard30, PiezoBuzzer, Speaker, TemperatureSensor, BatteryAA, ToggleSwitch, Capacitor, Inductor, NpnTransistor, PnpTransistor, NMosfet, PMosfet, OpAmp, Ground, FunctionGenerator, Oscilloscope, LogicAnalyzer, CurrentProbe, Junction, NetLabel, CharacterLcd, I2cCharacterLcd, AndGate, NandGate, OrGate, NorGate, XorGate, XnorGate, NotGate, ServoMotor, DcMotor, InfraredLed, InfraredReceiver, InfraredRemote, NfcReader, NfcTestCard, RadioTransmitter, RadioReceiver, RadioTransceiver, Note, Module };
+// Append only: these numeric values are persisted in project files.
+enum class PartKind { Esp8266, Oled, Led, Resistor, Button, AnalogSource, Potentiometer, Photoresistor, Thermistor, SlideSwitch, TiltSwitch, ReedSwitch, Diode, Battery3V, Battery9V, PowerSupply, RGBLed, SevenSegment, Voltmeter, Breadboard30, PiezoBuzzer, Speaker, TemperatureSensor, BatteryAA, ToggleSwitch, Capacitor, Inductor, NpnTransistor, PnpTransistor, NMosfet, PMosfet, OpAmp, Ground, FunctionGenerator, Oscilloscope, LogicAnalyzer, CurrentProbe, Junction, NetLabel, CharacterLcd, I2cCharacterLcd, AndGate, NandGate, OrGate, NorGate, XorGate, XnorGate, NotGate, ServoMotor, DcMotor, InfraredLed, InfraredReceiver, InfraredRemote, NfcReader, NfcTestCard, RadioTransmitter, RadioReceiver, RadioTransceiver, Note, Keypad, Keyboard, RotaryEncoder, Module };
 struct ComponentSpec {PartKind kind;std::string label,unit;double initial,min,max;bool adjustable;};
 const std::vector<ComponentSpec>& componentCatalog();
 const ComponentSpec& componentSpec(PartKind kind);
@@ -27,7 +28,7 @@ struct CircuitPart {
 };
 double parameter(const CircuitPart& part,const std::string& name,double fallback);
 struct WirePoint { double x=0,y=0; };
-struct CircuitWire { std::string id; Endpoint a,b; std::string color="#0d9488"; std::vector<WirePoint> points; };
+struct CircuitWire { std::string id; Endpoint a,b; std::string color="#0d9488"; std::vector<WirePoint> points; bool direct=false; };
 struct SoundSignal {
     std::string id;
     double frequency=0, amplitude=0; // Normalized AC peak, including electrical attenuation.

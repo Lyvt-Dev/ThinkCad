@@ -48,6 +48,9 @@ const std::vector<ComponentSpec>& componentCatalog(){static const std::vector<Co
 {PartKind::RadioReceiver,"433-MHz-Empfänger (ASK)"," MHz",433.92,300,928,true},
 {PartKind::RadioTransceiver,"nRF24L01+ (SPI)"," Kanal",76,0,125,true},
 {PartKind::Note,"Notiz","",0,0,0,false},
+{PartKind::Keypad,"Matrix-Keypad 4×4","",0,0,0,false},
+{PartKind::Keyboard,"Keyboard 25 Tasten (Matrix / MIDI)","",0,0,0,false},
+{PartKind::RotaryEncoder,"Drehencoder mit Taster","",0,0,0,false},
 {PartKind::Module,"Sensormodul","",0,0,1e9,false}
 };return types;}
 double parameter(const CircuitPart& part,const std::string& name,double fallback){auto found=part.parameters.find(name);return found==part.parameters.end()?fallback:found->second;}
@@ -71,7 +74,10 @@ struct Nodes {
         std::map<std::string,Endpoint> named;for(const auto& p:doc.parts())if(p.kind==PartKind::NetLabel&&!p.netName.empty()){auto [it,inserted]=named.emplace(p.netName,Endpoint{p.id,"NET"});if(!inserted)join(it->second,{p.id,"NET"});}
         for(const auto& p:doc.parts()){
             if((p.kind==PartKind::ToggleSwitch||p.kind==PartKind::Button||p.kind==PartKind::TiltSwitch||p.kind==PartKind::ReedSwitch)&&p.pressed)join({p.id,"1"},{p.id,"2"});
+            if(p.kind==PartKind::RotaryEncoder){const int phase=parameter(p,"phase",0);if(phase==1||phase==2)join({p.id,"A"},{p.id,"GND"});if(phase==2||phase==3)join({p.id,"B"},{p.id,"GND"});if(parameter(p,"switch",0))join({p.id,"SW"},{p.id,"GND"});}
+            if(p.kind==PartKind::Keypad||p.kind==PartKind::Keyboard){const auto mask=static_cast<uint32_t>(parameter(p,"keys",0));const int columns=p.kind==PartKind::Keypad?4:8;for(int key=0;key<(p.kind==PartKind::Keypad?16:25);++key)if(mask&(1u<<key))join({p.id,"R"+std::to_string(key/columns+1)},{p.id,"C"+std::to_string(key%columns+1)});}
             if(p.kind==PartKind::SlideSwitch)join({p.id,"C"},{p.id,p.pressed?"2":"1"});
+            if(p.kind==PartKind::Breadboard30&&p.model=="power-rails")for(const auto& rail:{"T+","T-","B+","B-"})for(int n=2;n<=25;++n)join({p.id,std::string(rail)+"1"},{p.id,std::string(rail)+std::to_string(n)});
             if(p.kind==PartKind::Breadboard30)for(int n=1;n<=30;++n)for(char start:{'a','f'})for(int j=1;j<5;++j)join({p.id,std::string(1,start)+std::to_string(n)},{p.id,std::string(1,start+j)+std::to_string(n)});
         }
     }
@@ -113,6 +119,9 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
     if(k==PartKind::InfraredReceiver)return {"VCC","GND","OUT"};
     if(k==PartKind::Note||k==PartKind::InfraredRemote||k==PartKind::NfcTestCard)return {};
     if(k==PartKind::NfcReader)return {"VCC","GND","SDA","SCL","IRQ","RST"};
+    if(k==PartKind::RotaryEncoder)return {"A","B","SW","GND"};
+    if(k==PartKind::Keypad)return {"R1","R2","R3","R4","C1","C2","C3","C4"};
+    if(k==PartKind::Keyboard)return {"R1","R2","R3","R4","C1","C2","C3","C4","C5","C6","C7","C8"};
     if(k==PartKind::RadioTransmitter||k==PartKind::RadioReceiver)return {"VCC","GND","DATA"};
     if(k==PartKind::RadioTransceiver)return {"VCC","GND","SCK","MISO","MOSI","CSN","CE","IRQ"};
     if(k==PartKind::ServoMotor)return {"GND","VCC","SIGNAL"};
@@ -142,6 +151,9 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
 }
 std::vector<std::string> CircuitDocument::pins(const CircuitPart& part){
     if(part.kind==PartKind::Module)return ModuleRegistry::get(part.model.empty()?"bme280":part.model).pins;
+    if(part.kind==PartKind::Keypad)return {"R1","R2","R3","R4","C1","C2","C3","C4"};
+    if(part.kind==PartKind::Breadboard30&&part.model=="power-rails"){auto result=pins(part.kind);for(const auto& rail:{"T+","T-","B+","B-"})for(int n=1;n<=25;++n)result.push_back(std::string(rail)+std::to_string(n));return result;}
+
     if(part.kind!=PartKind::Esp8266||part.model.empty()||part.model=="esp8266")return pins(part.kind);
     const auto profile=BoardProfile::get(part.model);
     if(profile.arduino()){std::vector<std::string> names{"5V","3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.push_back("GND2");return names;}
@@ -196,7 +208,9 @@ void CircuitDocument::validate() const {
         if(p.parameters.size()>(p.kind==PartKind::Module?32u:16u))throw std::invalid_argument("Too many component parameters");
         for(const auto& [key,value]:p.parameters){
             if(!std::isfinite(value))throw std::invalid_argument("Non-finite component parameter");
-            bool valid=p.kind==PartKind::Note&&(key=="noteWidth"||key=="noteHeight")&&value>=32&&value<=4096;
+            bool valid=(p.kind==PartKind::Keypad||p.kind==PartKind::Keyboard)&&key=="keys"&&value>=0&&value<=(p.kind==PartKind::Keypad?65535.:33554431.)&&std::floor(value)==value;
+            valid|=p.kind==PartKind::RotaryEncoder&&((key=="phase"&&value>=0&&value<=3&&std::floor(value)==value)||(key=="switch"&&(value==0||value==1)));
+            valid|=p.kind==PartKind::Note&&(key=="noteWidth"||key=="noteHeight")&&value>=32&&value<=4096;
             valid|=p.kind==PartKind::FunctionGenerator&&((key=="amplitude"&&value>=0&&value<=25)||(key=="offset"&&std::abs(value)<=25)||(key=="duty"&&value>=0.01&&value<=0.99)||(key=="waveform"&&value>=0&&value<=3&&std::floor(value)==value));
             valid|=p.kind==PartKind::Inductor&&key=="resistance"&&value>=0.001&&value<=100000;
             valid|=(p.kind==PartKind::NMosfet||p.kind==PartKind::PMosfet)&&key=="k"&&value>=0.00001&&value<=10;

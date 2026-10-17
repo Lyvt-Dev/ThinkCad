@@ -41,6 +41,8 @@ public:
     void editNote(const std::string& id);
     void toggleButton(const std::string& id);
     void setButtonPressed(const std::string& id,bool pressed);
+    void setEncoderInput(const std::string& id,int phase,int switchState=-1);
+    void setKeyPressed(const std::string& id,int key,bool pressed);
     void changeValue(const std::string& id,double value);
     void changeParameter(const std::string& id,const std::string& name,double value);
     void recordMove(const thinkercad::CircuitDocument& before);
@@ -55,12 +57,14 @@ signals:
     void documentChanged();
     void selectionChanged();
     void runtimeInputChanged();
+    void componentInputRequested(const QString& id);
     void inputValueChanged();
     void notice(const QString& text);
 protected:
     void focusOutEvent(QFocusEvent* event) override;
     void dragEnterEvent(QDragEnterEvent*) override;
     void dragMoveEvent(QDragMoveEvent*) override;
+    void dragLeaveEvent(QDragLeaveEvent*) override;
     void dropEvent(QDropEvent*) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
@@ -75,6 +79,8 @@ private:
     std::map<std::string,PartItem*> parts_;
     std::optional<thinkercad::Endpoint> wireStart_;
     QGraphicsPathItem* preview_=nullptr;
+    QGraphicsItem* placementPreview_=nullptr;
+    void clearPlacementPreview();
     QColor wireColor_{"#0d9488"};
     bool editingEnabled_=true,wireMode_=false,panning_=false;
     QPoint panOrigin_;

@@ -1,3 +1,4 @@
+#include "breadboardlayout.hpp"
 #include "notelayout.hpp"
 #include <QGraphicsSceneHoverEvent>
 #include <QGraphicsSimpleTextItem>
@@ -38,8 +39,8 @@ QPainterPath wirePath(QPointF a,QPointF b) {QPainterPath p(a);p.lineTo(b);return
 QString partName(PartKind kind){return Language::text(QString::fromStdString(componentSpec(kind).label));}
 bool switchable(PartKind kind){return kind==PartKind::InfraredRemote||kind==PartKind::NfcTestCard||kind==PartKind::ToggleSwitch||kind==PartKind::Button||kind==PartKind::SlideSwitch||kind==PartKind::TiltSwitch||kind==PartKind::ReedSwitch;}
 double blockBoardScale(const CircuitPart& part){return part.kind==PartKind::Esp8266&&BoardProfile::get(part.model).arduino()?1.25:1.0;}
-QRectF blockBounds(const CircuitPart& part){const double scale=blockBoardScale(part);if(part.kind==PartKind::Note)return noteBounds(part);return part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd?QRectF(-10,-10,250,160):part.kind==PartKind::Junction?QRectF(-12,-12,24,24):part.kind==PartKind::NetLabel?QRectF(-8,-26,150,42):part.kind==PartKind::Esp8266?QRectF(-10*scale,-10*scale,230*scale,scale*std::max(370,202+static_cast<int>((CircuitDocument::pins(part).size()+1)/2-1)*24)):part.kind==PartKind::Oled?QRectF(-10,-10,310,224):part.kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*20));}
-QPointF localPin(const CircuitPart& part,const std::string& pin) {if(ComponentDesign::realistic())return ComponentDesign::pinPosition(part,pin);const auto kind=part.kind;
+QRectF blockBounds(const CircuitPart& part){if(part.kind>=PartKind::Keypad)return ComponentDesign::bounds(part);const double scale=blockBoardScale(part);if(poweredBoard(part))return {0,0,503,330};if(part.kind==PartKind::Note)return noteBounds(part);return part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd?QRectF(-10,-10,250,160):part.kind==PartKind::Junction?QRectF(-12,-12,24,24):part.kind==PartKind::NetLabel?QRectF(-8,-26,150,42):part.kind==PartKind::Esp8266?QRectF(-10*scale,-10*scale,230*scale,scale*std::max(370,202+static_cast<int>((CircuitDocument::pins(part).size()+1)/2-1)*24)):part.kind==PartKind::Oled?QRectF(-10,-10,310,224):part.kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*20));}
+QPointF localPin(const CircuitPart& part,const std::string& pin) {if(ComponentDesign::realistic()||part.kind>=PartKind::Keypad)return ComponentDesign::pinPosition(part,pin);const auto kind=part.kind;if(poweredBoard(part))return railBoardPin(pin);
     if(kind==PartKind::CharacterLcd||kind==PartKind::I2cCharacterLcd){const auto names=CircuitDocument::pins(part);const auto i=std::find(names.begin(),names.end(),pin)-names.begin();return {10.+i*(kind==PartKind::CharacterLcd?14.:60.),140};}
     if(kind==PartKind::Junction||kind==PartKind::NetLabel)return {0,0};
     const auto names=CircuitDocument::pins(part);const int index=static_cast<int>(std::find(names.begin(),names.end(),pin)-names.begin());
@@ -49,16 +50,49 @@ QPointF localPin(const CircuitPart& part,const std::string& pin) {if(ComponentDe
     if(names.size()>2){const int half=(names.size()+1)/2;return {index<half?0.0:150.0,44.0+(index%half)*20};}
     return {index?150.0:0.0,64};
 }
+// Work in scene coordinates so rotations, the grid and the current design agree.
+QPointF contactPosition(const CircuitPart& part,const std::string& pin){const auto center=(ComponentDesign::realistic()?ComponentDesign::bounds(part):blockBounds(part)).center();QTransform r;r.rotate(part.rotation);return QPointF(part.x,part.y)+center+r.map(localPin(part,pin)-center);}
+void seatContacts(CircuitDocument& after,const CircuitDocument& before){
+    std::set<std::string> moved;
+    for(const auto& p:after.parts()){const auto old=std::find_if(before.parts().begin(),before.parts().end(),[&](const auto& q){return q.id==p.id;});if(old==before.parts().end()||old->x!=p.x||old->y!=p.y||old->rotation!=p.rotation)moved.insert(p.id);}
+    if(moved.empty())return;
+    struct Contact{Endpoint endpoint;QPointF position;};std::vector<Contact> fixed,loose;
+    for(const auto& p:after.parts())for(const auto& pin:CircuitDocument::pins(p))(moved.contains(p.id)?loose:fixed).push_back({{p.id,pin},contactPosition(p,pin)});
+    if(loose.empty())return;
+    // Prefer a translation that seats more than one lead, then the smallest motion.
+    std::map<std::pair<int,int>,std::vector<QPointF>> holes;
+    for(const auto& b:fixed)holes[{int(std::floor(b.position.x())),int(std::floor(b.position.y()))}].push_back(b.position);
+    auto seats=[&](QPointF p){const int x=std::floor(p.x()),y=std::floor(p.y());for(int dx=-1;dx<=1;++dx)for(int dy=-1;dy<=1;++dy){auto it=holes.find({x+dx,y+dy});if(it!=holes.end())for(auto q:it->second)if(QLineF(p,q).length()<.25)return true;}return false;};
+    QPointF correction;int bestCount=0;double bestDistance=9;
+    std::set<std::pair<int,int>> tried;
+    for(const auto& a:loose)for(const auto& b:fixed){const auto delta=b.position-a.position;const auto distance=std::hypot(delta.x(),delta.y());if(distance>8||!tried.emplace(qRound(delta.x()*100),qRound(delta.y()*100)).second)continue;int count=0;
+        for(const auto& lead:loose)if(seats(lead.position+delta))++count;
+        if(count>bestCount||(count==bestCount&&distance<bestDistance)){bestCount=count;bestDistance=distance;correction=delta;}
+    }
+    if(bestCount)for(const auto& id:moved){after.part(id).x+=correction.x();after.part(id).y+=correction.y();}
+    std::vector<std::string> detached;for(const auto& wire:after.wires())if(wire.direct&&(moved.contains(wire.a.part)||moved.contains(wire.b.part)))detached.push_back(wire.id);for(const auto& id:detached)after.removeWire(id);
+    std::vector<Contact> contacts;for(const auto& p:after.parts())for(const auto& pin:CircuitDocument::pins(p))contacts.push_back({{p.id,pin},contactPosition(p,pin)});
+    for(std::size_t i=0;i<contacts.size();++i)for(std::size_t j=i+1;j<contacts.size();++j){const auto& a=contacts[i];const auto& b=contacts[j];if(a.endpoint.part==b.endpoint.part||(!moved.contains(a.endpoint.part)&&!moved.contains(b.endpoint.part))||QLineF(a.position,b.position).length()>0.25)continue;
+        if(std::none_of(after.wires().begin(),after.wires().end(),[&](const auto& w){return (w.a==a.endpoint&&w.b==b.endpoint)||(w.a==b.endpoint&&w.b==a.endpoint);})){after.connect(a.endpoint,b.endpoint);const_cast<CircuitWire&>(after.wires().back()).direct=true;}
+    }
+}
+class PlacementPreview final:public QGraphicsItem {
+public:
+    CircuitPart part;std::set<std::string> seated;
+    explicit PlacementPreview(CircuitPart p):part(std::move(p)){setData(0,"placementPreview");setAcceptedMouseButtons(Qt::NoButton);setZValue(10);setPos(part.x,part.y);}
+    QRectF boundingRect()const override{return ComponentDesign::realistic()?ComponentDesign::bounds(part):blockBounds(part);}
+    void paint(QPainter* p,const QStyleOptionGraphicsItem*,QWidget*)override{p->save();p->setOpacity(.6);if(ComponentDesign::realistic()||part.kind>=PartKind::Keypad)ComponentDesign::paint(*p,part,{},Frame{},1,false);else{p->setPen(QPen(QColor("#139ba4"),2,Qt::DashLine));p->setBrush(QColor("#c8e8e8"));p->drawRoundedRect(boundingRect(),5,5);p->drawText(boundingRect(),Qt::AlignCenter,partName(part.kind));}p->restore();for(const auto& pin:CircuitDocument::pins(part)){p->setPen(QPen(QColor(seated.contains(pin)?"#12c792":"#16a7c9"),2));p->setBrush(Qt::NoBrush);p->drawEllipse(localPin(part,pin),5,5);}}
+};
 class WireItem final:public QGraphicsPathItem {
 public:
-    WireItem(const CircuitWire& wire,const QPainterPath& path):QGraphicsPathItem(path){setData(0,"wire");setData(1,QString::fromStdString(wire.id));setFlags(ItemIsSelectable);setZValue(0);setPen(QPen(QColor(QString::fromStdString(wire.color)),2.8,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin));setToolTip(QString::fromStdString(wire.a.part+"."+wire.a.pin+" → "+wire.b.part+"."+wire.b.pin));}
+    WireItem(const CircuitWire& wire,const QPainterPath& path):QGraphicsPathItem(path){setData(0,"wire");setData(1,QString::fromStdString(wire.id));setFlags(ItemIsSelectable);setZValue(20);setPen(QPen(QColor(QString::fromStdString(wire.color)),2.8,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin));setToolTip(QString::fromStdString(wire.a.part+"."+wire.a.pin+" → "+wire.b.part+"."+wire.b.pin));}
     QPainterPath shape() const override{QPainterPathStroker s;s.setWidth(14);return s.createStroke(path());}
     void paint(QPainter* p,const QStyleOptionGraphicsItem*,QWidget*)override{auto color=pen();if(isSelected()){color.setColor(QColor("#2563eb"));color.setWidthF(5);}p->setPen(color);p->setBrush(Qt::NoBrush);p->drawPath(path());}
 };
 class BendHandle final:public QGraphicsEllipseItem {
     CircuitCanvas* canvas_;std::string id_;std::size_t index_;
 public:
-    BendHandle(CircuitCanvas* canvas,const std::string& id,std::size_t index,QPointF point):QGraphicsEllipseItem(-6,-6,12,12),canvas_(canvas),id_(id),index_(index){setData(0,"bend");setData(1,QString::fromStdString(id));setData(2,static_cast<int>(index));setPos(point);setBrush(Qt::white);setPen(QPen(QColor("#0d9488"),2));setFlags(ItemIsMovable|ItemIgnoresTransformations);setZValue(5);setCursor(Qt::SizeAllCursor);setToolTip(Language::text("Kabelknick ziehen"));}
+    BendHandle(CircuitCanvas* canvas,const std::string& id,std::size_t index,QPointF point):QGraphicsEllipseItem(-6,-6,12,12),canvas_(canvas),id_(id),index_(index){setData(0,"bend");setData(1,QString::fromStdString(id));setData(2,static_cast<int>(index));setPos(point);setBrush(Qt::white);setPen(QPen(QColor("#0d9488"),2));setFlags(ItemIsMovable|ItemIgnoresTransformations);setZValue(22);setCursor(Qt::SizeAllCursor);setToolTip(Language::text("Kabelknick ziehen"));}
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* event)override{QGraphicsEllipseItem::mouseReleaseEvent(event);const auto point=pos();QTimer::singleShot(0,canvas_,[c=canvas_,id=id_,i=index_,point]{c->moveBend(id,i,point);});}
 };
 class Snapshot final:public QUndoCommand {
@@ -91,8 +125,8 @@ public:
         const bool board=kind==PartKind::Esp8266||kind==PartKind::Oled;
         painter->setPen(QPen(board?QColor("#c7ad6d"):QColor("#929da4"),1.2));
         painter->setBrush(board?QColor("#c7ad6d"):QColor("#d4d9da"));painter->drawRoundedRect(QRectF(-4,-4,8,8),1,1);
-        painter->setPen(Qt::NoPen);painter->setBrush(QColor("#202830"));painter->drawEllipse(QRectF(-2,-2,4,4));
-        if(option->state&QStyle::State_MouseOver){painter->setPen(QPen(QColor("#14b8a6"),2));painter->setBrush(Qt::NoBrush);painter->drawEllipse(QRectF(-6,-6,12,12));}
+        painter->setPen(Qt::NoPen);const bool seated=std::any_of(canvas_->document().wires().begin(),canvas_->document().wires().end(),[&](const auto& w){return w.direct&&(w.a==endpoint_||w.b==endpoint_);});painter->setBrush(QColor(seated?"#16c9a8":"#202830"));painter->drawEllipse(QRectF(-2,-2,4,4));
+        if((option->state&QStyle::State_MouseOver)||data(3).toBool()){painter->setPen(QPen(QColor("#14b8a6"),2));painter->setBrush(Qt::NoBrush);painter->drawEllipse(QRectF(-6,-6,12,12));}
     }
     const Endpoint& endpoint()const{return endpoint_;}
     void mousePressEvent(QGraphicsSceneMouseEvent* e)override{if(e->button()==Qt::LeftButton){canvas_->connectPin(endpoint_);e->accept();}else QGraphicsEllipseItem::mousePressEvent(e);}
@@ -131,7 +165,7 @@ class PartItem final:public QGraphicsItem {
 
 public:
     std::string id;PartKind kind;CircuitState state;Frame visible;double brightness=1;
-    PartItem(CircuitCanvas* c,const CircuitPart& p):canvas_(c),bounds_(realistic_&&p.kind!=PartKind::Note?ComponentDesign::bounds(p):blockBounds(p)),id(p.id),kind(p.kind){setData(0,"part");setData(1,QString::fromStdString(id));setFlags(ItemIsSelectable|ItemIsMovable|ItemSendsGeometryChanges);setZValue(1);setPos(p.x,p.y);setTransformOriginPoint(boundingRect().center());setRotation(p.rotation);initializing_=false;setCursor(Qt::OpenHandCursor);if(kind==PartKind::Note){setToolTip(QString::fromStdString(p.model));setAcceptHoverEvents(true);}for(const auto& pin:CircuitDocument::pins(p)){auto point=localPin(p,pin);auto* port=new PinItem(c,{id,pin},this);port->setPos(point);if(kind!=PartKind::Esp8266&&(kind!=PartKind::Oled||realistic_)&&kind!=PartKind::Breadboard30&&kind!=PartKind::NetLabel&&kind!=PartKind::Junction){auto* badge=new QGraphicsRectItem(this);auto* name=new QGraphicsSimpleTextItem(QString::fromStdString(pin),badge);QFont font("Sans Serif");font.setPixelSize(8);name->setFont(font);name->setBrush(QColor("#203b44"));auto size=name->boundingRect().size();badge->setRect(0,0,size.width()+4,size.height()+2);badge->setPen(Qt::NoPen);badge->setBrush(QColor(255,255,255,235));name->setPos(2,1);double x=point.x()<bounds_.center().x()?point.x()+8:point.x()-size.width()-12;double y=point.y()-size.height()-4;if(point.y()>bounds_.bottom()-30)x=point.x()-size.width()/2-2;if(kind==PartKind::Oled){x=point.x()-size.width()/2-2;y=point.y()+7;}badge->setPos(x,y);badge->setTransformOriginPoint(badge->rect().center());badge->setRotation((kind==PartKind::Oled?-90:0)-p.rotation);badge->setZValue(5);badge->setAcceptedMouseButtons(Qt::NoButton);badge->setData(0,"pinLabel");badge->setData(1,QString::fromStdString(id));badge->setData(2,QString::fromStdString(pin));name->setAcceptedMouseButtons(Qt::NoButton);}}}
+    PartItem(CircuitCanvas* c,const CircuitPart& p):canvas_(c),bounds_(realistic_&&p.kind!=PartKind::Note?ComponentDesign::bounds(p):blockBounds(p)),id(p.id),kind(p.kind){setData(0,"part");setData(1,QString::fromStdString(id));setFlags(ItemIsSelectable|ItemIsMovable|ItemSendsGeometryChanges);setZValue(p.kind==PartKind::Breadboard30?-5:1);setPos(p.x,p.y);setTransformOriginPoint(boundingRect().center());setRotation(p.rotation);initializing_=false;setCursor(Qt::OpenHandCursor);if(kind==PartKind::Note){setToolTip(QString::fromStdString(p.model));setAcceptHoverEvents(true);}for(const auto& pin:CircuitDocument::pins(p)){auto point=localPin(p,pin);auto* port=new PinItem(c,{id,pin},this);port->setPos(point);if(kind!=PartKind::Esp8266&&(kind!=PartKind::Oled||realistic_)&&kind!=PartKind::Breadboard30&&kind!=PartKind::NetLabel&&kind!=PartKind::Junction){auto* badge=new QGraphicsRectItem(this);auto* name=new QGraphicsSimpleTextItem(QString::fromStdString(pin),badge);QFont font("Sans Serif");font.setPixelSize(8);name->setFont(font);name->setBrush(QColor("#203b44"));auto size=name->boundingRect().size();badge->setRect(0,0,size.width()+4,size.height()+2);badge->setPen(Qt::NoPen);badge->setBrush(QColor(255,255,255,235));name->setPos(2,1);double x=point.x()<bounds_.center().x()?point.x()+8:point.x()-size.width()-12;double y=point.y()-size.height()-4;if(point.y()>bounds_.bottom()-30)x=point.x()-size.width()/2-2;if(kind==PartKind::Oled){x=point.x()-size.width()/2-2;y=point.y()+7;}if(realistic_||kind>=PartKind::Keypad){const auto terminals=CircuitDocument::pins(p);const bool row=std::all_of(terminals.begin(),terminals.end(),[&](const auto& other){return std::abs(localPin(p,other).y()-point.y())<.01;});if(row){x=point.x()-size.width()/2-2;y=point.y()+7;}}badge->setPos(x,y);badge->setTransformOriginPoint(badge->rect().center());badge->setRotation((kind==PartKind::Oled||kind==PartKind::CharacterLcd?-90:0)-p.rotation);badge->setZValue(5);badge->setAcceptedMouseButtons(Qt::NoButton);badge->setData(0,"pinLabel");badge->setData(1,QString::fromStdString(id));badge->setData(2,QString::fromStdString(pin));name->setAcceptedMouseButtons(Qt::NoButton);}}}
     QRectF boundingRect()const override{return bounds_;}
     QVariant itemChange(GraphicsItemChange change,const QVariant& v)override{
         if(change==ItemPositionChange&&!initializing_){auto pos=v.toPointF();pos=canvas_->snapped(pos);return QPointF(std::clamp(pos.x(),-9500.0,9500.0),std::clamp(pos.y(),-9500.0,9500.0));}
@@ -165,9 +199,9 @@ public:
             e->accept();return;
         }
         QGraphicsItem::mouseReleaseEvent(e);if(canvas_->editingEnabled()){const auto& a=before_.part(id);const auto& b=canvas_->document().part(id);if(a.x!=b.x||a.y!=b.y){const auto old=before_;QTimer::singleShot(0,canvas_,[c=canvas_,old]{c->recordMove(old);});}}}
-    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* e)override{if(kind==PartKind::Note&&canvas_->editingEnabled()){canvas_->editNote(id);e->accept();return;}if(switchable(kind)){canvas_->toggleButton(id);e->accept();}else QGraphicsItem::mouseDoubleClickEvent(e);}
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* e)override{if(kind>=PartKind::Keypad){emit canvas_->componentInputRequested(QString::fromStdString(id));e->accept();return;}if(kind==PartKind::Note&&canvas_->editingEnabled()){canvas_->editNote(id);e->accept();return;}if(switchable(kind)){canvas_->toggleButton(id);e->accept();}else QGraphicsItem::mouseDoubleClickEvent(e);}
     void paint(QPainter* p,const QStyleOptionGraphicsItem*,QWidget*)override{
-        const auto& part=canvas_->document().part(id);p->setRenderHint(QPainter::Antialiasing);
+        const auto& part=canvas_->document().part(id);if(part.kind>=PartKind::Keypad){ComponentDesign::paint(*p,part,state,visible,brightness,isSelected());return;}p->setRenderHint(QPainter::Antialiasing);
         if(kind==PartKind::Note){p->setPen(QPen(isSelected()?QColor("#168a9e"):QColor("#cfb866"),isSelected()?2:1));p->setBrush(QColor("#fff2b9"));p->drawRoundedRect(bounds_.adjusted(1,1,-1,-1),4,4);p->save();p->setClipRect(bounds_.adjusted(8,8,-8,-8));p->setPen(QColor("#4e431e"));p->setFont(noteFont());p->drawText(bounds_.adjusted(8,8,-8,-8),Qt::TextWordWrap|Qt::TextWrapAnywhere|Qt::AlignLeft|Qt::AlignTop,noteText(part));p->restore();
             if(canvas_->editingEnabled()&&(isSelected()||noteHover_)){p->setPen(QPen(QColor("#168a9e"),1));p->setBrush(Qt::white);const auto r=bounds_.adjusted(3,3,-3,-3);for(auto point:{r.topLeft(),r.topRight(),r.bottomLeft(),r.bottomRight(),QPointF(r.center().x(),r.top()),QPointF(r.center().x(),r.bottom()),QPointF(r.left(),r.center().y()),QPointF(r.right(),r.center().y())})p->drawRect(QRectF(point-QPointF(2,2),QSizeF(4,4)));}return;}
         if(kind==PartKind::CharacterLcd||kind==PartKind::I2cCharacterLcd){p->setPen(QPen(isSelected()?QColor("#2563eb"):QColor("#215b47"),2));p->setBrush(QColor("#187454"));p->drawRoundedRect(QRectF(0,0,230,130),4,4);p->setBrush(QColor("#172c21"));p->drawRect(QRectF(10,20,210,90));p->setBrush(brightness>.5?QColor("#a8be67"):QColor("#788065"));p->drawRect(QRectF(17,27,196,76));p->setPen(QColor("#d9e4d3"));p->setFont(QFont("Sans Serif",8));p->drawText(QRectF(10,1,210,18),Qt::AlignCenter,part.model=="lcd-20x4"?"HD44780 · 20 × 4":"HD44780 · 16 × 2");int cols=part.model=="lcd-20x4"?20:16,rows=part.model=="lcd-20x4"?4:2;double sx=190.0/(cols*6),sy=68.0/(rows*10);p->setPen(Qt::NoPen);p->setBrush(QColor("#263d22"));for(int y=0;y<rows*10;++y)for(int x=0;x<cols*6;++x)if(visible.pixel(x,y))p->drawRect(QRectF(20+x*sx,31+y*sy,std::max(.5,sx-.3),std::max(.5,sy-.3)));return;}
@@ -187,6 +221,7 @@ public:
             const auto v=state.voltage.find({id,"VCC"}),g=state.voltage.find({id,"GND"});const bool powered=v!=state.voltage.end()&&g!=state.voltage.end()&&v->second&&g->second&&*v->second-*g->second>=3.0;
             if(powered){auto light=QColor("#8df0eb");light.setAlphaF(brightness);p->setBrush(light);for(int y=0;y<visible.height;++y)for(int x=0;x<128;++x)if(visible.pixel(x,y))p->drawRect(QRectF(18+x*2,18+y*2,1.8,1.8));}
             p->setPen(QColor("#c3e6ef"));p->setFont(QFont("Segoe UI",9));p->drawText(QRectF(12,152,268,24),Qt::AlignCenter,QString("SSD1306 · 128 × %2 · 0x%1").arg(static_cast<int>(part.value),2,16,QChar('0')).arg(CircuitDocument::displayHeight(part)).toUpper());const QStringList pins{"GND","VCC","SCL","SDA"};p->setFont(QFont("Segoe UI",8));for(int i=0;i<4;++i)p->drawText(QRectF(27+i*66,176,42,18),Qt::AlignCenter,pins[i]);
+        }else if(kind==PartKind::Breadboard30&&poweredBoard(part)){paintRailBoard(*p);
         }else if(kind==PartKind::Breadboard30){p->setBrush(QColor("#e8edf0"));p->drawRoundedRect(0,0,570,260,12,12);p->setPen(QColor("#475569"));p->setFont(QFont("Segoe UI",7));for(int n=1;n<=30;++n)p->drawText(QRectF(12+(n-1)*18,10,18,20),Qt::AlignCenter,QString::number(n));p->drawText(QRectF(10,226,550,24),Qt::AlignCenter,Language::text("a–e / f–j: je fünf Kontakte pro Spalte verbunden · keine Stromschienen"));
         }else{
             p->drawRoundedRect(0,0,150,boundingRect().height()-16,12,12);p->setPen(QColor("#334155"));p->setFont(QFont("Segoe UI",10,QFont::DemiBold));p->drawText(QRectF(8,8,134,22),Qt::AlignCenter,kind==PartKind::Module?QString::fromStdString(ModuleRegistry::get(part.model).label):partName(kind));
@@ -211,10 +246,10 @@ public:
 CircuitCanvas::CircuitCanvas(CircuitDocument& doc,QWidget* parent):QGraphicsView(parent),document_(doc),history_(this){setScene(new QGraphicsScene(this));setAcceptDrops(true);setRenderHints(QPainter::Antialiasing|QPainter::SmoothPixmapTransform);setViewportUpdateMode(BoundingRectViewportUpdate);setDragMode(RubberBandDrag);setTransformationAnchor(AnchorUnderMouse);setMinimumSize(180,180);setFrameShape(QFrame::NoFrame);setObjectName("circuitCanvas");connect(scene(),&QGraphicsScene::selectionChanged,this,[this]{emit selectionChanged();QTimer::singleShot(0,this,&CircuitCanvas::refreshBendHandles);});connect(scene(),&QGraphicsScene::changed,this,[this]{redrawWires();});rebuild();}
 CircuitCanvas::~CircuitCanvas(){scene()->disconnect(this);}
 void CircuitCanvas::resetHistory(){history_.clear();history_.setClean();}
-void CircuitCanvas::mutate(const QString& label,std::function<void(CircuitDocument&)> action){if(!editingEnabled_){emit notice(Language::text("Simulation zuerst stoppen, um die Schaltung zu ändern."));return;}try{auto after=document_;action(after);after.validate();history_.push(new Snapshot(this,document_,std::move(after),label));}catch(const std::exception& e){emit notice(QString::fromUtf8(e.what()));}}
+void CircuitCanvas::mutate(const QString& label,std::function<void(CircuitDocument&)> action){if(!editingEnabled_){emit notice(Language::text("Simulation zuerst stoppen, um die Schaltung zu ändern."));return;}try{auto after=document_;action(after);seatContacts(after,document_);after.validate();history_.push(new Snapshot(this,document_,std::move(after),label));}catch(const std::exception& e){emit notice(QString::fromUtf8(e.what()));}}
 void CircuitCanvas::applyDocument(const CircuitDocument& doc){document_=doc;rebuild();emit documentChanged();}
 void CircuitCanvas::rebuild(){
-    QSignalBlocker sceneSignals(scene());cancelWire();
+    QSignalBlocker sceneSignals(scene());clearPlacementPreview();cancelWire();
     cancelWire();
     std::set<std::string> selectedParts,selectedWires;
     for(auto* item:scene()->selectedItems()){
@@ -230,6 +265,7 @@ void CircuitCanvas::rebuild(){
         item->setSelected(selectedParts.contains(part.id));
     }
     for(const auto& wire:document_.wires()){
+        if(wire.direct)continue;
         auto* item=new WireItem(wire,routedWire(wire));item->setFlag(QGraphicsItem::ItemIsSelectable,editingEnabled_);scene()->addItem(item);
         item->setSelected(selectedWires.contains(wire.id));
     }
@@ -245,7 +281,7 @@ QPainterPath CircuitCanvas::routedWire(const CircuitWire& wire) const {
 void CircuitCanvas::redrawWires(){for(auto* item:scene()->items())if(item->data(0)=="wire"){const auto id=item->data(1).toString().toStdString();for(const auto& w:document_.wires())if(w.id==id){auto* path=static_cast<QGraphicsPathItem*>(item);auto rendered=w;for(auto* handle:scene()->items())if(handle->data(0)=="bend"&&handle->data(1).toString().toStdString()==w.id){const auto i=handle->data(2).toInt();if(i>=0&&i<static_cast<int>(rendered.points.size()))rendered.points[i]={handle->pos().x(),handle->pos().y()};}const auto next=routedWire(rendered);if(next!=path->path())path->setPath(next);break;}}}
 void CircuitCanvas::setEditingEnabled(bool enabled){
     if(enabled&&!heldButton_.empty()){const auto id=std::exchange(heldButton_,{});setButtonPressed(id,false);}
-    editingEnabled_=enabled;cancelWire();
+    editingEnabled_=enabled;if(!enabled)clearPlacementPreview();cancelWire();
     if(!enabled)scene()->clearSelection();
     setDragMode(enabled&&!wireMode_?RubberBandDrag:NoDrag);
     for(auto* item:scene()->items()){
@@ -261,7 +297,7 @@ void CircuitCanvas::setEditingEnabled(bool enabled){
 }
 void CircuitCanvas::setWireMode(bool enabled){wireMode_=enabled;cancelWire();setDragMode(enabled||!editingEnabled_?NoDrag:RubberBandDrag);for(auto& [id,item]:parts_){(void)id;item->setFlag(QGraphicsItem::ItemIsMovable,editingEnabled_&&!enabled);}}
 QPointF CircuitCanvas::pinPosition(const Endpoint& ep)const{return parts_.at(ep.part)->mapToScene(localPin(document_.part(ep.part),ep.pin));}
-void CircuitCanvas::connectPin(const Endpoint& pin){if(!editingEnabled_){emit notice(Language::text("Simulation zuerst stoppen, um Kabel zu ändern."));return;}if(!wireStart_){wireStart_=pin;preview_=scene()->addPath(wirePath(pinPosition(pin),pinPosition(pin)),QPen(wireColor_,2,Qt::DashLine));preview_->setZValue(4);emit notice(Language::text("Zielpin anklicken. Esc bricht das Kabel ab."));return;}const auto a=*wireStart_;const auto bends=pendingBends_;cancelWire();if(a==pin)return;const auto color=wireColor_.name().toStdString();QTimer::singleShot(0,this,[this,a,pin,color,bends]{mutate(Language::text("Kabel verbinden"),[&](auto& doc){doc.connect(a,pin,color);const_cast<CircuitWire&>(doc.wires().back()).points=bends;});});}
+void CircuitCanvas::connectPin(const Endpoint& pin){if(!editingEnabled_){emit notice(Language::text("Simulation zuerst stoppen, um Kabel zu ändern."));return;}if(!wireStart_){wireStart_=pin;preview_=scene()->addPath(wirePath(pinPosition(pin),pinPosition(pin)),QPen(wireColor_,2,Qt::DashLine));preview_->setZValue(21);emit notice(Language::text("Zielpin anklicken. Esc bricht das Kabel ab."));return;}const auto a=*wireStart_;const auto bends=pendingBends_;cancelWire();if(a==pin)return;const auto color=wireColor_.name().toStdString();QTimer::singleShot(0,this,[this,a,pin,color,bends]{mutate(Language::text("Kabel verbinden"),[&](auto& doc){doc.connect(a,pin,color);const_cast<CircuitWire&>(doc.wires().back()).points=bends;});});}
 void CircuitCanvas::cancelWire(){wireStart_.reset();pendingBends_.clear();if(preview_){scene()->removeItem(preview_);delete preview_;preview_=nullptr;}}
 void CircuitCanvas::addPart(PartKind kind){const auto pos=mapToScene(viewport()->rect().center());mutate(Language::text("Bauteil hinzufügen"),[&](auto& doc){doc.addPart(kind,pos.x()-70,pos.y()-50);});}
 void CircuitCanvas::removeSelected(){std::vector<std::pair<QString,QString>> selected;for(auto* item:scene()->selectedItems())selected.emplace_back(item->data(0).toString(),item->data(1).toString());mutate(Language::text("Auswahl löschen"),[&](auto& doc){for(const auto& [kind,id]:selected)if(kind=="wire")doc.removeWire(id.toStdString());for(const auto& [kind,id]:selected)if(kind=="part")doc.removePart(id.toStdString());});}
@@ -273,7 +309,7 @@ void CircuitCanvas::rotateSelected(){
         for(const auto& id:selected){auto& part=doc.part(id);part.rotation=(part.rotation+90)%360;}
     });
 }
-void CircuitCanvas::recordMove(const CircuitDocument& before){history_.push(new Snapshot(this,before,document_,Language::text("Bauteil verschieben")));}
+void CircuitCanvas::recordMove(const CircuitDocument& before){seatContacts(document_,before);history_.push(new Snapshot(this,before,document_,Language::text("Bauteil verschieben")));}
 void CircuitCanvas::setButtonPressed(const std::string& id,bool pressed){
     if(document_.part(id).pressed==pressed)return;
     if(editingEnabled_){mutate(Language::text("Kontakt umschalten"),[&](auto& doc){doc.part(id).pressed=pressed;});return;}
@@ -291,10 +327,13 @@ QString CircuitCanvas::selectedPart()const{for(auto* item:scene()->selectedItems
 void CircuitCanvas::selectPart(const std::string& id){scene()->clearSelection();if(parts_.contains(id))parts_.at(id)->setSelected(true);}
 void CircuitCanvas::mouseMoveEvent(QMouseEvent* e){if(panning_){const auto delta=e->pos()-panOrigin_;panOrigin_=e->pos();horizontalScrollBar()->setValue(horizontalScrollBar()->value()-delta.x());verticalScrollBar()->setValue(verticalScrollBar()->value()-delta.y());e->accept();return;}QGraphicsView::mouseMoveEvent(e);if(preview_&&wireStart_)preview_->setPath(previewPath(mapToScene(e->pos())));}
 void CircuitCanvas::mousePressEvent(QMouseEvent* e){
+    if(editingEnabled_&&e->button()==Qt::LeftButton)for(auto* item:items(e->pos()))if(auto* pin=dynamic_cast<PinItem*>(item)){connectPin(pin->endpoint());e->accept();return;}
+
     if(!editingEnabled_&&e->button()!=Qt::MiddleButton){
         QGraphicsItem* hit=nullptr;for(auto* candidate:items(e->pos()))if(dynamic_cast<PartItem*>(candidate)){hit=candidate;break;}
         if(e->button()==Qt::LeftButton){
             while(hit&&hit->parentItem())hit=hit->parentItem();
+            if(auto* control=dynamic_cast<PartItem*>(hit);control&&(control->kind>=PartKind::Keypad||control->kind==PartKind::Potentiometer||control->kind==PartKind::AnalogSource||control->kind==PartKind::Photoresistor||control->kind==PartKind::Thermistor||control->kind==PartKind::TemperatureSensor||control->kind==PartKind::FunctionGenerator||control->kind==PartKind::PowerSupply)){emit componentInputRequested(QString::fromStdString(control->id));e->accept();return;}
             if(auto* part=dynamic_cast<PartItem*>(hit);part&&switchable(part->kind)){
                 if(part->kind==PartKind::Button||part->kind==PartKind::InfraredRemote){heldButton_=part->id;setButtonPressed(part->id,true);}
                 else toggleButton(part->id);
@@ -324,14 +363,14 @@ void CircuitCanvas::changeValue(const std::string& id,double value){if(editingEn
 void CircuitCanvas::copySelected(){
     SavedProject fragment;fragment.circuit.removePart("board");fragment.sketch.order={"sketch.ino"};fragment.sketch.files["sketch.ino"]="void setup(){} void loop(){}";std::set<std::string> ids;
     for(auto* item:scene()->selectedItems())if(item->data(0)=="part"){auto id=item->data(1).toString().toStdString();ids.insert(id);fragment.circuit.insertPart(document_.part(id));}
-    if(ids.empty())return;for(const auto& w:document_.wires())if(ids.contains(w.a.part)&&ids.contains(w.b.part)){fragment.circuit.connect(w.a,w.b,w.color);const_cast<CircuitWire&>(fragment.circuit.wires().back()).points=w.points;}
+    if(ids.empty())return;for(const auto& w:document_.wires())if(ids.contains(w.a.part)&&ids.contains(w.b.part)){fragment.circuit.connect(w.a,w.b,w.color);const_cast<CircuitWire&>(fragment.circuit.wires().back()).points=w.points;const_cast<CircuitWire&>(fragment.circuit.wires().back()).direct=w.direct;}
     if(clipboardSketches){auto sketches=clipboardSketches();for(auto it=sketches.begin();it!=sketches.end();++it)if(ids.contains(it.key().toStdString()))fragment.boardSketches[it.key()]=it.value();}
     auto* data=new QMimeData;data->setData("application/x-thinkcad-circuit",ProjectIO::serialize(fragment));QApplication::clipboard()->setMimeData(data);
 }
 void CircuitCanvas::paste(){
     if(!editingEnabled_)return;const auto* mime=QApplication::clipboard()->mimeData();if(!mime->hasFormat("application/x-thinkcad-circuit"))return;
     try{auto fragment=ProjectIO::deserialize(mime->data("application/x-thinkcad-circuit"));if(fragment.circuit.parts().empty())return;std::vector<std::string> created;QMap<QString,SketchProject> imported;mutate(Language::text("Bauteile einfügen"),[&](auto& doc){std::map<std::string,std::string> names;double left=1e9,top=1e9;for(const auto& p:fragment.circuit.parts()){left=std::min(left,p.x);top=std::min(top,p.y);}const auto center=snapped(mapToScene(viewport()->rect().center()));double dx=center.x()-left+30,dy=center.y()-top+30;
-        for(const auto& p:fragment.circuit.parts()){auto id=doc.addPart(p.kind,p.x+dx,p.y+dy);auto copy=p;copy.id=id;copy.x+=dx;copy.y+=dy;doc.part(id)=copy;names[p.id]=id;created.push_back(id);if(fragment.boardSketches.contains(QString::fromStdString(p.id)))imported[QString::fromStdString(id)]=fragment.boardSketches.value(QString::fromStdString(p.id));}for(const auto& w:fragment.circuit.wires()){doc.connect({names.at(w.a.part),w.a.pin},{names.at(w.b.part),w.b.pin},w.color);auto& wire=const_cast<CircuitWire&>(doc.wires().back());for(const auto& point:w.points)wire.points.push_back({point.x+dx,point.y+dy});}});if(importClipboardSketches&&!imported.isEmpty()&&std::all_of(created.begin(),created.end(),[&](const auto& id){return parts_.contains(id);}))importClipboardSketches(imported);scene()->clearSelection();for(const auto& id:created)if(parts_.contains(id))parts_.at(id)->setSelected(true);
+        for(const auto& p:fragment.circuit.parts()){auto id=doc.addPart(p.kind,p.x+dx,p.y+dy);auto copy=p;copy.id=id;copy.x+=dx;copy.y+=dy;doc.part(id)=copy;names[p.id]=id;created.push_back(id);if(fragment.boardSketches.contains(QString::fromStdString(p.id)))imported[QString::fromStdString(id)]=fragment.boardSketches.value(QString::fromStdString(p.id));}for(const auto& w:fragment.circuit.wires()){doc.connect({names.at(w.a.part),w.a.pin},{names.at(w.b.part),w.b.pin},w.color);auto& wire=const_cast<CircuitWire&>(doc.wires().back());wire.direct=w.direct;for(const auto& point:w.points)wire.points.push_back({point.x+dx,point.y+dy});}});if(importClipboardSketches&&!imported.isEmpty()&&std::all_of(created.begin(),created.end(),[&](const auto& id){return parts_.contains(id);}))importClipboardSketches(imported);scene()->clearSelection();for(const auto& id:created)if(parts_.contains(id))parts_.at(id)->setSelected(true);
     }catch(const std::exception& e){emit notice(QString::fromUtf8(e.what()));}
 }
 void CircuitCanvas::duplicateSelected(){copySelected();paste();}
@@ -345,8 +384,14 @@ void CircuitCanvas::branchWire(const std::string& id,QPointF pos){
 }
 
 void CircuitCanvas::dragEnterEvent(QDragEnterEvent* e){if(editingEnabled_&&e->mimeData()->hasFormat("application/x-thinkcad-component"))e->acceptProposedAction();else e->ignore();}
-void CircuitCanvas::dragMoveEvent(QDragMoveEvent* e){if(editingEnabled_&&e->mimeData()->hasFormat("application/x-thinkcad-component"))e->acceptProposedAction();else e->ignore();}
+void CircuitCanvas::clearPlacementPreview(){delete placementPreview_;placementPreview_=nullptr;}
+void CircuitCanvas::dragLeaveEvent(QDragLeaveEvent* e){clearPlacementPreview();e->accept();}
+void CircuitCanvas::dragMoveEvent(QDragMoveEvent* e){
+    if(!editingEnabled_||!e->mimeData()->hasFormat("application/x-thinkcad-component")){e->ignore();return;}
+    try{const auto json=QJsonDocument::fromJson(e->mimeData()->data("application/x-thinkcad-component")).object();const auto kind=static_cast<PartKind>(json["kind"].toInt(-1));(void)componentSpec(kind);auto trial=document_;auto point=snapped(mapToScene(e->position().toPoint()));const auto id=trial.addPart(kind,point.x(),point.y());trial.part(id).model=json["model"].toString().toStdString();seatContacts(trial,document_);clearPlacementPreview();auto* preview=new PlacementPreview(trial.part(id));for(const auto& w:trial.wires())if(w.direct){if(w.a.part==id)preview->seated.insert(w.a.pin);if(w.b.part==id)preview->seated.insert(w.b.pin);}placementPreview_=preview;scene()->addItem(preview);e->acceptProposedAction();}catch(const std::exception&){clearPlacementPreview();e->ignore();}
+}
 void CircuitCanvas::dropEvent(QDropEvent* e){
+    clearPlacementPreview();
     if(!editingEnabled_||!e->mimeData()->hasFormat("application/x-thinkcad-component")){e->ignore();return;}
     try{auto json=QJsonDocument::fromJson(e->mimeData()->data("application/x-thinkcad-component")).object();if(!json["kind"].isDouble())throw std::invalid_argument("Invalid component drop");auto kind=static_cast<PartKind>(json["kind"].toInt(-1));(void)componentSpec(kind);auto model=json["model"].toString().toStdString();auto position=snapped(mapToScene(e->position().toPoint()));auto trial=document_;auto id=trial.addPart(kind,position.x(),position.y());trial.part(id).model=model;trial.validate();mutate(Language::text("Bauteil hinzufügen"),[&](auto& doc){doc=trial;});e->acceptProposedAction();}catch(const std::exception& error){emit notice(QString::fromUtf8(error.what()));e->ignore();}
 }
@@ -361,3 +406,6 @@ void CircuitCanvas::changeParameter(const std::string& id,const std::string& nam
     if(!valid)throw std::invalid_argument("Module parameter outside its allowed range");if(parameter(part,name,name=="address"?model.address:0)==value&&part.parameters.contains(name))return;
     if(editingEnabled_)mutate(Language::text("Modulparameter ändern"),[&](auto& doc){doc.part(id).parameters[name]=value;});else{document_.part(id).parameters[name]=value;viewport()->update();emit inputValueChanged();emit runtimeInputChanged();}
 }
+void CircuitCanvas::setKeyPressed(const std::string& id,int key,bool pressed){auto it=std::find_if(document_.parts().begin(),document_.parts().end(),[&](const auto& p){return p.id==id;});if(it==document_.parts().end()||(it->kind!=PartKind::Keypad&&it->kind!=PartKind::Keyboard)||key<0||key>=(it->kind==PartKind::Keypad?16:25))return;auto& p=document_.part(id);auto mask=static_cast<uint32_t>(parameter(p,"keys",0));if(pressed)mask|=1u<<key;else mask&=~(1u<<key);if(mask)p.parameters["keys"]=mask;else p.parameters.erase("keys");if(parts_.contains(id))parts_.at(id)->update();emit runtimeInputChanged();}
+
+void CircuitCanvas::setEncoderInput(const std::string& id,int phase,int switchState){if(std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& p){return p.id==id&&p.kind==PartKind::RotaryEncoder;}))return;auto& part=document_.part(id);if(phase>=0)part.parameters["phase"]=phase%4;if(switchState>=0)part.parameters["switch"]=switchState?1:0;emit runtimeInputChanged();}

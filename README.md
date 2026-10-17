@@ -27,6 +27,15 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 [Release Notes 1.2.6](docs/RELEASE_NOTES_1.2.6.md) ·
 [Modellgrenzen](docs/development/1.2.6-device-matrix.md)
 
+## Neu in 1.2.4: Montage und MIDI
+
+Direkt steckbare Kontakte mit Vorschau, Kabel über Bauteilen, Breadboard mit
+Stromschienen, Matrix-Keypad, 25-Tasten-Keyboard, Drehencoder, serieller
+MIDI-Monitor/-Übersetzer und ein separates 88-Tasten-Piano für den Piezo.
+[Release Notes 1.2.4](docs/RELEASE_NOTES_1.2.4.md)
+
+[Bedienung, Beispiele und Modellgrenzen](docs/ASSEMBLY_AND_MIDI.md)
+
 ## Neu in 1.2.3
 
 - PWM-fähige Pins aller Mikrocontroller sind in beiden Ansichten mit `~` markiert.

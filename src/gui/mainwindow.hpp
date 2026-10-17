@@ -18,6 +18,7 @@
 #include "localcollaboration.hpp"
 #include "thinkercad/bustraffic.hpp"
 #include <QMainWindow>
+#include <deque>
 class QPlainTextEdit;
 class QLineEdit;
 class QLabel;
@@ -50,6 +51,7 @@ public:
     void joinCollaboration(const QString& address,quint16 port,const QString& ticket);
     LocalCollaboration* collaboration(){return &collaboration_;}
     thinkercad::BusTraffic& busTraffic(){return busTraffic_;}
+    void turnEncoder(const std::string& id,int direction);
     void resetSimulation();
     void showStartPage();
     bool startPageVisible() const;
@@ -128,6 +130,8 @@ private:
     bool debuggingRequested_=false,sourceDebugging_=false;
     void showDebugLocation(const QString& board,const QString& file,int line);
     void refreshModulePalette();
+    struct EncoderEvent {thinkercad::Microseconds at;std::string id;int phase;};
+    std::deque<EncoderEvent> encoderEvents_;
     PeripheralHub peripherals_;
     I2cDevices i2cDevices_;
     thinkercad::SensorBus sensors_;
@@ -177,6 +181,8 @@ private:
     void examplesDialog();
     void appendLog(const QString& message);
     void updateCircuit(bool stopOnError=false);
+    void closeInputControls();
+    void openInputControls(const std::string& id);
     void updateInspector();
     void refreshTitle();
     void setSketch(const SketchProject& sketch);

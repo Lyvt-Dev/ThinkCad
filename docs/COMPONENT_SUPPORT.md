@@ -9,6 +9,9 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 
 | Bauteil | Modell und Grenzen |
 | --- | --- |
+| Keypad / Keyboard (unveröffentlicht) | 4×4- bzw. 4×8-Kontaktmatrix (25 Keyboard-Tasten), Scannen mit Pullups, optionaler serieller MIDI-Eingang; keine USB-PC-Tastaturemulation |
+| Drehencoder (unveröffentlicht) | Passive A/B-Quadraturkontakte und Drucktaster; vier Flanken pro Klick, Polling-Adapter |
+| Breadboard mit Stromschienen (unveröffentlicht) | 300 Signal- und 100 Schienenkontakte, vier getrennte ungeteilte Schienen; keine eingebaute Versorgung |
 | Notiz (1.2.0) | Nicht elektrisch; Text per Kontextmenü/Doppelklick, verschiebbar und im Projekt gespeichert |
 | Kondensator / Spule | Zustandsbehaftete Backward-Euler-Modelle; µF bzw. mH, Spule standardmäßig 0,1 Ω Wicklungswiderstand |
 | NPN / PNP | Generisches Ebers-Moll-Modell mit einstellbarem β; keine Hersteller-/Temperaturparameter |

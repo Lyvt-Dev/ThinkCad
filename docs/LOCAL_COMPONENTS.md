@@ -54,7 +54,7 @@ Pin, voltage, numeric range and register encoding validation applies to imported
 packages and project-embedded descriptors alike. A malformed project rolls back
 any descriptors that it temporarily introduced.
 
-Project format 4 embeds definitions for local models actually used by the
+Project format 5 embeds definitions for local models actually used by the
 circuit, so the recipient does not need the original package folder. Sources,
 absolute repository paths and local settings are not embedded. Versions 1–3 of
 ThinkCad project files remain readable; they use the previous Simulation mode.
@@ -62,3 +62,7 @@ ThinkCad project files remain readable; they use the previous Simulation mode.
 The package manager can save a sample package. Built-in device models remain
 implemented and tested in native C++; data packages extend their register-bank
 mechanism without requiring changes to the simulation core.
+
+Published 1.2.4 component IDs (keypad 59, keyboard 60, encoder 61) stay stable.
+Module uses ID 62. Unpublished format-4 preview projects are migrated on load;
+formats 1–3 retain the original Simulation default.

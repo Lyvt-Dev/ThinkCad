@@ -210,6 +210,7 @@ struct SerialPort : Stream {
     HardwareSerial wired_{0};
     using Print::write;
     void begin(unsigned long baud,uint32_t format=SERIAL_8N1) {
+        binary_=baud==31250;
 #ifdef THINKERCAD_EMULATION
         wired_.beginMonitor(baud,format);
 #else
@@ -222,7 +223,9 @@ struct SerialPort : Stream {
     int availableForWrite()override{return 512;}
     void end(){wired_.end();}
     std::size_t write(std::uint8_t value)override{return write(&value,1);}
-    std::size_t write(const std::uint8_t* data,std::size_t size)override{if(!data&&size)return 0;constexpr char hex[]="0123456789abcdef";for(std::size_t start=0;start<size;start+=512){std::string encoded;const auto count=std::min<std::size_t>(512,size-start);for(std::size_t i=start;i<start+count;++i){encoded+=hex[data[i]>>4];encoded+=hex[data[i]&15];}std::cout<<"SERIAL "<<encoded<<std::endl;wired_.waitTransmit(count);}std::cerr.write(reinterpret_cast<const char*>(data),size);return size;}
+    std::size_t write(const std::uint8_t* data,std::size_t size)override{if(!data&&size)return 0;constexpr char hex[]="0123456789abcdef";for(std::size_t start=0;start<size;start+=512){std::string encoded;const auto count=std::min<std::size_t>(512,size-start);for(std::size_t i=start;i<start+count;++i){encoded+=hex[data[i]>>4];encoded+=hex[data[i]&15];}std::cout<<"SERIAL "<<encoded<<std::endl;wired_.waitTransmit(count);}if(!binary_)std::cerr.write(reinterpret_cast<const char*>(data),size);return size;}
+private:
+    bool binary_=false;
 protected:
     uint64_t streamClock()const override{return thinker::clockUs;}
     void streamWait(uint64_t us)override{thinker::advance(us);}

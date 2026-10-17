@@ -9,8 +9,18 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+// Socket transport needs no Win32 user-interface declarations. In particular,
+// winuser.h's INPUT typedef conflicts with the Arduino pin-mode constant.
+#ifndef NOUSER
+#define NOUSER
+#define THINKCAD_DEBUG_RESTORE_NOUSER
+#endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#ifdef THINKCAD_DEBUG_RESTORE_NOUSER
+#undef NOUSER
+#undef THINKCAD_DEBUG_RESTORE_NOUSER
+#endif
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
