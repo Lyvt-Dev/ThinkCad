@@ -1,5 +1,8 @@
 #include "language.hpp"
 #include <QComboBox>
+#include <QTabWidget>
+#include <QTreeWidget>
+#include <QTableWidget>
 #include <QMap>
 #include <QHash>
 #include <QLineEdit>
@@ -16,6 +19,152 @@
 static void initializeLanguageResources(){Q_INIT_RESOURCE(thinkcad_translations);}
 namespace {
 const QMap<QString,QString>& translations(){static const QMap<QString,QString> values{
+    {" Teilnehmer"," peers"},
+    {" · überschrieben: "," · overwritten: "},
+    {"Adresse des Hosts","Host address"},
+    {"Aktueller Host-Stand","Current host version"},
+    {"Alle Busse","All buses"},
+    {"Allgemein","General"},
+    {"Angehalten","Stopped"},
+    {"Anhalten","Interrupt"},
+    {"Aufzeichnen, solange geöffnet","Capture while open"},
+    {"Ausführungsmodus dieses Projekts. Zum Wechseln die Ausführung stoppen.","Execution mode for this project. Stop execution to change it."},
+    {"Ausgang","Output"},
+    {"Automatisch","Automatic"},
+    {"Automatisch: lokales GDB","Automatic: local GDB"},
+    {"Bauteil","Component"},
+    {"Bauteile & Plugins","Components & Plugins"},
+    {"Bauteilordner öffnen","Open component folder"},
+    {"Bauteilpaket auswählen","Choose component package"},
+    {"Bauteilpaket konnte nicht gespeichert werden.","Could not save component package."},
+    {"Begrenzter Verlauf: ","Bounded history: "},
+    {"Beispielpaket speichern","Save example package"},
+    {"Beispielpaket speichern…","Save example package…"},
+    {"Beitreten","Join"},
+    {"Beschleunigung X","Acceleration X"},
+    {"Beschleunigung Y","Acceleration Y"},
+    {"Beschleunigung Z","Acceleration Z"},
+    {"Bestehende Projekte behalten ihren Modus. Emulation bildet Peripherie und Bus-Timing ab; der Sketch läuft auf der lokalen CPU.","Existing projects keep their mode. Emulation models peripherals and bus timing; sketches run on the local CPU."},
+    {"Board","Board"},
+    {"Board / Port","Board / port"},
+    {"Bus","Bus"},
+    {"Bus-Verkehr","Bus traffic"},
+    {"Bus-Verkehr speichern","Save bus traffic"},
+    {"CSV speichern…","Save CSV…"},
+    {"Code-Schriftgröße","Code font size"},
+    {"Datenpakete aus lokalen Dateien oder Git-Arbeitskopien. Alle Bauteile bleiben auf diesem Computer; es werden keine Plugins ausgeführt.","Data packages from local files or Git working copies. Components stay on this computer; no plugin code is executed."},
+    {"Datenpakete bleiben lokal. Bereits verwendete Modelle bleiben im Projekt eingebettet. Neue Ordner werden beim nächsten Start geladen.","Data packages stay local. Used models remain embedded in the project. New folders are loaded on the next start."},
+    {"Debuggen","Debug"},
+    {"Debugger beendet","Debugger stopped"},
+    {"Die Darstellung wird begrenzt; virtuelle Simulationszeit und elektrische Berechnungen bleiben unabhängig davon.","Limits display refresh; virtual simulation time and electrical calculations stay independent."},
+    {"Editor / Code","Editor / Code"},
+    {"Eigene Konflikte übernehmen","Apply my conflicting changes"},
+    {"Eingang","Input"},
+    {"Emulation","Emulation"},
+    {"Entfernung","Distance"},
+    {"Entwürfe vergleichen","Compare drafts"},
+    {"Format","Format"},
+    {"Fortsetzen","Continue"},
+    {"Framing","Framing"},
+    {"Gemeinsam im lokalen Netzwerk. Nur ausdrücklich gestartete Sitzungen; kein Konto. Die LAN-Verbindung ist unverschlüsselt. Bibliotheken installiert jeder Teilnehmer lokal.","Work together on your local network. Sessions start explicitly; no account. LAN transport is unencrypted. Each participant installs libraries locally."},
+    {"Geräteregister","Device registers"},
+    {"Heraus","Step out"},
+    {"Hinein","Step into"},
+    {"Host aktiv · ","Hosting · "},
+    {"Host-Stand übernehmen","Accept host version"},
+    {"Hosten","Host"},
+    {"I²C-Adresse","I²C address"},
+    {"Jedes Tastenkürzel darf nur einmal vergeben werden.","Each shortcut must be unique."},
+    {"Kein automatischer Verbindungsaufbau. Hosten / Beitreten unter Ansicht → Lokale Zusammenarbeit. Teilnehmerzahl und Port gelten für die nächste Sitzung; das Bündelungsintervall gilt sofort.","No automatic connections. Host / Join under View → Local collaboration. Peer limit and port apply to the next session; the batching interval applies immediately."},
+    {"Keine Sitzung aktiv","No active session"},
+    {"Kollision","Collision"},
+    {"Konflikt: Lokaler Entwurf bleibt erhalten. Wähle die Auflösung.\n","Conflict: your local draft is preserved. Choose a resolution.\n"},
+    {"LAN-Änderungen werden nach dem Stoppen der Simulation übernommen.","LAN changes will be applied after stopping the simulation."},
+    {"LAN: ","LAN: "},
+    {"Lange Codezeilen umbrechen","Wrap long code lines"},
+    {"Logik","Logic"},
+    {"Lokale Bauteile und Plugins","Local components and plugins"},
+    {"Lokale Bauteile und Plugins…","Local components and plugins…"},
+    {"Lokale Variablen","Local variables"},
+    {"Lokale Zusammenarbeit","Local collaboration"},
+    {"Lokalen Bauteilordner auswählen","Choose local component folder"},
+    {"Lokaler Bauteilordner","Local component folder"},
+    {"Lokaler Entwurf","Local draft"},
+    {"Lokaler Entwurf / Host-Stand","Local draft / host version"},
+    {"Lokaler Konfliktentwurf: ","Local conflict draft: "},
+    {"Lokales GDB fehlt. Unter Einstellungen / Editor den Debugger auswählen.","Local GDB is unavailable. Choose a debugger under Settings / Editor."},
+    {"Lokales GDB wählen","Choose local GDB"},
+    {"Lokales GDB · Haltepunkte am Zeilenrand setzen.","Local GDB · Click the line gutter to set breakpoints."},
+    {"Lokales Repository…","Local repository…"},
+    {"Luftdruck","Pressure"},
+    {"Luftfeuchtigkeit","Humidity"},
+    {"Läuft","Running"},
+    {"Läuft / wird vorbereitet","Running / preparing"},
+    {"Maximale Bildwiederholrate","Maximum refresh rate"},
+    {"Maximale Bus-Einträge","Maximum bus entries"},
+    {"Maximale LAN-Teilnehmer","Maximum LAN peers"},
+    {"Modellierte Register; Lesen verändert den Gerätezustand nicht.","Modeled registers; inspecting them does not change device state."},
+    {"Modulparameter ändern","Change module parameter"},
+    {"Modus / Ausgang","Mode / output"},
+    {"Nächste Zeile","Next line"},
+    {"PC-CPU (kein MCU)","Host CPU (not MCU)"},
+    {"PC-CPU-Register","Host CPU register"},
+    {"Paket importieren…","Import package…"},
+    {"Performance","Performance"},
+    {"Pin","Pin"},
+    {"Pins","Pins"},
+    {"Pins & Netze","Pins & nets"},
+    {"Pixelanzahl","Pixel count"},
+    {"Port für neue Host-Sitzungen","Port for new host sessions"},
+    {"Port zum Beitreten","Join port"},
+    {"Quellcode-Debugger","Source debugger"},
+    {"Quellcode-Debugger (optional)","Source debugger (optional)"},
+    {"Quelle","Source"},
+    {"RX (hex)","RX (hex)"},
+    {"Sensorwerte auch während der Simulation ändern. Adresse und Geometrie bleiben gesperrt.","Change sensor values while running. Address and geometry stay locked."},
+    {"Simulation & Emulation","Simulation & Emulation"},
+    {"Simulationsinspektor","Simulation inspector"},
+    {"Sitzungsticket","Session ticket"},
+    {"Spannung","Voltage"},
+    {"Standard für neue Projekte","Default for new projects"},
+    {"Status","Status"},
+    {"Stopp","Stop"},
+    {"TX (hex)","TX (hex)"},
+    {"Tabulatorbreite in Leerzeichen","Tab width in spaces"},
+    {"Tastenkürzel","Shortcuts"},
+    {"Temperatur","Temperature"},
+    {"Treiberkonflikt","Contention"},
+    {"UART-Zustand","UART state"},
+    {"Umgebung / Sensoren","Environment / sensors"},
+    {"Sensoren und Module","Sensors and modules"},
+    {"Sensormodul","Sensor module"},
+    {"Unbestimmt / offen","Undefined / floating"},
+    {"Variable","Variable"},
+    {"Verbunden · Änderungen werden lokal synchronisiert","Connected · synchronizing local changes"},
+    {"Verbunden: ","Connected: "},
+    {"Wert","Value"},
+    {"Winkelgeschwindigkeit X","Angular velocity X"},
+    {"Winkelgeschwindigkeit Y","Angular velocity Y"},
+    {"Winkelgeschwindigkeit Z","Angular velocity Z"},
+    {"Ziel","Target"},
+    {"Zum Debuggen wird ein Board benötigt.","Debugging requires a board."},
+    {"Zusammenarbeit","Collaboration"},
+    {"Änderung bei µs","Change at µs"},
+    {"Änderungen bündeln","Batch changes"},
+    {"Überlauf","Overrun"},
+    {"Pico: BME280 über I²C","Pico: BME280 over I²C"},
+    {"RP2040 mit BME280 an GPIO0/1. Sensorwerte im Simulationsinspektor ändern.","RP2040 with BME280 on GPIO0/1. Change sensor values in the simulation inspector."},
+    {"Beschleunigung und Drehrate über I²C an GPIO8/9; echte Adafruit-Bibliothek.","Acceleration and angular velocity over I²C on GPIO8/9; genuine Adafruit library."},
+    {"HC-SR04: Abstand messen","HC-SR04: measure distance"},
+    {"Uno D2/D3, 5 V. Distanz im Simulationsinspektor verändern; Echozeit wird gemessen.","Uno D2/D3, 5 V. Change distance in the simulation inspector; echo time is measured."},
+    {"WS2812: RGB-Animation","WS2812: RGB animation"},
+    {"Acht RGB-Pixel an Uno D6 und 5 V. Animation mit modellierter Übertragungs- und Latch-Zeit.","Eight RGB pixels on Uno D6 and 5 V. Animation with modeled transfer and latch timing."},
+    {"UART: zwei ESP32","UART: two ESP32 boards"},
+    {"Zwei getrennte Sketches mit gekreuzten RX/TX-Leitungen und gemeinsamem GND.","Two separate sketches with crossed RX/TX wires and common GND."},
+    {"Der Projektmodus steht in der Statusleiste. Vor dem Wechsel die Ausführung stoppen. Alte Projekte nutzen Simulation; Emulation ergänzt modellierte Peripherieregister und Bus-Timing, ohne MCU-Befehle zu emulieren.","The project mode is visible in the status bar. Stop execution before switching. Old projects use Simulation; Emulation adds modeled peripheral registers and bus timing, without MCU instruction emulation."},
+    {"Ansicht → Quellcode-Debugger verwendet lokales GDB. Für Haltepunkte am Zeilenrand klicken, dann Debuggen wählen. Lokale Variablen ansehen und den Code schrittweise ausführen; CPU-Register gehören zum PC.","View → Source debugger uses local GDB. Click the source gutter for breakpoints, then Debug. Inspect local variables and step through the code; CPU registers belong to the PC."},
+    {"Ansicht → Lokale Zusammenarbeit startet ausdrücklich gewählte Host-/Beitritts-Sitzungen im LAN. Host-Adresse, Port und Ticket teilen. Bei Konflikten bleiben lokale Entwürfe erhalten; Bibliotheken installiert jeder getrennt.","View → Local collaboration starts explicit Host/Join sessions on the LAN. Share the host address, port and ticket. Conflicts preserve local drafts; libraries remain installed separately."},
+    {"Ansicht → Simulationsinspektor zeigt Pins, verbundene Netze, modellierte Register und aufgezeichneten I2C-/SPI-/UART-Verkehr. Im Umgebungstab Sensorwerte während der Ausführung ändern. Schließen beendet die Bus-Aufzeichnung.","View → Simulation inspector shows pins, connected nets, modeled registers and recorded I2C/SPI/UART traffic. Its environment tab changes sensor inputs while running. Closing the tool stops bus recording."},
     {"Eingaben und MIDI","Inputs and MIDI"},
     {"Matrix-Keypad 4×4","4×4 matrix keypad"},
     {"Keyboard 25 Tasten (Matrix / MIDI)","25-key keyboard (matrix / MIDI)"},
@@ -513,10 +662,47 @@ const QMap<QString,QString>& translations(){static const QMap<QString,QString> v
     {"Zu viele verwendete Bibliotheksquellen.","Too many library source files in use."},
     {"Bibliotheks-Abhängigkeitsauflösung überschritten.","Library dependency resolution limit exceeded."},
     {"Projektdatei konnte nicht vorbereitet werden.","Could not prepare project file."},
-    {"Sketch konnte nicht gespeichert werden.","Could not save sketch."}
+    {"Sketch konnte nicht gespeichert werden.","Could not save sketch."},
+    {"Skript vor dem Fortfahren speichern?","Save the script before continuing?"},
+    {"Werkzeuge","Tools"},
+    {"Programm","Application"},
+    {"Alle Kategorien","All categories"},
+    {"%1 von %2 Bauteilen","%1 of %2 components"},
+    {"Sketch-Sprache","Sketch language"},
+    {"Projekte durchsuchen…","Search projects…"},
+    {"Keine passenden Projekte gefunden.","No matching projects found."},
+    {"ThinkCad – Schaltungen, Arduino und MicroPython","ThinkCad – circuits, Arduino and MicroPython"},
+    {"Starte ein Projekt oder öffne eine lokale Schaltung, einen Arduino- oder MicroPython-Sketch.","Start a project or open a local circuit, Arduino sketch or MicroPython sketch."},
+    {"Python-3-Skripte…","Python 3 scripts…"},
+    {"Lokale Python-3-Skripte","Local Python 3 scripts"},
+    {"Allgemeine lokale Python-3-Skripte. Board-Sketches mit GPIO unter MicroPython im Editor ausführen.","General local Python 3 scripts. Run board sketches with GPIO using MicroPython in the editor."},
+    {"Öffnen…","Open…"},
+    {"Speichern…","Save…"},
+    {"Ausführen","Run"},
+    {"Stoppen","Stop"},
+    {"Python-Skript öffnen","Open Python script"},
+    {"Python-Skript speichern","Save Python script"},
+    {"Python beendet: %1","Python finished: %1"},
+    {"Python-Datei nicht lesbar oder größer als 2 MiB.","Python file is unreadable or exceeds 2 MiB."},
+    {"Python-Ausgabe überschreitet 1 MiB. Skript gestoppt.","Python output exceeds 1 MiB. Script stopped."},
+    {"Python 3 fehlt. Unter Einstellungen / Editor einen Python-Interpreter auswählen.","Python 3 is missing. Choose a Python interpreter in Settings / Editor."},
+    {"Python 3 für lokale Skripte","Python 3 for local scripts"},
+    {"Python-Interpreter wählen","Choose Python interpreter"},
+    {"MicroPython benötigt ein ESP-, RP2040- oder STM32-Board.","MicroPython requires an ESP, RP2040 or STM32 board."},
+    {"MicroPython-Dateien exportieren und mit einem MicroPython-Werkzeug auf das Board übertragen.","Export MicroPython files and transfer them to the board using a MicroPython tool."},
+    {"MicroPython meldet Fehler mit Datei und Zeile; GDB-Haltepunkte gelten für C++.","MicroPython reports errors with file and line; GDB breakpoints apply to C++."},
+    {"Dateiname (.ino, .h, .cpp oder .py)","File name (.ino, .h, .cpp or .py)"},
+    {"Sketch exportieren","Export sketch"},
+    {"Sketch exportieren…","Export sketch…"},
+    {"Änderungsverlauf…","Changelog…"},
+    {"Änderungsverlauf","Changelog"},
+    {"Änderungsverlauf nicht verfügbar. Bitte Installation prüfen.","Changelog unavailable. Please check your installation."}
 };return values;}
 const QJsonObject& extraTranslations(){
     static const auto data=[](){initializeLanguageResources();QFile file(":/i18n/catalog.json");if(!file.open(QIODevice::ReadOnly))return QJsonObject{};return QJsonDocument::fromJson(file.readAll()).object();}();return data;
+}
+const QJsonObject& additionalTranslations(){
+    static const auto data=[](){initializeLanguageResources();QFile file(":/i18n/catalog-additional.json");if(!file.open(QIODevice::ReadOnly))return QJsonObject{};return QJsonDocument::fromJson(file.readAll()).object();}();return data;
 }
 QString& selectedLanguage(){static QString language=[](){const auto saved=QSettings().value("language",QLocale::system().name().section('_',0,0)).toString();return Language::codes().contains(saved)?saved:QString("en");}();return language;}
 QString germanSource(const QString& english){for(auto it=translations().cbegin();it!=translations().cend();++it)if(it.value()==english)return it.key();return english;}
@@ -525,20 +711,21 @@ QString sourceText(const QString& value){
     static const auto aliases=[](){
         QHash<QString,QString> result;
         for(auto it=translations().cbegin();it!=translations().cend();++it)if(!result.contains(it.value()))result.insert(it.value(),it.key());
-        for(auto it=extraTranslations().begin();it!=extraTranslations().end();++it){const auto original=germanSource(it.key());for(const auto& translation:it.value().toArray())if(!result.contains(translation.toString()))result.insert(translation.toString(),original);}
+        for(const auto& catalog:{extraTranslations(),additionalTranslations()})for(auto it=catalog.begin();it!=catalog.end();++it){const auto original=germanSource(it.key());for(const auto& translation:it.value().toArray())if(!result.contains(translation.toString()))result.insert(translation.toString(),original);}
         return result;
     }();return aliases.value(value,value);
 }
 QString localized(const QString& original,const QString& locale){
     if(locale=="de")return original;
     const auto english=translations().value(original,original);if(locale=="en")return english;
+    if(locale=="it"||locale=="pt"){const auto row=additionalTranslations().value(english).toArray();const int index=locale=="it"?0:1;return index<row.size()&&!row[index].toString().isEmpty()?row[index].toString():english;}
     const int index=QStringList{"ru","uk","es","fr"}.indexOf(locale);const auto row=extraTranslations().value(english).toArray();
     return index>=0&&index<row.size()&&!row[index].toString().isEmpty()?row[index].toString():english;
 }
 }
 QStringList Language::sourceTexts(){QStringList values=translations().values();values.removeDuplicates();return values;}
-QStringList Language::codes(){return {"de","en","ru","uk","es","fr"};}
-QString Language::nativeName(const QString& code){static const QMap<QString,QString> names{{"de","Deutsch"},{"en","English"},{"ru","Русский"},{"uk","Українська"},{"es","Español"},{"fr","Français"}};return names.value(code,code);}
+QStringList Language::codes(){return {"de","en","ru","uk","es","fr","it","pt"};}
+QString Language::nativeName(const QString& code){static const QMap<QString,QString> names{{"de","Deutsch"},{"en","English"},{"ru","Русский"},{"uk","Українська"},{"es","Español"},{"fr","Français"},{"it","Italiano"},{"pt","Português"}};return names.value(code,code);}
 QString Language::current(){return selectedLanguage();}
 void Language::set(const QString& language){selectedLanguage()=codes().contains(language)?language:QString("de");QSettings().setValue("language",selectedLanguage());}
 QString Language::text(const QString& source){
@@ -558,8 +745,11 @@ void Language::translateTree(QObject* root){
             const auto translated=value.startsWith("＋  ")?QString("＋  ")+text(value.mid(3)):text(value);
             if(value!=translated)object->setProperty(property,translated);
         }
+        if(auto* tabs=qobject_cast<QTabWidget*>(object)){QSignalBlocker block(tabs);for(int i=0;i<tabs->count();++i)tabs->setTabText(i,text(tabs->tabText(i)));}
+        if(auto* tree=qobject_cast<QTreeWidget*>(object)){if(auto* header=tree->headerItem())for(int i=0;i<tree->columnCount();++i)header->setText(i,text(header->text(i)));}
+        if(auto* table=qobject_cast<QTableWidget*>(object)){for(int i=0;i<table->columnCount();++i)if(auto* item=table->horizontalHeaderItem(i))item->setText(text(item->text()));}
         if(auto* combo=qobject_cast<QComboBox*>(object)){
-            if(combo->objectName()=="languageSelector"||combo->objectName()=="languageChoice")continue;
+            if(combo->objectName()=="languageSelector"||combo->objectName()=="languageChoice"||combo->objectName()=="preferencesLanguage")continue;
             const QSignalBlocker block(combo);
             for(int i=0;i<combo->count();++i)combo->setItemText(i,text(combo->itemText(i)));
         }
@@ -578,6 +768,10 @@ QString Language::tutorialHtml(){
     section("OLED-Animation","ESP8266-OLED: VCC an 3V3, GND an GND, SDA an D2 und SCL an D1. Datei → Video in frames.h umwandeln exportiert einfarbige PROGMEM-Bitmaps. Wähle Auflösung, Bildrate und Clipdauer; maximal 256 KiB Bitmapdaten. Kopiere frames.h in den Sketch-Ordner.");
     section("Projekt speichern","Strg+S speichert Verdrahtung und Code zusammen. Strg+O öffnet ein Projekt oder einen .ino-Sketch. Der Arduino-Export schreibt die Dateien für die echte IDE. Strg+Mausrad zoomt; die mittlere Maustaste verschiebt die Ansicht.");
     section("Arduino-Bibliotheken","Official Arduino catalog. Installation includes dependencies. Hardware libraries also require a supported simulation model.");
+    section("Simulation & Emulation","Der Projektmodus steht in der Statusleiste. Vor dem Wechsel die Ausführung stoppen. Alte Projekte nutzen Simulation; Emulation ergänzt modellierte Peripherieregister und Bus-Timing, ohne MCU-Befehle zu emulieren.");
+    section("Quellcode-Debugger","Ansicht → Quellcode-Debugger verwendet lokales GDB. Für Haltepunkte am Zeilenrand klicken, dann Debuggen wählen. Lokale Variablen ansehen und den Code schrittweise ausführen; CPU-Register gehören zum PC.");
+    section("Lokale Zusammenarbeit","Ansicht → Lokale Zusammenarbeit startet ausdrücklich gewählte Host-/Beitritts-Sitzungen im LAN. Host-Adresse, Port und Ticket teilen. Bei Konflikten bleiben lokale Entwürfe erhalten; Bibliotheken installiert jeder getrennt.");
+    section("Simulationsinspektor","Ansicht → Simulationsinspektor zeigt Pins, verbundene Netze, modellierte Register und aufgezeichneten I2C-/SPI-/UART-Verkehr. Im Umgebungstab Sensorwerte während der Ausführung ändern. Schließen beendet die Bus-Aufzeichnung.");
     section("Modellgrenzen","Dies ist eine Host-API-Simulation, keine CPU-Emulation. Ein unverbundener Eingang ist nicht automatisch LOW. Verwende INPUT_PULLUP und beachte die Versorgung und ADC-Grenzen. Hardwarebibliotheken benötigen ein passendes Gerätemodell.");
     html+="<pre>"+QString("display.setCursor(0, 0);\ndisplay.setTextColor(SSD1306_WHITE);\ndisplay.println(\"ThinkCad\");\ndisplay.display();\n\n// #include \"frames.h\"\n// uint32_t index = (uint64_t(micros()) * FRAME_FPS / 1000000) % FRAME_COUNT;\n// display.drawBitmap(0, 0, frames[index], FRAME_WIDTH, FRAME_HEIGHT, SSD1306_WHITE);\n// display.display();").toHtmlEscaped()+"</pre>";
     return html;

@@ -1,15 +1,16 @@
 # ThinkCad
 
 Native 2D-Desktop-Anwendung in **C++20 und Qt 6**, für **Windows und Linux**. **macOS wird nicht unterstützt.**
-ThinkCad bietet ESP8266-, ESP32-, ESP32-S3-,
-Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, 61 elektrische Bauteiltypen und Notizen,
+ThinkCad bietet ESP8266-, ESP32-Varianten, RP2040-/Pico-, STM32-Basis-,
+Arduino-Uno-R3- und klassische Arduino-Nano-Boardprofile, elektrische Bauteile,
+erweiterbare Sensormodule und Notizen,
 SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmenge.
 
 ![ThinkCad: native Qt-Oberfläche im getesteten Demo-Aufbau](docs/desktop-preview.png)
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
-## In Entwicklung: 1.3.0
+## Neu in 1.3.0
 
 - Physische Gehäuse und Anschlussraster für die realistische Ansicht; direkt steckbare Bauteile und Board-Header passen zum 2,54-mm-Breadboard.
 - Vierpolige Taster, zusätzlicher Uno-GND mit oberen I²C-Anschlüssen und beide gemeinsamen Anschlüsse der 7-Segment-Anzeige.
@@ -18,6 +19,39 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 - Dezente, abschaltbare Schaltflächen-, Platzierungs- und Kontaktanimationen.
 
 [Änderungen und Modellgrenzen](docs/RELEASE_NOTES_1.3.0.md)
+## Neu in 1.2.8
+
+- Überarbeitete Hauptmenü-Navigation und Bauteilliste mit Suche, Filtern und einklappbaren Kategorien.
+- Arduino C++ und echtes MicroPython pro Board, auch gleichzeitig in einer Schaltung.
+- Separate lokale Python-3-Skripte unter Werkzeuge; Python ist im Windows-Paket enthalten.
+- Acht Oberflächensprachen: Deutsch, Englisch, Russisch, Ukrainisch, Spanisch, Französisch, Italienisch und Portugiesisch.
+
+[Release Notes 1.2.8](docs/RELEASE_NOTES_1.2.8.md) · [Python-Unterstützung und Grenzen](docs/PYTHON.md)
+
+## Neu in 1.2.7
+
+- Robuste SHA-Abfrage im Updater auch für große Release-Commits.
+- Offline-Changelogs unter Hilfe und vollständige Einstellungen direkt im Hauptmenü.
+- Batterien und Gleichspannungsquellen auch in eigenständigen Stromkreisen und in Reihe.
+
+[Release Notes 1.2.7](docs/RELEASE_NOTES_1.2.7.md)
+
+## Neu in 1.2.6
+
+- Projektmodus **Simulation / Emulation**, globaler Standard und kompatibles Laden alter Projekte.
+- Moderne Boardprofile und BME280, MPU6050, DHT22, HC-SR04, DS18B20,
+  WS2812B, RC522, L298N und MCP3008; echte ausgewählte Bibliotheken und lokale Datenpakete.
+- Native [Quellcode-Debugger](docs/SOURCE_DEBUGGER.md),
+  [Pin-/Register-/Bus-Inspektoren und Sensorsteuerung](docs/SIMULATION_INSPECTOR.md).
+- [Lokale LAN-Zusammenarbeit](docs/LOCAL_COLLABORATION.md) mit getrennten Speicherpfaden,
+  Konfliktauflösung und gesicherten lokalen Entwürfen; kein Konto oder zentraler Server.
+- Gruppierte Einstellungen und sechs Sprachen für die neuen Werkzeuge.
+- Fünf verdrahtete Beispiele, darunter Pico/BME280, ESP32-S3/MPU6050 und zwei UART-Sketches.
+- Gentoo: optionales USE-Flag `debugger` installiert lokales GDB; `examples`, `test`,
+  `X` und `wayland` bleiben verfügbar. Windows bündelt GDB; Linux-Pakete empfehlen es.
+
+[Release Notes 1.2.6](docs/RELEASE_NOTES_1.2.6.md) ·
+[Modellgrenzen](docs/development/1.2.6-device-matrix.md)
 
 ## Neu in 1.2.4: Montage und MIDI
 

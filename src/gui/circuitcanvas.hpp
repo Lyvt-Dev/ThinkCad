@@ -44,6 +44,7 @@ public:
     void setEncoderInput(const std::string& id,int phase,int switchState=-1);
     void setKeyPressed(const std::string& id,int key,bool pressed);
     void changeValue(const std::string& id,double value);
+    void changeParameter(const std::string& id,const std::string& name,double value);
     void recordMove(const thinkercad::CircuitDocument& before);
     QPointF constrainBend(const std::string& id,std::size_t index,QPointF position,Qt::KeyboardModifiers modifiers)const;
     void moveBend(const std::string& id,std::size_t index,QPointF position,Qt::KeyboardModifiers modifiers=Qt::NoModifier);

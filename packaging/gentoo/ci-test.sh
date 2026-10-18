@@ -13,7 +13,7 @@ getuto
 mkdir -p /etc/portage/package.use
 printf 'sys-libs/zlib minizip\n' > /etc/portage/package.use/thinkcad-audio
 # Dependencies must come from signed Gentoo binary packages; the app is compiled below.
-emerge --getbinpkgonly --binpkg-respect-use=y --backtrack=100 --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase dev-qt/qtmultimedia virtual/zlib media-fonts/dejavu
+emerge --getbinpkgonly --binpkg-respect-use=y --backtrack=100 --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase dev-qt/qtmultimedia virtual/zlib media-fonts/dejavu dev-debug/gdb dev-lang/python:3.13
 version=$(sed -n 's/project(ThinkCad VERSION \([0-9.]*\).*/\1/p' /src/CMakeLists.txt)
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 # QtSerialPort is not always available on the signed binary server. Build this
@@ -32,10 +32,12 @@ printf 'media-gfx/thinkcad ~amd64\n' > /etc/portage/package.accept_keywords/thin
 cp "/release/ThinkCad-${version}-Source.tar.xz" /var/cache/distfiles/
 export ACCEPT_LICENSE='*'
 # Build with examples and run the suite through the real cmake eclass.
-USE='examples test X wayland' FEATURES='test' emerge --oneshot --usepkg=n media-gfx/thinkcad
+printf 'media-gfx/thinkcad examples debugger python test X wayland\n' > /etc/portage/package.use/thinkcad
+FEATURES='test' emerge --oneshot --usepkg=n media-gfx/thinkcad
 QT_QPA_PLATFORM=offscreen thinkcad --smoke-test
 # Compile and install the minimal X11 variant; examples must actually disappear.
-USE='-examples -test X -wayland' emerge --oneshot --usepkg=n media-gfx/thinkcad
+printf 'media-gfx/thinkcad -examples -debugger -python -test X -wayland\n' > /etc/portage/package.use/thinkcad
+emerge --oneshot --usepkg=n media-gfx/thinkcad
 test -x /usr/bin/thinkcad
 test ! -d /usr/share/thinkcad/examples
 # A user sketch must compile from the installed SDK even without examples.
@@ -47,9 +49,11 @@ g++ -std=c++20 -pthread -I/usr/share/thinkcad/sdk '-DTHINKERCAD_SKETCH="/tmp/thi
 /tmp/thinkcad-user-sketch --iterations 1 > /tmp/thinkcad-user-output
 grep -q '^WRITE 5 1$' /tmp/thinkcad-user-output
 # Build the Wayland-only dependency configuration as well.
-USE='-examples -test -X wayland' emerge --oneshot --usepkg=n media-gfx/thinkcad
+printf 'media-gfx/thinkcad -examples -debugger -python -test -X wayland\n' > /etc/portage/package.use/thinkcad
+emerge --oneshot --usepkg=n media-gfx/thinkcad
 # Invalid combinations are rejected by Portage REQUIRED_USE.
-if USE='-X -wayland' emerge --pretend media-gfx/thinkcad; then
+printf 'media-gfx/thinkcad -X -wayland\n' > /etc/portage/package.use/thinkcad
+if emerge --pretend media-gfx/thinkcad; then
  echo 'Expected REQUIRED_USE failure' >&2
  exit 1
 fi

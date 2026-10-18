@@ -16,8 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install native dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++ qt6-base-dev qt6-multimedia-dev gstreamer1.0-plugins-good qt6-serialport-dev qt6-base-dev-tools qt6-qpa-plugins qt6-wayland zlib1g-dev xvfb xauth weston desktop-file-utils appstream dpkg-dev
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++ gdb qt6-base-dev qt6-multimedia-dev gstreamer1.0-plugins-good qt6-serialport-dev qt6-base-dev-tools qt6-qpa-plugins qt6-wayland zlib1g-dev xvfb xauth weston libgl1-mesa-dri libegl-mesa0 desktop-file-utils appstream dpkg-dev
       - name: Build and test
+        env:
+          THINKCAD_REQUIRE_GDB: "1"
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON
           cmake --build build --parallel 2
@@ -25,6 +27,9 @@ jobs:
           ./build/library_tests --live
           desktop-file-validate packaging/linux/io.github.LyvtDev.ThinkCad.desktop
       - name: X11 and Wayland smoke
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          GALLIUM_DRIVER: llvmpipe
         shell: bash
         run: |
           set -euo pipefail
@@ -72,9 +77,11 @@ jobs:
       attestations: write
     steps:
       - name: Install native dependencies
-        run: dnf -y install git cmake ninja-build gcc-c++ qt6-qtbase-devel qt6-qtmultimedia-devel qt6-qtserialport-devel qt6-qtwayland zlib-devel rpm-build xorg-x11-server-Xvfb xorg-x11-xauth xz tar findutils
+        run: dnf -y install git cmake ninja-build gcc-c++ gdb qt6-qtbase-devel qt6-qtmultimedia-devel qt6-qtserialport-devel qt6-qtwayland zlib-devel rpm-build xorg-x11-server-Xvfb xorg-x11-xauth xz tar findutils
       - uses: actions/checkout@v4
       - name: Build and test
+        env:
+          THINKCAD_REQUIRE_GDB: "1"
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
           cmake --build build --parallel 2
@@ -117,7 +124,7 @@ jobs:
           name: ThinkCad-Linux-Ubuntu
           path: out/linux
       - name: Compile through Portage with USE flags
-        run: docker run --rm -v "$PWD:/src:ro" -v "$PWD/out/linux:/release:ro" gentoo/stage3:latest bash /src/packaging/gentoo/ci-test.sh
+        run: docker run --rm --cap-add=SYS_PTRACE -v "$PWD:/src:ro" -v "$PWD/out/linux:/release:ro" gentoo/stage3:latest bash /src/packaging/gentoo/ci-test.sh
 
   appimage:
     runs-on: ubuntu-22.04

@@ -84,6 +84,7 @@ sudo emerge --ask media-gfx/thinkcad
 | USE-Flag | Wirkung |
 | --- | --- |
 | `examples` (Standard an) | Installiert die fertigen Beispielschaltungen und Sketches |
+| `debugger` (Standard aus) | Installiert lokales GNU GDB für Quellcode-Haltepunkte und Variableninspektion |
 | `test` (Standard aus) | Baut und führt die Testsuite über Portage aus |
 | `X` (Standard an) | Fordert Qt mit X11/XCB-Unterstützung an |
 | `wayland` (Standard an) | Fordert die Qt-Wayland-Abhängigkeiten an |

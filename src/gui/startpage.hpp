@@ -17,6 +17,8 @@ signals:
     void examplesRequested();
     void tutorialRequested();
     void preferencesRequested();
+    void changelogRequested();
+    void pythonRequested();
     void lessonRequested(const QString& id);
     void chooseLanguageRequested();
     void chooseDesignRequested();

@@ -10,6 +10,13 @@
 #include "serialtools.hpp"
 #include "peripheralhub.hpp"
 #include "i2cdevices.hpp"
+#include "thinkercad/spibus.hpp"
+#include "thinkercad/sensorbus.hpp"
+#include "thinkercad/pixelbus.hpp"
+#include "thinkercad/uartbus.hpp"
+#include "thinkercad/interrupts.hpp"
+#include "localcollaboration.hpp"
+#include "thinkercad/bustraffic.hpp"
 #include <QMainWindow>
 #include <deque>
 class QPlainTextEdit;
@@ -25,6 +32,11 @@ class QStackedWidget;
 class WelcomePage;
 class QListWidget;
 class QDockWidget;
+class ModuleControls;
+class DebugTools;
+class CollaborationTools;
+class SimulationInspector;
+class QMenu;
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
@@ -34,6 +46,11 @@ public:
     void loadDemo();
     bool loadExample(const QString& id);
     void startSimulation();
+    void startDebugging();
+    bool hostCollaboration(const QHostAddress& address=QHostAddress::AnyIPv4,quint16 port=0);
+    void joinCollaboration(const QString& address,quint16 port,const QString& ticket);
+    LocalCollaboration* collaboration(){return &collaboration_;}
+    thinkercad::BusTraffic& busTraffic(){return busTraffic_;}
     void turnEncoder(const std::string& id,int direction);
     void resetSimulation();
     void showStartPage();
@@ -50,8 +67,28 @@ public:
     thinkercad::Microseconds simulationTime()const{return virtualTime();}
     const thinkercad::Frame& displayFrame(const std::string& id)const{return displays_.at(id).frame();}
     void stopSimulation();
+    thinkercad::ExecutionMode executionMode()const{return executionMode_;}
+    bool setExecutionMode(thinkercad::ExecutionMode mode);
     QString sketchText()const;
 private:
+    thinkercad::BusTraffic busTraffic_;
+    SimulationInspector* simulationInspector_=nullptr;
+    void setupSimulationInspector(QMenu* view);
+    LocalCollaboration collaboration_{this};
+    CollaborationTools* collaborationTools_=nullptr;
+    QTimer collaborationDebounce_;
+    QJsonObject collaborationBase_,submittedLocal_;
+    QString collaborationDraftPath_;
+    bool saveCollaborationDraft();
+    bool collaborationApplying_=false,collaborationJoining_=false,collaborationSubmitted_=false,collaborationConflict_=false,collaborationQueued_=false;
+    void setupCollaboration(QMenu* view);
+    void scheduleCollaboration();
+    void publishCollaboration();
+    void receiveCollaboration(const QJsonObject& document,quint64 revision,const QString& origin);
+    void applyCollaboration(const QJsonObject& document);
+    void flagCollaborationConflict(const QStringList& paths);
+    void resolveCollaboration(bool preferLocal);
+    void compareCollaboration();
     struct BoardRuntime {
         explicit BoardRuntime(QObject* parent):interpreter(parent){}
         thinkercad::Simulator clock;
@@ -61,7 +98,7 @@ private:
         struct LcdBinding{std::string id;std::vector<int> pins;int address=-1;};
         std::map<int,LcdBinding> lcdBindings;
         int busSda=4,busScl=5,writes=0;
-        bool busStarted=false;
+        bool busStarted=false,busHeld=false;
         std::string id;
     };
     std::map<std::string,std::unique_ptr<BoardRuntime>> runtimes_;
@@ -71,6 +108,9 @@ private:
     QString activeLesson_;
     qsizetype lessonSerialStart_=0;
     void checkLesson();
+    thinkercad::ExecutionMode executionMode_=thinkercad::ExecutionMode::Simulation;
+    QComboBox* executionModeChoice_=nullptr;
+    void updateExecutionMode();
     double speed_=1.0;
     bool analogRunning_=false,paused_=false;
     thinkercad::Microseconds runUntil_=0;
@@ -85,10 +125,20 @@ private:
     QDockWidget* inspectorDock_=nullptr;
     bool hadInstruments_=false;
     QDoubleSpinBox* powerRating_;
+    ModuleControls* moduleEditor_=nullptr;
+    DebugTools* debugTools_=nullptr;
+    bool debuggingRequested_=false,sourceDebugging_=false;
+    void showDebugLocation(const QString& board,const QString& file,int line);
+    void refreshModulePalette();
     struct EncoderEvent {thinkercad::Microseconds at;std::string id;int phase;};
     std::deque<EncoderEvent> encoderEvents_;
     PeripheralHub peripherals_;
     I2cDevices i2cDevices_;
+    thinkercad::SensorBus sensors_;
+    thinkercad::PixelBus pixels_;
+    thinkercad::UartBus uart_;
+    thinkercad::InterruptController interrupts_;
+    thinkercad::SpiBus spiBus_{i2cDevices_.modules()};
     QLineEdit* netName_;
     QWidget* generatorProperties_;
     QComboBox* generatorShape_;
@@ -126,6 +176,7 @@ private:
     bool inputDirty_=false;
     bool smokeTest_,smokeDone_=false,renderDirty_=true;
     QComboBox* sketchBoards_;
+    QComboBox* sketchLanguage_;
     void process(BoardRuntime& runtime,const QByteArray& line);
     void libraries();
     void examplesDialog();

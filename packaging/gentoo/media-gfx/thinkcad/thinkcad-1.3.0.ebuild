@@ -9,10 +9,10 @@ HOMEPAGE="https://github.com/Lyvt-Dev/ThinkCad"
 SRC_URI="https://github.com/Lyvt-Dev/ThinkCad/releases/download/v${PV}/ThinkCad-${PV}-Source.tar.xz"
 S="${WORKDIR}/ThinkCad-${PV}"
 
-LICENSE="all-rights-reserved BSD"
+LICENSE="all-rights-reserved BSD MIT Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+examples test +X +wayland"
+IUSE="+examples debugger +python test +X +wayland"
 REQUIRED_USE="|| ( X wayland )"
 RESTRICT="!test? ( test )"
 
@@ -24,8 +24,8 @@ COMMON_DEPEND="
  wayland? ( dev-qt/qtbase:6[wayland] )
  virtual/zlib:="
 DEPEND="${COMMON_DEPEND}"
-RDEPEND="${COMMON_DEPEND} >=sys-devel/gcc-12[cxx]"
-BDEPEND="test? ( >=sys-devel/gcc-12[cxx] media-fonts/dejavu )"
+RDEPEND="${COMMON_DEPEND} >=sys-devel/gcc-12[cxx] debugger? ( dev-debug/gdb ) python? ( dev-lang/python:3.13 )"
+BDEPEND="test? ( >=sys-devel/gcc-12[cxx] media-fonts/dejavu dev-lang/python:3.13 )"
 
 src_configure() {
  local mycmakeargs=(
@@ -38,6 +38,7 @@ src_configure() {
 
 src_test() {
  export QT_QPA_PLATFORM=offscreen
+ use debugger && export THINKCAD_REQUIRE_GDB=1
  cmake_src_test
 }
 

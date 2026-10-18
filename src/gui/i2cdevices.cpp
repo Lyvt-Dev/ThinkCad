@@ -8,21 +8,25 @@ namespace {
 #undef PROGMEM
 }
 using namespace thinkercad;
-I2cDevices::Reply I2cDevices::transfer(const CircuitDocument& doc,const CircuitState& state,const std::string& board,int sda,int scl,int address,const std::vector<uint8_t>& data,int readCount){
-    Reply reply;const auto profile=BoardProfile::get(doc.part(board).model);
+I2cDevices::Reply I2cDevices::transfer(const CircuitDocument& doc,const CircuitState& state,const std::string& board,int sda,int scl,int address,const std::vector<uint8_t>& data,int readCount,unsigned clock){
+    Reply reply;const auto profile=BoardProfile::get(doc.part(board).model);modules_.synchronizePower(doc,state);
     std::vector<const CircuitPart*> matches;
     for(const auto& part:doc.parts()){
-        if((part.kind!=PartKind::I2cCharacterLcd&&part.kind!=PartKind::Oled)||static_cast<int>(part.value)!=address)continue;
-        const auto v=state.voltage.find({part.id,"VCC"}),g=state.voltage.find({part.id,"GND"});
+        const bool module=part.kind==PartKind::Module;const ModuleDefinition* definition=module?&ModuleRegistry::get(part.model):nullptr;
+        if(module?definition->bus!="i2c"||int(parameter(part,"address",definition->address))!=address:((part.kind!=PartKind::I2cCharacterLcd&&part.kind!=PartKind::Oled)||static_cast<int>(part.value)!=address))continue;
+        const auto power=module?definition->power:std::string("VCC"),ground=module?definition->ground:std::string("GND");const auto v=state.voltage.find({part.id,power}),g=state.voltage.find({part.id,ground});
         if(v==state.voltage.end()||g==state.voltage.end()||!v->second||!g->second)continue;
         const double supply=*v->second-*g->second;
-        if(supply<(part.kind==PartKind::Oled?3.:4.5)||supply>5.5)continue;
-        if(!doc.connected({part.id,"GND"},{board,"GND"})||!doc.connected({part.id,"SDA"},{board,profile.pinName(sda)})||!doc.connected({part.id,"SCL"},{board,profile.pinName(scl)}))continue;
+        if(supply<(module?definition->minVoltage:part.kind==PartKind::Oled?3.:4.5)||supply>(module?definition->maxVoltage:5.5))continue;
+        if(!doc.connected({part.id,ground},{board,"GND"})||!doc.connected({part.id,"SDA"},{board,profile.pinName(sda)})||!doc.connected({part.id,"SCL"},{board,profile.pinName(scl)}))continue;
         matches.push_back(&part);
     }
     if(matches.empty())return reply;
     if(matches.size()!=1){reply.status=4;return reply;}
-    const auto& part=*matches.front();reply.id=part.id;auto& device=devices_[part.id];reply.status=0;
+    const auto& part=*matches.front();reply.id=part.id;reply.status=0;
+    if(emulation_){for(const auto* pin:{"SDA","SCL"}){const auto value=state.voltage.find({part.id,pin});if(value!=state.voltage.end()&&value->second&&*value->second<.3){reply.status=4;return reply;}}}
+    if(part.kind==PartKind::Module){const auto& definition=ModuleRegistry::get(part.model);if(clock>definition.maxClock){reply.status=4;return reply;}reply.bytes=modules_.i2c(part,data,readCount,now_);return reply;}
+    auto& device=devices_[part.id];
     if(readCount>=0){
         // SSD1306's serial interface is write-only. PCF8574 reads its port latch.
         if(part.kind==PartKind::Oled)return reply;

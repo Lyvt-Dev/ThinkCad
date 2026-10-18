@@ -1,0 +1,16 @@
+{
+  "format": "ThinkCad",
+  "version": 3,
+  "name": "Compat124",
+  "activeBoard": "board",
+  "parts": [
+    {"id":"board","kind":0,"x":80,"y":80,"value":0,"model":"esp8266","color":"#fb586b","rotation":0,"state":false,"netName":"","parameters":{}},
+    {"id":"old_keypad","kind":59,"x":400,"y":80,"value":0,"model":"","color":"#fb586b","rotation":0,"state":false,"netName":"","parameters":{"keys":0}},
+    {"id":"old_keyboard","kind":60,"x":400,"y":400,"value":0,"model":"","color":"#fb586b","rotation":0,"state":false,"netName":"","parameters":{"keys":0}},
+    {"id":"old_encoder","kind":61,"x":700,"y":80,"value":0,"model":"","color":"#fb586b","rotation":0,"state":false,"netName":"","parameters":{"phase":0,"switch":0}}
+  ],
+  "wires": [{"a":{"part":"board","pin":"GND"},"b":{"part":"old_encoder","pin":"GND"},"color":"#64748b","points":[],"direct":true}],
+  "files": [{"name":"Compat124.ino","text":"void setup(){} void loop(){delay(10);}"}],
+  "boardSketches": {},
+  "libraries": {}
+}

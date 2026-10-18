@@ -1,4 +1,4 @@
-# ThinkCad 1.3.0 – in Entwicklung
+# ThinkCad 1.3.0
 
 ## Montage und Darstellung
 
@@ -57,7 +57,7 @@ Projekte vor dieser physischen Layoutrevision behalten ihre elektrischen Netze.
 Alte unsichtbare Direktkontakte werden als sichtbare Kabel geladen, weil die
 korrigierten Anschlusspositionen sonst unsichtbare Verbindungen zwischen
 auseinanderliegenden Bauteilen erzeugen könnten. Neu platzieren, um wieder
-echte Direktkontakte herzustellen. Neue Projekte speichern die Layoutrevision im Projektformat 4. Ältere
+echte Direktkontakte herzustellen. Neue Projekte speichern die Layoutrevision im Projektformat 7. Ältere
 ThinkCad-Versionen öffnen dieses Format nicht, statt es mit falscher Geometrie
 anzuzeigen.
 
@@ -70,7 +70,7 @@ LCD-/Servo-Beispiele wurden nach der Layoutkorrektur erneut kompiliert und
 simuliert. Die Desktop-Suite meldet 71 erfolgreiche Fälle und einen
 plattformabhängig übersprungenen Fall.
 Windows- und reale Hardware-/Audio-Prüfung sind gesonderte Schritte; dies ist
-noch keine veröffentlichte Version.
+die Paketprüfung erfolgt zusätzlich über die Release-CI.
 
 ## Quellen der Board-Geometrie
 

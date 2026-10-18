@@ -1,4 +1,5 @@
 #include "projectio.hpp"
+#include "modulepackages.hpp"
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
@@ -38,13 +39,43 @@ QString prototypes(QString source){
         }else if(mask[i]=='}'){depth=std::max(0,depth-1);if(depth==0)start=i+1;}
         else if(mask[i]==';'&&depth==0)start=i+1;
     }
-    if(first>=0){int line=source.left(first).count('\n')+1;source.insert(first,"\n// Arduino-style declarations for plain global functions.\n"+declarations.join('\n')+"\n#line "+QString::number(line)+" \"combined-sketch.ino\"\n");}
+    if(first>=0){
+        int line=1;QString file="combined-sketch.ino";
+        const QRegularExpression directive(R"(^\s*#\s*line\s+(\d+)\s+("(?:[^"\\]|\\.)*")\s*$)");
+        // Restore the original .ino location after generated declarations.
+        // Counting combined-source lines loses the preceding #line directives.
+        for(const auto& text:source.left(first).split('\n')){
+            const auto match=directive.match(text);
+            if(match.hasMatch()){line=match.captured(1).toInt();file=match.captured(2);}
+            else ++line;
+        }
+        // The last split item is the unfinished current line.
+        --line;if(!file.startsWith('"'))file='"'+file+'"';
+        source.insert(first,"\n// Arduino-style declarations for plain global functions.\n"+declarations.join('\n')+"\n#line "+QString::number(line)+" "+file+"\n");
+    }
     return source;
+}
+QJsonObject breakpointData(const SketchProject& sketch){
+    QJsonObject data;int total=0;
+    for(auto it=sketch.breakpoints.begin();it!=sketch.breakpoints.end();++it){
+        if(!sketch.files.contains(it.key())||!ProjectIO::validFileName(it.key()))throw std::runtime_error("Invalid breakpoint source");
+        auto lines=it.value().values();std::sort(lines.begin(),lines.end());QJsonArray points;
+        for(int line:lines){if(line<1||line>sketch.files.value(it.key()).count('\n')+1||++total>2048)throw std::runtime_error("Invalid breakpoint line");points.append(line);}if(!points.isEmpty())data[it.key()]=points;
+    }return data;
+}
+void readBreakpoints(SketchProject& sketch,const QJsonObject& object){
+    if(!object.contains("breakpoints"))return;
+    if(!object["breakpoints"].isObject())throw std::runtime_error("Invalid breakpoints");
+    const auto data=object["breakpoints"].toObject();int total=0;
+    for(auto it=data.begin();it!=data.end();++it){
+        if(!sketch.files.contains(it.key())||!it.value().isArray())throw std::runtime_error("Invalid breakpoint source");
+        for(const auto& point:it.value().toArray()){const int line=point.toInt(-1);if(!point.isDouble()||line!=point.toDouble()||line<1||line>sketch.files.value(it.key()).count('\n')+1||++total>2048||sketch.breakpoints[it.key()].contains(line))throw std::runtime_error("Invalid breakpoint line");sketch.breakpoints[it.key()].insert(line);}
+    }
 }
 QJsonObject endpoint(const thinkercad::Endpoint& ep){return {{"part",QString::fromStdString(ep.part)},{"pin",QString::fromStdString(ep.pin)}};}
 thinkercad::Endpoint endpoint(const QJsonObject& o){return {o["part"].toString().toStdString(),o["pin"].toString().toStdString()};}
 }
-bool ProjectIO::validFileName(const QString& name){return !name.isEmpty()&&name.size()<240&&!name.startsWith('/')&&!name.contains('\\')&&!name.contains(':')&&QDir::cleanPath(name)==name&&!name.split('/').contains("..")&&QStringList{"ino","h","hpp","cpp","cc","cxx"}.contains(QFileInfo(name).suffix().toLower());}
+bool ProjectIO::validFileName(const QString& name){return !name.isEmpty()&&name.size()<240&&!name.startsWith('/')&&!name.contains('\\')&&!name.contains(':')&&QDir::cleanPath(name)==name&&!name.split('/').contains("..")&&QStringList{"ino","h","hpp","cpp","cc","cxx","py"}.contains(QFileInfo(name).suffix().toLower());}
 SketchProject SketchProject::openIno(const QString& path){
     QFileInfo file(path);if(file.suffix().toLower()!="ino"||!file.exists())throw std::runtime_error("Eine bestehende .ino-Datei auswählen.");
     SketchProject p;p.sourceFolder=file.absolutePath();p.name=file.completeBaseName();QDir dir(p.sourceFolder);
@@ -56,21 +87,30 @@ SketchProject SketchProject::openIno(const QString& path){
     for(const auto& sub:QStringList{"src","include"}){QDirIterator files(dir.filePath(sub),{"*.h","*.hpp","*.cpp","*.cc","*.cxx"},QDir::Files,QDirIterator::Subdirectories);while(files.hasNext()){auto full=files.next();if(!QFileInfo(full).isSymLink())add(dir.relativeFilePath(full));}}
     return p;
 }
-QString SketchProject::combinedSource()const{QString combined="#include <Arduino.h>\n";for(const auto& name:order)if(name.endsWith(".ino",Qt::CaseInsensitive)){auto escaped=name;escaped.replace('\\',"\\\\").replace('\"',"\\\"");combined+="#line 1 \""+escaped+"\"\n"+files.value(name)+"\n";}return prototypes(combined);}
+SketchProject SketchProject::openPython(const QString& path){
+    QFileInfo file(path);if(file.suffix().toLower()!="py"||!file.isFile())throw std::runtime_error("Choose an existing .py file.");
+    SketchProject project;project.language="micropython";project.name=file.completeBaseName();project.sourceFolder=file.absolutePath();QDir root(project.sourceFolder);qint64 total=0;
+    auto add=[&](const QString& name){if(project.files.contains(name))return;if(!ProjectIO::validFileName(name)||project.files.size()>=100)throw std::runtime_error("Invalid or oversized Python project");auto contents=read(root.filePath(name));total+=contents.toUtf8().size();if(total>2*1024*1024)throw std::runtime_error("Python project exceeds 2 MiB");project.files[name]=contents;project.order<<name;};
+    add(file.fileName());for(const auto& name:root.entryList({"*.py"},QDir::Files|QDir::NoSymLinks,QDir::Name))add(name);
+    for(const auto& sub:QStringList{"lib","src"}){QDirIterator files(root.filePath(sub),{"*.py"},QDir::Files|QDir::NoSymLinks,QDirIterator::Subdirectories);while(files.hasNext())add(root.relativeFilePath(files.next()));}
+    return project;
+}
+QString SketchProject::entryPoint()const{const auto suffix=language=="micropython"?QString(".py"):QString(".ino");for(const auto& name:order)if(name.endsWith(suffix,Qt::CaseInsensitive))return name;return {};}
+QString SketchProject::combinedSource()const{if(language=="micropython")return files.value(entryPoint());QString combined="#include <Arduino.h>\n";for(const auto& name:order)if(name.endsWith(".ino",Qt::CaseInsensitive)){auto escaped=name;escaped.replace('\\',"\\\\").replace('\"',"\\\"");combined+="#line 1 \""+escaped+"\"\n"+files.value(name)+"\n";}return prototypes(combined);}
 QMap<QString,QString> SketchProject::auxiliaryFiles()const{auto aux=files;for(auto it=aux.begin();it!=aux.end();)if(it.key().endsWith(".ino",Qt::CaseInsensitive))it=aux.erase(it);else++it;return aux;}
 QByteArray ProjectIO::serialize(const SavedProject& p){
-    p.circuit.validate();QJsonArray parts,wires,files;
+    p.circuit.validate();if(p.sketch.language!="arduino"&&p.sketch.language!="micropython")throw std::runtime_error("Invalid sketch language");if(p.mode!=thinkercad::ExecutionMode::Simulation&&p.mode!=thinkercad::ExecutionMode::Emulation)throw std::runtime_error("Invalid project execution mode");QJsonArray parts,wires,files;
     for(const auto& part:p.circuit.parts()){QJsonObject params;for(const auto& [key,value]:part.parameters)params[QString::fromStdString(key)]=(key=="keys"&&(part.kind==thinkercad::PartKind::Keypad||part.kind==thinkercad::PartKind::Keyboard))?0:value;parts.append(QJsonObject{{"netName",QString::fromStdString(part.netName)},{"parameters",params},{"id",QString::fromStdString(part.id)},{"kind",static_cast<int>(part.kind)},{"x",part.x},{"y",part.y},{"value",part.value},{"color",QString::fromStdString(part.color)},{"model",QString::fromStdString(part.model)},{"rotation",part.rotation},{"state",part.kind==thinkercad::PartKind::Button?false:part.pressed}});}
-    for(const auto& wire:p.circuit.wires()){QJsonArray bends;for(const auto& point:wire.points)bends.append(QJsonArray{point.x,point.y});wires.append(QJsonObject{{"a",endpoint(wire.a)},{"b",endpoint(wire.b)},{"color",QString::fromStdString(wire.color)},{"points",bends},{"direct",wire.direct}});}
+    for(const auto& wire:p.circuit.wires()){QJsonArray bends;for(const auto& point:wire.points)bends.append(QJsonArray{point.x,point.y});wires.append(QJsonObject{{"id",QString::fromStdString(wire.id)},{"a",endpoint(wire.a)},{"b",endpoint(wire.b)},{"color",QString::fromStdString(wire.color)},{"points",bends},{"direct",wire.direct}});}
     for(const auto& name:p.sketch.order){if(!validFileName(name))throw std::runtime_error("Invalid project file name");files.append(QJsonObject{{"name",name},{"text",p.sketch.files.value(name)}});}
     QJsonObject sketches;
     for(auto it=p.boardSketches.cbegin();it!=p.boardSketches.cend();++it){
         if(p.circuit.part(it.key().toStdString()).kind!=thinkercad::PartKind::Esp8266)throw std::runtime_error("Sketch is not assigned to a board");
         QJsonArray boardFiles;for(const auto& name:it->order){if(!validFileName(name)||!it->files.contains(name))throw std::runtime_error("Invalid board sketch file");boardFiles.append(QJsonObject{{"name",name},{"text",it->files.value(name)}});}
-        sketches[it.key()]=QJsonObject{{"name",it->name},{"files",boardFiles}};
+        if(it->language!="arduino"&&it->language!="micropython")throw std::runtime_error("Invalid board sketch language");sketches[it.key()]=QJsonObject{{"language",it->language},{"name",it->name},{"files",boardFiles},{"breakpoints",breakpointData(*it)}};
     }
     QJsonObject bundled;for(auto it=p.bundledLibraries.cbegin();it!=p.bundledLibraries.cend();++it)bundled[it.key()]=QJsonObject{{"data",QString::fromLatin1(it.value().toBase64())},{"sha256",QString::fromLatin1(QCryptographicHash::hash(it.value(),QCryptographicHash::Sha256).toHex())}};
-    const auto data=QJsonDocument(QJsonObject{{"libraries",bundled},{"boardSketches",sketches},{"format","ThinkCad"},{"version",4},{"physicalLayout",2},{"name",p.sketch.name},{"activeBoard",QString::fromStdString(p.circuit.boardId())},{"parts",parts},{"wires",wires},{"files",files}}).toJson();
+    const auto data=QJsonDocument(QJsonObject{{"breakpoints",breakpointData(p.sketch)},{"libraries",bundled},{"boardSketches",sketches},{"format","ThinkCad"},{"version",7},{"physicalLayout",2},{"language",p.sketch.language},{"executionMode",QString::fromLatin1(thinkercad::executionModeName(p.mode))},{"componentModels",ModulePackages::usedDefinitions(p.circuit)},{"name",p.sketch.name},{"activeBoard",QString::fromStdString(p.circuit.boardId())},{"parts",parts},{"wires",wires},{"files",files}}).toJson();
     if(data.size()>32*1024*1024)throw std::runtime_error("Projekt ist größer als 32 MiB.");return data;
 }
 void ProjectIO::save(const QString& path,const SavedProject& p){const auto data=serialize(p);QSaveFile file(path);if(!file.open(QIODevice::WriteOnly)||file.write(data)!=data.size()||!file.commit())throw std::runtime_error("Projekt konnte nicht gespeichert werden.");
@@ -79,27 +119,37 @@ SavedProject ProjectIO::load(const QString& path){
     QFile file(path);if(!file.open(QIODevice::ReadOnly)||file.size()>32*1024*1024)throw std::runtime_error("Projektdatei ist nicht lesbar oder zu groß.");return deserialize(file.readAll());
 }
 SavedProject ProjectIO::deserialize(const QByteArray& data){
-    if(data.size()>32*1024*1024)throw std::runtime_error("Project exceeds 32 MiB");QJsonParseError error;const auto json=QJsonDocument::fromJson(data,&error);const auto o=json.object();if(error.error!=QJsonParseError::NoError||(o["format"].toString()!="ThinkCad"&&o["format"].toString()!="ThinkerCad")||(o["version"].toInt()!=1&&o["version"].toInt()!=2&&o["version"].toInt()!=3&&o["version"].toInt()!=4)||!o["parts"].isArray()||!o["wires"].isArray()||!o["files"].isArray())throw std::runtime_error("Ungültiges ThinkCad-Projektformat.");
-    if((o.contains("physicalLayout")&&(!o["physicalLayout"].isDouble()||(o["physicalLayout"].toDouble()!=1&&o["physicalLayout"].toDouble()!=2)))||(o["version"].toInt()==4&&o["physicalLayout"].toInt()!=2))throw std::runtime_error("Unsupported physical layout revision");
-    SavedProject p;p.circuit.removePart("board");p.sketch.name=o["name"].toString("sketch");
-    for(const auto& entry:o["parts"].toArray()){auto v=entry.toObject();if(!v["x"].isDouble()||!v["y"].isDouble()||!v["value"].isDouble()||!v["kind"].isDouble())throw std::runtime_error("Invalid component properties");thinkercad::CircuitPart part{v["id"].toString().toStdString(),static_cast<thinkercad::PartKind>(v["kind"].toInt(-1)),v["x"].toDouble(),v["y"].toDouble(),v["value"].toDouble(),v["state"].toBool(),v["color"].toString("#fb586b").toStdString(),v["model"].toString().toStdString()};if(v.contains("rotation")&&(!v["rotation"].isDouble()||v["rotation"].toDouble()!=v["rotation"].toInt(-1)))throw std::runtime_error("Invalid component rotation");part.rotation=v["rotation"].toInt();part.netName=v["netName"].toString().toStdString();if(v.contains("parameters")){if(!v["parameters"].isObject())throw std::runtime_error("Invalid component parameters");const auto params=v["parameters"].toObject();for(auto it=params.begin();it!=params.end();++it){if(!it.value().isDouble())throw std::runtime_error("Invalid parameter value");part.parameters[it.key().toStdString()]=it.value().toDouble();}}p.circuit.insertPart(part);}
+    if(data.size()>32*1024*1024)throw std::runtime_error("Project exceeds 32 MiB");QJsonParseError error;const auto json=QJsonDocument::fromJson(data,&error);const auto o=json.object();if(error.error!=QJsonParseError::NoError||(o["format"].toString()!="ThinkCad"&&o["format"].toString()!="ThinkerCad")||(o["version"].toInt()!=1&&o["version"].toInt()!=2&&o["version"].toInt()!=3&&o["version"].toInt()!=4&&o["version"].toInt()!=5&&o["version"].toInt()!=6&&o["version"].toInt()!=7)||!o["parts"].isArray()||!o["wires"].isArray()||!o["files"].isArray())throw std::runtime_error("Ungültiges ThinkCad-Projektformat.");
+    if((o.contains("physicalLayout")&&(!o["physicalLayout"].isDouble()||(o["physicalLayout"].toDouble()!=1&&o["physicalLayout"].toDouble()!=2)))||(o["version"].toInt()==7&&o["physicalLayout"].toInt()!=2))throw std::runtime_error("Unsupported physical layout revision");
+    QStringList installed;bool accepted=false;struct Rollback{QStringList& ids;bool& accepted;~Rollback(){if(!accepted)for(const auto& id:ids)thinkercad::ModuleRegistry::removeLocal(id.toStdString());}} rollback{installed,accepted};
+    SavedProject p;
+    if(o["version"].toInt()>=4){const auto mode=o["executionMode"].toString("simulation");if((o.contains("executionMode")&&!o["executionMode"].isString())||(mode!="simulation"&&mode!="emulation"))throw std::runtime_error("Invalid project execution mode");p.mode=mode=="emulation"?thinkercad::ExecutionMode::Emulation:thinkercad::ExecutionMode::Simulation;if(o.contains("componentModels")){if(!o["componentModels"].isArray())throw std::runtime_error("Invalid embedded component models");installed=ModulePackages::installEmbedded(o["componentModels"].toArray());}}
+    p.circuit.removePart("board");p.sketch.name=o["name"].toString("sketch");
+    for(const auto& entry:o["parts"].toArray()){auto v=entry.toObject();if(!v["x"].isDouble()||!v["y"].isDouble()||!v["value"].isDouble()||!v["kind"].isDouble())throw std::runtime_error("Invalid component properties");int kind=v["kind"].toInt(-1);if(o["version"].toInt()==4&&kind==59)kind=static_cast<int>(thinkercad::PartKind::Module);thinkercad::CircuitPart part{v["id"].toString().toStdString(),static_cast<thinkercad::PartKind>(kind),v["x"].toDouble(),v["y"].toDouble(),v["value"].toDouble(),v["state"].toBool(),v["color"].toString("#fb586b").toStdString(),v["model"].toString().toStdString()};if(v.contains("rotation")&&(!v["rotation"].isDouble()||v["rotation"].toDouble()!=v["rotation"].toInt(-1)))throw std::runtime_error("Invalid component rotation");part.rotation=v["rotation"].toInt();part.netName=v["netName"].toString().toStdString();if(v.contains("parameters")){if(!v["parameters"].isObject())throw std::runtime_error("Invalid component parameters");const auto params=v["parameters"].toObject();for(auto it=params.begin();it!=params.end();++it){if(!it.value().isDouble())throw std::runtime_error("Invalid parameter value");part.parameters[it.key().toStdString()]=it.value().toDouble();}}p.circuit.insertPart(part);}
     if(!o["activeBoard"].toString().isEmpty())p.circuit.setActiveBoard(o["activeBoard"].toString().toStdString());
-    for(const auto& entry:o["wires"].toArray()){auto v=entry.toObject();p.circuit.connect(endpoint(v["a"].toObject()),endpoint(v["b"].toObject()),v["color"].toString("#0d9488").toStdString());if(v.contains("direct")&&!v["direct"].isBool())throw std::runtime_error("Invalid direct contact flag");const_cast<thinkercad::CircuitWire&>(p.circuit.wires().back()).direct=o["physicalLayout"].toInt(1)>=2&&v["direct"].toBool(false);if(v.contains("points")){if(!v["points"].isArray()||v["points"].toArray().size()>64)throw std::runtime_error("Invalid wire bends");auto& wire=const_cast<thinkercad::CircuitWire&>(p.circuit.wires().back());for(const auto& value:v["points"].toArray()){auto xy=value.toArray();if(xy.size()!=2||!xy[0].isDouble()||!xy[1].isDouble())throw std::runtime_error("Invalid wire bend");wire.points.push_back({xy[0].toDouble(),xy[1].toDouble()});}}}
+    for(const auto& entry:o["wires"].toArray()){
+        const auto v=entry.toObject();thinkercad::CircuitWire wire;wire.a=endpoint(v["a"].toObject());wire.b=endpoint(v["b"].toObject());wire.color=v["color"].toString("#0d9488").toStdString();
+        if(v.contains("direct")&&!v["direct"].isBool())throw std::runtime_error("Invalid direct contact flag");wire.direct=o["physicalLayout"].toInt(1)>=2&&v["direct"].toBool(false);
+        if(v.contains("points")){if(!v["points"].isArray()||v["points"].toArray().size()>64)throw std::runtime_error("Invalid wire bends");for(const auto& point:v["points"].toArray()){const auto xy=point.toArray();if(xy.size()!=2||!xy[0].isDouble()||!xy[1].isDouble())throw std::runtime_error("Invalid wire bend");wire.points.push_back({xy[0].toDouble(),xy[1].toDouble()});}}
+        if(v.contains("id")){if(!v["id"].isString())throw std::runtime_error("Invalid wire identity");wire.id=v["id"].toString().toStdString();}
+        else {p.circuit.connect(wire.a,wire.b,wire.color);auto& restored=const_cast<thinkercad::CircuitWire&>(p.circuit.wires().back());restored.points=std::move(wire.points);restored.direct=wire.direct;continue;}
+        p.circuit.insertWire(std::move(wire));
+    }
     for(const auto& entry:o["files"].toArray()){auto v=entry.toObject();const auto name=v["name"].toString();if(!validFileName(name)||p.sketch.files.contains(name)||p.sketch.files.size()>=100||!v["text"].isString())throw std::runtime_error("Invalid sketch files");p.sketch.order<<name;p.sketch.files[name]=v["text"].toString();}
-    if(p.sketch.files.isEmpty()||std::none_of(p.sketch.order.begin(),p.sketch.order.end(),[](const auto& n){return n.endsWith(".ino",Qt::CaseInsensitive);}))throw std::runtime_error("Projekt enthält keinen Arduino-Sketch.");if(o["version"].toInt()>=2){
+    if(o["version"].toInt()>=6&&o.contains("language")&&!o["language"].isString())throw std::runtime_error("Invalid sketch language type");p.sketch.language=o["version"].toInt()>=6?o["language"].toString("arduino"):QString("arduino");if((p.sketch.language!="arduino"&&p.sketch.language!="micropython")||p.sketch.entryPoint().isEmpty())throw std::runtime_error("Invalid sketch language or missing entry point");if(o["version"].toInt()>=2){
         if(!o["boardSketches"].isObject())throw std::runtime_error("Invalid board sketches");
         const auto sketches=o["boardSketches"].toObject();
         for(auto it=sketches.constBegin();it!=sketches.constEnd();++it){
             if(p.circuit.part(it.key().toStdString()).kind!=thinkercad::PartKind::Esp8266||!it.value().isObject())throw std::runtime_error("Invalid sketch board");
-            auto object=it.value().toObject();SketchProject sketch;sketch.name=object["name"].toString("sketch");
+            auto object=it.value().toObject();if(o["version"].toInt()>=6&&object.contains("language")&&!object["language"].isString())throw std::runtime_error("Invalid board language type");SketchProject sketch;sketch.name=object["name"].toString("sketch");sketch.language=o["version"].toInt()>=6?object["language"].toString("arduino"):QString("arduino");
             if(!object["files"].isArray())throw std::runtime_error("Invalid board files");
             for(const auto& entry:object["files"].toArray()){const auto file=entry.toObject();const auto name=file["name"].toString();if(!validFileName(name)||sketch.files.contains(name)||sketch.files.size()>=100||!file["text"].isString())throw std::runtime_error("Invalid board sketch files");sketch.order<<name;sketch.files[name]=file["text"].toString();}
-            if(std::none_of(sketch.order.cbegin(),sketch.order.cend(),[](const auto& name){return name.endsWith(".ino",Qt::CaseInsensitive);}))throw std::runtime_error("Board has no Arduino sketch");
-            p.boardSketches[it.key()]=sketch;
+            if((sketch.language!="arduino"&&sketch.language!="micropython")||sketch.entryPoint().isEmpty())throw std::runtime_error("Invalid board language or missing sketch entry point");
+            readBreakpoints(sketch,object);p.boardSketches[it.key()]=sketch;
         }
     }
     if(o.contains("libraries")){if(!o["libraries"].isObject())throw std::runtime_error("Invalid library bundle");auto bundle=o["libraries"].toObject();if(bundle.size()>2000)throw std::runtime_error("Too many bundled files");qint64 total=0;for(auto it=bundle.begin();it!=bundle.end();++it){const auto name=it.key();if(!QRegularExpression("^[A-Za-z0-9_. /+-]+$").match(name).hasMatch()||name.startsWith('/')||name.split('/').contains("..")||name.split('/').contains(".")||name.split('/').contains("")||!name.contains('/'))throw std::runtime_error("Unsafe bundled library path");auto item=it.value().toObject();auto decoded=QByteArray::fromBase64Encoding(item["data"].toString().toLatin1(),QByteArray::AbortOnBase64DecodingErrors);if(!decoded)throw std::runtime_error("Corrupt library data");auto bytes=decoded.decoded;total+=bytes.size();if(total>20*1024*1024||QCryptographicHash::hash(bytes,QCryptographicHash::Sha256).toHex()!=item["sha256"].toString().toLatin1())throw std::runtime_error("Library checksum/size mismatch");p.bundledLibraries[name]=bytes;}}
-    p.circuit.validate();return p;
+    readBreakpoints(p.sketch,o);p.circuit.validate();accepted=true;return p;
 }
 
 QMap<QString,QByteArray> ProjectIO::bundleLibraries(const QStringList& directories){QMap<QString,QByteArray> files;qint64 total=0;int library=0;for(const auto& directory:directories){QDir root(directory);if(!root.exists())throw std::runtime_error("Library directory missing");QString prefix="library"+QString::number(++library);QDirIterator it(directory,QDir::Files|QDir::NoSymLinks,QDirIterator::Subdirectories);while(it.hasNext()){auto path=it.next();auto relative=root.relativeFilePath(path);if(relative.startsWith(".git/")||relative.startsWith("build/"))continue;auto name=prefix+"/"+relative;if(!QRegularExpression("^[A-Za-z0-9_. /+-]+$").match(name).hasMatch())throw std::runtime_error("Unsupported library filename");QFile file(path);if(!file.open(QIODevice::ReadOnly)||file.size()>4*1024*1024)throw std::runtime_error("Library file unreadable/too large");auto data=file.readAll();total+=data.size();if(total>20*1024*1024||files.size()>=2000)throw std::runtime_error("Library bundle exceeds 20 MiB / 2000 files");files[name]=data;}}return files;}

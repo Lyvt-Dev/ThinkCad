@@ -107,7 +107,7 @@ Bei 25 °C liegen 0,75 V an OUT. Temperatur im Eigenschaftenfeld verändern.
 Beim nackten ESP8266 überschreiten Temperaturen über 50 °C dessen 1-V-ADC-Bereich;
 entsprechend einen Spannungsteiler oder ein anderes Board verwenden.
 
-## Geometrie in 1.3.0 (in Entwicklung)
+## Geometrie in 1.3.0
 
 Die realistische Darstellung verwendet physische Millimeterkoordinaten und
 explizite Anschlussgeometrien. Gehäusevarianten, aufgeformte Beine,
