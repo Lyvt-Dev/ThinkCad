@@ -241,10 +241,12 @@ class Feature129Tests : public QObject {
     }
     void visualStarterAndThreeViews() {
         MainWindow window;
-        QVERIFY(window.loadExample("starter_blink"));
         window.resize(1400, 900);
         window.show();
         QTest::qWait(30);
+        QVERIFY(window.loadExample("starter_blink"));
+        window.findChild<QDockWidget *>("codeDock")->show();
+        QTest::qWait(10);
         auto *mode = window.findChild<QComboBox *>("codingMode");
         auto *blocks = window.findChild<QGraphicsView *>("blockWorkspace");
         auto *tabs = window.findChild<QTabWidget *>("codeTabs");

@@ -20,6 +20,7 @@ class DiagnosticsPanel final : public QWidget {
     QComboBox *filter_;
     QElapsedTimer elapsed_;
     std::string signature_;
+    QString language_;
     std::vector<thinkercad::DiagnosticIssue> issues_;
     void render();
 };

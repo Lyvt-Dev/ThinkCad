@@ -2,6 +2,7 @@
 #include "thinkercad/visual/expressionparser.hpp"
 #include "thinkercad/diagnostics.hpp"
 #include <iostream>
+#include <chrono>
 #include <stdexcept>
 using namespace thinkercad;
 using namespace thinkercad::visual;
@@ -196,6 +197,25 @@ int main() {
             f.result = ValueType::Integer;
             p.functions = {f};
             check(!ArduinoCodeGenerator::generate(p, profile).valid(), "non-void function must return");
+        }
+        {
+            CircuitDocument large;
+            for (int i = 0; i < 99; ++i) {
+                auto board = large.addPart(PartKind::Breadboard30, (i % 10) * 600, (i / 10) * 600);
+                large.connect({"board", "GPIO5"}, {board, "a1"});
+            }
+            auto begin = std::chrono::steady_clock::now();
+            NetTopology topology(large);
+            check(topology.endpoints().size() > 29000, "large topology retains contacts");
+            check(topology.members({"board", "GPIO5"}).size() == 496, "large joined net is accurate");
+            Esp8266Board board;
+            auto issues = DiagnosticEngine::analyze(large, topology, {}, {{"board", &board}});
+            check(!issues.empty(), "large topology is diagnosable");
+            std::cout << "29,000-contact topology and diagnosis: "
+                      << std::chrono::duration_cast<std::chrono::milliseconds>(
+                             std::chrono::steady_clock::now() - begin)
+                             .count()
+                      << " ms\n";
         }
         std::cout << "Visual generation, expression safety, breadboard topology and diagnostics passed\n";
     } catch (const std::exception &ex) {

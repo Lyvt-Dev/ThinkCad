@@ -31,6 +31,7 @@ void DiagnosticsPanel::refresh(const CircuitDocument &doc, const NetTopology &ne
         return;
     signature_ = signature;
     elapsed_.restart();
+    auto previous = std::move(issues_);
     issues_ = DiagnosticEngine::analyze(doc, net, state, boards, uart, traffic);
     for (const auto &message : state.errors) {
         DiagnosticIssue issue{"solver",        message, "Verdrahtung und Modellgrenzen prüfen.",
@@ -49,7 +50,10 @@ void DiagnosticsPanel::refresh(const CircuitDocument &doc, const NetTopology &ne
                            Severity::Warning,
                            {warning.part, {}},
                            {}});
-    render();
+    if (issues_ != previous || language_ != Language::current()) {
+        language_ = Language::current();
+        render();
+    }
 }
 void DiagnosticsPanel::render() {
     const int scroll = list_->verticalScrollBar()->value();

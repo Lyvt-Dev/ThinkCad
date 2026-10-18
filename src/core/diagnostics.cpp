@@ -46,12 +46,7 @@ DiagnosticEngine::analyze(const CircuitDocument &doc, const NetTopology &net, co
         }
     // Graph of finite conducting branches, excluding the LED under inspection.
     // This is reachability, not an invented ideal-ground requirement.
-    struct Edge {
-        int other;
-        std::string part;
-        bool limiting;
-    };
-    std::map<int, std::vector<Edge>> graph;
+    std::map<int, std::vector<int>> graph;
     std::set<int> returns;
     for (const auto &[id, board] : boards) {
         (void)board;
@@ -72,25 +67,21 @@ DiagnosticEngine::analyze(const CircuitDocument &doc, const NetTopology &net, co
                               p.kind == PartKind::Thermistor;
         if (resistor) {
             int a = net.node({p.id, "1"}), b = net.node({p.id, "2"});
-            graph[a].push_back({b, p.id, true});
-            graph[b].push_back({a, p.id, true});
+            graph[a].push_back(b);
+            graph[b].push_back(a);
         }
     }
-    auto reaches = [&](int start, const std::set<int> &targets) {
-        std::set<int> visited;
-        std::vector<int> pending{start};
-        while (!pending.empty()) {
-            int n = pending.back();
-            pending.pop_back();
-            if (!visited.insert(n).second)
-                continue;
-            if (targets.contains(n))
-                return true;
-            for (const auto &e : graph[n])
-                pending.push_back(e.other);
-        }
-        return false;
-    };
+    std::set<int> returnReachable;
+    std::vector<int> pending(returns.begin(), returns.end());
+    while (!pending.empty()) {
+        int node = pending.back();
+        pending.pop_back();
+        if (!returnReachable.insert(node).second)
+            continue;
+        auto edges = graph.find(node);
+        if (edges != graph.end())
+            pending.insert(pending.end(), edges->second.begin(), edges->second.end());
+    }
     std::set<int> supplies;
     for (const auto &[node, list] : drivers)
         if (std::any_of(list.begin(), list.end(), [](const auto &d) { return d.second > 0; }))
@@ -98,7 +89,7 @@ DiagnosticEngine::analyze(const CircuitDocument &doc, const NetTopology &net, co
     for (const auto &p : doc.parts())
         if (p.kind == PartKind::Led || p.kind == PartKind::InfraredLed) {
             const auto a = net.node({p.id, "A"}), k = net.node({p.id, "K"});
-            if (net.members({p.id, "K"}).size() > 1 && !reaches(k, returns) && !voltage({p.id, "K"}))
+            if (net.members({p.id, "K"}).size() > 1 && !voltage({p.id, "K"}) && !returnReachable.contains(k))
                 add("led-return", Severity::Warning, {p.id, "K"},
                     "LED hat keinen erkennbaren elektrischen Rückweg.",
                     "Kathode über einen geschlossenen Stromkreis mit dem Minuspol verbinden.");

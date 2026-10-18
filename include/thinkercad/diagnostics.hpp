@@ -9,6 +9,7 @@ struct DiagnosticIssue {
     Severity severity = Severity::Warning;
     Endpoint target;
     std::string wire;
+    bool operator==(const DiagnosticIssue &) const = default;
 };
 class DiagnosticEngine {
   public:
