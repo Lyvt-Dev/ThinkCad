@@ -96,6 +96,7 @@ void UpdateDownload::start(const QUrl &url, const QString &destination, qint64 s
     QJsonObject record;
     if (meta.open(QIODevice::ReadOnly) && meta.size() < 8192)
         record = QJsonDocument::fromJson(meta.readAll()).object();
+    meta.close();
     if (record["url"].toString() != url.toString() ||
         record["sha256"].toString() != QString::fromLatin1(expected.toHex()) ||
         record["size"].toDouble() != size) {

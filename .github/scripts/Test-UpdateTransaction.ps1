@@ -11,8 +11,8 @@ $version = (Select-String -Path CMakeLists.txt -Pattern 'project\(ThinkCad VERSI
 [IO.File]::WriteAllText("$target/old-build.marker", 'old installation')
 [IO.File]::WriteAllText("$target/local-user-library.txt", 'must survive update')
 $parent = Start-Process cmd.exe -ArgumentList '/c exit 0' -PassThru
-$args = @($parent.Id, "`"$installer`"", "`"$target`"", $env:GITHUB_SHA, $version, 'en')
-$helper = Start-Process "$cache/ThinkCadUpdater.exe" -ArgumentList $args -PassThru
+$updateArguments = @($parent.Id, "`"$installer`"", "`"$target`"", $env:GITHUB_SHA, $version, 'en')
+$helper = Start-Process "$cache/ThinkCadUpdater.exe" -ArgumentList $updateArguments -PassThru
 if (-not $helper.WaitForExit(600000)) {
   Stop-Process -Id $helper.Id -Force
   Get-Content "$cache/installation.log" -ErrorAction SilentlyContinue | Write-Host

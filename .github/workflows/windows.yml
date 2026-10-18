@@ -67,11 +67,11 @@ jobs:
           Invoke-Checked g++ ($headers + @('-DTHINKCAD_DEBUG_TRANSPORT=1'))
           Invoke-Checked cmake @('--build', 'build', '--parallel', '2')
           Invoke-Checked "$pwd/build/performance_probe.exe" @()
-          & ctest --test-dir build --output-on-failure
+          & ctest --test-dir build --output-on-failure --stop-on-failure
           $testExitCode = $LASTEXITCODE
           if (Test-Path build/desktop-tests.txt) { Get-Content build/desktop-tests.txt | Write-Host }
           if (Test-Path build/experience-tests.txt) { Get-Content build/experience-tests.txt | Write-Host }
-          foreach ($name in @('collaboration-tests.txt', 'debugger-tests.txt', 'feature126-tests.txt')) {
+          foreach ($name in @('collaboration-tests.txt', 'debugger-tests.txt', 'feature126-tests.txt', 'updater-tests.txt')) {
             if (Test-Path "build/$name") { Get-Content "build/$name" | Write-Host }
           }
           if ($testExitCode -ne 0) { throw "CTest failed with exit code $testExitCode" }

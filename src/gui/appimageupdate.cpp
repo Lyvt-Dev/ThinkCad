@@ -13,6 +13,7 @@ bool replaceAppImage(const QString& original,const QString& downloaded,const QBy
     if(QFileInfo(original+".previous").isSymLink()||!old.open(QIODevice::ReadOnly)||!backup.open(QIODevice::WriteOnly))return fail("Cannot create AppImage rollback backup.");
     while(!old.atEnd()){const auto chunk=old.read(65536);if((chunk.isEmpty()&&old.error()!=QFileDevice::NoError)||backup.write(chunk)!=chunk.size())return fail("Cannot write AppImage rollback backup.");}
     if(!backup.setPermissions(current.permissions())||!backup.commit())return fail("Cannot commit AppImage rollback backup.");
+    old.close();
     QSaveFile target(original);target.setDirectWriteFallback(false);if(!target.open(QIODevice::WriteOnly))return fail(target.errorString());QCryptographicHash hash(QCryptographicHash::Sha256);qint64 total=0;while(!source.atEnd()){auto chunk=source.read(65536);if(chunk.isEmpty()&&source.error()!=QFileDevice::NoError){target.cancelWriting();return fail(source.errorString());}total+=chunk.size();if(total>512ll*1024*1024||target.write(chunk)!=chunk.size()){target.cancelWriting();return fail(target.errorString());}hash.addData(chunk);if(progress)progress(total,source.size());}if(hash.result()!=expected){target.cancelWriting();return fail("AppImage changed after verification; original was kept.");}if(!target.setPermissions(current.permissions()|QFileDevice::ExeOwner)){target.cancelWriting();return fail(target.errorString());}if(!target.commit())return fail(target.errorString());return true;
 }
 
