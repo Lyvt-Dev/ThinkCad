@@ -69,8 +69,8 @@ Zusätzliche Montageprüfungen umfassen 26 erfolgreiche Qt-Testfälle; die
 LCD-/Servo-Beispiele wurden nach der Layoutkorrektur erneut kompiliert und
 simuliert. Die Desktop-Suite meldet 71 erfolgreiche Fälle und einen
 plattformabhängig übersprungenen Fall.
-Windows- und reale Hardware-/Audio-Prüfung sind gesonderte Schritte; dies ist
-die Paketprüfung erfolgt zusätzlich über die Release-CI.
+Windows- und Paketprüfungen erfolgen zusätzlich über die Release-CI.
+Prüfungen an realer Hardware und Audiogeräten sind davon getrennt.
 
 ## Quellen der Board-Geometrie
 
