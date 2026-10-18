@@ -9,6 +9,9 @@
 #include <cmath>
 #include <QRegularExpression>
 #include <QUuid>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 CodeInterpreter::CodeInterpreter(QObject* parent) : QObject(parent) {
     connect(&debugServer_,&QTcpServer::newConnection,this,&CodeInterpreter::acceptDebugConnection);
     connect(&debugger_,&GdbSession::ready,this,[this]{if(active_){debugReady_=true;markPrepared();}});
@@ -26,7 +29,7 @@ CodeInterpreter::CodeInterpreter(QObject* parent) : QObject(parent) {
     connect(&compiler_, &QProcess::errorOccurred, this, [this](QProcess::ProcessError e) { if (e==QProcess::FailedToStart) { emit log("Compiler konnte nicht gestartet werden. Unter Einstellungen einen g++-Compiler wählen."); stop(); } });
     connect(&compiler_,qOverload<int,QProcess::ExitStatus>(&QProcess::finished),this,&CodeInterpreter::compilationFinished);
     connect(&worker_, &QProcess::readyReadStandardOutput, this, &CodeInterpreter::readProtocol);
-    connect(&worker_, &QProcess::readyReadStandardError, this, [this] { emit log(QString::fromLocal8Bit(worker_.readAllStandardError()).left(16000)); });
+    connect(&worker_, &QProcess::readyReadStandardError, this, [this] { const auto bytes=worker_.readAllStandardError();emit log((workerArguments_.isEmpty()?QString::fromLocal8Bit(bytes):QString::fromUtf8(bytes)).left(16000)); });
     connect(&worker_, &QProcess::errorOccurred, this, [this](QProcess::ProcessError e) { if (e==QProcess::FailedToStart) { emit log("Sketch-Prozess konnte nicht gestartet werden."); stop(); } });
     connect(&worker_, qOverload<int,QProcess::ExitStatus>(&QProcess::finished), this, [this](int code,QProcess::ExitStatus status) { emit log(QString("Sketch beendet (%1, %2).").arg(code).arg(status==QProcess::NormalExit?"normal":"Abbruch")); watchdog_.stop(); rateWindow_.stop(); setActive(false); });
 }
@@ -39,7 +42,7 @@ void CodeInterpreter::stop() {
     pending_.clear();
 }
 void CodeInterpreter::start(const QString& sketch,const QString& compiler,const QString& sdk,const QStringList& libraries,const QMap<QString,QString>& projectFiles,const QString& boardModel,bool deferExecution,bool emulation) {
-    stop();deferExecution_=deferExecution;libraries_.clear();selectedLibraries_.clear();dependencyPasses_=0;temp_=std::make_unique<QTemporaryDir>();
+    stop();workerArguments_.clear();deferExecution_=deferExecution;libraries_.clear();selectedLibraries_.clear();dependencyPasses_=0;temp_=std::make_unique<QTemporaryDir>();
     if (!temp_->isValid() || !QFileInfo::exists(sdk+"/runner.cpp")) { emit log("Temporäres Verzeichnis oder Simulator-SDK fehlt."); return; }
     QFile file(temp_->filePath(debuggerPath_.isEmpty()?QString("sketch.ino"):QUuid::createUuid().toString(QUuid::Id128)+".ino"));
     if (!file.open(QIODevice::WriteOnly) || file.write(sketch.toUtf8()) < 0) {emit log("Sketch konnte nicht gespeichert werden."); return;} file.close();
@@ -118,6 +121,33 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
     worker_.setProcessEnvironment(environment);
     const auto output=args.lastIndexOf("-o");outputPath_=args.takeAt(output+1);args.removeAt(output);compileArguments_=args;compilerExecutable_=compiler;launchCompilation(true);
 }
+void CodeInterpreter::startMicroPython(const QMap<QString,QString>& files,const QString& entry,const QString& runtime,const QString& sdk,const QString& boardModel,bool deferExecution,bool emulation){
+    stop();debuggerPath_.clear();workerArguments_.clear();deferExecution_=deferExecution;temp_=std::make_unique<QTemporaryDir>();
+    if(!temp_->isValid()||!QFileInfo::exists(runtime)||!files.contains(entry)||!entry.endsWith(".py",Qt::CaseInsensitive)){emit log("MicroPython runtime or entry file is missing.");return;}
+    try{
+        const auto board=thinkercad::BoardProfile::get(boardModel.toStdString());
+        if(board.arduino())throw std::runtime_error("MicroPython requires an ESP, RP2040 or STM32 board.");
+        const QStringList reserved{"machine.py","time.py","utime.py","_thinkcad.py","_thinkcad_config.py"};
+        qint64 total=0;
+        auto save=[&](const QString& name,const QByteArray& bytes){const auto path=temp_->filePath(name);QDir().mkpath(QFileInfo(path).absolutePath());QFile file(path);if(!file.open(QIODevice::WriteOnly)||file.write(bytes)!=bytes.size())throw std::runtime_error("Could not prepare MicroPython files.");};
+        if(files.size()>100)throw std::runtime_error("Too many Python files.");
+        for(auto it=files.begin();it!=files.end();++it){
+            const auto& name=it.key();if(!name.endsWith(".py",Qt::CaseInsensitive))continue;
+            if(name.startsWith('/')||name.contains('\\')||name.contains(':')||name.contains(QChar::Null)||QDir::cleanPath(name)!=name||name.split('/').contains("..")||name.split('/').contains("")||reserved.contains(name.toLower()))throw std::runtime_error("Unsafe or reserved Python module name.");
+            auto bytes=it.value().toUtf8();total+=bytes.size();if(total>2*1024*1024)throw std::runtime_error("Python project exceeds 2 MiB.");save(name,bytes);
+        }
+        for(const auto& name:QStringList{"machine.py","time.py","utime.py"}){QFile file(sdk+"/python/"+name);if(!file.open(QIODevice::ReadOnly))throw std::runtime_error("MicroPython simulation SDK is missing.");save(name,file.readAll());}
+        QJsonArray gpio,input,adc,spi;QJsonObject aliases;
+        for(int pin:board.gpio){gpio.append(pin);aliases[QString::fromStdString(board.pinName(pin))]=pin;}
+        if(board.id=="esp8266"){const int pins[]={16,5,4,0,2,14,12,13,15};for(int i=0;i<9;++i)aliases["D"+QString::number(i)]=pins[i];}
+        aliases["LED"]=board.builtinLed;
+        for(int pin:board.inputOnly)input.append(pin);for(int pin:board.adc)adc.append(pin);for(int pin:board.spiPins())spi.append(pin);
+        const QJsonObject config{{"board",boardModel},{"gpio",gpio},{"input_only",input},{"adc",adc},{"adc_bits",board.adcBits},{"adc_max",board.adcMax},{"sda",board.sda},{"scl",board.scl},{"spi",spi},{"aliases",aliases},{"emulation",emulation?1:0}};
+        save("_thinkcad_config.py",QByteArray("config = ")+QJsonDocument(config).toJson(QJsonDocument::Compact)+'\n');
+        outputPath_=runtime;workerArguments_={entry};worker_.setWorkingDirectory(temp_->path());worker_.setProcessEnvironment(QProcessEnvironment::systemEnvironment());pending_.clear();linesThisSecond_=0;setActive(true);watchdog_.start(10000);
+        QTimer::singleShot(0,this,[this]{if(active_)markPrepared();});
+    }catch(const std::exception& error){emit log(QString::fromUtf8(error.what()));stop();}
+}
 void CodeInterpreter::setSimulationSpeed(double multiplier) {
     if(std::isfinite(multiplier))speedPermille_=static_cast<int>(std::lround(std::clamp(multiplier,0.1,10.0)*1000));
 }
@@ -156,7 +186,7 @@ void CodeInterpreter::compilationFinished(int code,QProcess::ExitStatus status){
     if(!debuggerPath_.isEmpty())debugger_.start(debuggerPath_,outputPath_,worker_.processEnvironment(),debugBreakpoints_);else markPrepared();
 }
 
-void CodeInterpreter::runPrepared(){if(!active_||!prepared_)return;prepared_=false;emit log("Kompiliert. Starte setup() und loop().");watchdog_.start(10000);rateWindow_.start();if(debugReady_)debugger_.run();else worker_.start(outputPath_);}
+void CodeInterpreter::runPrepared(){if(!active_||!prepared_)return;prepared_=false;emit log(workerArguments_.isEmpty()?QString("Kompiliert. Starte setup() und loop()."):QString("MicroPython: ")+workerArguments_.first());watchdog_.start(10000);rateWindow_.start();if(debugReady_)debugger_.run();else worker_.start(outputPath_,workerArguments_);}
 
 void CodeInterpreter::setPaused(bool paused){paused_=paused;if(!paused_)stepping_=false;if(!paused_&&waitingForSpeed_){waitingForSpeed_=false;watchdog_.start(10000);answer(speedPermille_);}}
 void CodeInterpreter::stepOnce(){paused_=true;stepping_=true;stepStart_=protocolTime_;if(waitingForSpeed_){waitingForSpeed_=false;watchdog_.start(10000);answer(speedPermille_);}}

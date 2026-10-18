@@ -662,10 +662,47 @@ const QMap<QString,QString>& translations(){static const QMap<QString,QString> v
     {"Zu viele verwendete Bibliotheksquellen.","Too many library source files in use."},
     {"Bibliotheks-Abhängigkeitsauflösung überschritten.","Library dependency resolution limit exceeded."},
     {"Projektdatei konnte nicht vorbereitet werden.","Could not prepare project file."},
-    {"Sketch konnte nicht gespeichert werden.","Could not save sketch."}
+    {"Sketch konnte nicht gespeichert werden.","Could not save sketch."},
+    {"Skript vor dem Fortfahren speichern?","Save the script before continuing?"},
+    {"Werkzeuge","Tools"},
+    {"Programm","Application"},
+    {"Alle Kategorien","All categories"},
+    {"%1 von %2 Bauteilen","%1 of %2 components"},
+    {"Sketch-Sprache","Sketch language"},
+    {"Projekte durchsuchen…","Search projects…"},
+    {"Keine passenden Projekte gefunden.","No matching projects found."},
+    {"ThinkCad – Schaltungen, Arduino und MicroPython","ThinkCad – circuits, Arduino and MicroPython"},
+    {"Starte ein Projekt oder öffne eine lokale Schaltung, einen Arduino- oder MicroPython-Sketch.","Start a project or open a local circuit, Arduino sketch or MicroPython sketch."},
+    {"Python-3-Skripte…","Python 3 scripts…"},
+    {"Lokale Python-3-Skripte","Local Python 3 scripts"},
+    {"Allgemeine lokale Python-3-Skripte. Board-Sketches mit GPIO unter MicroPython im Editor ausführen.","General local Python 3 scripts. Run board sketches with GPIO using MicroPython in the editor."},
+    {"Öffnen…","Open…"},
+    {"Speichern…","Save…"},
+    {"Ausführen","Run"},
+    {"Stoppen","Stop"},
+    {"Python-Skript öffnen","Open Python script"},
+    {"Python-Skript speichern","Save Python script"},
+    {"Python beendet: %1","Python finished: %1"},
+    {"Python-Datei nicht lesbar oder größer als 2 MiB.","Python file is unreadable or exceeds 2 MiB."},
+    {"Python-Ausgabe überschreitet 1 MiB. Skript gestoppt.","Python output exceeds 1 MiB. Script stopped."},
+    {"Python 3 fehlt. Unter Einstellungen / Editor einen Python-Interpreter auswählen.","Python 3 is missing. Choose a Python interpreter in Settings / Editor."},
+    {"Python 3 für lokale Skripte","Python 3 for local scripts"},
+    {"Python-Interpreter wählen","Choose Python interpreter"},
+    {"MicroPython benötigt ein ESP-, RP2040- oder STM32-Board.","MicroPython requires an ESP, RP2040 or STM32 board."},
+    {"MicroPython-Dateien exportieren und mit einem MicroPython-Werkzeug auf das Board übertragen.","Export MicroPython files and transfer them to the board using a MicroPython tool."},
+    {"MicroPython meldet Fehler mit Datei und Zeile; GDB-Haltepunkte gelten für C++.","MicroPython reports errors with file and line; GDB breakpoints apply to C++."},
+    {"Dateiname (.ino, .h, .cpp oder .py)","File name (.ino, .h, .cpp or .py)"},
+    {"Sketch exportieren","Export sketch"},
+    {"Sketch exportieren…","Export sketch…"},
+    {"Änderungsverlauf…","Changelog…"},
+    {"Änderungsverlauf","Changelog"},
+    {"Änderungsverlauf nicht verfügbar. Bitte Installation prüfen.","Changelog unavailable. Please check your installation."}
 };return values;}
 const QJsonObject& extraTranslations(){
     static const auto data=[](){initializeLanguageResources();QFile file(":/i18n/catalog.json");if(!file.open(QIODevice::ReadOnly))return QJsonObject{};return QJsonDocument::fromJson(file.readAll()).object();}();return data;
+}
+const QJsonObject& additionalTranslations(){
+    static const auto data=[](){initializeLanguageResources();QFile file(":/i18n/catalog-additional.json");if(!file.open(QIODevice::ReadOnly))return QJsonObject{};return QJsonDocument::fromJson(file.readAll()).object();}();return data;
 }
 QString& selectedLanguage(){static QString language=[](){const auto saved=QSettings().value("language",QLocale::system().name().section('_',0,0)).toString();return Language::codes().contains(saved)?saved:QString("en");}();return language;}
 QString germanSource(const QString& english){for(auto it=translations().cbegin();it!=translations().cend();++it)if(it.value()==english)return it.key();return english;}
@@ -674,20 +711,21 @@ QString sourceText(const QString& value){
     static const auto aliases=[](){
         QHash<QString,QString> result;
         for(auto it=translations().cbegin();it!=translations().cend();++it)if(!result.contains(it.value()))result.insert(it.value(),it.key());
-        for(auto it=extraTranslations().begin();it!=extraTranslations().end();++it){const auto original=germanSource(it.key());for(const auto& translation:it.value().toArray())if(!result.contains(translation.toString()))result.insert(translation.toString(),original);}
+        for(const auto& catalog:{extraTranslations(),additionalTranslations()})for(auto it=catalog.begin();it!=catalog.end();++it){const auto original=germanSource(it.key());for(const auto& translation:it.value().toArray())if(!result.contains(translation.toString()))result.insert(translation.toString(),original);}
         return result;
     }();return aliases.value(value,value);
 }
 QString localized(const QString& original,const QString& locale){
     if(locale=="de")return original;
     const auto english=translations().value(original,original);if(locale=="en")return english;
+    if(locale=="it"||locale=="pt"){const auto row=additionalTranslations().value(english).toArray();const int index=locale=="it"?0:1;return index<row.size()&&!row[index].toString().isEmpty()?row[index].toString():english;}
     const int index=QStringList{"ru","uk","es","fr"}.indexOf(locale);const auto row=extraTranslations().value(english).toArray();
     return index>=0&&index<row.size()&&!row[index].toString().isEmpty()?row[index].toString():english;
 }
 }
 QStringList Language::sourceTexts(){QStringList values=translations().values();values.removeDuplicates();return values;}
-QStringList Language::codes(){return {"de","en","ru","uk","es","fr"};}
-QString Language::nativeName(const QString& code){static const QMap<QString,QString> names{{"de","Deutsch"},{"en","English"},{"ru","Русский"},{"uk","Українська"},{"es","Español"},{"fr","Français"}};return names.value(code,code);}
+QStringList Language::codes(){return {"de","en","ru","uk","es","fr","it","pt"};}
+QString Language::nativeName(const QString& code){static const QMap<QString,QString> names{{"de","Deutsch"},{"en","English"},{"ru","Русский"},{"uk","Українська"},{"es","Español"},{"fr","Français"},{"it","Italiano"},{"pt","Português"}};return names.value(code,code);}
 QString Language::current(){return selectedLanguage();}
 void Language::set(const QString& language){selectedLanguage()=codes().contains(language)?language:QString("de");QSettings().setValue("language",selectedLanguage());}
 QString Language::text(const QString& source){
@@ -711,7 +749,7 @@ void Language::translateTree(QObject* root){
         if(auto* tree=qobject_cast<QTreeWidget*>(object)){if(auto* header=tree->headerItem())for(int i=0;i<tree->columnCount();++i)header->setText(i,text(header->text(i)));}
         if(auto* table=qobject_cast<QTableWidget*>(object)){for(int i=0;i<table->columnCount();++i)if(auto* item=table->horizontalHeaderItem(i))item->setText(text(item->text()));}
         if(auto* combo=qobject_cast<QComboBox*>(object)){
-            if(combo->objectName()=="languageSelector"||combo->objectName()=="languageChoice")continue;
+            if(combo->objectName()=="languageSelector"||combo->objectName()=="languageChoice"||combo->objectName()=="preferencesLanguage")continue;
             const QSignalBlocker block(combo);
             for(int i=0;i<combo->count();++i)combo->setItemText(i,text(combo->itemText(i)));
         }

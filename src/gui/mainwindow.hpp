@@ -176,6 +176,7 @@ private:
     bool inputDirty_=false;
     bool smokeTest_,smokeDone_=false,renderDirty_=true;
     QComboBox* sketchBoards_;
+    QComboBox* sketchLanguage_;
     void process(BoardRuntime& runtime,const QByteArray& line);
     void libraries();
     void examplesDialog();

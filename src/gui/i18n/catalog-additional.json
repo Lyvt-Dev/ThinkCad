@@ -1,0 +1,2966 @@
+{
+  "No preview": [
+    "Nessuna anteprima",
+    "Sem pré-visualização"
+  ],
+  "Project preview": [
+    "Anteprima progetto",
+    "Pré-visualização do projeto"
+  ],
+  "Appearance and language": [
+    "Aspetto e lingua",
+    "Aparência e linguagem"
+  ],
+  "Remove": [
+    "Rimozione",
+    "Remover"
+  ],
+  "IR, NFC and radio": [
+    "IR, NFC e radio",
+    "IR, NFC e rádio"
+  ],
+  " channel": [
+    " canale",
+    " canal"
+  ],
+  " command": [
+    " comando",
+    " comando"
+  ],
+  "IR LED 940 nm": [
+    "IR LED 940 nm",
+    "IR LED 940 nm"
+  ],
+  "IR receiver 38 kHz": [
+    "Ricevitore IR 38 kHz",
+    "receptor IR 38 kHz"
+  ],
+  "TV remote (NEC)": [
+    "Telecomando TV (NEC)",
+    "TV Remote (NEC)"
+  ],
+  "NFC reader PN532 (I²C)": [
+    "Lettore NFC PN532 (I2C)",
+    "Leitor NFC PN532 (I2C)"
+  ],
+  "NFC test card": [
+    "Scheda di prova NFC",
+    "cartão de teste NFC"
+  ],
+  "433 MHz transmitter (ASK)": [
+    "Trasmettitore 433 MHz (ASK)",
+    "Transmissor de 433 MHz (ASK)"
+  ],
+  "433 MHz receiver (ASK)": [
+    "Ricevitore 433 MHz (ASK)",
+    "receptor de 433 MHz (ASK)"
+  ],
+  "TV button pressed": [
+    "Premere il pulsante TV",
+    "Botão de TV pressionado"
+  ],
+  "Card present at reader": [
+    "Scheda presente al lettore",
+    "Cartão presente no leitor"
+  ],
+  "Test group": [
+    "Gruppo di prova",
+    "Grupo de ensaio"
+  ],
+  "NEC address": [
+    "Indirizzo NEC",
+    "Endereço NEC"
+  ],
+  "Apply": [
+    "Applica",
+    "Aplicar"
+  ],
+  "UID: enter 4 or 7 bytes in hexadecimal.": [
+    "UID: inserire 4 o 7 byte in esadecimale.",
+    "UID: insira 4 ou 7 bytes em hexadecimal."
+  ],
+  "NDEF: maximum 96 UTF-8 bytes.": [
+    "NDEF: massimo 96 byte UTF-8.",
+    "NDEF: máximo 96 UTF-8 bytes."
+  ],
+  "Change wireless/NFC settings": [
+    "Cambia le impostazioni wireless/NFC",
+    "Alterar definições sem fios/NFC"
+  ],
+  "IR: test TV remote": [
+    "IR: telecomando TV di prova",
+    "IR: TV de teste remoto"
+  ],
+  "IR: transmit and receive": [
+    "IR: trasmettere e ricevere",
+    "IR: transmitir e receber"
+  ],
+  "NFC: PN532 and test card": [
+    "NFC: PN532 e scheda di prova",
+    "NFC: PN532 e cartão de teste"
+  ],
+  "Radio: nRF24L01 transmitter and receiver": [
+    "Radio: nRF24L01 trasmettitore e ricevitore",
+    "Rádio: transmissor e receptor nRF24L01"
+  ],
+  "Radio: 433 MHz ASK pair": [
+    "Radio: 433 MHz ASK coppia",
+    "Rádio: 433 MHz ASK par"
+  ],
+  "Net name · Enter": [
+    "Nome della rete · Inserisci",
+    "Net name · Enter"
+  ],
+  "Net name": [
+    "Nome della rete",
+    "nome da rede"
+  ],
+  "Manual: new features…": [
+    "Manuale: nuove caratteristiche…",
+    "Manual: novos recursos…"
+  ],
+  "Manual": [
+    "Manuale",
+    "Manual"
+  ],
+  "Manual missing. Check the installation.": [
+    "Manuale mancante. Controllare l'installazione.",
+    "Manual em falta. Verifique a instalação."
+  ],
+  "Project information…": [
+    "Informazioni sul progetto…",
+    "Informações do projeto…"
+  ],
+  "Project information": [
+    "Informazioni sul progetto",
+    "Informações do projeto"
+  ],
+  "Components: ": [
+    "Componenti: ",
+    "Componentes: "
+  ],
+  "Wires: ": [
+    "Fili: ",
+    "Fios: "
+  ],
+  "Bundled library files: ": [
+    "File della libreria bundled: ",
+    "Arquivos de biblioteca empacotados: "
+  ],
+  "MISSING: ": [
+    "MANCANTE: ",
+    "AUSENTE: "
+  ],
+  "Arduino CLI: ": [
+    "Arduino CLI: ",
+    "Arduino CLI: "
+  ],
+  "Motors and actuators": [
+    "Motori e attuatori",
+    "Motores e atuadores"
+  ],
+  "Digital logic": [
+    "Logica digitale",
+    "Lógica digital"
+  ],
+  "Snap to grid": [
+    "Aggancia alla griglia",
+    "Snap to grid"
+  ],
+  "Cut": [
+    "Taglia",
+    "Recortar"
+  ],
+  "Automatic snapshots after an unexpected exit. Open sessions are excluded.": [
+    "Istantanee automatiche dopo un'uscita inattesa. Le sessioni aperte sono escluse.",
+    "Instantâneos automáticos após uma saída inesperada. Sessões abertas são excluídas."
+  ],
+  "Autosave failed: ": [
+    "Salvataggio automatico non riuscito: ",
+    "O salvamento automático falhou: "
+  ],
+  "Change power rating": [
+    "Cambia la potenza nominale",
+    "Alterar classificação de potência"
+  ],
+  "Duration in ms": [
+    "Durata in ms",
+    "Duração em ms"
+  ],
+  "Duplicate": [
+    "Duplica",
+    "Duplicado"
+  ],
+  "Properties": [
+    "Proprietà",
+    "Propriedades"
+  ],
+  "Paste": [
+    "Incolla",
+    "Colar"
+  ],
+  "Error: ": [
+    "Errore: ",
+    "Erro: "
+  ],
+  "Simulate for duration…": [
+    "Simula per la durata…",
+    "Simular para a duração…"
+  ],
+  "Compile / upload hardware…": [
+    "Compila / carica hardware…",
+    "Compilar / carregar hardware…"
+  ],
+  "Align horizontally": [
+    "Allinea orizzontalmente",
+    "Alinha horizontalmente"
+  ],
+  "Distribute horizontally": [
+    "Distribuisci orizzontalmente",
+    "Distribuir horizontalmente"
+  ],
+  "No electrical errors detected. Model limitations still apply.": [
+    "Nessun errore elettrico rilevato. I limiti del modello si applicano ancora.",
+    "Nenhum erro elétrico detectado. As limitações do modelo ainda se aplicam."
+  ],
+  "Copy": [
+    "Copia",
+    "Copiar"
+  ],
+  "Pause": [
+    "Pausa",
+    "Pausa"
+  ],
+  "Export portable project bundle…": [
+    "Esporta pacchetto di progetti portatili…",
+    "Exportar pacote de projeto portátil…"
+  ],
+  "Portable project bundle saved.": [
+    "Portable project bundle salvato.",
+    "Pacote de projeto portátil salvo."
+  ],
+  "Project recovered. Please save under a new name.": [
+    "Progetto recuperato. Salva con un nuovo nome.",
+    "Por favor, guarde sob um novo nome."
+  ],
+  "Recover projects": [
+    "Recuperare progetti",
+    "Recuperar projetos"
+  ],
+  "Recover projects…": [
+    "Recupera progetti…",
+    "Recupere projetos…"
+  ],
+  "Project bundle with libraries": [
+    "Pacchetto progetto con librerie",
+    "Pacote de projetos com bibliotecas"
+  ],
+  "Grid": [
+    "Griglia",
+    "Grade"
+  ],
+  "Configure grid…": [
+    "Configura griglia…",
+    "Configurar a grelha…"
+  ],
+  "Grid spacing (hold Alt to bypass snapping)": [
+    "Spaziatura griglia (tieni Alt per bypassare lo scatto)",
+    "Espaçamento da grade (segure Alt para contornar o encaixe)"
+  ],
+  "Circuit checks": [
+    "Controlli di circuito",
+    "Controlos de circuitos"
+  ],
+  "Serial tools": [
+    "Strumenti seriali",
+    "Ferramentas seriais"
+  ],
+  "Delete snapshot": [
+    "Elimina istantanea",
+    "Apagar instantâneo"
+  ],
+  "Simulation duration": [
+    "Durata della simulazione",
+    "Duração da simulação"
+  ],
+  "Bill of materials": [
+    "Bill of materials",
+    "Bill de materiais"
+  ],
+  "Export bill of materials…": [
+    "Esportazione fattura dei materiali…",
+    "Lista de exportação de materiais…"
+  ],
+  "Align vertically": [
+    "Allinea verticalmente",
+    "Alinhar verticalmente"
+  ],
+  "Distribute vertically": [
+    "Distribuisci verticalmente",
+    "Distribuir verticalmente"
+  ],
+  "Recoverable projects found: File → Recover projects…": [
+    "Progetti recuperabili trovati: File → Recuperare progetti…",
+    "Projetos recuperáveis encontrados: Arquivo → Recuperar projetos…"
+  ],
+  "Time step": [
+    "Passo temporale",
+    "Passo de tempo"
+  ],
+  "Physical device": [
+    "Dispositivo fisico",
+    "Dispositivo físico"
+  ],
+  "No line ending": [
+    "Nessuna riga finale",
+    "Sem final de linha"
+  ],
+  "Clear": [
+    "Cancella",
+    "Limpar"
+  ],
+  "Refresh ports": [
+    "Aggiorna le porte",
+    "Refresh portos"
+  ],
+  "Send": [
+    "Invia",
+    "Enviar"
+  ],
+  "Serial input buffer full.": [
+    "Serial input buffer pieno.",
+    "Buffer de entrada serial completo."
+  ],
+  "Serial monitor": [
+    "Monitoraggio seriale",
+    "Monitor serial"
+  ],
+  "Serial plotter": [
+    "Plotter seriale",
+    "plotter série"
+  ],
+  "Send text to selected device": [
+    "Invia il testo al dispositivo selezionato",
+    "Enviar texto para o dispositivo selecionado"
+  ],
+  "Disconnect": [
+    "Disconnetti",
+    "Desconectar"
+  ],
+  "Connect": [
+    "Connetti",
+    "Conectar"
+  ],
+  "Send numbers or name:value, e.g. Voltage:3.3 Current:0.02": [
+    "Inviare numeri o nome:valore, ad esempio Tensione:3.3 Corrente:0.02",
+    "Enviar números ou nome: valor, por exemplo Tensão: 3.3 Corrente: 0.02"
+  ],
+  "Connect a serial port first.": [
+    "Collegare prima una porta seriale.",
+    "Conecte uma porta serial primeiro."
+  ],
+  "Cancel": [
+    "Annulla",
+    "Cancelar"
+  ],
+  "Arduino CLI and the matching board core must be installed. The whole sketch is built for physical hardware. Upload writes to the connected board.": [
+    "Arduino CLI e il nucleo della scheda corrispondente devono essere installati. L'intero disegno è costruito per hardware fisico. Caricare scrive sulla scheda collegata.",
+    "CLI Arduino e o núcleo da placa correspondente devem ser instalados. Todo o sketch é construído para hardware físico. Carregar escreve para a placa conectada."
+  ],
+  "Choose Arduino CLI": [
+    "Scegli Arduino CLI",
+    "Escolha Arduino CLI"
+  ],
+  "Uploading firmware…": [
+    "Caricamento firmware…",
+    "Carregando firmware…"
+  ],
+  "Compile and upload hardware": [
+    "Compila e carica hardware",
+    "Compilar e carregar hardware"
+  ],
+  "Compiling hardware sketch…": [
+    "Compilazione dello sketch hardware…",
+    "Compilando o sketch de hardware…"
+  ],
+  "Upload": [
+    "Carica",
+    "Upload"
+  ],
+  "Compile": [
+    "Compila",
+    "Compilar"
+  ],
+  "Port": [
+    "Porta",
+    "Porto"
+  ],
+  "Close": [
+    "Chiudi",
+    "Fechar"
+  ],
+  "Arm": [
+    "Braccio",
+    "Braço"
+  ],
+  "Could not save image.": [
+    "Impossibile salvare l'immagine.",
+    "Não foi possível salvar a imagem."
+  ],
+  "Free run": [
+    "Libero",
+    "Free run"
+  ],
+  "No decoder": [
+    "Nessun decodificatore",
+    "Nenhum decodificador"
+  ],
+  "Save measurement view": [
+    "Salva vista di misura",
+    "Salvar visualização de medição"
+  ],
+  "Create wire junction": [
+    "Crea giunzione filo",
+    "Criar junção de fio"
+  ],
+  "Align components": [
+    "Componenti di allineamento",
+    "Alinhar componentes"
+  ],
+  "Paste components": [
+    "Componenti di incollaggio",
+    "Componentes de pasta"
+  ],
+  "Distribute components": [
+    "Distribuisci componenti",
+    "Distribuir componentes"
+  ],
+  "Toggle contact": [
+    "Commuta contatto",
+    "Alternar contacto"
+  ],
+  "Highlight net": [
+    "Evidenzia rete",
+    "Rede de realce"
+  ],
+  "Net label": [
+    "Etichetta",
+    "Rótulo líquido"
+  ],
+  "Set net label": [
+    "Imposta etichetta netta",
+    "Set etiqueta líquida"
+  ],
+  "Set net label…": [
+    "Imposta etichetta netta…",
+    "Set net label…"
+  ],
+  "Net name (matching names connect pins)": [
+    "Nome della rete (i nomi corrispondenti connettono pin)",
+    "Net name (nomes de correspondência conectam pinos)"
+  ],
+  "5 V supply and DC motor: current falls as speed rises. Current probe in series.": [
+    "Alimentazione 5 V e motore DC: la corrente scende con l'aumentare della velocità. Sonda in serie.",
+    "Fonte de 5 V e motor DC: a corrente cai à medida que a velocidade aumenta. Sonda atual em série."
+  ],
+  "LCD 16×2: LiquidCrystal, 4-bit": [
+    "LCD 16×2: LiquidCrystal, 4 bit",
+    "LCD 16×2: LiquidCrystal, 4-bit"
+  ],
+  "LCD 20×4: I²C backpack": [
+    "LCD 20×4: zaino I2C",
+    "LCD 20×4: mochila I2C"
+  ],
+  "Motor: startup and back-EMF": [
+    "Motore: avvio e back-EMF",
+    "Motor: startup e back-EMF"
+  ],
+  "Servo.h drives SIGNAL on Uno D9. Supply 5 V/GND; sweeps from 15° to 165°.": [
+    "Servo.h guida SIGNAL su Uno D9. Supply 5 V/GND; spazza da 15° a 165°.",
+    "Servo.h dirige SIGNAL em Uno D9. Fornecer 5 V / GND; varre de 15 ° a 165 °."
+  ],
+  "Servo: control angle": [
+    "Servo: angolo di controllo",
+    "Servo: ângulo de controle"
+  ],
+  "Uno: RS=D12, E=D11, D4…D7=D5,D4,D3,D2. VCC=5V, GND/RW/VO=GND.": [
+    "Uno: RS=D12, E=D11, D4...D7=D5,D4,D3,D2. VCC=5V, GND/RW/VO=GND.",
+    "Uno: RS=D12, E=D11, D4...D7=D5,D4,D3,D2. VCC=5V, GND/RW/VO=GND."
+  ],
+  "Uno: SDA=A4, SCL=A5, address 0x27. LiquidCrystal_I2C with text and custom glyph.": [
+    "Uno: SDA=A4, SCL=A5, indirizzo 0x27. LiquidCrystal_I2C con testo e glifo personalizzato.",
+    "Uno: SDA=A4, SCL=A5, endereço 0x27. LiquidCrystal_I2C com texto e glifo personalizado."
+  ],
+  "Operation completed successfully.": [
+    "Operazione completata con successo.",
+    "Operação concluída com sucesso."
+  ],
+  "Operation failed. Check the log.": [
+    "Operazione non riuscita. Controlla il registro.",
+    "A operação falhou. Verifique o registo."
+  ],
+  "Junction": [
+    "Giunzione",
+    "Junção"
+  ],
+  "DC motor": [
+    "Motore a corrente continua",
+    "motor DC"
+  ],
+  "HD44780 LCD (4-bit)": [
+    "HD44780 LCD (4-bit)",
+    "HD44780 LCD (4-bit)"
+  ],
+  "HD44780 LCD (I²C)": [
+    "HD44780 LCD (I2C)",
+    "HD44780 LCD (I2C)"
+  ],
+  " address": [
+    " indirizzo",
+    " Endereço"
+  ],
+  " V threshold": [
+    " Soglia V",
+    " limiar V"
+  ],
+  "Capacitor": [
+    "Capacitor",
+    "Capacitor"
+  ],
+  "Inductor": [
+    "Induttore",
+    "Indutor"
+  ],
+  "NPN transistor": [
+    "Transistor NPN",
+    "transistor NPN"
+  ],
+  "PNP transistor": [
+    "Transistor PNP",
+    "transistor PNP"
+  ],
+  "N-channel MOSFET": [
+    "MOSFET a canale N",
+    "N-canal MOSFET"
+  ],
+  "P-channel MOSFET": [
+    "MOSFET a canale P",
+    "canal P MOSFET"
+  ],
+  "Operational amplifier": [
+    "Amplificatore operativo",
+    "amplificador operacional"
+  ],
+  "Ground": [
+    "Macinato",
+    "Terreno"
+  ],
+  "Function generator": [
+    "Generatore di funzioni",
+    "Gerador de função"
+  ],
+  "Oscilloscope (2 channels)": [
+    "Oscilloscopio (2 canali)",
+    "Osciloscópio (2 canais)"
+  ],
+  "Logic analyzer (8 channels)": [
+    "Analizzatore logico (8 canali)",
+    "Analisador de lógica (8 canais)"
+  ],
+  "Current probe": [
+    "Sonda corrente",
+    "Sonda atual"
+  ],
+  "Instruments": [
+    "Strumenti",
+    "Instrumentos"
+  ],
+  "Freeze": [
+    "Fermo!",
+    "Congelar"
+  ],
+  "Export measurements": [
+    "Misurazioni delle esportazioni",
+    "Medições de exportação"
+  ],
+  "No samples. Start the simulation.": [
+    "Niente campioni, iniziate la simulazione.",
+    "Nenhuma amostra. Inicie a simulação."
+  ],
+  "Add an oscilloscope, logic analyzer or current probe to the circuit.": [
+    "Aggiungere un oscilloscopio, un analizzatore logico o una sonda di corrente al circuito.",
+    "Adicione um osciloscópio, analisador lógico ou sonda atual ao circuito."
+  ],
+  "Sine": [
+    "Seno",
+    "Sine"
+  ],
+  "Square": [
+    "Quadrato",
+    "Quadrado"
+  ],
+  "Triangle": [
+    "Triangolo",
+    "Triângulo Triângulo"
+  ],
+  "Sawtooth": [
+    "Seghetto",
+    "Sawtooth"
+  ],
+  "Waveform": [
+    "Forma d'onda",
+    "Forma de onda"
+  ],
+  "Amplitude": [
+    "Ampiezza",
+    "Ampliitude"
+  ],
+  "Offset": [
+    "Spostamento",
+    "Offset"
+  ],
+  "Duty cycle": [
+    "Ciclo di funzionamento",
+    "Ciclo do dever"
+  ],
+  "Configure signal generator": [
+    "Configura generatore di segnali",
+    "Configurar gerador de sinal"
+  ],
+  "Analog time step…": [
+    "Passo temporale analogico…",
+    "Passo de tempo analógico…"
+  ],
+  "Analog time step": [
+    "Passo temporale analogico",
+    "Passo de tempo analógico"
+  ],
+  "Maximum time step (µs)": [
+    "Tempo massimo (μs)",
+    "Passo de tempo máximo (μs)"
+  ],
+  "Analog: RC low-pass filter": [
+    "Analogico: filtro passa-basso RC",
+    "Analógico: RC low-pass filter"
+  ],
+  "Analog: RL current response": [
+    "Analogico: risposta corrente RL",
+    "Analógico: RL resposta atual"
+  ],
+  "Analog: voltage follower": [
+    "Analogico: follower di tensione",
+    "Analógico: seguinte da tensão"
+  ],
+  "Analog: NPN switch": [
+    "Analogico: Interruttore NPN",
+    "Analógico: Interruptor NPN"
+  ],
+  "Arduino: PWM and RC filter": [
+    "Arduino: filtro PWM e RC",
+    "Arduino: PWM e RC filtro"
+  ],
+  "Square-wave generator, 1 kohm, 10 µF, two scope channels and current probe. Runs without a microcontroller.": [
+    "Generatore ad onde quadrate, 1 kohm, 10 μF, due canali di campo e sonda di corrente.",
+    "Gerador de ondas quadradas, 1 kohm, 10 μF, dois canais de escopo e sonda atual. Funciona sem um microcontrolador."
+  ],
+  "Square-wave generator, 100 ohms and 100 mH: voltage and delayed inductor current.": [
+    "Generatore ad onde quadrate, 100 ohm e 100 mH: tensione e corrente di induttore ritardata.",
+    "Gerador de ondas quadradas, 100 ohms e 100 mH: tensão e corrente indutora atrasada."
+  ],
+  "Op-amp with 5 V supply and negative feedback. Compare input and output on the oscilloscope.": [
+    "Op-amp con alimentazione a 5 V e feedback negativo. Confrontare ingresso e uscita sull'oscilloscopio.",
+    "Op-amp com 5 V de fornecimento e feedback negativo. Compare entrada e saída no osciloscópio."
+  ],
+  "Square wave through a base resistor drives an NPN with collector load. The output is inverted.": [
+    "L'onda quadrata attraverso una resistenza di base pilota una NPN con carico del collettore. L'uscita è invertita.",
+    "A onda quadrada através de um resistor base conduz um NPN com carga coletora. A saída é invertida."
+  ],
+  "analogWrite(D5, 128): 980 Hz, scope, 8-channel logic analyzer and RC low-pass filter.": [
+    "analogicoWrite(D5, 128): 980 Hz, campo di applicazione, analizzatore logico a 8 canali e filtro RC low-pass.",
+    "AnalogWrite(D5, 128): 980 Hz, escopo, analisador lógico de 8 canais e filtro RC low-pass."
+  ],
+  "Melody with piezo and speaker": [
+    "Melody con piezoelettrico e altoparlante",
+    "Melody com piezo e alto-falante"
+  ],
+  "Arduino D3: piezo directly, 8-ohm speaker through 470 ohms. tone() plays notes, noTone() creates pauses.": [
+    "Arduino D3: piezoelettrico direttamente, altoparlante 8-ohm attraverso 470 ohm. tono() suona note, noTone() crea pause.",
+    "Arduino D3: piezo diretamente, alto-falante de 8 ohms através de 470 ohms. Tom() toca notas, noTone() cria pausas."
+  ],
+  "Measure temperature (TMP36)": [
+    "Misurare la temperatura (TMP36)",
+    "Temperatura de medição (TMP366)"
+  ],
+  "TMP36 on Arduino 5V/GND/A0. Adjust temperature in the inspector; the LED lights above 20 °C.": [
+    "TMP36 su Arduino 5V/GND/A0. Regolare la temperatura nell'ispettore; le luci LED sopra i 20 °C.",
+    "TMP36 em Arduino 5V/GND/A0. Ajuste a temperatura no inspetor; as luzes do diodo emissor de luz acima de 20 °C."
+  ],
+  "Piezo buzzer (passive)": [
+    "Piezo buzzer (passivo)",
+    "Buzzer Piezo (passivo)"
+  ],
+  "Mini speaker 8 Ω": [
+    "Mini altoparlante 8 Ω",
+    "Mini alto-falante 8 Ω"
+  ],
+  "TMP36 temperature sensor": [
+    "Sensore di temperatura TMP36",
+    "Sensor de temperatura TMP36"
+  ],
+  "AA battery 1.5 V (ideal)": [
+    "Batteria AA 1,5 V (ideale)",
+    "Bateria AA 1.5 V (ideal)"
+  ],
+  "On/off switch SPST": [
+    "Interruttore di accensione/spegnimento SPST",
+    "Interruptor de ligar/desligar SPST"
+  ],
+  "Enable sound": [
+    "Abilita il suono",
+    "Ativar som"
+  ],
+  "Switch position 2": [
+    "Cambia posizione 2",
+    "Posição do interruptor 2"
+  ],
+  "Contact closed": [
+    "Contatto chiuso",
+    "Contato fechado"
+  ],
+  "No audio output device available. Simulation continues without sound.": [
+    "Nessun dispositivo di uscita audio disponibile. La simulazione continua senza suono.",
+    "Nenhum dispositivo de saída de áudio disponível. A simulação continua sem som."
+  ],
+  "Audio output failed. Check your audio device.": [
+    "Uscita audio non riuscita. Controllare il dispositivo audio.",
+    "A saída de áudio falhou. Verifique o seu dispositivo de áudio."
+  ],
+  "Language…": [
+    "Linguaggio…",
+    "Língua…"
+  ],
+  "Component design…": [
+    "Design dei componenti…",
+    "Design de componentes…"
+  ],
+  "Projects": [
+    "Progetti",
+    "Projetos"
+  ],
+  "ThinkCad – circuits and Arduino sketches": [
+    "Circuiti di ThinkCad e sketch di Arduino",
+    "ThinkCad – circuitos e sketch Arduino"
+  ],
+  "Open or create a project": [
+    "Apri o crea un progetto",
+    "Abrir ou criar um projeto"
+  ],
+  "Help and examples": [
+    "Aiuto ed esempi",
+    "Ajuda e exemplos"
+  ],
+  "Displays": [
+    "Display",
+    "Displays"
+  ],
+  "Inputs and sensors": [
+    "Ingressi e sensori",
+    "Entradas e sensores"
+  ],
+  "Power and measurement": [
+    "Potenza e misura",
+    "Poder e Medição"
+  ],
+  "Basic components": [
+    "Componenti di base",
+    "Componentes básicos"
+  ],
+  "Click to place": [
+    "Clicca per posizionare",
+    "Clique para o lugar"
+  ],
+  "Edit sketch for this board": [
+    "Modifica disegno per questa scheda",
+    "Editar sketch para este quadro"
+  ],
+  "Select sketch board": [
+    "Seleziona lavagna da disegno",
+    "Seleccionar quadro de sketch"
+  ],
+  "Open this board's sketch": [
+    "Apri lo sketch di questa scheda",
+    "Abrir o sketch deste quadro"
+  ],
+  "This board's sketch is open": [
+    "Lo sketch di questa lavagna è aperto",
+    "O sketch deste quadro está aberto"
+  ],
+  "Anode (+)": [
+    "Anodo (+)",
+    "Anodo (+)"
+  ],
+  "Cathode (−)": [
+    "Cathodo (−)",
+    "Cathode (−)"
+  ],
+  "Ground / reference (0 V)": [
+    "Terreno / riferimento (0 V)",
+    "Ground / referência (0 V)"
+  ],
+  "I²C data": [
+    "Dati I2C",
+    "Dados I2C"
+  ],
+  "I²C clock": [
+    "Orologio I2C",
+    "relógio I2C"
+  ],
+  "Power supply": [
+    "Alimentazione elettrica",
+    "Fonte de alimentação"
+  ],
+  "Wiper": [
+    "Wiper",
+    "Wiper"
+  ],
+  "Common cathode": [
+    "catodo comune",
+    "cátodo comum"
+  ],
+  "Positive terminal": [
+    "Terminale positivo",
+    "Terminal positivo"
+  ],
+  "Negative terminal": [
+    "Terminale negativo",
+    "terminal negativo"
+  ],
+  "GPIO / board connection": [
+    "Collegamento GPIO / scheda",
+    "Conexão GPIO / board"
+  ],
+  "Terminal": [
+    "Terminale",
+    "Terminal terminal"
+  ],
+  "Click to connect": [
+    "Fare clic per connettersi",
+    "Clique para conectar"
+  ],
+  "Home": [
+    "Partenza",
+    "E-"
+  ],
+  "My projects": [
+    "I miei progetti",
+    "Meus projetos"
+  ],
+  "Back to editor": [
+    "Torna all'editor",
+    "De volta ao editor"
+  ],
+  "Your next project starts here.": [
+    "Il tuo prossimo progetto inizia qui.",
+    "Seu próximo projeto começa aqui."
+  ],
+  "Design circuits, test Arduino code and explore your ideas.": [
+    "Progetta i circuiti, prova il codice Arduino ed esplora le tue idee.",
+    "Circuitos de design, teste o código Arduino e explore suas ideias."
+  ],
+  "From idea to circuit": [
+    "Dall'idea al circuito",
+    "Da ideia ao circuito"
+  ],
+  "Start with an empty project or open a local circuit or .ino sketch.": [
+    "Iniziare con un progetto vuoto o aprire un circuito locale o .ino sketch.",
+    "Comece com um projeto vazio ou abra um circuito local ou um sketch .ino."
+  ],
+  "Open project…": [
+    "Apri progetto…",
+    "Abrir projeto…"
+  ],
+  "Recent projects": [
+    "Progetti recenti",
+    "Projetos recentes"
+  ],
+  "Clear list": [
+    "Pulisci elenco",
+    "Limpar lista"
+  ],
+  "No projects yet. Create a project or open an existing file.": [
+    "Nessun progetto ancora. Crea un progetto o apri un file esistente.",
+    "Ainda não há projetos. Crie um projeto ou abra um arquivo existente."
+  ],
+  "Learn & explore": [
+    "Imparare ed esplorare",
+    "Aprender e explorar"
+  ],
+  "Explore example circuits": [
+    "Esplora i circuiti di esempio",
+    "Explore os circuitos de exemplo"
+  ],
+  "Make ThinkCad fit your workspace.": [
+    "Rendere ThinkCad adatta il vostro spazio di lavoro.",
+    "O MakeCad se encaixa no seu espaço de trabalho."
+  ],
+  "File missing": [
+    "File mancante",
+    "Ficheiro em falta"
+  ],
+  "Remove from list": [
+    "Rimuovi dall'elenco",
+    "Remover da lista"
+  ],
+  "Simulation reset.": [
+    "Simulazione azzerata.",
+    "Simulação redefinida."
+  ],
+  "Reset simulation · restart the running sketch": [
+    "Reimposta simulazione · riavvia lo sketch in esecuzione",
+    "Simulação de reset · reinicie o sketch em execução"
+  ],
+  "Could not open project. See the output in the editor.": [
+    "Impossibile aprire il progetto. Vedere l' output nell' editor.",
+    "Não foi possível abrir o projeto. Veja a saída no editor."
+  ],
+  "Rotate components": [
+    "Ruota componenti",
+    "Girar componentes"
+  ],
+  "Component Design": [
+    "Progettazione dei componenti",
+    "Design de Componente"
+  ],
+  "Workspace": [
+    "Spazio di lavoro",
+    "Espaço de trabalho"
+  ],
+  "File": [
+    "File",
+    "Arquivo"
+  ],
+  "New project": [
+    "Nuovo progetto",
+    "Novo projeto"
+  ],
+  "Open project / .ino…": [
+    "Apri progetto / .ino…",
+    "Abrir projeto / .ino…"
+  ],
+  "Save project": [
+    "Salva progetto",
+    "Salvar projeto"
+  ],
+  "Save project as…": [
+    "Salva progetto con nome…",
+    "Salvar projeto como…"
+  ],
+  "Export Arduino sketch…": [
+    "Esporta identikit di Arduino…",
+    "Exportar sketch Arduino…"
+  ],
+  "Example circuits…": [
+    "Circuiti di esempio…",
+    "Exemplo de circuitos…"
+  ],
+  "Example circuits": [
+    "Circuiti di esempio",
+    "Exemplo de circuitos"
+  ],
+  "Quit": [
+    "Esci",
+    "Sair"
+  ],
+  "Edit": [
+    "Modifica",
+    "Editar"
+  ],
+  "Undo": [
+    "Annulla",
+    "Desfazer"
+  ],
+  "Redo": [
+    "Ripristina",
+    "Refazer"
+  ],
+  "Delete selected components / wires": [
+    "Elimina i componenti / fili selezionati",
+    "Apagar componentes / fios seleccionados"
+  ],
+  "Connect wires": [
+    "Collegare i fili",
+    "Ligar fios"
+  ],
+  "Click the start and destination pins · Esc: cancel": [
+    "Fare clic sui pin di partenza e destinazione · Esc: annullare",
+    "Clique nos pinos de início e destino · Esc: cancel"
+  ],
+  "Wire color": [
+    "Colore filo",
+    "Cor do fio"
+  ],
+  "Start simulation": [
+    "Avvia simulazione",
+    "Iniciar simulação"
+  ],
+  "Stop simulation": [
+    "Arresta simulazione",
+    "Parar simulação"
+  ],
+  "Simulation speed": [
+    "Velocità di simulazione",
+    "Velocidade de simulação"
+  ],
+  "  Speed  ": [
+    "  Velocità  ",
+    "  Velocidade  "
+  ],
+  "0.1× to 10× · adjustable during simulation": [
+    "Da 0,1× a 10× · regolabile durante la simulazione",
+    "0,1× a 10× · ajustável durante a simulação"
+  ],
+  "Restore normal simulation speed": [
+    "Ripristina la velocità di simulazione normale",
+    "Restaurar velocidade de simulação normal"
+  ],
+  "Components": [
+    "Componenti",
+    "Componentes"
+  ],
+  "Build a circuit": [
+    "Costruire un circuito",
+    "Construa um circuito"
+  ],
+  "Add a component, move it and connect its pins.": [
+    "Aggiungere un componente, spostarlo e collegare i suoi perni.",
+    "Adicione um componente, mova-o e conecte seus pinos."
+  ],
+  "Search components…": [
+    "Componenti di ricerca…",
+    "Componentes de pesquisa…"
+  ],
+  "Add component": [
+    "Aggiungi componente",
+    "Adicionar componente"
+  ],
+  "Select a component": [
+    "Seleziona un componente",
+    "Selecionar um componente"
+  ],
+  "Simulate this board": [
+    "Simula questa scheda",
+    "Simule este quadro"
+  ],
+  "Active simulation board": [
+    "Scheda di simulazione attiva",
+    "Placa de simulação ativa"
+  ],
+  "Select simulation board": [
+    "Seleziona scheda di simulazione",
+    "Seleccionar quadro de simulação"
+  ],
+  "I²C address 0x3C": [
+    "Indirizzo I2C 0x3C",
+    "Endereço I2C 0x3C"
+  ],
+  "I²C address 0x3D": [
+    "Indirizzo I2C 0x3D",
+    "Endereço I2C 0x3D"
+  ],
+  "Button pressed": [
+    "Pulsante premuto",
+    "Botão pressionado"
+  ],
+  "Libraries…": [
+    "Librerie…",
+    "Bibliotecas…"
+  ],
+  "＋ Add tab": [
+    "+ Aggiungi scheda",
+    "+ Adicionar separador"
+  ],
+  "New tab": [
+    "Nuova scheda",
+    "Nova aba"
+  ],
+  "File name": [
+    "Nome file",
+    "Nome do ficheiro"
+  ],
+  "File name is invalid or already exists.": [
+    "Il nome del file non è valido o esiste già.",
+    "O nome do arquivo é inválido ou já existe."
+  ],
+  "Output": [
+    "Output",
+    "Saída"
+  ],
+  "View": [
+    "Visualizza",
+    "Exibir"
+  ],
+  "Fit circuit": [
+    "Circuito Fit",
+    "Circuito de ajuste"
+  ],
+  "Zoom in": [
+    "Ingrandisci",
+    "Zoom em"
+  ],
+  "Zoom out": [
+    "Zoom indietro",
+    "Zoom out"
+  ],
+  "Settings": [
+    "Impostazioni",
+    "Configurações"
+  ],
+  "Dark mode": [
+    "Modalità scura",
+    "modo escuro"
+  ],
+  "Choose sketch compiler…": [
+    "Scegli il compilatore di sketch…",
+    "Escolha o compilador…"
+  ],
+  "Choose g++": [
+    "Scegliere g++",
+    "Escolha g++"
+  ],
+  "Import image as frame…": [
+    "Importa immagine come cornice…",
+    "Importar imagem como quadro…"
+  ],
+  "Import frame": [
+    "Importa quadro",
+    "Quadro de importação"
+  ],
+  "Could not open image.": [
+    "Impossibile aprire l'immagine.",
+    "Não foi possível abrir a imagem."
+  ],
+  "Language": [
+    "Lingua",
+    "Língua"
+  ],
+  "Help": [
+    "Aiuto",
+    "Ajuda"
+  ],
+  "Tutorial: Your first circuit…": [
+    "Tutorial: Il tuo primo circuito…",
+    "Seu primeiro circuito…"
+  ],
+  "ThinkCad tutorial": [
+    "Tutorial di ThinkCad",
+    "Tutorial ThinkCad"
+  ],
+  "Check for updates": [
+    "Controlla gli aggiornamenti",
+    "Verificar se há atualizações"
+  ],
+  "About ThinkCad": [
+    "A proposito di ThinkCad",
+    "Sobre o ThinkCad"
+  ],
+  "Change I²C address": [
+    "Modifica indirizzo I2C",
+    "Alterar endereço I2C"
+  ],
+  "Install update and restart": [
+    "Installa l'aggiornamento e riavvia",
+    "Instalar atualização e reiniciar"
+  ],
+  " · unsaved": [
+    " · non salvato",
+    " · não salvo"
+  ],
+  "Examples not installed": [
+    "Esempi non installati",
+    "Exemplos não instalados"
+  ],
+  "The example sketches are not installed. On Gentoo enable the examples USE flag and reinstall ThinkCad.": [
+    "Gli sketch di esempio non sono installati. Su Gentoo abilitare gli esempi USE flag e reinstallare ThinkCad.",
+    "Os sketch de exemplo não estão instalados. No Gentoo habilite os exemplos USE flag e reinstale ThinkCad."
+  ],
+  "Open a complete circuit with a matching Arduino sketch": [
+    "Aprire un circuito completo con uno sketch Arduino corrispondente",
+    "Abra um circuito completo com um sketch Arduino correspondente"
+  ],
+  "Opened: ": [
+    "Aperto: ",
+    "Aberto: "
+  ],
+  "Open project or Arduino sketch": [
+    "Progetto aperto o disegno Arduino",
+    "Projeto aberto ou sketch Arduino"
+  ],
+  "Save circuit and sketch": [
+    "Salva circuito e sketch",
+    "Salvar circuito e sketch"
+  ],
+  "Export Arduino project": [
+    "Esporta progetto Arduino",
+    "Projeto Arduino de exportação"
+  ],
+  "Existing files": [
+    "File esistenti",
+    "Ficheiros existentes"
+  ],
+  "Overwrite existing sketch files in this folder?": [
+    "Sovrascrivere i file di disegno esistenti in questa cartella?",
+    "Substituir arquivos de sketch existentes nesta pasta?"
+  ],
+  "Export failed.": [
+    "Esporta non riuscita.",
+    "A exportação falhou."
+  ],
+  "Arduino project exported.": [
+    "Progetto Arduino esportato.",
+    "Projeto Arduino exportado."
+  ],
+  "Unsaved changes": [
+    "Modifiche non salvate",
+    "Mudanças não salvas"
+  ],
+  "Save circuit and sketch before continuing?": [
+    "Salvare circuito e sketch prima di continuare?",
+    "Salvar circuito e sketch antes de continuar?"
+  ],
+  "Please add a microcontroller.": [
+    "Aggiungete un microcontrollore.",
+    "Adicione um microcontrolador."
+  ],
+  "Missing protocol data": [
+    "Dati del protocollo mancanti",
+    "Dados de protocolo em falta"
+  ],
+  "Invalid protocol data": [
+    "Dati del protocollo non validi",
+    "Dados de protocolo inválidos"
+  ],
+  "Invalid time": [
+    "Ora non valida",
+    "Tempo inválido"
+  ],
+  "Invalid pin mode": [
+    "Modalità pin non valida",
+    "Modo de pino inválido"
+  ],
+  "Invalid GPIO level": [
+    "Livello GPIO non valido",
+    "Nível de GPIO inválido"
+  ],
+  "Input is disconnected or between HIGH and LOW. Check pullup / wiring.": [
+    "L'ingresso è scollegato o tra ALTO e BASSO. Controllare tirare / cablaggio.",
+    "A entrada está desconectada ou entre ALTO e BAIXO. Verifique a tração / fiação."
+  ],
+  "GPIO has no ADC.": [
+    "Il GPIO non ha ADC.",
+    "GPIO não tem ADC."
+  ],
+  "ADC voltage is missing or outside the board range.": [
+    "Manca la tensione ADC o al di fuori della gamma di schede.",
+    "Tensão ADC está ausente ou fora da faixa de placa."
+  ],
+  "SDA and SCL must differ.": [
+    "SDA e SCL devono essere diversi.",
+    "O SDA e o SCL devem ser diferentes."
+  ],
+  "OLED unavailable: check VCC, GND, SDA/SCL and I²C address.": [
+    "OLED non disponibile: controllare l'indirizzo VCC, GND, SDA/SCL e I2C.",
+    "OLED indisponível: verifique o endereço VCC, GND, SDA/SCL e I2C."
+  ],
+  "Display is not correctly connected or powered.": [
+    "Il display non è collegato correttamente o alimentato.",
+    "A tela não está corretamente conectada ou alimentada."
+  ],
+  "Invalid display data": [
+    "Dati di visualizzazione non validi",
+    "Dados de exibição inválidos"
+  ],
+  "Invalid display brightness": [
+    "Luminosità del display non valida",
+    "Bri brilho de exibição inválido"
+  ],
+  "setup() completed. Simulation running.": [
+    "setup() completato. Simulazione in esecuzione.",
+    "setup() concluída. Simulação em execução."
+  ],
+  "Unknown simulator message": [
+    "Messaggio simulatore sconosciuto",
+    "Mensagem de simulador desconhecido"
+  ],
+  "Simulation stopped: ": [
+    "Simulazione interrotta: ",
+    "Simulação parada: "
+  ],
+  "Drag wire bend": [
+    "Trascina curva filo",
+    "Arraste a curvatura do fio"
+  ],
+  " — click to connect": [
+    " Fare clic su per connettersi",
+    " — clique para conectar"
+  ],
+  "a–e / f–j: five contacts connected per column · no power rails": [
+    "5 contatti collegati per colonna · senza guide elettriche",
+    "a–e / f–j: cinco contatos conectados por coluna · sem trilhos de energia"
+  ],
+  "Pressed": [
+    "Pressato",
+    "Prensado"
+  ],
+  "Double-click to press": [
+    "Fare doppio clic per premere",
+    "Clique duas vezes para pressionar"
+  ],
+  "Stop simulation before editing the circuit.": [
+    "Interrompere la simulazione prima di modificare il circuito.",
+    "Pare a simulação antes de editar o circuito."
+  ],
+  "Stop simulation before editing wires.": [
+    "Interrompere la simulazione prima di modificare i fili.",
+    "Parar a simulação antes de editar os fios."
+  ],
+  "Click the destination pin. Esc cancels the wire.": [
+    "Fare clic sul pin di destinazione. Esc annulla il cavo.",
+    "Clique no pino de destino. Esc cancela o fio."
+  ],
+  "Delete selection": [
+    "Elimina selezione",
+    "Apagar seleção"
+  ],
+  "Move component": [
+    "Sposta componente",
+    "Mover componente"
+  ],
+  "Move wire bend": [
+    "Sposta curva filo",
+    "Mover a curvatura do fio"
+  ],
+  "Add wire bend": [
+    "Aggiungi curva filo",
+    "Adicionar curva de arame"
+  ],
+  "Maximum 64 wire bends": [
+    "Massimo 64 curve di filo",
+    "Máximo 64 curvas de fio"
+  ],
+  "Change component value": [
+    "Cambia valore componente",
+    "Alterar valor do componente"
+  ],
+  "Microcontroller": [
+    "Microcontrollore",
+    "Microcontrolador"
+  ],
+  "Resistor": [
+    "Resistore",
+    "Resistor"
+  ],
+  "Pushbutton": [
+    "Pulsante",
+    "botão"
+  ],
+  "Analog source": [
+    "Sorgente analogica",
+    "Fonte analógica"
+  ],
+  "10 kΩ potentiometer": [
+    "10 kΩ potenziometro",
+    "10 kΩ potenciómetro"
+  ],
+  "Photoresistor": [
+    "Fotoresistor",
+    "Fotoresistor"
+  ],
+  "NTC 10k B3950": [
+    "NTC 10k B3950",
+    "NTC 10k B3950"
+  ],
+  "SPDT slide switch": [
+    "Interruttore di scorrimento SPDT",
+    "Interruptor deslizante SPDT"
+  ],
+  "Tilt switch": [
+    "Interruttore di inclinazione",
+    "interruptor Tilt"
+  ],
+  "Reed switch": [
+    "Interruttore a canna",
+    "Interruptor Reed"
+  ],
+  "Silicon diode": [
+    "Diodo di silicio",
+    "Diodo de silício"
+  ],
+  "3 V battery (ideal)": [
+    "Batteria 3 V (ideale)",
+    "Bateria 3 V (ideal)"
+  ],
+  "9 V battery (ideal)": [
+    "Batteria da 9 V (ideale)",
+    "Bateria de 9 V (ideal)"
+  ],
+  "DC power supply": [
+    "Alimentatore CC",
+    "fonte de alimentação DC"
+  ],
+  "RGB LED (common cathode)": [
+    "LED RGB (comune catodo)",
+    "LED RGB (cátodo comum)"
+  ],
+  "7-segment (common cathode)": [
+    "7 segmenti ( catodo comune)",
+    "7-segmento (cátodo comum)"
+  ],
+  "Voltmeter (ideal)": [
+    "Voltmetro (ideale)",
+    "Voltímetro (ideal)"
+  ],
+  "300-contact breadboard": [
+    "Tabellone da 300 contatti",
+    "placa de pão 300-contato"
+  ],
+  "Manage libraries": [
+    "Gestisci le librerie",
+    "Gerenciar bibliotecas"
+  ],
+  "Official Arduino catalog. Installation includes dependencies. Hardware libraries also require a supported simulation model.": [
+    "Catalogo ufficiale Arduino. L'installazione include dipendenze. Le librerie hardware richiedono anche un modello di simulazione supportato.",
+    "Catálogo oficial Arduino. A instalação inclui dependências. As bibliotecas de hardware também exigem um modelo de simulação compatível."
+  ],
+  "Search libraries…": [
+    "Cerca librerie…",
+    "Bibliotecas de pesquisa…"
+  ],
+  "Install selected library": [
+    "Installa la libreria selezionata",
+    "Instalar biblioteca selecionada"
+  ],
+  "Refresh catalog": [
+    "Aggiorna catalogo",
+    "Atualizar catálogo"
+  ],
+  "Add local library folder…": [
+    "Aggiungi cartella libreria locale…",
+    "Adicionar pasta de biblioteca local…"
+  ],
+  "Library folder": [
+    "Cartella della libreria",
+    "Pasta da biblioteca"
+  ],
+  "Local library added: ": [
+    "Libreria locale aggiunta: ",
+    "Biblioteca local adicionada: "
+  ],
+  "Loading Arduino catalog…": [
+    "Caricamento catalogo Arduino…",
+    "Carregando catálogo Arduino…"
+  ],
+  "Could not load catalog: ": [
+    "Impossibile caricare il catalogo: ",
+    "Não foi possível carregar o catálogo: "
+  ],
+  "Library and dependencies installed. Available on the next sketch build.": [
+    "Libreria e dipendenze installate. Disponibile nella versione successiva del disegno.",
+    "Biblioteca e dependências instaladas. Disponível na próxima compilação de sketch."
+  ],
+  "Library download failed: ": [
+    "Scaricamento della libreria non riuscito: ",
+    "O download da biblioteca falhou: "
+  ],
+  "Library checksum mismatch.": [
+    "Checksum della libreria non corretto.",
+    "Biblioteca checksum incompatibilidade."
+  ],
+  "Temporary library folder is missing.": [
+    "Manca la cartella della libreria temporanea.",
+    "A pasta da biblioteca temporária está faltando."
+  ],
+  "Could not install library.": [
+    "Impossibile installare la libreria.",
+    "Não foi possível instalar a biblioteca."
+  ],
+  "Unsupported version requirement: ": [
+    "Requisiti di versione non supportati: ",
+    "Exigência de versão não suportada: "
+  ],
+  "Library index is too large.": [
+    "L'indice della libreria è troppo grande.",
+    "O índice de bibliotecas é muito grande."
+  ],
+  "Invalid Arduino library index.": [
+    "Indice della libreria Arduino non valido.",
+    "Índice de biblioteca Arduino inválido."
+  ],
+  "No valid library package in index.": [
+    "Nessun pacchetto di librerie valido nell'indice.",
+    "Nenhum pacote de biblioteca válido no índice."
+  ],
+  "Conflicting library dependencies: ": [
+    "Dipendenze dalla libreria in conflitto: ",
+    "Dependências de bibliotecas em conflito: "
+  ],
+  "Too many library dependencies.": [
+    "Troppe dipendenze della libreria.",
+    "Muitas dependências de bibliotecas."
+  ],
+  "Dependency not found in index: ": [
+    "Dipendenza non trovata nell'indice: ",
+    "Dependência não encontrada no índice: "
+  ],
+  "Invalid dependency.": [
+    "Dipendenza non valida.",
+    "Dependência inválida."
+  ],
+  "OLED animation": [
+    "Animazione OLED",
+    "Animação OLED"
+  ],
+  "ESP8266 and SSD1306: two PROGMEM bitmap frames with realistic I²C transfer timing.": [
+    "ESP8266 e SSD1306: due fotogrammi di bitmap PROGMEM con tempi di trasferimento I2C realistici.",
+    "ESP8266 e SSD1306: dois quadros de bitmap PROGMEM com tempo de transferência I2C realista."
+  ],
+  "Blink an LED": [
+    "Blink un LED",
+    "Blink um LED"
+  ],
+  "External LED on D5 with a 220 Ω series resistor. Compare blink speeds using the speed slider.": [
+    "LED esterno su D5 con resistore serie 220 Ω. Confrontare le velocità dei lampeggianti utilizzando il cursore di velocità.",
+    "LED externo em D5 com um resistor da série 220 Ω. Compare as velocidades de piscar usando o controle deslizante de velocidade."
+  ],
+  "Button controls LED": [
+    "Pulsante di controllo LED",
+    "Controles de botão LED"
+  ],
+  "Button on D6 to GND, internal pullup, LED on D5. Press the button with a double-click or the inspector checkbox.": [
+    "Pulsante su D6 a GND, pullup interno, LED su D5. Premere il pulsante con un doppio clic o la casella di controllo dell'ispettore.",
+    "Botão no botão D6 para GND, pullup interno, LED no D5. Pressione o botão com um clique duplo ou a caixa de seleção do inspetor."
+  ],
+  "Traffic lights": [
+    "Semafori",
+    "Semáforos"
+  ],
+  "Three LEDs on D5/D6/D7 with separate series resistors: red, red/amber, green, amber.": [
+    "Tre LED su D5/D6/D7 con resistenze di serie separate: rosso, rosso/ambra, verde, ambra.",
+    "Três LEDs em D5/D6/D7 com resistores de série separados: vermelho, vermelho/âmbar, verde, âmbar."
+  ],
+  "LED chaser": [
+    "Cacciatore a LED",
+    "Perseguidor LED"
+  ],
+  "Four LEDs on D1/D2/D5/D6, each with 220 Ω, are switched on in sequence.": [
+    "Quattro LED su D1/D2/D5/D6, ciascuno con 220 Ω, sono accesi in sequenza.",
+    "Quatro LEDs em D1/D2/D5/D6, cada um com 220 Ω, são ligados em sequência."
+  ],
+  "Analog threshold": [
+    "Soglia analogica",
+    "Lim limiar analógico"
+  ],
+  "0–1 V source on A0. The LED lights at ADC value 512. Stop simulation, select the source and adjust its voltage.": [
+    "Sorgente a 0. Le luci LED al valore ADC 512. Interrompere la simulazione, selezionare la sorgente e regolare la sua tensione.",
+    "0–1 Fonte V em A0. As luzes LED no valor ADC 512. Pare a simulação, selecione a fonte e ajuste sua tensão."
+  ],
+  "ESP32: blink LED": [
+    "ESP32: LED lampeggiante",
+    "ESP32: piscando LED"
+  ],
+  "ESP32 board profile, external LED on GPIO5 with a series resistor.": [
+    "Profilo della scheda ESP32, LED esterno su GPIO5 con resistenza in serie.",
+    "ESP32 perfil da placa, LED externo em GPIO5 com um resistor série."
+  ],
+  "ESP32-S3: analog threshold": [
+    "ESP32-S3: soglia analogica",
+    "ESP32-S3: limiar analógico"
+  ],
+  "12-bit ADC on A0/GPIO1. A 1.65 V source switches on the LED on GPIO5.": [
+    "ADC a 12 bit su A0/GPIO1. Una sorgente a 1.65 V accende il LED su GPIO5.",
+    "12-bit ADC em A0/GPIO1. Uma fonte de 1,65 V liga o LED em GPIO5."
+  ],
+  "OLED text 128×32": [
+    "Testo OLED 128×32",
+    "Texto OLED 128×32"
+  ],
+  "setCursor, setTextColor and text sizing on a correctly wired 128×32 SSD1306.": [
+    "setCursor, setTextColor e dimensionamento del testo su un SSD1306 correttamente cablato 128×32.",
+    "SetCursor, setTextColor e dimensionamento de texto em um SSD1306 128×32 com fio correto."
+  ],
+  "Two OLEDs on the I²C bus": [
+    "Due OLED sul bus I2C",
+    "Dois OLEDs no ônibus I2C"
+  ],
+  "Two displays share D2/SDA and D1/SCL. Addresses 0x3C and 0x3D; flash bitmaps move in opposite directions.": [
+    "Due display condividono D2/SDA e D1/SCL. Gli indirizzi 0x3C e 0x3D; le bitmap flash si muovono in direzioni opposte.",
+    "Dois monitores compartilham D2/SDA e D1/SCL. Endereços 0x3C e 0x3D; bitmaps flash se movem em direções opostas."
+  ],
+  "Example file is missing. Check the installation.": [
+    "Manca il file di esempio. Controllare l'installazione.",
+    "O arquivo de exemplo está faltando. Verifique a instalação."
+  ],
+  "ThinkCad is up to date.": [
+    "Penso che Cad sia aggiornato.",
+    "O ThinkCad está atualizado."
+  ],
+  "Update check failed.": [
+    "Controllo di aggiornamento non riuscito.",
+    "A verificação de atualização falhou."
+  ],
+  "Update check failed (network issue or no release yet).": [
+    "Controllo di aggiornamento non riuscito (emissione di rete o nessuna release ancora).",
+    "A verificação de atualização falhou (problema de rede ou sem lançamento ainda)."
+  ],
+  "No valid stable release found.": [
+    "Non è stato trovato alcun rilascio stabile valido.",
+    "Nenhuma versão estável válida encontrada."
+  ],
+  "Release has no installer with checksum and build attestation.": [
+    "Il rilascio non ha installatore con checksum ed attestazione di compilazione.",
+    "Release não tem instalador com checksum e atestado de construção."
+  ],
+  " is downloading in the background.": [
+    " sta scaricando in background.",
+    " é baixado em segundo plano."
+  ],
+  "Could not verify release commit.": [
+    "Impossibile verificare il commit di rilascio.",
+    "Não foi possível verificar o commit de liberação."
+  ],
+  "Invalid update checksum.": [
+    "Checksum di aggiornamento non valido.",
+    "Checksum de atualização inválida."
+  ],
+  "Could not download build attestation.": [
+    "Impossibile scaricare l'attestazione di compilazione.",
+    "Não foi possível baixar o certificado de compilação."
+  ],
+  "Could not save build attestation.": [
+    "Impossibile salvare l'attestazione di compilazione.",
+    "Não foi possível salvar o atestado de construção."
+  ],
+  "Update directory is not writable.": [
+    "La directory di aggiornamento non è scrivibile.",
+    "O diretório de atualização não é gravável."
+  ],
+  "Could not create update file.": [
+    "Impossibile creare il file di aggiornamento.",
+    "Não foi possível criar o ficheiro de actualização."
+  ],
+  "Update rejected: download or SHA-256 verification failed.": [
+    "Aggiornamento respinto: download o verifica SHA-256 non riuscita.",
+    "Atualização rejeitada: a verificação do download ou SHA-256 falhou."
+  ],
+  "Update verifier is missing from this installation.": [
+    "Da questa installazione manca il verificatore di aggiornamento.",
+    "O verificador de atualização está ausente nesta instalação."
+  ],
+  "Update rejected: invalid GitHub build attestation or release commit.": [
+    "Aggiornamento respinto: attestazione di compilazione o commit di rilascio di GitHub non valida.",
+    "Atualização rejeitada: atestado de compilação inválido do GitHub ou commit de lançamento."
+  ],
+  "Update is no longer valid.": [
+    "L'aggiornamento non è più valido.",
+    "A atualização não é mais válida."
+  ],
+  "Update verifier is missing.": [
+    "Manca l'aggiornamento del verificatore.",
+    "O verificador de atualização está faltando."
+  ],
+  "Could not prepare update helper.": [
+    "Impossibile preparare l'helper dell'aggiornamento.",
+    "Não foi possível preparar ajudante de atualização."
+  ],
+  "Could not start update helper.": [
+    "Impossibile avviare l'aggiornamento dell'helper.",
+    "Não foi possível iniciar o assistente de atualização."
+  ],
+  "  |  Pin → Pin connects a wire": [
+    "  | Pin → Pin collega un filo",
+    "  | Pin → Pin conecta um fio"
+  ],
+  "Window": [
+    "Finestra",
+    "Janela"
+  ],
+  "Minimize": [
+    "Minimizza",
+    "Minimizar"
+  ],
+  "Maximize": [
+    "Massimizza",
+    "Maximizar"
+  ],
+  "Restore": [
+    "Ripristina",
+    "Restaurar"
+  ],
+  "Arduino sketch": [
+    "Identikit di Arduino",
+    "sketch Arduino"
+  ],
+  "File name (.ino, .h or .cpp)": [
+    "Nome file (.ino, .h o .cpp)",
+    "Nome do arquivo (.ino, .h ou .cpp)"
+  ],
+  "Images (*.png *.bmp *.jpg)": [
+    "Immagini (*.png *.bmp *.jpg)",
+    "Imagens (*.png *.bmp *.jpg)"
+  ],
+  "%1 ms · %2 wires": [
+    "%1 ms · %2 fili",
+    "%1 ms ·%2 fios"
+  ],
+  "Arduino libraries": [
+    "Librerie Arduino",
+    "Bibliotecas Arduino"
+  ],
+  "Library": [
+    "Libreria",
+    "Biblioteca"
+  ],
+  "Architectures": [
+    "Architetture",
+    "Arquiteturas"
+  ],
+  "Local library": [
+    "Libreria locale",
+    "Biblioteca local"
+  ],
+  "%1 libraries · %2 package versions": [
+    "%1 librerie · %2 versioni pacchetto",
+    "libraries ·%1 versões do pacote%2"
+  ],
+  "Downloading ": [
+    "Scaricamento ",
+    "Baixando "
+  ],
+  " is ready.": [
+    " E' pronto.",
+    " Está pronto."
+  ],
+  " is available. Linux: update using the package manager; Gentoo: update the overlay and run emerge --ask --oneshot media-gfx/thinkcad. Downloads: https://github.com/Lyvt-Dev/ThinkCad/releases/latest": [
+    " È disponibile. Linux: aggiornare utilizzando il gestore dei pacchetti; Gentoo: aggiornare l'overlay ed eseguire emerge --ask --oneshot media-gfx/ThinkCad. Download: https://github.com/Lyvt-Dev/ThinkCad/releases/latest",
+    " está disponível. Linux: atualização usando o gerenciador de pacotes; Gentoo: atualizar a sobreposição e executar emergem --ask --oneshot media-gfx/ThinkCad. Downloads: https://github.com/Lyvt-Dev/ThinkCad/releases/ latest"
+  ],
+  "Execution stopped: timeout / no response.": [
+    "Esecuzione interrotta: timeout/nessuna risposta.",
+    "Execução interrompida: tempo limite / sem resposta."
+  ],
+  "Compiler dependencies are too large.": [
+    "Le dipendenze del compilatore sono troppo grandi.",
+    "Dependências de compiladores são muito grandes."
+  ],
+  "Could not start compiler. Select a g++ compiler in Settings.": [
+    "Impossibile avviare il compilatore. Selezionare un compilatore g++ in Impostazioni.",
+    "Não foi possível iniciar o compilador. Selecione um compilador g++ em Configurações."
+  ],
+  "Temporary directory or simulator SDK is missing.": [
+    "Manca la directory temporanea o il simulatore SDK.",
+    "O diretório temporário ou simulador SDK está faltando."
+  ],
+  "Invalid project files.": [
+    "File di progetto non validi.",
+    "Ficheiros de projecto inválidos."
+  ],
+  "Too many registered libraries.": [
+    "Troppe librerie registrate.",
+    "Demasiadas bibliotecas registradas."
+  ],
+  "Library contains too many source files.": [
+    "La libreria contiene troppi file sorgente.",
+    "A biblioteca contém muitos arquivos de origem."
+  ],
+  "Sketch protocol exceeds buffer limit.": [
+    "Il protocollo Sketch supera il limite del buffer.",
+    "O protocolo Sketch excede o limite de buffer."
+  ],
+  "Sketch protocol overloaded. Use delay() or yield().": [
+    "Protocollo disketch sovraccaricato. Usa ritardo() o resa().",
+    "Use delay() ou yield()."
+  ],
+  "Too many library source files in use.": [
+    "Troppi file sorgente della libreria in uso.",
+    "Muitos arquivos de fonte da biblioteca em uso."
+  ],
+  "Library dependency resolution limit exceeded.": [
+    "Limite di risoluzione delle dipendenze della libreria superato.",
+    "Limite de resolução de dependência da biblioteca excedido."
+  ],
+  "Could not prepare project file.": [
+    "Impossibile preparare il file del progetto.",
+    "Não foi possível preparar o arquivo do projeto."
+  ],
+  "Could not save sketch.": [
+    "Impossibile salvare lo sketch.",
+    "Não foi possível salvar o sketch."
+  ],
+  "Convert video to frames.h…": [
+    "Converti video in frame.h…",
+    "Atualizando... Hotéis similares"
+  ],
+  "Convert video to frames.h": [
+    "Converti video in frame.h",
+    "Converter vídeo em frames.h"
+  ],
+  "Choose video": [
+    "Scegli il video",
+    "Escolher vídeo"
+  ],
+  "Monochrome OLED frames for Adafruit GFX. Aspect ratio is preserved; audio is not exported.": [
+    "Cornici OLED monocromatiche per Adafruit GFX. Il rapporto aspetto è conservato; l'audio non viene esportato.",
+    "Molduras monocromáticas OLED para Adafruit GFX. A relação de aspecto é preservada; o áudio não é exportado."
+  ],
+  "Resolution": [
+    "Risoluzione",
+    "Resolução"
+  ],
+  "Frames per second": [
+    "Cornici al secondo",
+    "Quadros por segundo"
+  ],
+  "Start time (seconds)": [
+    "Orario di inizio (secondi)",
+    "Hora de início (segundos)"
+  ],
+  "Clip duration (seconds)": [
+    "Durata clip (secondi)",
+    "Duração do clipe (segundos)"
+  ],
+  "Black/white threshold": [
+    "Soglia nero/bianco",
+    "Limiar preto/branco"
+  ],
+  "Invert colors": [
+    "Inverti colori",
+    "Inverter cores"
+  ],
+  "Loading video…": [
+    "Caricamento video…",
+    "Carregando vídeo…"
+  ],
+  "Export frames.h…": [
+    "Esporta quadri.h…",
+    "Exportar quadros.h…"
+  ],
+  "Export frames.h": [
+    "Esporta quadri.h",
+    "Exportar frames.h"
+  ],
+  "Could not read video: ": [
+    "Impossibile leggere il video: ",
+    "Não foi possível ler o vídeo: "
+  ],
+  "Video decoder is not responding.": [
+    "Il decoder video non risponde.",
+    "O decodificador de vídeo não está respondendo."
+  ],
+  "%1 frames · %2 KiB bitmap data · 256 KiB maximum": [
+    "%1 fotogrammi · %2 KiB di dati bitmap · massimo 256 KiB",
+    "%1 quadros · %2 KiB de dados bitmap · máximo de 256 KiB"
+  ],
+  "Converting video…": [
+    "Conversione video…",
+    "A converter vídeo…"
+  ],
+  "Exported frames.h: ": [
+    "Frame.h esportati: ",
+    "Quadros exportados.h: "
+  ],
+  "Invalid video frame settings": [
+    "Impostazioni del fotogramma video non valide",
+    "Configurações de quadro de vídeo inválido"
+  ],
+  "Invalid video frame": [
+    "Cornice video non valida",
+    "Frame de vídeo inválido"
+  ],
+  "Video exceeds the 256 KiB bitmap limit. Reduce frame rate, clip length or resolution.": [
+    "Il video supera il limite di 256 bitmap KiB. Ridurre la frequenza dei frame, la lunghezza del clip o la risoluzione.",
+    "O vídeo excede o limite de 256 KiB bitmap. Reduza a taxa de quadros, o comprimento do clipe ou a resolução."
+  ],
+  "The video did not produce any readable frames.": [
+    "Il video non ha prodotto fotogrammi leggibili.",
+    "O vídeo não produziu nenhum quadro legível."
+  ],
+  "Video conversion is incomplete.": [
+    "La conversione video è incompleta.",
+    "A conversão de vídeo está incompleta."
+  ],
+  "Could not save frames.h.": [
+    "Impossibile salvare i fotogrammi.h.",
+    "Não foi possível salvar frames.h."
+  ],
+  "Press and hold to operate": [
+    "Premere e tenere premuto per operare",
+    "Pressione e segure para operar"
+  ],
+  "Blocks": [
+    "Blocchi",
+    "Blocos"
+  ],
+  "Realistic": [
+    "Realistico",
+    "Realista"
+  ],
+  "ESP32, 38 kHz receiver and NEC test remote. Press and hold its button during simulation.": [
+    "Ricevitore ESP32, 38 kHz e NEC test remoto. Premere e tenere premuto il tasto durante la simulazione.",
+    "ESP32, 38 kHz receptor e NEC teste remoto. Pressione e segure seu botão durante a simulação."
+  ],
+  "ESP32 with PN532 over I²C. Read synthetic UID and NDEF; click once during simulation to remove or present the card.": [
+    "ESP32 con PN532 su I2C. Leggere UID sintetico e NDEF; fare clic una volta durante la simulazione per rimuovere o presentare la scheda.",
+    "ESP32 com PN532 sobre I2C. Leia UID sintético e NDEF; clique uma vez durante a simulação para remover ou apresentar o cartão."
+  ],
+  "Button on D6 to GND, internal pullup, LED on D5. Press and hold during simulation, or use the inspector checkbox.": [
+    "Pulsante su D6 a GND, pullup interno, LED su D5. Premere e tenere premuto durante la simulazione, o utilizzare la casella di controllo dell'ispettore.",
+    "Botão no botão D6 para GND, pullup interno, LED no D5. Pressione e segure durante a simulação ou use a caixa de seleção do inspetor."
+  ],
+  "Reset": [
+    "Riavvia",
+    "Reiniciar"
+  ],
+  "The selected file has no video track.": [
+    "Il file selezionato non ha traccia video.",
+    "O arquivo selecionado não tem trilha de vídeo."
+  ],
+  "Open File → Example circuits → Blink an LED. A series resistor protects the LED.": [
+    "Apri File → Circuiti di esempio → Blink un LED. Una resistenza di serie protegge il LED.",
+    "Abrir Arquivo → Exemplo de circuitos → Aperte um LED. Um resistor em série protege o LED."
+  ],
+  "Stop simulation to edit. Click a start pin, empty points for bends and the destination pin. Double-click a wire to add a bend. Esc cancels; Delete removes the selection.": [
+    "Fermare la simulazione per modificare. Fare clic su un perno di partenza, punti vuoti per le curve e il perno di destinazione. Fare doppio clic su un filo per aggiungere una curva. Esc annulla; Elimina rimuove la selezione.",
+    "Parar de simulação para editar. Clique em um pino inicial, pontos vazios para curvas e o pino de destino. Clique duas vezes em um fio para adicionar uma curva. Esc cancela; Excluir remove a seleção."
+  ],
+  "F5 or Ctrl+R starts and stops. Cables and parts cannot be selected during simulation. Hold pushbuttons and remote buttons; click switches and NFC cards once to toggle them. Release the mouse button to release a pushbutton.": [
+    "F5 o Ctrl+R si avvia e si ferma. Cavi e parti non possono essere selezionati durante la simulazione. Tieni premuto i pulsanti e i pulsanti remoti; fai clic su interruttori e schede NFC una volta per attivarli. Rilasciare il pulsante del mouse per rilasciare un pulsante.",
+    "F5 ou Ctrl+R inicia e pára. Cabos e peças não podem ser selecionados durante a simulação. Segure botões e botões remotos; clique em interruptores e cartões NFC uma vez para alterná-los. Libere o botão do mouse para liberar um botão."
+  ],
+  "Each board has its own sketch, selected above the code editor. All boards run simultaneously. setup() runs once; loop() repeats. Pause, stop and reset affect every board.": [
+    "Ogni scheda ha un proprio disegno, selezionato sopra l'editor di codice. Tutte le schede funzionano simultaneamente. setup() esegue una volta; loop() ripeti. Pausa, arresto e reset influenzano ogni scheda.",
+    "Cada placa tem seu próprio sketch, selecionado acima do editor de código. Todas as placas são executadas simultaneamente. setup() é executado uma vez; loop() repete. Pausar, parar e redefinir afetam cada placa."
+  ],
+  "ESP8266 OLED: VCC to 3V3, GND to GND, SDA to D2 and SCL to D1. File → Convert video to frames.h exports monochrome PROGMEM bitmaps. Choose resolution, frame rate and clip length; maximum 256 KiB bitmap data. Copy frames.h into the sketch folder.": [
+    "ESP8266 OLED: VCC a 3V3, GND a GND, SDA a D2 e SCL a D1. File → Converti video in frame.h esporta bitmap PROGMEM monocromatiche. Scegliere risoluzione, frequenza dei frame e lunghezza del clip; massimo 256 dati bitmap KiB. Copia frame.h nella cartella sketch.",
+    "ESP8266 OLED: VCC para 3V3, GND para GND, SDA para D2 e SCL para D1. Arquivo → Converta vídeo para frames.h exporta bitmaps PROGMEM monocromáticos. Escolha resolução, taxa de quadros e comprimento do clipe; dados máximos do bitmap 256 KiB. Copie frames.h na pasta do sketch."
+  ],
+  "Ctrl+S saves wiring and code together. Ctrl+O opens a project or .ino sketch. Arduino export writes files for the physical IDE. Ctrl+wheel zooms; the middle mouse button pans.": [
+    "Ctrl+S salva il cablaggio e il codice insieme. Ctrl+O apre un progetto o uno sketch .ino. L'esportazione di Arduino scrive file per l'IDE fisico. Ctrl+heel zooms; le pentole centrali del mouse.",
+    "Ctrl+S salva fiação e código juntos. Ctrl+O abre um projeto ou sketch .ino. A exportação de Arduino grava arquivos para o IDE físico. Ctrl+roda aumenta; o botão do mouse central se espalha."
+  ],
+  "Model limitations": [
+    "Limitazioni del modello",
+    "Limitações do modelo"
+  ],
+  "This is a host API simulation, not CPU emulation. A disconnected input is not automatically LOW. Use INPUT_PULLUP and respect supply and ADC limits. Hardware libraries need a matching device model.": [
+    "Questa è una simulazione API host, non l'emulazione CPU. Un ingresso disconnesso non è automaticamente BASSO. Usa INPUT_PULLUP e rispetta i limiti di alimentazione e ADC. Le librerie hardware hanno bisogno di un modello di dispositivo corrispondente.",
+    "Esta é uma simulação de API host, não emulação de CPU. Uma entrada desconectada não é automaticamente BAIXA. Use INPUT_PULLUP e respeite o fornecimento e os limites ADC. As bibliotecas de hardware precisam de um modelo de dispositivo correspondente."
+  ],
+  "Native C++20 / Qt circuit simulator for Windows and Linux.": [
+    "Native C++20 / Qt simulatore di circuito per Windows e Linux.",
+    "Simulador de circuito nativo C++20 / Qt para Windows e Linux."
+  ],
+  "Developed by Lyvt-Dev. Source, releases and issue tracker:": [
+    "Sviluppato da Lyvt-Dev. Fonte, release e tracker di emissione:",
+    "Desenvolvido por Lyvt-Dev. Fonte, lançamentos e rastreador de problemas:"
+  ],
+  "Tutorial": [
+    "Tutorial",
+    "Tutorial"
+  ],
+  "Version ": [
+    "Versione ",
+    "Versão "
+  ],
+  "Video files": [
+    "File video",
+    "Ficheiros de vídeo"
+  ],
+  "All files": [
+    "Tutti i file",
+    "Todos os ficheiros"
+  ],
+  "Auto": [
+    "Auto",
+    "Auto"
+  ],
+  "Normal": [
+    "Normale",
+    "Normal"
+  ],
+  "Single": [
+    "Singolo",
+    "Único"
+  ],
+  "ESP32: transmitter GPIO25, receiver GPIO26; rc-switch protocol 1 with 16-bit test messages.": [
+    "ESP32: trasmettitore GPIO25, ricevitore GPIO26; protocollo rc-switch 1 con messaggi di test a 16 bit.",
+    "ESP32: transmissor GPIO25, receptor GPIO26; protocolo rc-switch 1 com mensagens de teste de 16 bits."
+  ],
+  "GPIO2 with 220 Ω and IR LED; 38 kHz receiver on GPIO4. NEC commands in the serial monitor.": [
+    "GPIO2 con 220 Ω e IR LED; ricevitore a 38 kHz su GPIO4. Comandi NEC nel monitor seriale.",
+    "GPIO2 com 220 Ω e IR LED; receptor de 38 kHz em GPIO4. NEC comandos no monitor serial."
+  ],
+  "Two ESP32 boards with nRF24L01, separate sketches and ACK packets on channel 76. SPI18/19/23, CSN5, CE16.": [
+    "Due schede ESP32 con nRF24L01, sketch separati e pacchetti ACK sul canale 76. SPI18/19/23, CSN5, CE16.",
+    "Duas placas ESP32 com nRF24L01, sketch separados e pacotes ACK no canal 76. SPI18/19/23, CSN5, CE16."
+  ],
+  "  Pin → Pin connects a wire": [
+    "  Pin → Pin collega un filo",
+    "  Pin → Pin conecta um fio"
+  ],
+  "Simulation: click": [
+    "Simulazione: fare clic",
+    "Simulação: clique"
+  ],
+  "Notes": [
+    "Osservazioni",
+    "Notas"
+  ],
+  "Note": [
+    "Nota",
+    "Nota"
+  ],
+  "Add note…": [
+    "Aggiungere nota…",
+    "Adicionar nota…"
+  ],
+  "Add note": [
+    "Aggiungere nota",
+    "Adicionar nota"
+  ],
+  "Edit note…": [
+    "Modifica nota…",
+    "Editar nota…"
+  ],
+  "Edit note": [
+    "Modifica nota",
+    "Editar nota"
+  ],
+  "Text": [
+    "Testo",
+    "Texto"
+  ],
+  "Double-click the note to edit its text.": [
+    "Fare doppio clic sulla nota per modificarne il testo.",
+    "Clique duas vezes na nota para editar seu texto."
+  ],
+  "Drag into the workspace": [
+    "Trascina nello spazio di lavoro",
+    "Arraste para o espaço de trabalho"
+  ],
+  "Project saved automatically.": [
+    "Progetto salvato automaticamente.",
+    "O projeto foi salvo automaticamente."
+  ],
+  "Learning path…": [
+    "Imparare il percorso…",
+    "Caminho de aprendizagem…"
+  ],
+  "Current lesson": [
+    "Lezione corrente",
+    "Lição atual"
+  ],
+  "Lesson complete! The next exercise is unlocked.": [
+    "Lezione completata! Il prossimo esercizio è sbloccato.",
+    "Lição completa! O próximo exercício está desbloqueado."
+  ],
+  "All settings…": [
+    "Tutte le impostazioni…",
+    "Todas as configurações…"
+  ],
+  "Settings…": [
+    "Impostazioni.",
+    "Configuração…"
+  ],
+  "Advanced": [
+    "Avanzato",
+    "Avançado Avançado"
+  ],
+  "Your workspace": [
+    "Il tuo spazio di lavoro",
+    "O seu espaço de trabalho"
+  ],
+  "Blocks · planning": [
+    "Blocchi · pianificazione",
+    "Blocos · planejamento"
+  ],
+  "Realistic · flat 2D view": [
+    "Realistico · piano 2D vista",
+    "Realista · vista plana 2D"
+  ],
+  "Dark appearance": [
+    "Aspetto scuro",
+    "Aparência escura"
+  ],
+  "Play audio": [
+    "Riproduci audio",
+    "Reproduzir áudio"
+  ],
+  "Appearance": [
+    "Aspetto",
+    "Aparência"
+  ],
+  "Grid spacing": [
+    "Spaziatura griglia",
+    "Espaçamento entre grelhas"
+  ],
+  "Snap to grid (Alt bypasses)": [
+    "Snap alla griglia (Alt bypasses)",
+    "Snap to grid (Alt bypasses)"
+  ],
+  "Save named projects every minute": [
+    "Salva i progetti con nome ogni minuto",
+    "Salvar projetos nomeados a cada minuto"
+  ],
+  "Save a new project once first. Separate 15-second recovery snapshots remain active.": [
+    "Salvare un nuovo progetto una volta prima. Istantanee di recupero separate di 15 secondi rimangono attive.",
+    "Salve um novo projeto uma vez primeiro. Separe instantâneos de recuperação de 15 segundos permanecem ativos."
+  ],
+  "Editor and saving": [
+    "Editor e salvataggio",
+    "Editor e economia"
+  ],
+  "Maximum analog time step": [
+    "Passo massimo del tempo analogico",
+    "Passo de tempo analógico máximo"
+  ],
+  "Browse…": [
+    "Sfoglia…",
+    "Pesquisar…"
+  ],
+  "Sketch compiler": [
+    "Compilatore di sketch",
+    "compilador Sketch"
+  ],
+  "Simulation": [
+    "Simulazione",
+    "Simulação"
+  ],
+  "Save": [
+    "Salva",
+    "Gravar"
+  ],
+  " peers": [
+    " pari",
+    " pares"
+  ],
+  " · overwritten: ": [
+    " · sovrascritto: ",
+    " · sobrescrito: "
+  ],
+  "Acceleration X": [
+    "Accelerazione X",
+    "Aceleração X"
+  ],
+  "Acceleration Y": [
+    "Accelerazione Y",
+    "Aceleração Y"
+  ],
+  "Acceleration Z": [
+    "Accelerazione Z",
+    "Aceleração Z"
+  ],
+  "Accept host version": [
+    "Accetta la versione host",
+    "Aceitar a versão do host"
+  ],
+  "All buses": [
+    "Tutti gli autobus",
+    "Todos os autocarros"
+  ],
+  "Angular velocity X": [
+    "Velocità angolare X",
+    "Velocidade angular X"
+  ],
+  "Angular velocity Y": [
+    "Velocità angolare Y",
+    "Velocidade angular Y"
+  ],
+  "Angular velocity Z": [
+    "Velocità angolare Z",
+    "Velocidade angular Z"
+  ],
+  "Apply my conflicting changes": [
+    "Applica i miei cambiamenti contrastanti",
+    "Aplique minhas mudanças conflitantes"
+  ],
+  "Automatic": [
+    "Automatico",
+    "Automático"
+  ],
+  "Automatic: local GDB": [
+    "Automatico: GDB locale",
+    "Automático: GDB local"
+  ],
+  "Batch changes": [
+    "Variazioni del lotto",
+    "Mudanças em lote"
+  ],
+  "Board": [
+    "Consiglio",
+    "Conselho"
+  ],
+  "Board / port": [
+    "Scheda / porto",
+    "Placa/porto"
+  ],
+  "Bounded history: ": [
+    "Cronologia limitata: ",
+    "História limitada: "
+  ],
+  "Bus": [
+    "Autobus",
+    "ônibus"
+  ],
+  "Bus traffic": [
+    "Traffico di autobus",
+    "Tráfego de ônibus"
+  ],
+  "Capture while open": [
+    "Cattura durante l'apertura",
+    "Capturar enquanto aberto"
+  ],
+  "Change at µs": [
+    "Variazione a μs",
+    "Mudança em μs"
+  ],
+  "Change module parameter": [
+    "Cambia parametro modulo",
+    "Alterar parâmetro do módulo"
+  ],
+  "Change sensor values while running. Address and geometry stay locked.": [
+    "Cambiare i valori del sensore durante l'esecuzione. Indirizzo e geometria rimangono bloccati.",
+    "Mude os valores do sensor durante a execução. Endereço e geometria permanecem bloqueados."
+  ],
+  "Choose component package": [
+    "Scegli il pacchetto componenti",
+    "Escolha o pacote de componentes"
+  ],
+  "Choose local GDB": [
+    "Scegliere GDB locale",
+    "Escolha GDB local"
+  ],
+  "Choose local component folder": [
+    "Scegliere la cartella componente locale",
+    "Escolha a pasta de componente local"
+  ],
+  "Code font size": [
+    "Dimensione carattere codice",
+    "Tamanho da fonte do código"
+  ],
+  "Collaboration": [
+    "Collaborazione",
+    "Colaboração"
+  ],
+  "Collision": [
+    "Collisione",
+    "Colisão"
+  ],
+  "Compare drafts": [
+    "Confronta le bozze",
+    "Comparar rascunhos"
+  ],
+  "Component": [
+    "Componente",
+    "Componente"
+  ],
+  "Components & Plugins": [
+    "Componenti e plugin",
+    "Componentes & Plugins"
+  ],
+  "Conflict: your local draft is preserved. Choose a resolution.\n": [
+    "Conflitto: la tua bozza locale è conservata. Scegli una risoluzione.\n",
+    "Conflito: seu rascunho local está preservado. Escolha uma resolução.\n"
+  ],
+  "Connected · synchronizing local changes": [
+    "Connesso · sincronizzazione delle modifiche locali",
+    "Connected – sincronizando mudanças locais"
+  ],
+  "Connected: ": [
+    "Connesso: ",
+    "Conectado: "
+  ],
+  "Contention": [
+    "Contenuto",
+    "Contenção"
+  ],
+  "Continue": [
+    "Continua",
+    "Continuar"
+  ],
+  "Could not save component package.": [
+    "Impossibile salvare il pacchetto dei componenti.",
+    "Não foi possível salvar o pacote de componentes."
+  ],
+  "Current host version": [
+    "Versione host corrente",
+    "Versão atual do host"
+  ],
+  "Data packages from local files or Git working copies. Components stay on this computer; no plugin code is executed.": [
+    "Pacchetti di dati da file locali o copie di lavoro Git. I componenti rimangono su questo computer; non viene eseguito alcun codice plugin.",
+    "Pacotes de dados de arquivos locais ou cópias de trabalho Git. Os componentes permanecem neste computador; nenhum código de plug-in é executado."
+  ],
+  "Data packages stay local. Used models remain embedded in the project. New folders are loaded on the next start.": [
+    "I pacchetti dati rimangono locali. I modelli usati rimangono incorporati nel progetto. Le nuove cartelle vengono caricate all'inizio successivo.",
+    "Os pacotes de dados permanecem locais. Os modelos usados permanecem incorporados no projeto. Novas pastas são carregadas no próximo início."
+  ],
+  "Debug": [
+    "Debug",
+    "Debug"
+  ],
+  "Debugger stopped": [
+    "Debug interrotto",
+    "Depurador parado"
+  ],
+  "Debugging requires a board.": [
+    "Il debugging richiede una tavola.",
+    "A depuração requer uma placa."
+  ],
+  "Default for new projects": [
+    "Predefinito per i nuovi progetti",
+    "Default para novos projetos"
+  ],
+  "Device registers": [
+    "Registri dei dispositivi",
+    "Registros de dispositivos"
+  ],
+  "Distance": [
+    "Distanza",
+    "Distância"
+  ],
+  "Each shortcut must be unique.": [
+    "Ogni scorciatoia deve essere unica.",
+    "Cada atalho deve ser único."
+  ],
+  "Editor / Code": [
+    "Editor / Codice",
+    "Editor / Código"
+  ],
+  "Emulation": [
+    "Emulazione",
+    "Emulação"
+  ],
+  "Environment / sensors": [
+    "Ambiente / sensori",
+    "Ambiente / sensores"
+  ],
+  "Execution mode for this project. Stop execution to change it.": [
+    "Modalità esecuzione per questo progetto. Interrompere l'esecuzione per modificarlo.",
+    "Modo de execução para este projeto. Pare a execução para alterá-lo."
+  ],
+  "Existing projects keep their mode. Emulation models peripherals and bus timing; sketches run on the local CPU.": [
+    "I progetti esistenti mantengono la loro modalità. L'emulazione modella le periferiche e i tempi dei bus; gli sketch vengono eseguiti sulla CPU locale.",
+    "Os projetos existentes mantêm seu modo. Modelos de emulação periféricos e horários de ônibus; sketch são executados na CPU local."
+  ],
+  "Format": [
+    "Formato",
+    "Formato"
+  ],
+  "Framing": [
+    "Framing",
+    "Enquadr"
+  ],
+  "General": [
+    "Generale",
+    "Geral"
+  ],
+  "Host": [
+    "Host",
+    "Anfi"
+  ],
+  "Host CPU (not MCU)": [
+    "CPU host (non MCU)",
+    "CPU host (não MCU)"
+  ],
+  "Host CPU register": [
+    "Registro CPU host",
+    "Registro de CPU Host"
+  ],
+  "Host address": [
+    "Indirizzo host",
+    "Endereço do anfitrião"
+  ],
+  "Hosting · ": [
+    "Hosting · ",
+    "Hospedagem · "
+  ],
+  "Humidity": [
+    "Umidità",
+    "Umidade"
+  ],
+  "Import package…": [
+    "Importa pacchetto…",
+    "Pacote de importação…"
+  ],
+  "Input": [
+    "Input",
+    "Entrada"
+  ],
+  "Interrupt": [
+    "Interrompi",
+    "Interrupta"
+  ],
+  "I²C address": [
+    "Indirizzo I2C",
+    "Endereço I2C"
+  ],
+  "Join": [
+    "Entra",
+    "Junte-se"
+  ],
+  "Join port": [
+    "Unisciti alla porta",
+    "Junte-se ao porto"
+  ],
+  "LAN changes will be applied after stopping the simulation.": [
+    "Le modifiche della LAN saranno applicate dopo aver interrotto la simulazione.",
+    "As mudanças na LAN serão aplicadas após a interrupção da simulação."
+  ],
+  "LAN: ": [
+    "LAN: ",
+    "LAN: "
+  ],
+  "Limits display refresh; virtual simulation time and electrical calculations stay independent.": [
+    "Limita il display refresh; il tempo di simulazione virtuale e i calcoli elettrici rimangono indipendenti.",
+    "Limites de exibição de atualização; tempo de simulação virtual e cálculos elétricos permanecem independentes."
+  ],
+  "Local GDB is unavailable. Choose a debugger under Settings / Editor.": [
+    "GDB locale non è disponibile. Scegliere un debug in Impostazioni / Editor.",
+    "GDB Local não está disponível. Escolha um depurador em Configurações / Editor."
+  ],
+  "Local GDB · Click the line gutter to set breakpoints.": [
+    "GDB locale · Fare clic sulla grondaia della linea per impostare i punti di interruzione.",
+    "GDB Local · Clique na calha da linha para definir pontos de interrupção."
+  ],
+  "Local collaboration": [
+    "Collaborazione locale",
+    "Colaboração local"
+  ],
+  "Local component folder": [
+    "Cartella componente locale",
+    "pasta de componente local"
+  ],
+  "Local components and plugins": [
+    "Componenti locali e plugin",
+    "Componentes e plugins locais"
+  ],
+  "Local components and plugins…": [
+    "Componenti locali e plugin…",
+    "Componentes e plugins locais…"
+  ],
+  "Local conflict draft: ": [
+    "Progetto di conflitto locale: ",
+    "Draft de conflito local: "
+  ],
+  "Local draft": [
+    "Draft locale",
+    "Projecto local"
+  ],
+  "Local draft / host version": [
+    "Versione locale del progetto / host",
+    "Versão local de rascunho / host"
+  ],
+  "Local repository…": [
+    "Deposito locale…",
+    "Repositório local…"
+  ],
+  "Local variables": [
+    "Variabili locali",
+    "Variáveis locais"
+  ],
+  "Logic": [
+    "Logica",
+    "Lógica"
+  ],
+  "Maximum LAN peers": [
+    "Massimo pari LAN",
+    "Pares máximos de LAN"
+  ],
+  "Maximum bus entries": [
+    "Voci massime degli autobus",
+    "Entradas máximas de ônibus"
+  ],
+  "Maximum refresh rate": [
+    "Tasso massimo di aggiornamento",
+    "Taxa de atualização máxima"
+  ],
+  "Mode / output": [
+    "Modalità / uscita",
+    "Modo / saída"
+  ],
+  "Modeled registers; inspecting them does not change device state.": [
+    "Registri modellati; ispezionarli non cambia lo stato del dispositivo.",
+    "Registros modelados; inspecioná-los não altera o estado do dispositivo."
+  ],
+  "Next line": [
+    "Riga successiva",
+    "Próxima linha"
+  ],
+  "No active session": [
+    "Nessuna sessione attiva",
+    "Nenhuma sessão ativa"
+  ],
+  "No automatic connections. Host / Join under View → Local collaboration. Peer limit and port apply to the next session; the batching interval applies immediately.": [
+    "Non ci sono connessioni automatiche. Host / Unisciti a Visualizza → Collaborazione locale. Il limite di peer e la porta si applicano alla sessione successiva; l'intervallo di batching si applica immediatamente.",
+    "Não há conexões automáticas. Anfitrião / Junte-se em Visualizar → Colaboração local. Limite de pares e porto aplicam-se à próxima sessão; o intervalo de lote aplica-se imediatamente."
+  ],
+  "Open component folder": [
+    "Apri cartella componente",
+    "Abrir pasta de componente"
+  ],
+  "Overrun": [
+    "Sovrapporre",
+    "Overrun"
+  ],
+  "Performance": [
+    "Prestazioni",
+    "Desempenho"
+  ],
+  "Pin": [
+    "Pin",
+    "Pin"
+  ],
+  "Pins": [
+    "Perni",
+    "Pins"
+  ],
+  "Pins & nets": [
+    "Pinze e reti",
+    "Pins & redes"
+  ],
+  "Pixel count": [
+    "Conteggio pixel",
+    "Contagem de pixels"
+  ],
+  "Port for new host sessions": [
+    "Porta per nuove sessioni di host",
+    "Porto para novas sessões de acolhimento"
+  ],
+  "Pressure": [
+    "Pressione",
+    "Pressão"
+  ],
+  "RX (hex)": [
+    "RX (hex)",
+    "RX (hex)"
+  ],
+  "Running": [
+    "In esecuzione",
+    "Correr"
+  ],
+  "Running / preparing": [
+    "Esecuzione / preparazione",
+    "Correr/preparar"
+  ],
+  "Save CSV…": [
+    "Salva CSV…",
+    "Salvar CSV…"
+  ],
+  "Save bus traffic": [
+    "Salva il traffico degli autobus",
+    "Salvar o tráfego de ônibus"
+  ],
+  "Save example package": [
+    "Salva pacchetto esempio",
+    "Salvar pacote de exemplo"
+  ],
+  "Save example package…": [
+    "Salva pacchetto esempio…",
+    "Salvar pacote de exemplo…"
+  ],
+  "Session ticket": [
+    "Biglietto di sessione",
+    "Bilhete de sessão"
+  ],
+  "Shortcuts": [
+    "Scorciatoie",
+    "Atalhos"
+  ],
+  "Simulation & Emulation": [
+    "Simulazione ed emulazione",
+    "Simulação & Emulação"
+  ],
+  "Simulation inspector": [
+    "Ispettore della simulazione",
+    "inspetor de simulação"
+  ],
+  "Source": [
+    "Fonte",
+    "Fonte"
+  ],
+  "Source debugger": [
+    "Debug sorgente",
+    "depurador de fonte"
+  ],
+  "Source debugger (optional)": [
+    "Debug sorgente (opzionale)",
+    "Depurador de fonte (opcional)"
+  ],
+  "Status": [
+    "Stato",
+    "Estado"
+  ],
+  "Step into": [
+    "Entra.",
+    "Passo em"
+  ],
+  "Step out": [
+    "Uscite",
+    "Sair"
+  ],
+  "Stop": [
+    "Arresta",
+    "Parar"
+  ],
+  "Stopped": [
+    "Fermato",
+    "Parado"
+  ],
+  "TX (hex)": [
+    "TX (hex)",
+    "TX (hex)"
+  ],
+  "Tab width in spaces": [
+    "Larghezza tabulazioni negli spazi",
+    "Largura do separador nos espaços"
+  ],
+  "Target": [
+    "Obiettivo",
+    "Alvo"
+  ],
+  "Temperature": [
+    "Temperatura",
+    "Temperatura"
+  ],
+  "UART state": [
+    "Stato UART",
+    "Estado UART"
+  ],
+  "Undefined / floating": [
+    "Indefinito / fluttuante",
+    "Indefinido / flutuante"
+  ],
+  "Value": [
+    "Valore",
+    "Valor"
+  ],
+  "Variable": [
+    "Variabile",
+    "Variável"
+  ],
+  "Voltage": [
+    "Tensione",
+    "Tensão"
+  ],
+  "Work together on your local network. Sessions start explicitly; no account. LAN transport is unencrypted. Each participant installs libraries locally.": [
+    "Lavora insieme sulla rete locale. Le sessioni iniziano esplicitamente; nessun account. Il trasporto LAN non è cifrato. Ogni partecipante installa le librerie localmente.",
+    "Trabalhe em conjunto na sua rede local. As sessões começam explicitamente; sem conta. O transporte LAN não está criptografado. Cada participante instala bibliotecas localmente."
+  ],
+  "Wrap long code lines": [
+    "Avvolgi linee di codice lunghe",
+    "Enrole longas linhas de código"
+  ],
+  "Pico: BME280 over I²C": [
+    "Pico: BME280 su I2C",
+    "Pico: BME280 sobre I2C"
+  ],
+  "RP2040 with BME280 on GPIO0/1. Change sensor values in the simulation inspector.": [
+    "RP2040 con BME280 su GPIO0/1. Cambiare i valori dei sensori nell'ispettore di simulazione.",
+    "RP2040 com BME280 no GPIO0/1. Mude os valores do sensor no inspetor de simulação."
+  ],
+  "Acceleration and angular velocity over I²C on GPIO8/9; genuine Adafruit library.": [
+    "Accelerazione e velocità angolare su I2C su GPIO8/9; autentica libreria Adafruit.",
+    "Aceleração e velocidade angular sobre I2C em GPIO8/9; biblioteca Adafruit genuína."
+  ],
+  "HC-SR04: measure distance": [
+    "HC-SR04: distanza di misura",
+    "HC-SR04: medida distância"
+  ],
+  "Uno D2/D3, 5 V. Change distance in the simulation inspector; echo time is measured.": [
+    "Uno D2/D3, 5 V. Cambiare la distanza nell'ispettore di simulazione; si misura il tempo di eco.",
+    "Uno D2/D3, 5 V. Alterar distância no inspetor de simulação; o tempo de eco é medido."
+  ],
+  "WS2812: RGB animation": [
+    "WS2812: animazione RGB",
+    "WS2812: Animação RGB"
+  ],
+  "Eight RGB pixels on Uno D6 and 5 V. Animation with modeled transfer and latch timing.": [
+    "Otto pixel RGB su Uno D6 e 5 V. Animazione con trasferimento modellato e tempo di chiusura.",
+    "Oito pixels RGB em Uno D6 e 5 V. Animação com transferência modelada e cronometragem de trava."
+  ],
+  "UART: two ESP32 boards": [
+    "UART: due schede ESP32",
+    "UART: duas placas ESP32"
+  ],
+  "Two separate sketches with crossed RX/TX wires and common GND.": [
+    "Due sketch separati con fili RX/TX incrociati e GND comune.",
+    "Dois sketch separados com fios RX / TX cruzados e GND comum."
+  ],
+  "The project mode is visible in the status bar. Stop execution before switching. Old projects use Simulation; Emulation adds modeled peripheral registers and bus timing, without MCU instruction emulation.": [
+    "La modalità progetto è visibile nella barra di stato. Interrompere l'esecuzione prima della commutazione. I vecchi progetti usano Simulazione; Emulazione aggiunge registri periferici modellati e tempistiche dei bus, senza l'emulazione delle istruzioni MCU.",
+    "O modo de projeto é visível na barra de status. Pare a execução antes de alternar. Projetos antigos usam Simulação; Emulação adiciona registros periféricos modelados e tempo de ônibus, sem emulação de instrução MCU."
+  ],
+  "View → Source debugger uses local GDB. Click the source gutter for breakpoints, then Debug. Inspect local variables and step through the code; CPU registers belong to the PC.": [
+    "Visualizza → Il debugger sorgente utilizza GDB locale. Fare clic sulla grondaia sorgente per i punti di interruzione, quindi Debug. Ispezionare le variabili locali e passare attraverso il codice; I registri della CPU appartengono al PC.",
+    "Vista → O depurador de fonte usa o GDB local. Clique na calha de origem para pontos de interrupção e, em seguida, Debug. Inspecione as variáveis locais e passe pelo código; os registros da CPU pertencem ao PC."
+  ],
+  "View → Local collaboration starts explicit Host/Join sessions on the LAN. Share the host address, port and ticket. Conflicts preserve local drafts; libraries remain installed separately.": [
+    "Visualizza → La collaborazione locale avvia sessioni host/join esplicite sulla LAN. Condividi l'indirizzo host, la porta e il biglietto. I conflitti conservano le bozze locali; le librerie rimangono installate separatamente.",
+    "→ A colaboração local inicia sessões explícitas de Anfitrião/Juntar-se na LAN. Compartilhe o endereço do host, porto e bilhete. Conflitos preservam rascunhos locais; bibliotecas permanecem instaladas separadamente."
+  ],
+  "View → Simulation inspector shows pins, connected nets, modeled registers and recorded I2C/SPI/UART traffic. Its environment tab changes sensor inputs while running. Closing the tool stops bus recording.": [
+    "Visualizza → L'ispettore della simulazione mostra pin, reti collegate, registri modellati e traffico I2C/SPI/UART registrato. La sua scheda ambiente cambia gli ingressi del sensore durante l'esecuzione.",
+    "→ O inspetor de simulação mostra pinos, redes conectadas, registros modelados e tráfego I2C/SPI/UART gravado. Sua guia de ambiente altera as entradas do sensor durante a execução. Fechar a ferramenta interrompe a gravação do ônibus."
+  ],
+  "Inputs and MIDI": [
+    "Input e MIDI",
+    "Entradas e MIDI"
+  ],
+  "4×4 matrix keypad": [
+    "Tastiera a matrice 4×4",
+    "Teclado 4×4 matriz"
+  ],
+  "25-key keyboard (matrix / MIDI)": [
+    "Tastiera a 25 tasti (matrice / MIDI)",
+    "Teclado de 25 teclas (matrix / MIDI)"
+  ],
+  "Rotary encoder with push button": [
+    "Encoder rotante con pulsante",
+    "Encoder rotativo com botão de pressão"
+  ],
+  "400-contact breadboard · power rails": [
+    "Tabellone a 400 contatti · guide elettriche",
+    "400-contato placa de pão · trilhos de alimentação"
+  ],
+  "Open keys": [
+    "Apri chiavi",
+    "Abrir chaves"
+  ],
+  "Open piano · 88 keys": [
+    "Pianoforte aperto · 88 tasti",
+    "Piano aberto · 88 teclas"
+  ],
+  "Piezo piano · 88 keys": [
+    "Pianoforte Piezo · 88 tasti",
+    "Piano Piezo · 88 teclas"
+  ],
+  "Press a key · A0–C8 · A4 = 440 Hz": [
+    "Premere un tasto · A0 0,03C8 · A4 = 440 Hz",
+    "Prima uma tecla · A0–C8 · A4 = 440 Hz"
+  ],
+  "Unchanged": [
+    "Invariato",
+    "Inalterado"
+  ],
+  "Pass MIDI through": [
+    "Passare MIDI attraverso",
+    "Passe MIDI através"
+  ],
+  "Note → Control Change": [
+    "Nota → Cambio di controllo",
+    "→ Controle Mudança"
+  ],
+  "Target channel (0 = original)": [
+    "Canale di destinazione (0 = originale)",
+    "Canal alvo (0 = original)"
+  ],
+  "Transpose (semitones)": [
+    "Trasferire (semitoni)",
+    "Transpose (semitonos)"
+  ],
+  "Translation": [
+    "Traduzione",
+    "Tradução"
+  ],
+  "CC number": [
+    "Numero CC",
+    "Número CC CC"
+  ],
+  "Translate and send the last MIDI event": [
+    "Tradurre e inviare l'ultimo evento MIDI",
+    "Traduzir e enviar o último evento MIDI"
+  ],
+  "Encoder push button": [
+    "Pulsante pulsante encoder",
+    "Encoder botão"
+  ],
+  "Send MIDI to the sketch serial input": [
+    "Invia MIDI all'ingresso seriale dello sketch",
+    "Enviar MIDI para o sketch de entrada serial"
+  ],
+  "Hold a key to connect its row and column. Use INPUT_PULLUP; without isolation diodes, ghosting is possible.": [
+    "Tieni premuto un tasto per collegare la riga e la colonna. Usa INPUT_PULLUP; senza diodi di isolamento è possibile fare fantasmi.",
+    "Segure uma chave para conectar sua linha e coluna. Use INPUT_PULLUP; sem diodos de isolamento, o ghosting é possível."
+  ],
+  "One click generates four quadrature edges. Read A/B and SW with INPUT_PULLUP; connect GND to board ground.": [
+    "Un click genera quattro bordi di quadratura. Leggere A/B e SW con INPUT_PULLUP; collegare GND a terra.",
+    "Um clique gera quatro arestas de quadratura. Leia A/B e SW com INPUT_PULLUP; conecte o GND ao chão."
+  ],
+  "Keypad: scan a 4×4 matrix": [
+    "Tastierino: scansione di una matrice 4×4",
+    "Teclado: digitalizar uma matriz 4×4"
+  ],
+  "MIDI: 25-key keyboard": [
+    "MIDI: tastiera a 25 tasti",
+    "MIDI: Teclado de 25 teclas"
+  ],
+  "DJ: encoder, fader and MIDI pad": [
+    "DJ: encoder, fader e pad MIDI",
+    "DJ: codificador, fader e MIDI pad"
+  ],
+  "Uno D2–D5: rows; D6–D9: columns. Open the key window and hold a key.": [
+    "Uno D2 0,06D5: righe; D6 0,06D9: colonne. Aprire la finestra e tenere una chiave.",
+    "Uno D2–D5: linhas; D6–D9: colunas. Abra a janela da chave e mantenha uma chave."
+  ],
+  "Electrical 4×8 matrix on D2–D13. Sketch-generated MIDI notes appear in the MIDI tab; direct MIDI injection is unnecessary.": [
+    "Matrice elettrica 4×8 su D2 0,06D13. Le note MIDI generate dallo sketch appaiono nella scheda MIDI; l'iniezione diretta MIDI non è necessaria.",
+    "Matriz elétrica 4×8 em D2–D13. Notas MIDI geradas por sketch aparecem na guia MIDI; injeção MIDI direta é desnecessária."
+  ],
+  "Uno with quadrature encoder, analog fader and button. View and translate MIDI CC and Note On/Off in the MIDI tab.": [
+    "Uno con encoder quadratura, fader analogico e pulsante. Visualizza e traduci MIDI CC e Note On/Off nella scheda MIDI.",
+    "Uno com codificador de quadratura, fader analógico e botão. Visualizar e traduzir MIDI CC e Nota Ligado/Desligado na guia MIDI."
+  ],
+  "Change the value while the simulation runs.": [
+    "Cambiare il valore durante la simulazione.",
+    "Mude o valor enquanto a simulação é executada."
+  ],
+  "Sensors and modules": [
+    "Sensori e moduli",
+    "Sensores e módulos"
+  ],
+  "Sensor module": [
+    "Modulo sensore",
+    "módulo sensor"
+  ],
+  "Changelog…": [
+    "Registro delle modifiche…",
+    "Histórico de alterações…"
+  ],
+  "Changelog": [
+    "Registro delle modifiche",
+    "Histórico de alterações"
+  ],
+  "Changelog unavailable. Please check your installation.": [
+    "Changelog non disponibile. Controllare l'installazione.",
+    "Changelog indisponível. Por favor, verifique sua instalação."
+  ],
+  "Tools": [
+    "Strumenti",
+    "Ferramentas"
+  ],
+  "Application": [
+    "Applicazione",
+    "Aplicativo"
+  ],
+  "All categories": [
+    "Tutte le categorie",
+    "Todas as categorias"
+  ],
+  "%1 of %2 components": [
+    "%1 di %2 componenti",
+    "%1 de %2 componentes"
+  ],
+  "Sketch language": [
+    "Linguaggio dello sketch",
+    "Linguagem do sketch"
+  ],
+  "Search projects…": [
+    "Ricerca progetti…",
+    "Pesquisar projetos…"
+  ],
+  "No matching projects found.": [
+    "Non sono stati trovati progetti corrispondenti.",
+    "Nenhum projeto correspondente encontrado."
+  ],
+  "ThinkCad – circuits, Arduino and MicroPython": [
+    "Circuiti ThinkCad, Arduino e MicroPython",
+    "ThinkCad – circuitos, Arduino e MicroPython"
+  ],
+  "Start a project or open a local circuit, Arduino sketch or MicroPython sketch.": [
+    "Avviare un progetto o aprire un circuito locale, Arduino sketch o MicroPython sketch.",
+    "Inicie um projeto ou abra um circuito local, sketch Arduino ou sketch MicroPython."
+  ],
+  "Python 3 scripts…": [
+    "Script Python 3…",
+    "Scripts Python 3…"
+  ],
+  "Local Python 3 scripts": [
+    "Script Python 3 locali",
+    "Scripts Python 3 locais"
+  ],
+  "General local Python 3 scripts. Run board sketches with GPIO using MicroPython in the editor.": [
+    "Generali script locali Python 3. Eseguire sketch di bordo con GPIO utilizzando MicroPython nell'editor.",
+    "Execute sketch de quadro com GPIO usando MicroPython no editor."
+  ],
+  "Open…": [
+    "Apri…",
+    "Abrir…"
+  ],
+  "Save…": [
+    "Salva…",
+    "Salvar…"
+  ],
+  "Run": [
+    "Esegui",
+    "Executar"
+  ],
+  "Open Python script": [
+    "Apri script Python",
+    "script Open Python"
+  ],
+  "Save Python script": [
+    "Salva script Python",
+    "Gravar script Python"
+  ],
+  "Python finished: %1": [
+    "Python terminato: %1",
+    "Terminado Python:%1"
+  ],
+  "Python file is unreadable or exceeds 2 MiB.": [
+    "Il file Python è illeggibile o supera 2 MiB.",
+    "O arquivo Python é ilegível ou excede 2 MiB."
+  ],
+  "Python output exceeds 1 MiB. Script stopped.": [
+    "L'output del Python supera 1 MiB. Lo script si è fermato.",
+    "A saída do Python excede 1 MiB. O script parou."
+  ],
+  "Python 3 is missing. Choose a Python interpreter in Settings / Editor.": [
+    "Manca Python 3. Scegli un interprete Python in Impostazioni / Editor.",
+    "Escolha um interpretador Python em Configurações / Editor."
+  ],
+  "Python 3 for local scripts": [
+    "Python 3 per gli script locali",
+    "Python 3 para scripts locais"
+  ],
+  "Choose Python interpreter": [
+    "Scegli l'interprete Python",
+    "Escolha o interpretador Python"
+  ],
+  "MicroPython requires an ESP, RP2040 or STM32 board.": [
+    "MicroPython richiede una scheda ESP, RP2040 o STM32.",
+    "MicroPython requer uma placa ESP, RP2040 ou STM32."
+  ],
+  "Export MicroPython files and transfer them to the board using a MicroPython tool.": [
+    "Esporta i file MicroPython e trasferiscili sulla scheda utilizzando uno strumento MicroPython.",
+    "Exporte arquivos MicroPython e transfira-os para a placa usando uma ferramenta MicroPython."
+  ],
+  "MicroPython reports errors with file and line; GDB breakpoints apply to C++.": [
+    "MicroPython segnala errori con file e linee; i breakpoint GDB si applicano al C++.",
+    "MicroPython relata erros com arquivo e linha; Os pontos de interrupção do GDB se aplicam ao C++."
+  ],
+  "File name (.ino, .h, .cpp or .py)": [
+    "Nome file (.ino, .h, .cpp o .py)",
+    "Nome do ficheiro (.ino, .h, .cpp ou .py)"
+  ],
+  "Export sketch": [
+    "Esporta sketch",
+    "sketch de exportação"
+  ],
+  "Export sketch…": [
+    "Esporta sketch…",
+    "Exportar sketch…"
+  ],
+  "Save the script before continuing?": [
+    "Salvare lo script prima di continuare?",
+    "Salvar o script antes de continuar?"
+  ]
+}

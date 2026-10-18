@@ -37,3 +37,16 @@ QString AppPaths::debugger(){
     if(QFileInfo(compilerPath).isAbsolute()&&QFileInfo::exists(bundled))return bundled;
     return QStandardPaths::findExecutable("gdb");
 }
+
+QString AppPaths::microPython(){return QCoreApplication::applicationDirPath()+"/thinkcad-micropython"
+#ifdef Q_OS_WIN
+    ".exe"
+#endif
+    ;}
+QString AppPaths::python(){
+    const auto configured=QSettings().value("pythonExecutable").toString().trimmed();if(!configured.isEmpty())return configured;
+#ifdef Q_OS_WIN
+    const auto bundled=QCoreApplication::applicationDirPath()+"/python/python.exe";if(QFileInfo::exists(bundled))return bundled;
+#endif
+    auto executable=QStandardPaths::findExecutable("python3");if(executable.isEmpty())executable=QStandardPaths::findExecutable("python");return executable;
+}

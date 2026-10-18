@@ -5,10 +5,13 @@
 #include <QSet>
 struct SketchProject {
     QString name="sketch",sourceFolder;
+    QString language="arduino";
     QStringList order;
     QMap<QString,QString> files;
     QMap<QString,QSet<int>> breakpoints;
     static SketchProject openIno(const QString& path);
+    static SketchProject openPython(const QString& path);
+    QString entryPoint() const;
     QString combinedSource() const;
     QMap<QString,QString> auxiliaryFiles() const;
 };
