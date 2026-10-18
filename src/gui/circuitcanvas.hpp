@@ -1,6 +1,8 @@
 #pragma once
 #include "thinkercad/circuit.hpp"
 #include "projectio.hpp"
+#include "thinkercad/nettopology.hpp"
+#include <memory>
 #include <QGraphicsView>
 #include <QUndoStack>
 #include <functional>
@@ -30,6 +32,11 @@ public:
     void alignSelected(bool horizontal);
     void distributeSelected(bool horizontal);
     void highlightNet(const thinkercad::Endpoint& endpoint);
+    void previewNet(const thinkercad::Endpoint& endpoint);
+    void clearNetPreview();
+    void selectTarget(const thinkercad::Endpoint& endpoint,const std::string& wire={});
+    const thinkercad::NetTopology& topology()const;
+
     void setGrid(double size,bool snap){gridSize_=size;snap_=snap;viewport()->update();}
     QPointF snapped(QPointF position)const;
     void branchWire(const std::string& id,QPointF position);
@@ -77,6 +84,10 @@ protected:
     void drawBackground(QPainter* painter,const QRectF& rect) override;
 private:
     thinkercad::CircuitDocument& document_;
+    mutable std::unique_ptr<thinkercad::NetTopology> topology_;
+    mutable std::string topologySignature_;
+    std::vector<QGraphicsPathItem*> netOverlays_;
+
     QUndoStack history_;
     std::map<std::string,PartItem*> parts_;
     std::optional<thinkercad::Endpoint> wireStart_;

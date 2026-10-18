@@ -1,13 +1,14 @@
 #include "language.hpp"
 #include "examples.hpp"
 #include "moduleexamples.hpp"
+#include "starterprojects.hpp"
 #include "paths.hpp"
 #include <QCoreApplication>
 #include <QFile>
 #include <stdexcept>
 #include <algorithm>
 using namespace thinkercad;
-QList<CircuitExample> ExampleCatalog::entries(){return {
+QList<CircuitExample> ExampleCatalog::entries(){QList<CircuitExample> values{
     {"pico_bme280",Language::text("Pico: BME280 über I²C"),Language::text("RP2040 mit BME280 an GPIO0/1. Sensorwerte im Simulationsinspektor ändern.")},
     {"s3_mpu6050","ESP32-S3: MPU6050",Language::text("Beschleunigung und Drehrate über I²C an GPIO8/9; echte Adafruit-Bibliothek.")},
     {"ultrasonic_distance",Language::text("HC-SR04: Abstand messen"),Language::text("Uno D2/D3, 5 V. Distanz im Simulationsinspektor verändern; Echozeit wird gemessen.")},
@@ -42,8 +43,9 @@ QList<CircuitExample> ExampleCatalog::entries(){return {
     {"esp32_s3_adc","ESP32-S3: ADC",Language::text("12-Bit-ADC an A0/GPIO1. Eine Quelle mit 1,65 V schaltet die LED an GPIO5 ein.")},
     {"oled_text_32",Language::text("OLED-Text 128×32"),Language::text("setCursor, setTextColor und Textgröße auf einem korrekt verkabelten 128×32-SSD1306.")},
     {"two_oleds",Language::text("Zwei OLEDs am I²C-Bus"),Language::text("Zwei Displays teilen D2/SDA und D1/SCL. Adressen 0x3C und 0x3D; Flash-Bitmaps bewegen sich gegenläufig.")}
-};}
+};values.append(StarterProjects::entries());return values;}
 SavedProject ExampleCatalog::create(const QString& id){
+    if(id.startsWith("starter_"))return StarterProjects::create(id);
     const auto entries=ExampleCatalog::entries();if(std::none_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.id==id;}))throw std::invalid_argument("Unbekanntes Beispiel.");
     QFile file(AppPaths::examples()+"/"+id+".ino");if(!file.open(QIODevice::ReadOnly))throw std::runtime_error(Language::text("Beispieldatei fehlt. Installation überprüfen.").toStdString());
     SavedProject result;auto& doc=result.circuit;result.sketch.name=id;result.sketch.order={id+".ino"};result.sketch.files[id+".ino"]=QString::fromUtf8(file.readAll());

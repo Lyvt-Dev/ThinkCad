@@ -1,11 +1,13 @@
 #pragma once
 #include "thinkercad/circuit.hpp"
 #include <QMap>
+#include <QJsonObject>
 #include <QString>
 #include <QSet>
 struct SketchProject {
     QString name="sketch",sourceFolder;
     QString language="arduino";
+    QJsonObject visual; // Opaque preserved metadata; BlockPersistence validates before editing.
     QStringList order;
     QMap<QString,QString> files;
     QMap<QString,QSet<int>> breakpoints;

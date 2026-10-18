@@ -19,6 +19,9 @@
 #include "motion.hpp"
 #include <QStyleOptionGraphicsItem>
 #include "circuitcanvas.hpp"
+#include "thinkercad/diagnostics.hpp"
+#include "wiringgeometry.hpp"
+#include <QMessageBox>
 #include "thinkercad/modules.hpp"
 #include <QGraphicsEllipseItem>
 #include <QGraphicsScene>
@@ -122,7 +125,7 @@ public:
         else description=Language::text("Anschluss")+" "+pin;
         setToolTip(pin+" — "+description+"\n"+QString::fromStdString(componentSpec(part.kind).label)+" · "+QString::fromStdString(part.id)+"\n"+Language::text("Zum Verbinden klicken"));}
     void paint(QPainter* painter,const QStyleOptionGraphicsItem* option,QWidget* widget)override{
-        if(!realistic_){QGraphicsEllipseItem::paint(painter,option,widget);return;}
+        if(!realistic_){QGraphicsEllipseItem::paint(painter,option,widget);if(data(3).toBool()){painter->setPen(QPen(QColor("#14b8a6"),2));painter->setBrush(Qt::NoBrush);painter->drawEllipse(rect().adjusted(-2,-2,2,2));}return;}
         const auto kind=canvas_->document().part(endpoint_.part).kind;
         const bool board=kind==PartKind::Esp8266||kind==PartKind::Oled;
         painter->setPen(QPen(board?QColor("#c7ad6d"):QColor("#929da4"),1.2));
@@ -130,6 +133,8 @@ public:
         painter->setPen(Qt::NoPen);const bool seated=std::any_of(canvas_->document().wires().begin(),canvas_->document().wires().end(),[&](const auto& w){return w.direct&&(w.a==endpoint_||w.b==endpoint_);});painter->setBrush(QColor(seated?"#16c9a8":"#202830"));painter->drawEllipse(QRectF(-2,-2,4,4));
         if((option->state&QStyle::State_MouseOver)||data(3).toBool()){painter->setPen(QPen(QColor("#14b8a6"),2));painter->setBrush(Qt::NoBrush);painter->drawEllipse(QRectF(-6,-6,12,12));}
     }
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* e)override{canvas_->previewNet(endpoint_);QGraphicsEllipseItem::hoverEnterEvent(e);}
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* e)override{canvas_->clearNetPreview();QGraphicsEllipseItem::hoverLeaveEvent(e);}
     const Endpoint& endpoint()const{return endpoint_;}
     void mousePressEvent(QGraphicsSceneMouseEvent* e)override{if(e->button()==Qt::LeftButton){canvas_->connectPin(endpoint_);e->accept();}else QGraphicsEllipseItem::mousePressEvent(e);}
 };
@@ -264,6 +269,8 @@ void CircuitCanvas::applyDocument(const CircuitDocument& doc){
     emit documentChanged();
 }
 void CircuitCanvas::rebuild(){
+    netOverlays_.clear();const auto signature=NetTopology::signature(document_);if(signature!=topologySignature_){topology_.reset();topologySignature_=signature;}
+
     for(auto* animation:findChildren<QVariantAnimation*>("assemblyMotion")){animation->stop();delete animation;}
     QSignalBlocker sceneSignals(scene());clearPlacementPreview();cancelWire();
     std::set<std::string> selectedParts,selectedWires;
@@ -312,8 +319,13 @@ void CircuitCanvas::setEditingEnabled(bool enabled){
 }
 void CircuitCanvas::setWireMode(bool enabled){wireMode_=enabled;cancelWire();setDragMode(enabled||!editingEnabled_?NoDrag:RubberBandDrag);for(auto& [id,item]:parts_){(void)id;item->setFlag(QGraphicsItem::ItemIsMovable,editingEnabled_&&!enabled);}}
 QPointF CircuitCanvas::pinPosition(const Endpoint& ep)const{return parts_.at(ep.part)->mapToScene(localPin(document_.part(ep.part),ep.pin));}
-void CircuitCanvas::connectPin(const Endpoint& pin){if(!editingEnabled_){emit notice(Language::text("Simulation zuerst stoppen, um Kabel zu ändern."));return;}if(!wireStart_){wireStart_=pin;preview_=scene()->addPath(wirePath(pinPosition(pin),pinPosition(pin)),QPen(wireColor_,2,Qt::DashLine));preview_->setZValue(21);emit notice(Language::text("Zielpin anklicken. Esc bricht das Kabel ab."));return;}const auto a=*wireStart_;const auto bends=pendingBends_;cancelWire();if(a==pin)return;const auto color=wireColor_.name().toStdString();QTimer::singleShot(0,this,[this,a,pin,color,bends]{mutate(Language::text("Kabel verbinden"),[&](auto& doc){doc.connect(a,pin,color);const_cast<CircuitWire&>(doc.wires().back()).points=bends;});});}
-void CircuitCanvas::cancelWire(){wireStart_.reset();pendingBends_.clear();if(preview_){scene()->removeItem(preview_);delete preview_;preview_=nullptr;}}
+void CircuitCanvas::connectPin(const Endpoint& pin){if(!editingEnabled_){emit notice(Language::text("Simulation zuerst stoppen, um Kabel zu ändern."));return;}if(!wireStart_){wireStart_=pin;preview_=scene()->addPath(wirePath(pinPosition(pin),pinPosition(pin)),QPen(wireColor_,2,Qt::DashLine));preview_->setZValue(21);emit notice(Language::text("Zielpin anklicken. Esc bricht das Kabel ab."));return;}const auto a=*wireStart_;const auto bends=pendingBends_;cancelWire();if(a==pin)return;
+    for(const auto& w:document_.wires())if((w.a==a&&w.b==pin)||(w.b==a&&w.a==pin)){emit notice(Language::text("Dieses Kabel ist bereits vorhanden."));return;}
+    auto candidate=document_;candidate.connect(a,pin);std::map<std::string,Esp8266Board> idle;std::map<std::string,const Esp8266Board*> boards;for(const auto& part:candidate.parts())if(part.kind==PartKind::Esp8266){idle[part.id].configure(part.model);boards[part.id]=&idle.at(part.id);}
+    const auto issues=DiagnosticEngine::analyze(candidate,NetTopology(candidate),{},boards);if(std::any_of(issues.begin(),issues.end(),[](const auto& issue){return issue.rule=="driver-conflict"||issue.rule=="source-short";})&&QMessageBox::warning(this,Language::text("Elektrischer Konflikt"),Language::text("Diese Verbindung verbindet widersprüchliche Versorgungen. Trotzdem verbinden?"),QMessageBox::Yes|QMessageBox::No,QMessageBox::No)!=QMessageBox::Yes)return;
+std::vector<QPointF> candidateRoute{pinPosition(a)};for(const auto& bend:bends)candidateRoute.emplace_back(bend.x,bend.y);candidateRoute.push_back(pinPosition(pin));bool overlap=false;for(const auto& existing:document_.wires()){if(existing.direct)continue;std::vector<QPointF> route{pinPosition(existing.a)};for(const auto& bend:existing.points)route.emplace_back(bend.x,bend.y);route.push_back(pinPosition(existing.b));for(std::size_t i=1;i<candidateRoute.size()&&!overlap;++i)for(std::size_t j=1;j<route.size();++j)if(overlappingSegments(QLineF(candidateRoute[i-1],candidateRoute[i]),QLineF(route[j-1],route[j]))){overlap=true;break;}}if(overlap&&QMessageBox::warning(this,Language::text("Überlappende Kabel"),Language::text("Kabel überdecken sich teilweise. Eine Überdeckung verbindet keine Netze. Trotzdem verlegen?"),QMessageBox::Yes|QMessageBox::No,QMessageBox::No)!=QMessageBox::Yes)return;
+    const auto color=wireColor_.name().toStdString();QTimer::singleShot(0,this,[this,a,pin,color,bends]{mutate(Language::text("Kabel verbinden"),[&](auto& doc){doc.connect(a,pin,color);const_cast<CircuitWire&>(doc.wires().back()).points=bends;});});}
+void CircuitCanvas::cancelWire(){clearNetPreview();wireStart_.reset();pendingBends_.clear();if(preview_){scene()->removeItem(preview_);delete preview_;preview_=nullptr;}}
 void CircuitCanvas::addPart(PartKind kind){const auto pos=mapToScene(viewport()->rect().center());mutate(Language::text("Bauteil hinzufügen"),[&](auto& doc){doc.addPart(kind,pos.x()-70,pos.y()-50);});}
 void CircuitCanvas::removeSelected(){std::vector<std::pair<QString,QString>> selected;for(auto* item:scene()->selectedItems())selected.emplace_back(item->data(0).toString(),item->data(1).toString());mutate(Language::text("Auswahl löschen"),[&](auto& doc){for(const auto& [kind,id]:selected)if(kind=="wire")doc.removeWire(id.toStdString());for(const auto& [kind,id]:selected)if(kind=="part")doc.removePart(id.toStdString());});}
 void CircuitCanvas::rotateSelected(){
@@ -401,7 +413,17 @@ void CircuitCanvas::paste(){
 void CircuitCanvas::duplicateSelected(){copySelected();paste();}
 void CircuitCanvas::alignSelected(bool horizontal){std::vector<std::string> ids;for(auto* item:scene()->selectedItems())if(item->data(0)=="part")ids.push_back(item->data(1).toString().toStdString());if(ids.size()<2)return;mutate(Language::text("Bauteile ausrichten"),[&](auto& doc){double sum=0;for(const auto& id:ids)sum+=horizontal?doc.part(id).y:doc.part(id).x;const double target=sum/ids.size();for(const auto& id:ids){if(horizontal)doc.part(id).y=target;else doc.part(id).x=target;}});}
 void CircuitCanvas::distributeSelected(bool horizontal){std::vector<std::string> ids;for(auto* item:scene()->selectedItems())if(item->data(0)=="part")ids.push_back(item->data(1).toString().toStdString());if(ids.size()<3)return;auto coordinate=[&](const std::string& id){return horizontal?document_.part(id).x:document_.part(id).y;};std::sort(ids.begin(),ids.end(),[&](const auto& a,const auto& b){return coordinate(a)<coordinate(b);});const double start=coordinate(ids.front()),step=(coordinate(ids.back())-start)/(ids.size()-1);mutate(Language::text("Bauteile verteilen"),[&](auto& doc){for(std::size_t i=0;i<ids.size();++i){if(horizontal)doc.part(ids[i]).x=start+i*step;else doc.part(ids[i]).y=start+i*step;}});}
-void CircuitCanvas::highlightNet(const Endpoint& ep){scene()->clearSelection();for(auto* item:scene()->items())if(item->data(0)=="wire"){auto id=item->data(1).toString().toStdString();for(const auto& wire:document_.wires())if(wire.id==id&&document_.connected(ep,wire.a))item->setSelected(true);}}
+const NetTopology& CircuitCanvas::topology()const{const auto signature=NetTopology::signature(document_);if(!topology_||signature!=topologySignature_){topology_=std::make_unique<NetTopology>(document_);topologySignature_=signature;}return *topology_;}
+void CircuitCanvas::clearNetPreview(){for(auto* item:netOverlays_){scene()->removeItem(item);delete item;}netOverlays_.clear();for(auto* item:scene()->items())if(dynamic_cast<PinItem*>(item)){item->setData(3,false);item->update();}}
+void CircuitCanvas::previewNet(const Endpoint& ep){
+    clearNetPreview();const auto& net=topology();if(!net.contains(ep))return;
+    const auto members=wireStart_?net.preview(*wireStart_,ep):net.members(ep);std::set<Endpoint> joined(members.begin(),members.end());bool conflict=false;if(wireStart_){for(const auto& part:document_.parts()){if(part.kind==PartKind::Esp8266)conflict|=joined.contains({part.id,"GND"})&&(joined.contains({part.id,"3V3"})||joined.contains({part.id,"5V"}));if(part.kind==PartKind::BatteryAA||part.kind==PartKind::Battery3V||part.kind==PartKind::Battery9V||part.kind==PartKind::PowerSupply)conflict|=joined.contains({part.id,"+"})&&joined.contains({part.id,"-"});}if(conflict)emit notice(Language::text("Vorschau: möglicher Versorgungskurzschluss."));else if(net.connected(*wireStart_,ep))emit notice(Language::text("Diese Anschlüsse sind bereits elektrisch verbunden."));}
+    for(auto* item:scene()->items())if(auto* pin=dynamic_cast<PinItem*>(item)){pin->setData(3,joined.contains(pin->endpoint()));pin->update();}
+    for(const auto& wire:document_.wires())if(!wire.direct&&joined.contains(wire.a)){auto* item=scene()->addPath(routedWire(wire),QPen(QColor(conflict?"#dc3545":"#14b8a6"),4,Qt::DashLine));item->setAcceptedMouseButtons(Qt::NoButton);item->setZValue(20);item->setData(0,"netPreview");netOverlays_.push_back(item);}
+}
+void CircuitCanvas::highlightNet(const Endpoint& ep){previewNet(ep);}
+void CircuitCanvas::selectTarget(const Endpoint& ep,const std::string& wire){scene()->clearSelection();if(parts_.contains(ep.part)){auto* item=parts_.at(ep.part);item->setSelected(true);ensureVisible(item,60,60);}if(!ep.pin.empty()&&topology().contains(ep))previewNet(ep);if(!wire.empty())for(auto* item:scene()->items())if(item->data(0)=="wire"&&item->data(1).toString().toStdString()==wire){item->setSelected(true);ensureVisible(item);}}
+
 void CircuitCanvas::branchWire(const std::string& id,QPointF pos){
     std::string junction;mutate(Language::text("Abzweigung erstellen"),[&](auto& doc){auto it=std::find_if(doc.wires().begin(),doc.wires().end(),[&](const auto& w){return w.id==id;});if(it==doc.wires().end())throw std::runtime_error("Unknown wire");auto old=*it;std::vector<QPointF> path{pinPosition(old.a)};for(const auto& b:old.points)path.push_back({b.x,b.y});path.push_back(pinPosition(old.b));double best=1e100;std::size_t index=0;QPointF projection;
         for(std::size_t i=0;i+1<path.size();++i){auto delta=path[i+1]-path[i];double length=QPointF::dotProduct(delta,delta);double t=length?std::clamp(QPointF::dotProduct(pos-path[i],delta)/length,0.0,1.0):0;auto point=path[i]+delta*t;double distance=QLineF(point,pos).length();if(distance<best){best=distance;index=i;projection=point;}}

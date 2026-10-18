@@ -20,6 +20,7 @@ COMMON_DEPEND="
  >=dev-qt/qtbase-6.11:6[gui,network,ssl,widgets]
  >=dev-qt/qtmultimedia-6.11:6
  >=dev-qt/qtserialport-6.11:6
+ >=dev-qt/qtsvg-6.11:6
  X? ( dev-qt/qtbase:6[X] )
  wayland? ( dev-qt/qtbase:6[wayland] )
  virtual/zlib:="

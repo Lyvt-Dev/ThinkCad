@@ -13,7 +13,7 @@ getuto
 mkdir -p /etc/portage/package.use
 printf 'sys-libs/zlib minizip\n' > /etc/portage/package.use/thinkcad-audio
 # Dependencies must come from signed Gentoo binary packages; the app is compiled below.
-emerge --getbinpkgonly --binpkg-respect-use=y --backtrack=100 --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase dev-qt/qtmultimedia virtual/zlib media-fonts/dejavu dev-debug/gdb dev-lang/python:3.13
+emerge --getbinpkgonly --binpkg-respect-use=y --backtrack=100 --oneshot dev-build/cmake dev-build/ninja dev-qt/qtbase dev-qt/qtmultimedia dev-qt/qtsvg virtual/zlib media-fonts/dejavu dev-debug/gdb dev-lang/python:3.13
 version=$(sed -n 's/project(ThinkCad VERSION \([0-9.]*\).*/\1/p' /src/CMakeLists.txt)
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 # QtSerialPort is not always available on the signed binary server. Build this
