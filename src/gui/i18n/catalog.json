@@ -5758,5 +5758,59 @@
     "Блоки, дошка для хліба і розмір...",
     "Bloques, panecillo y medidas...",
     "Blocs, planche à pain et mesure..."
+  ],
+  "Quack assistant": [
+    "Кряк-помощник",
+    "Кряк-помічник",
+    "Asistente cuac",
+    "Assistant coin-coin"
+  ],
+  "Show location": [
+    "Показать место",
+    "Показати місце",
+    "Mostrar ubicación",
+    "Afficher l’emplacement"
+  ],
+  "Next hint": [
+    "Следующая подсказка",
+    "Наступна підказка",
+    "Siguiente pista",
+    "Conseil suivant"
+  ],
+  "Quack! Let’s take a look:": [
+    "Кря! Давайте посмотрим:",
+    "Кря! Розгляньмо це:",
+    "¡Cuac! Veamos:",
+    "Coin-coin ! Regardons cela :"
+  ],
+  "Quack! There are no diagnostic messages in this view. This is no guarantee for real hardware.": [
+    "Кря! В этом представлении нет диагностических сообщений. Это не гарантия для реального оборудования.",
+    "Кря! У цьому поданні немає діагностичних повідомлень. Це не гарантія для справжнього обладнання.",
+    "¡Cuac! No hay mensajes de diagnóstico en esta vista. Esto no es una garantía para el hardware real.",
+    "Coin-coin ! Aucun message de diagnostic dans cette vue. Cela ne garantit pas le fonctionnement du matériel réel."
+  ],
+  "Diagnostic duck": [
+    "Диагностическая уточка",
+    "Діагностична качечка",
+    "Pato de diagnóstico",
+    "Canard de diagnostic"
+  ],
+  "Error": [
+    "Ошибка",
+    "Помилка",
+    "Error",
+    "Erreur"
+  ],
+  "Warning": [
+    "Предупреждение",
+    "Попередження",
+    "Advertencia",
+    "Avertissement"
+  ],
+  "Information": [
+    "Информация",
+    "Інформація",
+    "Información",
+    "Information"
   ]
 }

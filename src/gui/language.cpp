@@ -19,6 +19,17 @@
 static void initializeLanguageResources(){Q_INIT_RESOURCE(thinkcad_translations);}
 namespace {
 const QMap<QString,QString>& translations(){static const QMap<QString,QString> values{
+    {"Fehler","Error"},
+    {"Warnung","Warning"},
+    {"Hinweis","Information"},
+
+    {"Quak-Assistent","Quack assistant"},
+    {"Stelle zeigen","Show location"},
+    {"Nächster Hinweis","Next hint"},
+    {"Quak! Schauen wir uns das an:","Quack! Let’s take a look:"},
+    {"Quak! In dieser Ansicht gibt es keine Diagnosemeldungen. Das ist keine Garantie für echte Hardware.","Quack! There are no diagnostic messages in this view. This is no guarantee for real hardware."},
+    {"Diagnose-Ente","Diagnostic duck"},
+
     {"Blöcke, Breadboard und Messungen","Blocks, breadboard and measurement"},
     {"Blöcke, Breadboard und Messungen…","Blocks, breadboard and measurement…"},
     {"Dokumentation konnte nicht geöffnet werden.","Could not open documentation."},

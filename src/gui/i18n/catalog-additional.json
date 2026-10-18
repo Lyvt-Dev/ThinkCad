@@ -3838,5 +3838,41 @@
   "Blocks, breadboard and measurement…": [
     "Blocchi, panettiere e misure...",
     "Blocos, tábua de pão e medida..."
+  ],
+  "Quack assistant": [
+    "Assistente qua qua",
+    "Assistente quá quá"
+  ],
+  "Show location": [
+    "Mostra posizione",
+    "Mostrar localização"
+  ],
+  "Next hint": [
+    "Suggerimento successivo",
+    "Próxima dica"
+  ],
+  "Quack! Let’s take a look:": [
+    "Qua qua! Diamo un’occhiata:",
+    "Quá quá! Vamos ver:"
+  ],
+  "Quack! There are no diagnostic messages in this view. This is no guarantee for real hardware.": [
+    "Qua qua! Nessun messaggio diagnostico in questa vista. Questo non garantisce il funzionamento dell’hardware reale.",
+    "Quá quá! Não há mensagens de diagnóstico nesta vista. Isto não garante o funcionamento do hardware real."
+  ],
+  "Diagnostic duck": [
+    "Anatra diagnostica",
+    "Pato de diagnóstico"
+  ],
+  "Error": [
+    "Errore",
+    "Erro"
+  ],
+  "Warning": [
+    "Avviso",
+    "Aviso"
+  ],
+  "Information": [
+    "Informazione",
+    "Informação"
   ]
 }
