@@ -369,7 +369,9 @@ void Updater::verifyDownload(const QString &path, const QString &v) {
             failure(t("Buildnachweis ungültig. Keine Installation."),
                     t("Repository, Workflow, Branch oder Quellcommit stimmen nicht überein, oder der "
                       "Verifizierer konnte nicht ausgeführt werden. Update erneut laden oder Installation "
-                      "reparieren."));
+                      "reparieren.") +
+                        "\nVerifier exit: " + QString::number(check->exitCode()) + "\n" +
+                        QString::fromUtf8(check->readAllStandardError()).left(4096));
             return;
         }
         installer_ = path;

@@ -20,6 +20,14 @@ QString t(const char *s) {
     return Language::text(QString::fromUtf8(s));
 }
 } // namespace
+namespace {
+class ReleaseNotesBrowser final : public QTextBrowser {
+  protected:
+    QVariant loadResource(int, const QUrl &) override {
+        return {};
+    }
+};
+} // namespace
 UpdateDialog::UpdateDialog(Updater &u, QWidget *p) : QDialog(p), updater_(u) {
     setObjectName("updateDialog");
     setWindowTitle(t("ThinkCad aktualisieren"));
@@ -45,7 +53,7 @@ UpdateDialog::UpdateDialog(Updater &u, QWidget *p) : QDialog(p), updater_(u) {
     security_->setTextFormat(Qt::PlainText);
     security_->setWordWrap(true);
     layout->addWidget(security_);
-    notes_ = new QTextBrowser;
+    notes_ = new ReleaseNotesBrowser;
     notes_->setObjectName("updateReleaseNotes");
     notes_->setPlaceholderText(t("Noch nicht geprüft"));
     notes_->setOpenExternalLinks(false);
