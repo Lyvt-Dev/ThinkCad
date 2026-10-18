@@ -358,7 +358,7 @@ private slots:
         for(auto it=catalog.begin();it!=catalog.end();++it){const auto row=it.value().toArray();QCOMPARE(row.size(),4);for(const auto& text:row){QVERIFY(!text.toString().isEmpty());for(int placeholder=1;placeholder<=9;++placeholder){const auto token="%"+QString::number(placeholder);QCOMPARE(text.toString().count(token),it.key().count(token));}}}
     }
     void sixLanguagesSwitchAndPersist(){
-        MainWindow window;window.show();auto* selector=window.findChild<QComboBox*>("languageSelector");QCOMPARE(selector->count(),6);
+        MainWindow window;window.show();auto* selector=window.findChild<QComboBox*>("languageSelector");QCOMPARE(selector->count(),8);
         const QStringList codes{"ru","uk","es","fr","en","de"};
         const QStringList labels{"Мои проекты","Мої проєкти","Mis proyectos","Mes projets","My projects","Meine Projekte"};
         for(int i=0;i<codes.size();++i){selector->setCurrentIndex(selector->findData(codes[i]));QCOMPARE(Language::current(),codes[i]);QCOMPARE(window.findChild<QPushButton*>("homeNavigation")->text(),labels[i]);QCOMPARE(QSettings().value("language").toString(),codes[i]);}

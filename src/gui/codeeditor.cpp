@@ -17,6 +17,14 @@ class CppColors final:public QSyntaxHighlighter{
 public:explicit CppColors(QTextDocument* d):QSyntaxHighlighter(d){}
 protected:void highlightBlock(const QString& text)override{
     auto apply=[&](const QString& pattern,const QColor& color){QTextCharFormat f;f.setForeground(qApp->property("darkMode").toBool()?color.lighter(150):color);auto m=QRegularExpression(pattern).globalMatch(text);while(m.hasNext()){auto found=m.next();setFormat(found.capturedStart(),found.capturedLength(),f);}};
+    if(document()->property("language").toString()=="python"){
+        apply("\\b(?:def|class|import|from|as|return|if|elif|else|for|while|in|is|not|and|or|try|except|finally|raise|with|pass|break|continue|lambda|global|nonlocal|yield|async|await|True|False|None)\\b",QColor("#7854b9"));
+        apply("\\b(?:Pin|PWM|ADC|I2C|SPI|UART|print|range|len|bytes|bytearray|sleep|sleep_ms|sleep_us)\\b",QColor("#0d9488"));
+        apply("\\b(?:0[xX][0-9a-fA-F]+|0[bB][01]+|[0-9]+(?:\\.[0-9]+)?)\\b",QColor("#b46b16"));
+        const QRegularExpression tokens("('(?:\\\\.|[^'\\\\])*'|\"(?:\\\\.|[^\"\\\\])*\")|(#.*)");auto matches=tokens.globalMatch(text);
+        while(matches.hasNext()){const auto token=matches.next();QTextCharFormat format;const QColor color=token.captured(2).isEmpty()?QColor("#39749b"):QColor("#8a97a9");format.setForeground(qApp->property("darkMode").toBool()?color.lighter(150):color);setFormat(token.capturedStart(),token.capturedLength(),format);}
+        setCurrentBlockState(0);return;
+    }
     apply("\\b(?:void|bool|char|int|long|short|unsigned|const|static|struct|class|return|if|else|for|while|switch|case|break|continue|auto|template|typename|true|false|uint8_t|uint16_t|uint32_t)\\b",QColor("#7854b9"));
     apply("\\b(?:setup|loop|pinMode|digitalWrite|digitalRead|analogRead|delay|millis|micros|HIGH|LOW|INPUT|OUTPUT|INPUT_PULLUP|PROGMEM|Wire|Serial)\\b",QColor("#0d9488"));
     apply("\\b(?:0x[0-9a-fA-F]+|[0-9]+(?:\\.[0-9]+)?)\\b",QColor("#b46b16"));apply("\"(?:\\\\.|[^\"\\\\])*\"",QColor("#39749b"));apply("^\\s*#.*",QColor("#526a87"));apply("//.*",QColor("#8a97a9"));

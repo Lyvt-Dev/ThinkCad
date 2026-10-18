@@ -4246,5 +4246,203 @@
     "Сенсорний модуль",
     "Módulo sensor",
     "Module capteur"
+  ],
+  "Changelog…": [
+    "История изменений…",
+    "Історія змін…",
+    "Historial de cambios…",
+    "Historique des modifications…"
+  ],
+  "Changelog": [
+    "История изменений",
+    "Історія змін",
+    "Historial de cambios",
+    "Historique des modifications"
+  ],
+  "Changelog unavailable. Please check your installation.": [
+    "История изменений недоступна. Проверьте установку.",
+    "Історія змін недоступна. Перевірте встановлення.",
+    "El historial de cambios no está disponible. Comprueba la instalación.",
+    "Historique des modifications indisponible. Vérifiez votre installation."
+  ],
+  "Tools": [
+    "Инструменты",
+    "Інструменти",
+    "Herramientas",
+    "Outils"
+  ],
+  "Application": [
+    "Приложение",
+    "Застосунок",
+    "Aplicación",
+    "Application"
+  ],
+  "All categories": [
+    "Все категории",
+    "Усі категорії",
+    "Todas las categorías",
+    "Toutes les catégories"
+  ],
+  "%1 of %2 components": [
+    "%1 из %2 компонентов",
+    "%1 із %2 компонентів",
+    "%1 de %2 componentes",
+    "%1 composants sur %2"
+  ],
+  "Sketch language": [
+    "Язык скетча",
+    "Мова скетчу",
+    "Lenguaje del sketch",
+    "Langage du sketch"
+  ],
+  "Search projects…": [
+    "Поиск проектов…",
+    "Пошук проєктів…",
+    "Buscar proyectos…",
+    "Rechercher des projets…"
+  ],
+  "No matching projects found.": [
+    "Подходящих проектов не найдено.",
+    "Відповідних проєктів не знайдено.",
+    "No se encontraron proyectos coincidentes.",
+    "Aucun projet correspondant trouvé."
+  ],
+  "ThinkCad – circuits, Arduino and MicroPython": [
+    "ThinkCad — схемы, Arduino и MicroPython",
+    "ThinkCad — схеми, Arduino та MicroPython",
+    "ThinkCad: circuitos, Arduino y MicroPython",
+    "ThinkCad — circuits, Arduino et MicroPython"
+  ],
+  "Start a project or open a local circuit, Arduino sketch or MicroPython sketch.": [
+    "Создайте проект или откройте локальную схему, скетч Arduino или MicroPython.",
+    "Створіть проєкт або відкрийте локальну схему, скетч Arduino чи MicroPython.",
+    "Crea un proyecto o abre un circuito local, un sketch de Arduino o de MicroPython.",
+    "Créez un projet ou ouvrez un circuit local, un sketch Arduino ou MicroPython."
+  ],
+  "Python 3 scripts…": [
+    "Скрипты Python 3…",
+    "Скрипти Python 3…",
+    "Scripts de Python 3…",
+    "Scripts Python 3…"
+  ],
+  "Local Python 3 scripts": [
+    "Локальные скрипты Python 3",
+    "Локальні скрипти Python 3",
+    "Scripts locales de Python 3",
+    "Scripts Python 3 locaux"
+  ],
+  "General local Python 3 scripts. Run board sketches with GPIO using MicroPython in the editor.": [
+    "Обычные локальные скрипты Python 3. Скетчи плат с GPIO запускаются через MicroPython в редакторе.",
+    "Звичайні локальні скрипти Python 3. Скетчі плат із GPIO запускаються через MicroPython у редакторі.",
+    "Scripts locales generales de Python 3. Ejecuta los sketches de placas con GPIO mediante MicroPython en el editor.",
+    "Scripts Python 3 locaux généraux. Exécutez les sketches de cartes avec GPIO via MicroPython dans l’éditeur."
+  ],
+  "Open…": [
+    "Открыть…",
+    "Відкрити…",
+    "Abrir…",
+    "Ouvrir…"
+  ],
+  "Save…": [
+    "Сохранить…",
+    "Зберегти…",
+    "Guardar…",
+    "Enregistrer…"
+  ],
+  "Run": [
+    "Запустить",
+    "Запустити",
+    "Ejecutar",
+    "Exécuter"
+  ],
+  "Open Python script": [
+    "Открыть скрипт Python",
+    "Відкрити скрипт Python",
+    "Abrir script de Python",
+    "Ouvrir un script Python"
+  ],
+  "Save Python script": [
+    "Сохранить скрипт Python",
+    "Зберегти скрипт Python",
+    "Guardar script de Python",
+    "Enregistrer le script Python"
+  ],
+  "Python finished: %1": [
+    "Python завершён: %1",
+    "Python завершено: %1",
+    "Python finalizó: %1",
+    "Python terminé : %1"
+  ],
+  "Python file is unreadable or exceeds 2 MiB.": [
+    "Файл Python недоступен для чтения или превышает 2 МиБ.",
+    "Файл Python недоступний для читання або перевищує 2 МіБ.",
+    "El archivo Python no se puede leer o supera los 2 MiB.",
+    "Le fichier Python est illisible ou dépasse 2 Mio."
+  ],
+  "Python output exceeds 1 MiB. Script stopped.": [
+    "Вывод Python превышает 1 МиБ. Скрипт остановлен.",
+    "Вивід Python перевищує 1 МіБ. Скрипт зупинено.",
+    "La salida de Python supera 1 MiB. Se detuvo el script.",
+    "La sortie Python dépasse 1 Mio. Le script est arrêté."
+  ],
+  "Python 3 is missing. Choose a Python interpreter in Settings / Editor.": [
+    "Python 3 не найден. Выберите интерпретатор Python в настройках редактора.",
+    "Python 3 не знайдено. Виберіть інтерпретатор Python у налаштуваннях редактора.",
+    "Falta Python 3. Elige un intérprete de Python en Ajustes / Editor.",
+    "Python 3 est absent. Choisissez un interpréteur Python dans Paramètres / Éditeur."
+  ],
+  "Python 3 for local scripts": [
+    "Python 3 для локальных скриптов",
+    "Python 3 для локальних скриптів",
+    "Python 3 para scripts locales",
+    "Python 3 pour les scripts locaux"
+  ],
+  "Choose Python interpreter": [
+    "Выбрать интерпретатор Python",
+    "Вибрати інтерпретатор Python",
+    "Elegir intérprete de Python",
+    "Choisir l’interpréteur Python"
+  ],
+  "MicroPython requires an ESP, RP2040 or STM32 board.": [
+    "Для MicroPython нужна плата ESP, RP2040 или STM32.",
+    "Для MicroPython потрібна плата ESP, RP2040 або STM32.",
+    "MicroPython requiere una placa ESP, RP2040 o STM32.",
+    "MicroPython nécessite une carte ESP, RP2040 ou STM32."
+  ],
+  "Export MicroPython files and transfer them to the board using a MicroPython tool.": [
+    "Экспортируйте файлы MicroPython и перенесите их на плату с помощью инструмента MicroPython.",
+    "Експортуйте файли MicroPython та перенесіть їх на плату за допомогою інструмента MicroPython.",
+    "Exporta los archivos MicroPython y transfiérelos a la placa con una herramienta de MicroPython.",
+    "Exportez les fichiers MicroPython et transférez-les sur la carte avec un outil MicroPython."
+  ],
+  "MicroPython reports errors with file and line; GDB breakpoints apply to C++.": [
+    "MicroPython сообщает файл и строку ошибки; точки останова GDB доступны для C++.",
+    "MicroPython повідомляє файл і рядок помилки; точки зупину GDB доступні для C++.",
+    "MicroPython indica el archivo y la línea del error; los puntos de interrupción de GDB se aplican a C++.",
+    "MicroPython indique le fichier et la ligne des erreurs ; les points d’arrêt GDB concernent C++."
+  ],
+  "File name (.ino, .h, .cpp or .py)": [
+    "Имя файла (.ino, .h, .cpp или .py)",
+    "Назва файлу (.ino, .h, .cpp або .py)",
+    "Nombre del archivo (.ino, .h, .cpp o .py)",
+    "Nom du fichier (.ino, .h, .cpp ou .py)"
+  ],
+  "Export sketch": [
+    "Экспортировать скетч",
+    "Експортувати скетч",
+    "Exportar sketch",
+    "Exporter le sketch"
+  ],
+  "Export sketch…": [
+    "Экспортировать скетч…",
+    "Експортувати скетч…",
+    "Exportar sketch…",
+    "Exporter le sketch…"
+  ],
+  "Save the script before continuing?": [
+    "Сохранить скрипт перед продолжением?",
+    "Зберегти скрипт перед продовженням?",
+    "¿Guardar el script antes de continuar?",
+    "Enregistrer le script avant de continuer ?"
   ]
 }

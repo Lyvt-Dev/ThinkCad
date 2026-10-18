@@ -19,6 +19,7 @@ public:
     explicit CodeInterpreter(QObject* parent = nullptr);
     ~CodeInterpreter() override;
     void start(const QString& sketch, const QString& compiler, const QString& sdk, const QStringList& libraries,const QMap<QString,QString>& projectFiles = {},const QString& boardModel="esp8266",bool deferExecution=false,bool emulation=false);
+    void startMicroPython(const QMap<QString,QString>& files,const QString& entry,const QString& runtime,const QString& sdk,const QString& boardModel,bool deferExecution=false,bool emulation=false);
     void configureDebugger(const QString& executable,const QList<GdbSession::Breakpoint>& points={},const QMap<QString,QString>& sources={});
     GdbSession* debugger(){return &debugger_;}
     void stop();
@@ -49,6 +50,7 @@ private:
     QTimer watchdog_, rateWindow_;
     std::unique_ptr<QTemporaryDir> temp_;
     QByteArray pending_;
+    QStringList workerArguments_;
     int linesThisSecond_ = 0;
     int speedPermille_ = 1000;
     bool paused_=false,waitingForSpeed_=false,stepping_=false;

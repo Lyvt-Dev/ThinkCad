@@ -87,6 +87,17 @@ jobs:
           $smoke = Start-Process -FilePath "$pwd/out/stage/ThinkCad.exe" -ArgumentList '--smoke-test' -RedirectStandardOutput "$pwd/out/stage-smoke.stdout.txt" -RedirectStandardError "$pwd/out/stage-smoke.stderr.txt" -Wait -PassThru
           Get-Content out/stage-smoke.stdout.txt, out/stage-smoke.stderr.txt | Write-Host
           if ($smoke.ExitCode) { throw "Installed desktop smoke failed: $($smoke.ExitCode)" }
+      - name: Bundle pinned CPython for local scripts
+        shell: pwsh
+        run: |
+          $version = '3.13.16'
+          $archive = "$env:RUNNER_TEMP/python-$version-embed-amd64.zip"
+          Invoke-WebRequest "https://www.python.org/ftp/python/$version/python-$version-embed-amd64.zip" -OutFile $archive
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() -ne '97dae5274cc54867065e8d5a3226e48c35017ed332a0fdb0e27d5b5821961297') { throw 'CPython checksum mismatch' }
+          Expand-Archive $archive out/stage/python
+          & "$pwd/out/stage/python/python.exe" -c "import sys, math, json; assert sys.version_info[:3] == (3,13,16); print('Bundled CPython ready:', sys.version)"
+          if ($LASTEXITCODE) { throw 'Bundled CPython failed' }
+          Copy-Item out/stage/python/LICENSE.txt out/stage/licenses/CPYTHON_LICENSE.txt
       - name: Bundle pinned GitHub attestation verifier
         shell: pwsh
         run: |

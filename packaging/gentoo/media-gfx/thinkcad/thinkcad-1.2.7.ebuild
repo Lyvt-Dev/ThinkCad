@@ -12,7 +12,7 @@ S="${WORKDIR}/ThinkCad-${PV}"
 LICENSE="all-rights-reserved BSD MIT Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+examples debugger test +X +wayland"
+IUSE="+examples debugger +python test +X +wayland"
 REQUIRED_USE="|| ( X wayland )"
 RESTRICT="!test? ( test )"
 
@@ -24,7 +24,7 @@ COMMON_DEPEND="
  wayland? ( dev-qt/qtbase:6[wayland] )
  virtual/zlib:="
 DEPEND="${COMMON_DEPEND}"
-RDEPEND="${COMMON_DEPEND} >=sys-devel/gcc-12[cxx] debugger? ( dev-debug/gdb )"
+RDEPEND="${COMMON_DEPEND} >=sys-devel/gcc-12[cxx] debugger? ( dev-debug/gdb ) python? ( dev-lang/python:3.13 )"
 BDEPEND="test? ( >=sys-devel/gcc-12[cxx] media-fonts/dejavu )"
 
 src_configure() {
