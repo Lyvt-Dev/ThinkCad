@@ -11,9 +11,9 @@ Ein kleines, bewusst verspieltes Update: Die pixelige Diagnose-Ente begleitet di
 ## Ausprobieren
 
 1. **Datei → Beispielschaltungen → Blink** öffnen.
-2. Bei gestoppter Simulation den LED-Vorwiderstand entfernen und die LED direkt mit dem Ausgang verbinden.
+2. Bei gestoppter Simulation die GND-Verbindung der LED entfernen.
 3. **Hilfe → Quak-Assistent** öffnen, Diagnose auswählen und **Stelle zeigen** betätigen.
-4. Den Vorwiderstand wieder einsetzen und die Diagnose erneut prüfen.
+4. Die GND-Verbindung wiederherstellen und die Diagnose erneut prüfen.
 
 Der Assistent verwendet dieselben tatsächlichen Diagnosebefunde wie die bisherige Liste. Er ist regelbasiert und vollständig lokal: kein KI-Dienst, kein Login und kein Upload. Ohne Meldungen wird ausdrücklich keine Garantie für reale Hardware gegeben. Die Filter der Diagnoseliste gelten auch für die Ente. Es werden keine neuen Hardwareeigenschaften oder allgemeinen C++-Ursachenanalysen behauptet.
 
