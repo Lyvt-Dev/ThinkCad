@@ -10,6 +10,12 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.3.2 — Quak-Assistent
+
+Die pixelige Diagnose-Ente erklärt vorhandene elektrische Diagnosemeldungen und zeigt auf Wunsch die betroffene Stelle. Öffnen über **Hilfe → Quak-Assistent**, direkt im Diagnose-Dock ausblendbar. Vollständig lokal und regelbasiert.
+
+[Release Notes 1.3.2](docs/RELEASE_NOTES_1.3.2.md)
+
 ## Neu in 1.3.1 — Visual Coding, Breadboard Intelligence & Measurement
 
 - Nativer Block-Editor mit drei Ansichten und deterministischer Arduino-C++-Generierung; manuelle C++-Änderungen werden ausdrücklich als nicht synchron markiert.
