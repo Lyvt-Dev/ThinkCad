@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <set>
 namespace thinkercad {
 struct BusTransaction {
     Microseconds time=0;
@@ -17,6 +18,7 @@ struct BusTransaction {
 class BusTraffic {
 public:
     bool enabled=false;
+    void setConsumer(const std::string& name,bool active){if(active)consumers_.insert(name);else consumers_.erase(name);enabled=!consumers_.empty();}
     void append(BusTransaction entry){
         if(!enabled)return;
         entry.txBytes=entry.tx.size();entry.rxBytes=entry.rx.size();
@@ -32,6 +34,7 @@ public:
     std::uint64_t revision()const{return revision_;}
     std::uint64_t overwritten()const{return overwritten_;}
 private:
+    std::set<std::string> consumers_;
     std::deque<BusTransaction> entries_;
     std::size_t capacity_=1024;
     std::uint64_t revision_=0,overwritten_=0;

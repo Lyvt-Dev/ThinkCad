@@ -2962,5 +2962,881 @@
   "Save the script before continuing?": [
     "Salvare lo script prima di continuare?",
     "Salvar o script antes de continuar?"
+  ],
+  "Starter: button and LED": [
+    "Avviatore: pulsante e LED",
+    "Iniciante: botão e LED"
+  ],
+  "Swap a wire and check the UART diagnosis.": [
+    "Scambia un cavo e controlla la diagnosi UART.",
+    "Troque um fio e verifique o diagnóstico de UART."
+  ],
+  "Check wiring and model limits.": [
+    "Controllare cablaggio e limiti di modello.",
+    "Verifique os limites de fiação e modelo."
+  ],
+  "Change the temperature and observe the display.": [
+    "Cambiare la temperatura e osservare il display.",
+    "Mude a temperatura e observe o display."
+  ],
+  "ESP32 with SSD1306 at 0x3C and BME280 at 0x76.": [
+    "ESP32 con SSD1306 a 0x3C e BME280 a 0x76.",
+    "ESP32 com SSD1306 a 0x3C e BME280 a 0x76."
+  ],
+  "Unknown variable": [
+    "Variabile sconosciuta",
+    "Variável desconhecida"
+  ],
+  "Blocks and C++ synchronized": [
+    "Blocchi e C++ sincronizzati",
+    "Blocos e C++ sincronizados"
+  ],
+  "Incorrect argument count": [
+    "Conteggio argomenti errato",
+    "Contagem incorreta de argumentos"
+  ],
+  "Blocks + C++": [
+    "Blocchi + C++",
+    "Blocos + C++"
+  ],
+  "One expression per line, e.g. digitalRead(5) == HIGH": [
+    "Un’espressione per riga, ad es. digitalRead(5) == HIGH",
+    "Uma expressão por linha, por exemplo digitalRead(5) == HIGH"
+  ],
+  "Image is too large": [
+    "L'immagine è troppo grande",
+    "A imagem é muito grande"
+  ],
+  "PING/PONG exchange produces UART_OK output.": [
+    "Lo scambio PING/PONG produce UART_OK.",
+    "A troca PING/PONG produz UART_OK."
+  ],
+  "Multiple active UART TX pins are connected together.": [
+    "I pin UART TX attivi multipli sono collegati tra loro.",
+    "Vários pinos ativos UART TX estão conectados entre si."
+  ],
+  "Unsafe archive path": [
+    "Percorso archivio non sicuro",
+    "Caminho de arquivo inseguro"
+  ],
+  "References": [
+    "Riferimenti",
+    "Referências"
+  ],
+  "Statements": [
+    "Dichiarazioni",
+    "Declarações"
+  ],
+  "Unsupported block schema": [
+    "Schema blocco non supportato",
+    "Esquema de bloco não suportado"
+  ],
+  "Incorrect return type": [
+    "Tipo di ritorno non corretto",
+    "Tipo de retorno incorreto"
+  ],
+  "The scanner finds 0x3C and 0x76.": [
+    "Lo scanner trova 0x3C e 0x76.",
+    "O scanner encontra 0x3C e 0x76."
+  ],
+  "Uno D5 drives an LED through 220 ohms.": [
+    "Uno D5 guida un LED attraverso 220 ohm.",
+    "Uno D5 conduz um LED através de 220 ohms."
+  ],
+  "Add function": [
+    "Aggiungi funzione",
+    "Adicionar função"
+  ],
+  "The LED lights while the button is pressed.": [
+    "Le luci a LED mentre il pulsante è premuto.",
+    "As luzes LED enquanto o botão é pressionado."
+  ],
+  "Servo on Uno D9 with a 5 V supply.": [
+    "Servo su Uno D9 con alimentazione a 5 V.",
+    "Servo em Uno D9 com um fornecimento de 5 V."
+  ],
+  "Remove the direct short and insert the load into the circuit.": [
+    "Rimuovere il corto ed inserire il carico nel circuito.",
+    "Remova o curto direto e insira a carga no circuito."
+  ],
+  "The serial monitor shows the configured distance.": [
+    "Il monitor seriale mostra la distanza configurata.",
+    "O monitor serial mostra a distância configurada."
+  ],
+  "DHT22 with 5 V, GND and DATA on Uno D2.": [
+    "DHT22 con 5 V, GND e DATI su Uno D2.",
+    "DHT22 com 5 V, GND e DATA em Uno D2."
+  ],
+  "Model": [
+    "Modello",
+    "Modelo"
+  ],
+  "Starter: blinking LED": [
+    "Avviatore: LED lampeggiante",
+    "Iniciante: piscando LED"
+  ],
+  "Convert time of flight into distance.": [
+    "Convertire il tempo di volo in distanza.",
+    "Converter o tempo de voo em distância."
+  ],
+  "Restore manual backup": [
+    "Ripristina backup manuale",
+    "Restaurar backup manual"
+  ],
+  "Check VCC, GND and the permitted supply voltage.": [
+    "Controllare VCC, GND e la tensione di alimentazione consentita.",
+    "Verifique VCC, GND e a tensão de alimentação permitida."
+  ],
+  "Else branch requires if": [
+    "Altro ramo richiede se",
+    "O ramo requer se"
+  ],
+  "Pin is input only": [
+    "Il pin è solo ingresso",
+    "Pin é apenas entrada"
+  ],
+  "Change order and nesting in Structure. Card positions do not change program execution.": [
+    "Cambia ordine e nidificazione in Struttura. Le posizioni della scheda non cambiano l'esecuzione del programma.",
+    "As posições do cartão não alteram a execução do programa."
+  ],
+  "Block data is unknown or damaged. C++ is preserved.": [
+    "I dati di blocco sono sconosciuti o danneggiati. C++ è conservato.",
+    "Os dados do bloco são desconhecidos ou danificados. C++ é preservado."
+  ],
+  "Text too long": [
+    "Testo troppo lungo",
+    "Texto muito longo"
+  ],
+  "Local libraries": [
+    "Librerie locali",
+    "Bibliotecas locais"
+  ],
+  "Unsafe archive filename": [
+    "Nome file archivio non sicuro",
+    "Unsafe arquivo nome do arquivo"
+  ],
+  "Starter: UART between boards": [
+    "Avviatore: UART tra le tavole",
+    "Starter: UART entre placas"
+  ],
+  "Regenerate C++ from blocks…": [
+    "Rigenera C++ dai blocchi…",
+    "Gerar novamente C++ a partir dos blocos…"
+  ],
+  "Modulo requires integers": [
+    "Modulo richiede interi",
+    "Modulo requer inteiros"
+  ],
+  "Call": [
+    "Chiamata",
+    "Chamada"
+  ],
+  "Disconnect a device or create an address conflict.": [
+    "Disconnettere un dispositivo o creare un conflitto di indirizzi.",
+    "Desconecte um dispositivo ou crie um conflito de endereço."
+  ],
+  "Reverse direction by swapping the IN1/IN2 levels.": [
+    "Invertire la direzione scambiando i livelli IN1/IN2.",
+    "Inverter a direção trocando os níveis IN1/IN2."
+  ],
+  "Check the device address, power, SDA/SCL and bus configuration.": [
+    "Controllare l'indirizzo del dispositivo, la potenza, SDA/SCL e la configurazione bus.",
+    "Verifique o endereço do dispositivo, a potência, o SDA/SCL e a configuração do ônibus."
+  ],
+  "Starter: DHT22": [
+    "Avviatore: DHT22",
+    "Iniciante: DHT22"
+  ],
+  "Unsafe sketch filename": [
+    "Nome file schizzo non sicuro",
+    "Unsafe sketch filename"
+  ],
+  "Connect TX of one board to RX of the other and connect GND.": [
+    "Collegare TX di una scheda a RX dell'altra e collegare GND.",
+    "Conecte TX de uma placa a RX da outra e conecte GND."
+  ],
+  "Arguments / expressions": [
+    "Argomenti / espressioni",
+    "Argumentos / expressões"
+  ],
+  "Number out of range": [
+    "Numero fuori dall'intervallo",
+    "Número fora de alcance"
+  ],
+  "Two ESP32 boards with crossed GPIO16/17 and common GND.": [
+    "Due tavole ESP32 con GPIO16/17 incrociato e GND comune.",
+    "Duas placas ESP32 com GPIO16/17 cruzado e GND comum."
+  ],
+  "Multiple I²C devices use the same address on the same bus.": [
+    "Più dispositivi I2C utilizzano lo stesso indirizzo sullo stesso bus.",
+    "Vários dispositivos I2C usam o mesmo endereço no mesmo ônibus."
+  ],
+  "For loop": [
+    "Per loop",
+    "Para loop"
+  ],
+  "Incompatible comparison": [
+    "Confronto non compatibile",
+    "Comparação incompatível"
+  ],
+  "Function parameters": [
+    "Parametri di funzione",
+    "Parâmetros da função"
+  ],
+  "C++ is preserved. Create a block program and explicitly generate it to begin.": [
+    "C++ è conservato. Creare un programma di blocco e generarlo esplicitamente per iniziare.",
+    "C++ é preservado. Crie um programa de bloco e gere-o explicitamente para começar."
+  ],
+  "ThinkCad project export": [
+    "Esportazione progetto ThinkCad",
+    "Exportação do projeto ThinkCad"
+  ],
+  "Power is missing or outside the modeled range.": [
+    "Manca potenza o fuori dalla gamma modellata.",
+    "O poder está ausente ou fora do intervalo modelado."
+  ],
+  "Return": [
+    "Restituisci",
+    "Retornar"
+  ],
+  "View as PNG/SVG…": [
+    "Mostra come PNG/SVG...",
+    "Atualizando... Hotéis similares"
+  ],
+  "Button to GND, internal pull-up and LED with series resistor.": [
+    "Pulsante a GND, trazione interna e LED con resistenza serie.",
+    "Botão para GND, pull-up interno e LED com resistor de série."
+  ],
+  "Connect the cathode to the negative terminal through a closed circuit.": [
+    "Collegare il catodo al terminale negativo attraverso un circuito chiuso.",
+    "Conecte o cátodo ao terminal negativo através de um circuito fechado."
+  ],
+  "Edit parameters…": [
+    "Modifica parametri...",
+    "Editar parâmetros..."
+  ],
+  "Assignment": [
+    "Assegnazione",
+    "Atribuição"
+  ],
+  "Archive exceeds size limit": [
+    "Archivio supera il limite di dimensione",
+    "Arquivo excede o limite de tamanho"
+  ],
+  "Remove unknown block data? The existing C++ sketch will be backed up.": [
+    "Rimuovere i dati di blocco sconosciuti? Verrà eseguito il backup dello schizzo C++ esistente.",
+    "Remover dados de bloco desconhecidos? O esboço C++ existente será feito backup."
+  ],
+  "Program too complex": [
+    "Programma troppo complesso",
+    "Programa muito complexo"
+  ],
+  "This wire already exists.": [
+    "Questo cavo esiste gia'.",
+    "Este fio já existe."
+  ],
+  "Void expression": [
+    "Espressione vocale",
+    "Expressão do vazio"
+  ],
+  "The eight pixels show a running color animation.": [
+    "Gli otto pixel mostrano un'animazione a colori in esecuzione.",
+    "Os oito pixels mostram uma animação a cores em execução."
+  ],
+  "The motor runs forward with PWM; startup current and speed change.": [
+    "Il motore va avanti con PWM; la corrente di avviamento e il cambio di velocità.",
+    "O motor corre para a frente com PWM; corrente de inicialização e mudança de velocidade."
+  ],
+  "Unknown operator": [
+    "Operatore sconosciuto",
+    "Operador desconhecido"
+  ],
+  "Understand a closed circuit and GPIO output.": [
+    "Comprendere un circuito chiuso e l'uscita GPIO.",
+    "Compreender um circuito fechado e GPIO saída."
+  ],
+  "Change pixel colors; distinguish the transaction model from the GPIO trace.": [
+    "Cambia i colori dei pixel; distingue il modello di transazione dalla traccia GPIO.",
+    "Mude as cores dos pixels; distinga o modelo de transação do traço GPIO."
+  ],
+  "Coding view": [
+    "Codifica vista",
+    "Coding view"
+  ],
+  "Open project.thinkcad in ThinkCad. Sketches are separated by board in the sketches folder. Libraries are listed in libraries.json. Nothing was uploaded.": [
+    "Apri project.ThinkCad in ThinkCad. Gli schizzi sono separati da una scheda nella cartella degli schizzi. Le librerie sono elencate nelle librerie.json. Nulla è stato caricato.",
+    "Open project.ThinkCad in ThinkCad. Os esboços são separados por placa na pasta de esboços. As bibliotecas estão listadas em libraries.json. Nada foi carregado."
+  ],
+  "Archive filename collision": [
+    "Archivia collisione nome file",
+    "Arquivo nome do arquivo colisão"
+  ],
+  "Change humidity and wait for the next reading.": [
+    "Cambiare l'umidità e attendere la prossima lettura.",
+    "Mude a umidade e espere pela próxima leitura."
+  ],
+  "Uno controls an L298N with a separate 9 V motor supply and common GND.": [
+    "Uno controlla una L298N con un motore separato a 9 V e una GND comune.",
+    "A Uno controla um L298N com uma fonte de motor separada de 9 V e GND comum."
+  ],
+  "Boolean": [
+    "Booleano",
+    "Booleano"
+  ],
+  "Generated source too large": [
+    "Sorgente generata troppo grande",
+    "Fonte gerada muito grande"
+  ],
+  "LED current exceeds the model limit.": [
+    "La corrente LED supera il limite del modello.",
+    "A corrente LED excede o limite do modelo."
+  ],
+  "Learn about servo pulses and angle control.": [
+    "Scopri gli impulsi servo e il controllo dell'angolo.",
+    "Aprenda sobre pulsos servo e controle de ângulo."
+  ],
+  "Not synchronized: blocks or C++ changed. C++ remains unchanged until generation.": [
+    "Non sincronizzato: blocchi o C++ modificati. Il C++ viene conservato fino alla generazione.",
+    "Sem sincronização: os blocos ou C++ foram alterados. O C++ é preservado até gerar novamente."
+  ],
+  "Change the blink interval and measure LED current.": [
+    "Cambiare l'intervallo di sbalzo e misurare la corrente LED.",
+    "Mude o intervalo de piscamento e meça a corrente LED."
+  ],
+  "Solution": [
+    "Soluzione",
+    "Solução"
+  ],
+  "Export view": [
+    "Esporta vista",
+    "Vista de exportação"
+  ],
+  "Local library files are included.": [
+    "I file della libreria locale sono inclusi.",
+    "Os arquivos da biblioteca local estão incluídos."
+  ],
+  "Function": [
+    "Funzione",
+    "Função"
+  ],
+  "Learning goal": [
+    "Obiettivo di apprendimento",
+    "Objetivo de Aprendizagem"
+  ],
+  "Starter: motor with L298N": [
+    "Avviatore: motore con L298N",
+    "Iniciante: motor com L298N"
+  ],
+  "Else": [
+    "Altro",
+    "else"
+  ],
+  "Find reachable device addresses on a shared I2C bus.": [
+    "Trova indirizzi di dispositivo raggiungibili su un bus I2C condiviso.",
+    "Endereços de dispositivos acessíveis em um ônibus I2C compartilhado."
+  ],
+  "Visual block program": [
+    "Programma di blocco visivo",
+    "Programa de bloqueio visual"
+  ],
+  "Initial value": [
+    "Valore iniziale",
+    "Valor inicial"
+  ],
+  "Display analog sensor readings on an I2C display.": [
+    "Visualizza letture analogiche del sensore su un display I2C.",
+    "Leituras analógicas do sensor de exibição em um display I2C."
+  ],
+  "While": [
+    "Mentre",
+    "Enquanto"
+  ],
+  "Unknown block": [
+    "Blocco sconosciuto",
+    "Bloco desconhecido"
+  ],
+  "Starter: PWM dimming": [
+    "Avviatore: dimming PWM",
+    "Iniciante: PWM escurecimento"
+  ],
+  "Understand digital colors and modeled transmission times.": [
+    "Comprendere i colori digitali e i tempi di trasmissione modellati.",
+    "Cores digitais e tempos de transmissão modelados."
+  ],
+  "LED has no identifiable electrical return path.": [
+    "Il LED non ha percorso di ritorno elettrico identificabile.",
+    "LED não tem caminho de retorno elétrico identificável."
+  ],
+  "Expected behavior": [
+    "Comportamento atteso",
+    "Comportamento esperado"
+  ],
+  "Electrical conflict": [
+    "Conflitto elettrico",
+    "Conflito elétrico"
+  ],
+  "The servo moves between 15 and 165 degrees.": [
+    "Il servo si muove tra 15 e 165 gradi.",
+    "O servo move-se entre 15 e 165 graus."
+  ],
+  "Conflicting drivers or power supply shorted to GND.": [
+    "Driver in conflitto o alimentatore short alla GND.",
+    "Drivers conflitantes ou fonte de alimentação abreviada para GND."
+  ],
+  "Condition requires a number or boolean": [
+    "La condizione richiede un numero o booleano",
+    "Condição requer um número ou booleano"
+  ],
+  "Change the movement range and speed.": [
+    "Cambiare il campo di movimento e la velocità.",
+    "Mude o alcance e a velocidade do movimento."
+  ],
+  "For step cannot be zero": [
+    "Per il passo non può essere zero",
+    "Porque o passo não pode ser zero"
+  ],
+  "Starter: OLED temperature": [
+    "Avviatore: temperatura OLED",
+    "Iniciante: Temperatura OLED"
+  ],
+  "Missing or duplicate block ID": [
+    "ID blocco mancante o duplicato",
+    "ID de bloco ausente ou duplicado"
+  ],
+  "HC-SR04 on Uno D2/TRIG and D3/ECHO, with 5 V/GND.": [
+    "HC-SR04 su Uno D2/TRIG e D3/ECHO, con 5 V/GND.",
+    "HC-SR04 em Uno D2/TRIG e D3/ECHO, com 5 V/GND."
+  ],
+  "Back up the manual C++ sketch and replace it with the blocks?": [
+    "Fare il backup dello schizzo manuale C++ e sostituirlo con i blocchi?",
+    "Fazer backup do esboço manual C++ e substituí-lo com os blocos?"
+  ],
+  "Change distance and measure the echo pulse duration.": [
+    "Cambiare la distanza e misurare la durata dell'impulso eco.",
+    "Alterar a distância e medir a duração do pulso de eco."
+  ],
+  "No return value": [
+    "Nessun valore di ritorno",
+    "Sem valor de retorno"
+  ],
+  "Incorrect argument type": [
+    "Tipo di argomento errato",
+    "Tipo de argumento incorreto"
+  ],
+  "Distinguish logic supply, motor supply and H-bridge.": [
+    "Distinguibile alimentazione logica, alimentazione del motore e H-bridge.",
+    "Distinguir fornecimento lógico, fornecimento de motor e H-bridge."
+  ],
+  "Function parameters: name:type, separated by commas. 0 integer, 1 number, 2 boolean, 3 text.": [
+    "Parametri di funzione: nome:tipo, separato da virgole. 0 intero, 1 numero, 2 booleano, 3 testo.",
+    "Parâmetros da função: name:type, separado por vírgulas. 0 inteiro, 1 número, 2 boolean, 3 texto."
+  ],
+  "Block type": [
+    "Tipo di blocco",
+    "Tipo de bloco"
+  ],
+  "PWM unavailable on selected pin": [
+    "PWM non disponibile sul pin selezionato",
+    "PWM não disponível no pino selecionado"
+  ],
+  "The LED becomes brighter and darker.": [
+    "Il LED diventa più luminoso e scuro.",
+    "O LED torna-se mais brilhante e mais escuro."
+  ],
+  "Delete block": [
+    "Elimina blocco",
+    "Excluir bloco"
+  ],
+  "Function must return a value on all paths": [
+    "La funzione deve restituire un valore su tutti i percorsi",
+    "A função deve retornar um valor em todos os caminhos"
+  ],
+  "Connect a pull-up/pull-down or an active signal driver.": [
+    "Collegare un driver di segnale attivo/pull-up/pull-down.",
+    "Conecte um pull-up / pull-down ou um driver de sinal ativo."
+  ],
+  "Include library files in addition to the library list?": [
+    "Includi i file della libreria in aggiunta all'elenco delle librerie?",
+    "Incluir arquivos de biblioteca além da lista de bibliotecas?"
+  ],
+  "Pin unavailable on selected board": [
+    "Pin non disponibile sulla scheda selezionata",
+    "Pin não disponível no quadro selecionado"
+  ],
+  "Too many archive files": [
+    "Troppi file di archivio",
+    "Muitos arquivos de arquivo"
+  ],
+  "Create a floating input and read the diagnostic message.": [
+    "Crea un input fluttuante e leggi il messaggio diagnostico.",
+    "Crie uma entrada flutuante e leia a mensagem de diagnóstico."
+  ],
+  "Project as ZIP…": [
+    "Progetto come ZIP...",
+    "Atualizando... Hotéis similares"
+  ],
+  "Understand temperature, humidity and sensor intervals.": [
+    "Comprendere la temperatura, l'umidità e gli intervalli dei sensori.",
+    "Entenda os intervalos de temperatura, umidade e sensor."
+  ],
+  "For loop needs integer bounds and constant step": [
+    "Per il ciclo servono limiti interi e passo costante",
+    "Para loop precisa de limites inteiros e constante passo"
+  ],
+  "Could not open image export": [
+    "Impossibile aprire l'esportazione immagine",
+    "Não foi possível abrir a exportação de imagem"
+  ],
+  "The positive and negative terminals of a voltage source are shorted.": [
+    "I terminali positivi e negativi di una fonte di tensione sono corti.",
+    "Os terminais positivos e negativos de uma fonte de tensão são encurtados."
+  ],
+  "Integer out of range": [
+    "Intero fuori portata",
+    "Integer fora de alcance"
+  ],
+  "All messages": [
+    "Tutti i messaggi",
+    "Todas as mensagens"
+  ],
+  "This connection joins conflicting supplies. Connect anyway?": [
+    "Questa connessione unisce forniture in conflitto.",
+    "Essa conexão se junta a suprimentos conflitantes. Conecte-se de qualquer maneira?"
+  ],
+  "Potentiometer position changes the ADC value and LED brightness.": [
+    "La posizione del potenziometro cambia il valore ADC e la luminosità LED.",
+    "A posição do Potenciômetro altera o valor de ADC e o brilho do diodo emissor de luz."
+  ],
+  "Numeric operation requires numbers": [
+    "L'operazione numerica richiede numeri",
+    "Operação numérica requer números"
+  ],
+  "The OLED shows approximately 25 degrees Celsius; the sensor value can be changed.": [
+    "L'OLED mostra circa 25 gradi Celsius; il valore del sensore può essere modificato.",
+    "O OLED mostra aproximadamente 25 graus Celsius; o valor do sensor pode ser alterado."
+  ],
+  "Invalid assignment": [
+    "Assegnazione non valida",
+    "cessão inválida"
+  ],
+  "Starter: I2C scanner": [
+    "Avviatore: scanner I2C",
+    "Iniciante: scanner I2C"
+  ],
+  "Global variables…": [
+    "Variabili globali...",
+    "Variáveis globais..."
+  ],
+  "Protocol view (model)": [
+    "Vista protocollo (modello)",
+    "Visão do protocolo (modelo)"
+  ],
+  "Change a device address or use a separate bus.": [
+    "Cambiare un indirizzo del dispositivo o utilizzare un bus separato.",
+    "Altere um endereço de dispositivo ou use um ônibus separado."
+  ],
+  "The LED regularly switches on and off.": [
+    "Il LED si accende e spegne regolarmente.",
+    "O LED liga e desliga regularmente."
+  ],
+  "Add": [
+    "Aggiunge",
+    "Adicionar"
+  ],
+  "Diagnostics": [
+    "Diagnostica",
+    "diagnósticos"
+  ],
+  "Trigger channel": [
+    "Canale di attivazione",
+    "canal de gatilho"
+  ],
+  "LED is connected directly to the supply without an identifiable current limiter.": [
+    "Il LED è collegato direttamente all'alimentazione senza un limitatore di corrente identificabile.",
+    "O LED está conectado diretamente ao fornecimento sem um limitador de corrente identificável."
+  ],
+  "Export bill of materials": [
+    "Biglietto di esportazione dei materiali",
+    "Conta de exportação de materiais"
+  ],
+  "Compare PWM duty cycle and brightness.": [
+    "Confrontare il ciclo di lavoro PWM e la luminosità.",
+    "Compare o ciclo de trabalho PWM e brilho."
+  ],
+  "Incorrect initial value type": [
+    "Tipo di valore iniziale errato",
+    "Tipo de valor inicial incorreto"
+  ],
+  "Invalid function parameters": [
+    "Parametri di funzione non validi",
+    "Parâmetros da função inválida"
+  ],
+  "Invalid or duplicate variable": [
+    "Variabile non valida o doppia",
+    "Variável inválida ou duplicada"
+  ],
+  "Starter: ultrasound": [
+    "Avviatore: ultrasuoni",
+    "Iniciante: ultra-som"
+  ],
+  "Unknown expression": [
+    "Espressione sconosciuta",
+    "Expressão desconhecida"
+  ],
+  "Compare ADC values at 25, 50 and 75 percent.": [
+    "Confrontare i valori ADC al 25, 50 e 75 per cento.",
+    "Compare os valores de ADC em 25, 50 e 75%."
+  ],
+  "Function / command": [
+    "Funzione / comando",
+    "Função / comando"
+  ],
+  "Starter: potentiometer": [
+    "Avviatore: potenziometro",
+    "Starter: potenciômetro"
+  ],
+  "ESP32 with TMP36 on GPIO34 and SSD1306 on GPIO21/22.": [
+    "ESP32 con TMP36 su GPIO34 e SSD1306 su GPIO21/22.",
+    "ESP32 com TMP36 em GPIO34 e SSD1306 em GPIO21/22."
+  ],
+  "Starter: servo": [
+    "Avviatore: servo",
+    "Iniciante: servo"
+  ],
+  "Reset block data": [
+    "Reimposta i dati di blocco",
+    "Repor dados de bloco"
+  ],
+  "UART RX pins are connected without an identifiable TX driver.": [
+    "I pin UART RX sono collegati senza un driver TX identificabile.",
+    "Os pinos UART RX são conectados sem um driver TX identificável."
+  ],
+  "Oldest samples overwritten: %1": [
+    "Campioni più vecchi sovrascritti: %1",
+    "Amostras mais antigas sobrescritas: %1"
+  ],
+  "An I²C access was not acknowledged.": [
+    "Un accesso I2C non è stato riconosciuto.",
+    "Um acesso I2C não foi reconhecido."
+  ],
+  "Invalid global initializer": [
+    "Inizializzatore globale non valido",
+    "Inicializador global inválido"
+  ],
+  "Number": [
+    "Numero",
+    "Número"
+  ],
+  "Local library files are not included; install them separately if needed.": [
+    "I file della libreria locale non sono inclusi; installarli separatamente se necessario.",
+    "Os arquivos da biblioteca local não estão incluídos; instale-os separadamente, se necessário."
+  ],
+  "Could not write project archive": [
+    "Impossibile scrivere l'archivio del progetto",
+    "Não foi possível escrever o arquivo do projeto"
+  ],
+  "10 kilohm potentiometer between 5 V and GND, wiper on A0.": [
+    "Potenziometro da 10 kilometri tra 5 V e GND, tergicristallo su A0.",
+    "10 kilohm potenciômetro entre 5 V e GND, limpador em A0."
+  ],
+  "Integer": [
+    "Intero",
+    "Integer"
+  ],
+  "Invalid expression": [
+    "Espressione non valida",
+    "Expressão inválida"
+  ],
+  "Starter: WS2812B": [
+    "Avviatore: WS2812B",
+    "Iniciante: WS2812B"
+  ],
+  "Diagnostic filter": [
+    "Filtro diagnostico",
+    "Filtro diagnóstico"
+  ],
+  "Eight addressable RGB pixels on Uno D6 with 5 V/GND.": [
+    "Otto pixel RGB indirizzabili su Uno D6 con 5 V/GND.",
+    "Oito pixels RGB endereçáveis em Uno D6 com 5 V/GND."
+  ],
+  "Invalid number": [
+    "Numero non valido",
+    "Número inválido"
+  ],
+  "Add block": [
+    "Aggiungi blocco",
+    "Adicionar bloco"
+  ],
+  "Compare PWM and filtered voltage on the oscilloscope.": [
+    "Confrontare PWM e la tensione filtrata sull'oscilloscopio.",
+    "Compare PWM e tensão filtrada no osciloscópio."
+  ],
+  "If / else": [
+    "Se / altrimenti",
+    "Se /se não"
+  ],
+  "Warnings and errors": [
+    "Avvertenze ed errori",
+    "Avisos e erros"
+  ],
+  "ESP8266 with LED and 220 ohm series resistor.": [
+    "ESP8266 con resistenza LED e 220 ohm serie.",
+    "ESP8266 com LED e 220 ohm série resistor."
+  ],
+  "Temperature and humidity appear in serial output every 2.1 seconds.": [
+    "Temperatura e umidità appaiono in uscita seriale ogni 2,1 secondi.",
+    "Temperatura e umidade aparecem na saída serial a cada 2,1 segundos."
+  ],
+  "Separate power nets and never connect opposing outputs.": [
+    "Reti elettriche separate e mai collegare uscite opposte.",
+    "Redes de energia separadas e nunca conectar saídas opostas."
+  ],
+  "Unknown constant": [
+    "Costante sconosciuta",
+    "Constante desconhecida"
+  ],
+  "Bill of materials as CSV…": [
+    "Bill dei materiali come CSV...",
+    "Os materiais como CSV..."
+  ],
+  "Export": [
+    "Esporta",
+    "Exportação"
+  ],
+  "Export project": [
+    "Esporta progetto",
+    "Projeto de exportação"
+  ],
+  "Unexpected nested blocks": [
+    "Blocchi nidificati inaspettati",
+    "Blocos aninhados inesperados"
+  ],
+  "Could not save image export": [
+    "Impossibile salvare l'esportazione immagine",
+    "Não foi possível salvar a exportação de imagens"
+  ],
+  "Quantity": [
+    "Quantità",
+    "Quantidade"
+  ],
+  "Add a suitable series resistor or reduce the supply voltage.": [
+    "Aggiungere una resistenza di serie adatta o ridurre la tensione di alimentazione.",
+    "Adicione um resistor de série adequado ou reduza a tensão de alimentação."
+  ],
+  "Apply block": [
+    "Applica blocco",
+    "Aplicar bloco"
+  ],
+  "Understand independent sketches and serial communication.": [
+    "Comprendere schizzi indipendenti e comunicazione seriale.",
+    "Compreender esboços independentes e comunicação serial."
+  ],
+  "Invalid or duplicate function": [
+    "Funzione non valida o duplicata",
+    "Função inválida ou duplicada"
+  ],
+  "Binary operation needs two arguments": [
+    "L'operazione binaria necessita di due argomenti",
+    "Operação binária precisa de dois argumentos"
+  ],
+  "Modeled transactions; not measured bus edges.": [
+    "Operazioni modellate; bordi del bus non misurati.",
+    "Transações modeladas; não arestas de ônibus medidas."
+  ],
+  "Invalid condition": [
+    "Condizioni non valide",
+    "Condição inválida"
+  ],
+  "Read inputs with a pull-up.": [
+    "Leggere gli ingressi con un trascinamento.",
+    "Leia as entradas com um pull-up."
+  ],
+  "Unknown function": [
+    "Funzione sconosciuta",
+    "Função desconhecida"
+  ],
+  "Invalid visual program": [
+    "Programma visivo non valido",
+    "Programa visual inválido"
+  ],
+  "Data type": [
+    "Tipo di dati",
+    "Tipo de dados"
+  ],
+  "Errors only": [
+    "Solo errori",
+    "Apenas erros"
+  ],
+  "Missing argument": [
+    "Argomento mancante",
+    "Argumento em falta"
+  ],
+  "Program blocks": [
+    "Blocchi di programma",
+    "Blocos de programa"
+  ],
+  "Invalid boolean": [
+    "Booleano non valido",
+    "booleano inválido"
+  ],
+  "Exercise": [
+    "Esercizio",
+    "Exercício"
+  ],
+  "Structure": [
+    "Struttura",
+    "Estrutura"
+  ],
+  "Measure analog voltage and convert it to PWM.": [
+    "Misura la tensione analogica e convertila in PWM.",
+    "Meça a tensão analógica e converta-a em PWM."
+  ],
+  "Digital input has no defined level.": [
+    "L'ingresso digitale non ha un livello definito.",
+    "A entrada digital não tem um nível definido."
+  ],
+  "Unexpected expression arguments": [
+    "Argomenti di espressione inaspettati",
+    "Argumentos de expressão inesperados"
+  ],
+  "Regenerate C++": [
+    "Rigenera C++",
+    "Regenerar C++"
+  ],
+  "Rising edge": [
+    "Bordo ascendente",
+    "Rising edge"
+  ],
+  "Preview: possible supply short circuit.": [
+    "Anteprima: possibile corto circuito di alimentazione.",
+    "Pré-visualização: possível curto-circuito de fornecimento."
+  ],
+  "Falling edge": [
+    "Il bordo cadente",
+    "Borda caindo"
+  ],
+  "Overlapping wires": [
+    "Fili sovrapposti",
+    "Fios sobrepostos"
+  ],
+  "These terminals are already electrically connected.": [
+    "Questi terminali sono già collegati elettricamente.",
+    "Esses terminais já estão conectados eletricamente."
+  ],
+  "Wires partially overlap. Overlapping does not connect nets. Route anyway?": [
+    "I fili si sovrappongono in parte. La sovrapposizione non collega le reti.",
+    "Os fios se sobrepõem parcialmente. Sobreposição não conecta redes. Rota de qualquer maneira?"
+  ],
+  "Could not open documentation.": [
+    "Impossibile aprire la documentazione.",
+    "Não foi possível abrir a documentação."
+  ],
+  "Blocks, breadboard and measurement": [
+    "Blocchi, panettiere e misure",
+    "Blocos, breadboard e medição"
+  ],
+  "Blocks, breadboard and measurement…": [
+    "Blocchi, panettiere e misure...",
+    "Blocos, tábua de pão e medida..."
   ]
 }

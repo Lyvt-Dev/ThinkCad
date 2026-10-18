@@ -30,7 +30,7 @@ class QCheckBox;
 class QPushButton;
 class QStackedWidget;
 class WelcomePage;
-class QListWidget;
+class BlockEditor;class DiagnosticsPanel;class QListWidget;
 class QDockWidget;
 class ModuleControls;
 class DebugTools;
@@ -121,7 +121,7 @@ private:
     thinkercad::TransientSimulation transient_;
     InstrumentPanel* instruments_;
     SerialTools* serial_;
-    QListWidget* diagnostics_;
+    DiagnosticsPanel* diagnostics_;
     QDockWidget* inspectorDock_=nullptr;
     bool hadInstruments_=false;
     QDoubleSpinBox* powerRating_;
@@ -158,6 +158,7 @@ private:
     QByteArray editorLayout_;
     void showEditor();
     QTabWidget* codeTabs_;
+    BlockEditor* blockEditor_=nullptr;
     QPlainTextEdit* console_;
     QLabel *status_,*projectLabel_,*selectionLabel_;
     QDoubleSpinBox* propertyValue_;

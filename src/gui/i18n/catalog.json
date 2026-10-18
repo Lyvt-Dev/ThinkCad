@@ -4444,5 +4444,1319 @@
     "Зберегти скрипт перед продовженням?",
     "¿Guardar el script antes de continuar?",
     "Enregistrer le script avant de continuer ?"
+  ],
+  "Starter: button and LED": [
+    "Стартер: кнопка и СИД",
+    "Початок: кнопка і лампочка",
+    "Inicio: botón y LED",
+    "Démarreur: bouton et LED"
+  ],
+  "Swap a wire and check the UART diagnosis.": [
+    "Проверьте диагноз UART.",
+    "Поміняйте дріт і перевірте, чи правильно діагностували ВАРТ.",
+    "Cambie un cable y compruebe el diagnóstico de UART.",
+    "Échanger un fil et vérifier le diagnostic UART."
+  ],
+  "Check wiring and model limits.": [
+    "Проверьте границы проводов и моделей.",
+    "Перевіряти обмеження проводів і моделей.",
+    "Compruebe los límites de cableado y modelo.",
+    "Vérifiez les limites du câblage et du modèle."
+  ],
+  "Change the temperature and observe the display.": [
+    "Измени температуру и наблюдай за дисплеем.",
+    "Змініть температуру та подивіться на дисплей.",
+    "Cambie la temperatura y observe la pantalla.",
+    "Changez la température et observez l'affichage."
+  ],
+  "ESP32 with SSD1306 at 0x3C and BME280 at 0x76.": [
+    "ESP32 с SD1306 at 0x3C и BME 280 at 0x76.",
+    "ESP32 з SSD1306 0x3C і BME280 о 0x76.",
+    "ESP32 con SSD1306 a 0x3C y BME280 a 0x76.",
+    "ESP32 avec SSD1306 à 0x3C et BME280 à 0x76."
+  ],
+  "Unknown variable": [
+    "Неизвестная переменная",
+    "Невідома змінна",
+    "Variable desconocida",
+    "Variable inconnue"
+  ],
+  "Blocks and C++ synchronized": [
+    "Блоки и C++ синхронизированы",
+    "Блоки і C++ синхронізовано",
+    "Bloques y C++ sincronizados",
+    "Blocs et C++ synchronisés"
+  ],
+  "Incorrect argument count": [
+    "Неправильное число аргументов",
+    "Неправильна кількість аргументів",
+    "Conteo de argumentos incorrectos",
+    "Nombre d'arguments incorrects"
+  ],
+  "Blocks + C++": [
+    "Блоки + C++",
+    "Блоки + C++",
+    "Bloques + C++",
+    "Blocs + C++"
+  ],
+  "One expression per line, e.g. digitalRead(5) == HIGH": [
+    "Одно выражение на строку, например digitalRead(5) == HIGH",
+    "Один вираз на рядок, наприклад digitalRead(5) == HIGH",
+    "Una expresión por línea, p. ej. digitalRead(5) == HIGH",
+    "Une expression par ligne, p. ex. digitalRead(5) == HIGH"
+  ],
+  "Image is too large": [
+    "Фотография слишком большая",
+    "Зображення завелике",
+    "La imagen es demasiado grande",
+    "L'image est trop grande"
+  ],
+  "PING/PONG exchange produces UART_OK output.": [
+    "PING/POND Exploding updays UART_OK выход.",
+    "Обмін PEING/ PONG дає результат UART_ OK.",
+    "El intercambio PING/PONG produce salida UART_OK.",
+    "L'échange PING/PONG produit la sortie UART_OK."
+  ],
+  "Multiple active UART TX pins are connected together.": [
+    "Множественные активные булавки UART TX связаны.",
+    "З' єднуватися з декількома активними пунктирними шпильками UART.",
+    "Múltiples pines activos UART TX están conectados entre sí.",
+    "Plusieurs broches UART TX actives sont connectées ensemble."
+  ],
+  "Unsafe archive path": [
+    "Небезопасный архивный путь",
+    "Небезпечний шлях до архіву",
+    "Ruta de archivo no segura",
+    "Chemin de l'archive non sûr"
+  ],
+  "References": [
+    "Справочные материалы",
+    "Посилання",
+    "Bibliografía",
+    "Références"
+  ],
+  "Statements": [
+    "Заявления",
+    "Виписки",
+    "Declaraciones",
+    "Déclarations"
+  ],
+  "Unsupported block schema": [
+    "Неподдерживаемая схема блокировки",
+    "Схема блоків, що не підтримується",
+    "Esquema de bloques no soportado",
+    "Schéma de bloc non pris en charge"
+  ],
+  "Incorrect return type": [
+    "Неверный тип возврата",
+    "Неправильний тип повернення",
+    "Tipo de devolución incorrecto",
+    "Type de retour incorrect"
+  ],
+  "The scanner finds 0x3C and 0x76.": [
+    "Сканер находит 0x3C и 0x76.",
+    "Сканер знаходить 0x3C і 0x76.",
+    "El escáner encuentra 0x3C y 0x76.",
+    "Le scanner trouve 0x3C et 0x76."
+  ],
+  "Uno D5 drives an LED through 220 ohms.": [
+    "Uno D5 ездит на светодиоде через 220 омов.",
+    "Uno D5 проводить світлодіод через 220 Ом.",
+    "Uno D5 conduce un LED a través de 220 ohmios.",
+    "Uno D5 conduit une LED à 220 ohms."
+  ],
+  "Add function": [
+    "Добавить функцию",
+    "Додати функцію",
+    "Añadir función",
+    "Ajouter une fonction"
+  ],
+  "The LED lights while the button is pressed.": [
+    "Светодиодный огонь, пока нажат кнопка.",
+    "Світлодіоди під час натискання кнопки.",
+    "Las luces LED mientras se presiona el botón.",
+    "Les LED s'allument pendant que le bouton est pressé."
+  ],
+  "Servo on Uno D9 with a 5 V supply.": [
+    "Servo on Uno D9 с 5-вольтным поставкой.",
+    "Серво на Уно-Д9 с поставкой 5 В.",
+    "Servo en Uno D9 con un suministro de 5 V.",
+    "Servo sur Uno D9 avec un approvisionnement de 5 V."
+  ],
+  "Remove the direct short and insert the load into the circuit.": [
+    "Удалить прямую короткую и вставить нагрузку в цепь.",
+    "Вилучити пряме скорочення і вставити навантаження у коло.",
+    "Retire el corto directo e introduzca la carga en el circuito.",
+    "Retirez le court-circuit direct et insérez la charge dans le circuit."
+  ],
+  "The serial monitor shows the configured distance.": [
+    "Серийный монитор показывает выбранное расстояние.",
+    "Серійний монітор показує налаштовану відстань.",
+    "El monitor serie muestra la distancia configurada.",
+    "Le moniteur série affiche la distance configurée."
+  ],
+  "DHT22 with 5 V, GND and DATA on Uno D2.": [
+    "DHT22 с 5 V, GND и DATA на Uno D2.",
+    "DHT22 з 5 V, GND і DATA на Uno D2.",
+    "DHT22 con 5 V, GND y DATA en Uno D2.",
+    "DHT22 avec 5 V, GND et DATA sur Uno D2."
+  ],
+  "Model": [
+    "Модель",
+    "Модель",
+    "Modelo",
+    "Modèle"
+  ],
+  "Starter: blinking LED": [
+    "Стартер: мигающий светодиод",
+    "Початок: блимання світлодіоду",
+    "Inicio: LED parpadeante",
+    "Démarreur: clignotant LED"
+  ],
+  "Convert time of flight into distance.": [
+    "Преобразование времени полета в расстояние.",
+    "Перетворювати час польоту на відстань.",
+    "Convertir tiempo de vuelo en distancia.",
+    "Convertir le temps de vol en distance."
+  ],
+  "Restore manual backup": [
+    "Восстановить ручной резерв",
+    "Відновити створення резервної копії вручну",
+    "Restaurar copia de seguridad manual",
+    "Restaurer la sauvegarde manuelle"
+  ],
+  "Check VCC, GND and the permitted supply voltage.": [
+    "Проверьте VCC, GND и допустимое напряжение питания.",
+    "Перевірте VCC, GND та дозволену напругу поставок.",
+    "Compruebe VCC, GND y la tensión de alimentación permitida.",
+    "Vérifiez VCC, GND et la tension d'alimentation autorisée."
+  ],
+  "Else branch requires if": [
+    "В случае вязкого ветка требуется:",
+    "Для роботи з іншими гілками слід використовувати цей параметр",
+    "La rama de otro tipo requiere si",
+    "Sinon, la branche nécessite si"
+  ],
+  "Pin is input only": [
+    "Pin - это только вход",
+    "Вхідні дані лише у піні",
+    "Pin es sólo de entrada",
+    "Pin n'est qu'entrée"
+  ],
+  "Change order and nesting in Structure. Card positions do not change program execution.": [
+    "Изменение порядка и гнезда в Структуре. Позиции карт не изменяют исполнение программы.",
+    "Змінити порядок і вкладку у структуру. Позиції карток не змінюють виконання програми.",
+    "Cambiar el orden y anidar en Estructura. Las posiciones de la tarjeta no cambian la ejecución del programa.",
+    "Changer l'ordre et la nidification dans la structure. Les positions des cartes ne changent pas l'exécution du programme."
+  ],
+  "Block data is unknown or damaged. C++ is preserved.": [
+    "Данные блокировки неизвестны или повреждены. C++ сохраняется.",
+    "Невідомі або пошкоджені блокові дані. C++ збережено.",
+    "Los datos de bloqueo se desconocen o se dañan. C++ se conserva.",
+    "Les données de bloc sont inconnues ou endommagées. C++ est conservé."
+  ],
+  "Text too long": [
+    "Текст слишком длинный",
+    "Текст задовгий",
+    "Texto demasiado largo",
+    "Texte trop long"
+  ],
+  "Local libraries": [
+    "Местные библиотеки",
+    "Локальні бібліотеки",
+    "Bibliotecas locales",
+    "Bibliothèques locales"
+  ],
+  "Unsafe archive filename": [
+    "Небезопасное имя архива",
+    "Небезпечна назва файла архіву",
+    "Nombre de archivo inseguro",
+    "Nom de fichier d'archive non sûr"
+  ],
+  "Starter: UART between boards": [
+    "Starter: UART между досками",
+    "Початок: Взаємодія між дошками",
+    "Iniciador: UART entre tableros",
+    "Démarreur: UART entre les planches"
+  ],
+  "Regenerate C++ from blocks…": [
+    "Заново создать C++ из блоков…",
+    "Повторно створити C++ із блоків…",
+    "Volver a generar C++ desde los bloques…",
+    "Régénérer le C++ depuis les blocs…"
+  ],
+  "Modulo requires integers": [
+    "Modulo требует целых",
+    "Modulo потребує цілих чисел",
+    "Modulo requiere enteros",
+    "Modulo nécessite des entiers"
+  ],
+  "Call": [
+    "Вызов",
+    "Виклик",
+    "Llamar",
+    "Appeler"
+  ],
+  "Disconnect a device or create an address conflict.": [
+    "Отключить устройство или создать конфликт адресов.",
+    "Роз' єднати пристрій або створити конфлікт з адресою.",
+    "Desconectar un dispositivo o crear un conflicto de direcciones.",
+    "Déconnectez un appareil ou créez un conflit d'adresses."
+  ],
+  "Reverse direction by swapping the IN1/IN2 levels.": [
+    "Обратное направление путем замены уровней IN1/IN2.",
+    "Зворотній напрямок за допомогою перемикання рівнів IN1/IN2.",
+    "Dirección inversa mediante el intercambio de los niveles IN1/IN2.",
+    "Inverser la direction en échangeant les niveaux IN1/IN2."
+  ],
+  "Check the device address, power, SDA/SCL and bus configuration.": [
+    "Проверьте адрес устройства, мощность, конфигурацию SDA/SCL и автобуса.",
+    "Перевірте адресу пристрою, живлення, налаштування SDA/SCL і шини.",
+    "Compruebe la dirección del dispositivo, potencia, SDA/SCL y configuración de bus.",
+    "Vérifiez l'adresse de l'appareil, la puissance, la configuration SDA/SCL et bus."
+  ],
+  "Starter: DHT22": [
+    "Starter: DHT22",
+    "Початок: DHT22",
+    "Iniciador: DHT22",
+    "Démarreur: DHT22"
+  ],
+  "Unsafe sketch filename": [
+    "Небезопасное имя скетча",
+    "Небезпечна назва файла ескіза",
+    "Nombre de archivo de boceto inseguro",
+    "Nom du fichier de croquis non sûr"
+  ],
+  "Connect TX of one board to RX of the other and connect GND.": [
+    "Соединить TX с RX другой и соединить GND.",
+    "З'єднайте XX однієї дошки з RX іншої і з' єднайте GND.",
+    "Conectar TX de una placa a RX de la otra y conectar GND.",
+    "Connectez TX d'une carte à RX de l'autre et connectez GND."
+  ],
+  "Arguments / expressions": [
+    "Аргументы/выражения",
+    "Аргументи/ вирази",
+    "Argumentos / expresiones",
+    "Arguments / expressions"
+  ],
+  "Number out of range": [
+    "Количество вне диапазона",
+    "Число поза діапазоном",
+    "Número fuera del rango",
+    "Nombre hors de portée"
+  ],
+  "Two ESP32 boards with crossed GPIO16/17 and common GND.": [
+    "Две доски ESP32 с пересекающимися GPIO16/17 и общей GND.",
+    "Дві дошки ESP32 з перетином GPIO16/17 і спільною GND.",
+    "Dos placas ESP32 con GPIO16/17 cruzado y GND común.",
+    "Deux planches ESP32 avec GPIO16/17 croisé et GND commun."
+  ],
+  "Multiple I²C devices use the same address on the same bus.": [
+    "Несколько устройств I2C используют один и тот же адрес в одном автобусе.",
+    "Декілька пристроїв I2C використовують ту саму адресу на одному автобусі.",
+    "Múltiples dispositivos I2C usan la misma dirección en el mismo autobús.",
+    "Plusieurs appareils I2C utilisent la même adresse sur le même bus."
+  ],
+  "For loop": [
+    "Для петли",
+    "Для циклу",
+    "Para bucle",
+    "Pour boucle"
+  ],
+  "Incompatible comparison": [
+    "Несовместимое сопоставление",
+    "Несумісне порівняння",
+    "Comparación incompatible",
+    "Comparaison incompatible"
+  ],
+  "Function parameters": [
+    "Параметры функций",
+    "Параметри функції",
+    "Parámetros de la función",
+    "Paramètres de fonction"
+  ],
+  "C++ is preserved. Create a block program and explicitly generate it to begin.": [
+    "C++ сохраняется. Создайте блок-программу и явно создайте её для начала.",
+    "Програма C++ зберігається. Створіть програму- блок і явно створіть її для початку.",
+    "C++ se conserva. Cree un programa de bloques y generarlo explícitamente para comenzar.",
+    "C++ est conservé. Créez un programme de blocs et générez-le explicitement pour commencer."
+  ],
+  "ThinkCad project export": [
+    "Экспорт проекта ThinkCad",
+    "Експорт проекту ThinkCad",
+    "Exportación del proyecto ThinkCad",
+    "Exportation de projet ThinkCad"
+  ],
+  "Power is missing or outside the modeled range.": [
+    "Мощность отсутствует или находится вне моделированного диапазона.",
+    "Влада відсутня або знаходиться поза моделем.",
+    "Falta energía o está fuera de la gama modelada.",
+    "La puissance est manquante ou à l'extérieur de la gamme modélisée."
+  ],
+  "Return": [
+    "Возврат",
+    "Повернення",
+    "Devolver",
+    "Renvoyer"
+  ],
+  "View as PNG/SVG…": [
+    "Вид как PNG/SVG...",
+    "Переглянути як PNG/ SVG...",
+    "Ver como PNG/SVG...",
+    "Afficher comme PNG/SVG..."
+  ],
+  "Button to GND, internal pull-up and LED with series resistor.": [
+    "Кнопка для GND, внутренний подъем и светодиод с серийным резистором.",
+    "Кнопка з GND, вбудоване перетягування і світлодіоди з послідовним резистором.",
+    "Botón a GND, pull-up interno y LED con resistencia de serie.",
+    "Bouton à GND, traction interne et LED avec résistance de série."
+  ],
+  "Connect the cathode to the negative terminal through a closed circuit.": [
+    "Соедините катод с отрицательным терминалом через замкнутую цепь.",
+    "З'єднай катход з від'ємним терміналом через замкнене коло.",
+    "Conecte el cátodo al terminal negativo a través de un circuito cerrado.",
+    "Connectez la cathode au terminal négatif par un circuit fermé."
+  ],
+  "Edit parameters…": [
+    "Редактировать параметры...",
+    "Редагувати параметри...",
+    "Editar parámetros...",
+    "Modifier les paramètres..."
+  ],
+  "Assignment": [
+    "Задание",
+    "Призначення",
+    "Asignación",
+    "Attribution"
+  ],
+  "Archive exceeds size limit": [
+    "Архив превышает предел размера",
+    "Архів перевищить обмеження розміру",
+    "Archivo supera el límite de tamaño",
+    "Les archives dépassent la limite de taille"
+  ],
+  "Remove unknown block data? The existing C++ sketch will be backed up.": [
+    "Удалять неизвестные блок-данные? Существующий скетч C++ будет сохранен.",
+    "Вилучити невідомі дані блоків? існуючий ескіз C++ буде створено як резервну копію.",
+    "¿Borrar datos de bloques desconocidos? El boceto C++ existente será copia de seguridad.",
+    "Supprimez les données de bloc inconnues ? L'esquisse C++ existante sera sauvegardée."
+  ],
+  "Program too complex": [
+    "Программа слишком сложна",
+    "Заскладна програма",
+    "Programa demasiado complejo",
+    "Programme trop complexe"
+  ],
+  "This wire already exists.": [
+    "Этот провод уже существует.",
+    "Цей дріт вже існує.",
+    "Este cable ya existe.",
+    "Ce fil existe déjà."
+  ],
+  "Void expression": [
+    "Выражения, связанные с недугом",
+    "Вимірювання",
+    "Expresión de vacío",
+    "Expression du vide"
+  ],
+  "The eight pixels show a running color animation.": [
+    "Восемь пикселей показывают бегущую цветовую анимацию.",
+    "За допомогою восьми пікселів можна побачити анімацію кольорів, що працює.",
+    "Los ocho píxeles muestran una animación a color en ejecución.",
+    "Les huit pixels montrent une animation en couleur courante."
+  ],
+  "The motor runs forward with PWM; startup current and speed change.": [
+    "Мотор двигается вперед с PWM; стартап ток и изменение скорости.",
+    "Рушій працює вперед за допомогою PWM; - поточного запуску і зміни швидкості.",
+    "El motor avanza con PWM; corriente de arranque y cambio de velocidad.",
+    "Le moteur tourne en avant avec PWM; courant de démarrage et changement de vitesse."
+  ],
+  "Unknown operator": [
+    "Неизвестный оператор",
+    "Невідомий оператор",
+    "Operador desconocido",
+    "Opérateur inconnu"
+  ],
+  "Understand a closed circuit and GPIO output.": [
+    "Поймите замкнутую цепь и выход GPIO.",
+    "Зрозуміти закрите коло і вивід GPIO.",
+    "Comprender un circuito cerrado y salida GPIO.",
+    "Comprendre un circuit fermé et une sortie GPIO."
+  ],
+  "Change pixel colors; distinguish the transaction model from the GPIO trace.": [
+    "Изменить цвета пикселя; отличить модель операций от GPIO-отследа.",
+    "Змінити кольори пікселів; відрізнити модель операції від сліду GPIO.",
+    "Cambiar los colores del píxel; distinguir el modelo de transacción de la traza GPIO.",
+    "Changer les couleurs du pixel; distinguer le modèle de transaction de la trace GPIO."
+  ],
+  "Coding view": [
+    "Вид на кодирование",
+    "Перегляд програмування",
+    "Vista de codificación",
+    "Vue de codage"
+  ],
+  "Open project.thinkcad in ThinkCad. Sketches are separated by board in the sketches folder. Libraries are listed in libraries.json. Nothing was uploaded.": [
+    "Open Project.ThinkCad in ThinkCad. Sketches разделены по доске в папке рисунков. Библиотеки перечислены в библиотеках.json. Ничего не было загружено.",
+    "Відкрити проект. ThinkCad у ThinkCad. Списки розділяються дошкою у теці ескізів. Бібліотеки перелічено у бібліотеки. json. Нічого не було вивантажено.",
+    "Abrir proyecto.ThinkCad en ThinkCad. Los bocetos se separan por tablero en la carpeta de bocetos. Las bibliotecas se enumeran en librarys.json. No se subió nada.",
+    "Ouvrir project.ThinkCad dans ThinkCad. Les croquis sont séparés par un panneau dans le dossier des croquis. Les bibliothèques sont listées dans libraries.json. Rien n'a été téléchargé."
+  ],
+  "Archive filename collision": [
+    "Архивный файл столкновения",
+    "Зіткнення назв файлів архівів",
+    "Colisión de nombre de archivo",
+    "Archiver la collision du nom de fichier"
+  ],
+  "Change humidity and wait for the next reading.": [
+    "Измени влажность и жди следующего чтения.",
+    "Змініть вологість і чекайте наступного читання.",
+    "Cambie la humedad y espere a la siguiente lectura.",
+    "Changer l'humidité et attendre la prochaine lecture."
+  ],
+  "Uno controls an L298N with a separate 9 V motor supply and common GND.": [
+    "Uno контролирует L298N с отдельным 9-вольтным электродвигателем и общим GND.",
+    "Uno керує L298N з окремим V-постачальником і загальним GND.",
+    "Uno controla un L298N con un suministro de motor separado de 9 V y GND común.",
+    "Uno contrôle un L298N avec un moteur 9 V séparé et un GND commun."
+  ],
+  "Boolean": [
+    "Булеан",
+    "Булеве",
+    "Booleano",
+    "Booléen"
+  ],
+  "Generated source too large": [
+    "Слишком большой источник",
+    "Створене джерело завелике",
+    "Fuente generada demasiado grande",
+    "Source générée trop grande"
+  ],
+  "LED current exceeds the model limit.": [
+    "Светодиодный ток превышает предел модели.",
+    "світлодіодний струм перевищить обмеження моделі.",
+    "La corriente LED supera el límite del modelo.",
+    "Le courant LED dépasse la limite du modèle."
+  ],
+  "Learn about servo pulses and angle control.": [
+    "Узнайте о пульсах серво и контроле угла.",
+    "Дізнайтеся про пульсацію та контроль кутів.",
+    "Aprenda acerca de los pulsos servo y el control del ángulo.",
+    "Apprenez-en davantage sur les impulsions servomotrices et le contrôle de l'angle."
+  ],
+  "Not synchronized: blocks or C++ changed. C++ remains unchanged until generation.": [
+    "Не синхронизировано: блоки или C++ изменены. Код C++ сохраняется до повторной генерации.",
+    "Не синхронізовано: блоки або C++ змінено. Код C++ зберігається до повторного створення.",
+    "Sin sincronizar: cambiaron los bloques o C++. C++ se conserva hasta volver a generar el código.",
+    "Non synchronisé : les blocs ou le C++ ont changé. Le C++ est conservé jusqu’à la génération."
+  ],
+  "Change the blink interval and measure LED current.": [
+    "Изменяйте интервал мигания и измеряйте светодиодный ток.",
+    "Змінити інтервал блимання та вимірювати світлодіодну потоку.",
+    "Cambie el intervalo de parpadeo y mida la corriente LED.",
+    "Changez l'intervalle de clignotement et mesurez le courant LED."
+  ],
+  "Solution": [
+    "Решение",
+    "Розв' язання",
+    "Solución",
+    "Solution"
+  ],
+  "Export view": [
+    "Экспортный вид",
+    "Експортувати перегляд",
+    "Vista de exportación",
+    "Vue sur l'exportation"
+  ],
+  "Local library files are included.": [
+    "Включены файлы местной библиотеки.",
+    "Включено файли локальної бібліотеки.",
+    "Los archivos de la biblioteca local están incluidos.",
+    "Les fichiers de bibliothèque locale sont inclus."
+  ],
+  "Function": [
+    "Функция",
+    "Функція",
+    "Función",
+    "Fonction"
+  ],
+  "Learning goal": [
+    "Цель обучения",
+    "Метою навчання",
+    "Objetivo de aprendizaje",
+    "Objectif d'apprentissage"
+  ],
+  "Starter: motor with L298N": [
+    "Starter: Мотор с L298N",
+    "Початок: рушій з L298NName",
+    "Arranque: motor con L298N",
+    "Démarreur: moteur avec L298N"
+  ],
+  "Else": [
+    "Else",
+    "ЕльзеCity in Quebec Canada",
+    "Else",
+    "Autres"
+  ],
+  "Find reachable device addresses on a shared I2C bus.": [
+    "Найдите доступные адреса устройства в общем автобусе I2C.",
+    "Используемые адресы устройства на общественном автобусе I2C.",
+    "Encuentre direcciones de dispositivos accesibles en un bus I2C compartido.",
+    "Trouvez des adresses d'appareils accessibles sur un bus I2C partagé."
+  ],
+  "Visual block program": [
+    "Программа Визуального блока",
+    "Програма з візуальним блоком",
+    "Programa de bloqueo visual",
+    "Programme de blocs visuels"
+  ],
+  "Initial value": [
+    "Первоначальная стоимость",
+    "Початкове значення",
+    "Valor inicial",
+    "Valeur initiale"
+  ],
+  "Display analog sensor readings on an I2C display.": [
+    "Показать аналоговые показания датчиков на дисплее I2C.",
+    "Показувати на дисплеї I2C аналогові сенсори.",
+    "Mostrar lecturas analógicas de sensores en una pantalla I2C.",
+    "Affiche les lectures de capteurs analogiques sur un écran I2C."
+  ],
+  "While": [
+    "Пока",
+    "Поки",
+    "Mientras",
+    "Alors que"
+  ],
+  "Unknown block": [
+    "Неизвестный блок",
+    "Невідомий блок",
+    "Bloque desconocido",
+    "Bloc inconnu"
+  ],
+  "Starter: PWM dimming": [
+    "Starter: PWM dimming",
+    "Початок: розмивання PWM",
+    "Inicio: Atenuación PWM",
+    "Démarreur: PWM variante"
+  ],
+  "Understand digital colors and modeled transmission times.": [
+    "Понять цифровые цвета и моделируемые часы передачи.",
+    "Розпізнайте цифрові кольори і час модифікованого передавання.",
+    "Comprende los colores digitales y los tiempos de transmisión modelados.",
+    "Comprendre les couleurs numériques et les temps de transmission modélisés."
+  ],
+  "LED has no identifiable electrical return path.": [
+    "Светодиод не имеет идентифицируемого пути возврата электроэнергии.",
+    "У світлодіоди немає визначеного шляху повернення електричного струму.",
+    "El LED no tiene trayectoria de retorno eléctrico identificable.",
+    "LED n'a pas de chemin de retour électrique identifiable."
+  ],
+  "Expected behavior": [
+    "Ожидаемое поведение",
+    "Очікувана поведінка",
+    "Comportamiento previsto",
+    "Comportement attendu"
+  ],
+  "Electrical conflict": [
+    "Электрический конфликт",
+    "Електричний конфлікт",
+    "Conflicto eléctrico",
+    "Conflit électrique"
+  ],
+  "The servo moves between 15 and 165 degrees.": [
+    "Серво двигается между 15 и 165°.",
+    "Серво рухається від 15 до 165 градусів.",
+    "El servo se mueve entre 15 y 165 grados.",
+    "Le servo se déplace entre 15 et 165 degrés."
+  ],
+  "Conflicting drivers or power supply shorted to GND.": [
+    "Тревожные драйверы или энергоснабжение были ограничены до GND.",
+    "Суперечні драйвери або постачання енергії, скорочені для GND.",
+    "Los conductores conflictivos o la fuente de alimentación se redujeron a GND.",
+    "Les conducteurs en conflit ou l'alimentation électrique sont réduits à GND."
+  ],
+  "Condition requires a number or boolean": [
+    "Условие требует номера или булевого",
+    "Умова вимагає числа або булівського значення",
+    "Condición requiere un número o booleano",
+    "La condition exige un nombre ou un booléen"
+  ],
+  "Change the movement range and speed.": [
+    "Измени диапазон движения и скорость.",
+    "Змінити діапазон руху і швидкість.",
+    "Cambie el rango de movimiento y la velocidad.",
+    "Changer la portée et la vitesse du mouvement."
+  ],
+  "For step cannot be zero": [
+    "Для ступеньки не может быть ноль",
+    "Для step не може бути нульовим",
+    "Para paso no puede ser cero",
+    "Pour l'étape ne peut pas être zéro"
+  ],
+  "Starter: OLED temperature": [
+    "Poster: Температура OLD",
+    "Запущена температура: Зниження температури",
+    "Inicio: Temperatura OLED",
+    "Démarreur: température OLED"
+  ],
+  "Missing or duplicate block ID": [
+    "Отсутствует или дублирует идентификатор блока",
+    "Відсутній або дубльований ідентифікатор блоку",
+    "ID de bloque faltante o duplicado",
+    "ID de bloc manquant ou dupliqué"
+  ],
+  "HC-SR04 on Uno D2/TRIG and D3/ECHO, with 5 V/GND.": [
+    "HC-SR04 на Uno D2/TRIG и D3/ECHO, с 5 V/GND.",
+    "HC- SR04 на Uno D2/ TRIG і D3/ ECHO, з 5 V/ GND.",
+    "HC-SR04 en Uno D2/TRIG y D3/ECHO, con 5 V/GND.",
+    "HC-SR04 sur uno D2/TRIG et D3/ECHO, avec 5 V/GND."
+  ],
+  "Back up the manual C++ sketch and replace it with the blocks?": [
+    "Верните ручной рисунок C++ и замените его блоками?",
+    "Повернутися до ручного ескізу C++ і замінити його блоками?",
+    "¿Retrocede el boceto manual de C++ y reemplázalo con los bloques?",
+    "Sauvegarder le croquis manuel C++ et le remplacer par les blocs ?"
+  ],
+  "Change distance and measure the echo pulse duration.": [
+    "Измени расстояние и измерь продолжительность эхо импульса.",
+    "Змінити відстань і виміряти тривалість імпульсу відлуння.",
+    "Cambie la distancia y mida la duración del pulso del eco.",
+    "Changer la distance et mesurer la durée de l'impulsion d'écho."
+  ],
+  "No return value": [
+    "Нет возвратной стоимости",
+    "Значення без повернення",
+    "Sin valor de retorno",
+    "Pas de valeur de retour"
+  ],
+  "Incorrect argument type": [
+    "Неверный тип аргумента",
+    "Неправильний тип аргументу",
+    "Tipo de argumento incorrecto",
+    "Type d'argument incorrect"
+  ],
+  "Distinguish logic supply, motor supply and H-bridge.": [
+    "Отличительный логичный запас, двигатель и мост Н.",
+    "Дистингістичні логічні дані, постачання двигунів та місткості.",
+    "Distinguir el suministro lógico, el suministro de motores y H-bridge.",
+    "Approvisionnement logique distinctif, alimentation en moteur et pont H."
+  ],
+  "Function parameters: name:type, separated by commas. 0 integer, 1 number, 2 boolean, 3 text.": [
+    "Параметры функций: имя: тип, разделённый запятыми. 0 целых, 1 число, 2 булевые, 3 текста.",
+    "Параметри функції: назва: тип, відокремлений комами. 0 цілим, 1 число, 2 булівський, 3 текст.",
+    "Parámetros de función: nombre:tipo, separados por comas. 0 entero, 1 número, 2 booleanos, 3 texto.",
+    "Paramètres de fonction: name:type, séparés par des virgules. 0 entier, 1 nombre, 2 booléen, 3 texte."
+  ],
+  "Block type": [
+    "Тип блока",
+    "Тип блоків",
+    "Tipo de bloque",
+    "Type de bloc"
+  ],
+  "PWM unavailable on selected pin": [
+    "PWM недоступен на выбранной булавке",
+    "PWM недоступний на вибраній валиціName",
+    "PWM no disponible en el pin seleccionado",
+    "PWM non disponible sur la broche sélectionnée"
+  ],
+  "The LED becomes brighter and darker.": [
+    "Светодиод становится ярче и темнее.",
+    "Світлодіод стає все яснішим і темнішим.",
+    "El LED se vuelve más brillante y más oscuro.",
+    "La LED devient plus lumineuse et plus foncée."
+  ],
+  "Delete block": [
+    "Удалить блок",
+    "Вилучити блок",
+    "Borrar bloque",
+    "Supprimer le bloc"
+  ],
+  "Function must return a value on all paths": [
+    "Функция должна вернуть значение на всех путях",
+    "Функція має повернути значення на всіх шляхах",
+    "La función debe devolver un valor en todas las rutas",
+    "Fonction doit retourner une valeur sur tous les chemins"
+  ],
+  "Connect a pull-up/pull-down or an active signal driver.": [
+    "Подключите вытягивающее/приводное устройство или активный сигнализатор.",
+    "З' єднати зв' язок зі спадним або активним драйвером сигналу.",
+    "Conecte un pull-up/pull-down o un controlador de señal activo.",
+    "Branchez un pilote de signal actif ou d'entraînement."
+  ],
+  "Include library files in addition to the library list?": [
+    "Включите библиотечные файлы в дополнение к списку библиотек?",
+    "Включити файли бібліотеки до списку бібліотеки?",
+    "¿Incluir archivos de biblioteca además de la lista de bibliotecas?",
+    "Inclure les fichiers de bibliothèque en plus de la liste des bibliothèques?"
+  ],
+  "Pin unavailable on selected board": [
+    "Pin недоступна на выбранной доске",
+    "Шпилька недоступна на вибраній дошці",
+    "Pin no disponible en el tablero seleccionado",
+    "Pin non disponible sur la carte sélectionnée"
+  ],
+  "Too many archive files": [
+    "Слишком много архивных файлов",
+    "Забагато файлів архівів",
+    "Demasiados archivos de archivo",
+    "Trop de fichiers d'archives"
+  ],
+  "Create a floating input and read the diagnostic message.": [
+    "Создайте плавучий вход и прочитайте диагностическое сообщение.",
+    "Створіть плаваючий ввід і прочитайте діагностичне повідомлення.",
+    "Crear una entrada flotante y leer el mensaje de diagnóstico.",
+    "Créez une entrée flottante et lisez le message de diagnostic."
+  ],
+  "Project as ZIP…": [
+    "Проект как ZIP...",
+    "Проект як ZIP...",
+    "Proyecto como ZIP...",
+    "Projet comme ZIP..."
+  ],
+  "Understand temperature, humidity and sensor intervals.": [
+    "Понять интервалы между температурой, влажностью и датчиками.",
+    "Розпізнайте температуру, вологість і інтервали сенсорів.",
+    "Comprende la temperatura, la humedad y los intervalos del sensor.",
+    "Comprendre les intervalles de température, d'humidité et de capteur."
+  ],
+  "For loop needs integer bounds and constant step": [
+    "Для петли нужны целые границы и постоянная ступень",
+    "Для циклу потрібні цілі межі і сталий крок",
+    "Para bucle necesita límites enteros y paso constante",
+    "Pour les besoins de boucle entiers et l'étape constante"
+  ],
+  "Could not open image export": [
+    "Не удалось открыть экспорт изображения",
+    "Не вдалося відкрити експорт зображень",
+    "No se pudo abrir la exportación de imágenes",
+    "Impossible d'ouvrir l'exportation d'image"
+  ],
+  "The positive and negative terminals of a voltage source are shorted.": [
+    "Положительные и негативные клеммы источника напряжения короче.",
+    "Додатні та від'ємні термінали джерела напруги скоротяться.",
+    "Los terminales positivos y negativos de una fuente de voltaje se reducen.",
+    "Les bornes positives et négatives d'une source de tension sont raccourcies."
+  ],
+  "Integer out of range": [
+    "Интегер вне зоны действия",
+    "Ціле число поза діапазоном",
+    "Integer fuera de rango",
+    "Entier hors de portée"
+  ],
+  "All messages": [
+    "Все сообщения",
+    "Всі повідомлення",
+    "Todos los mensajes",
+    "Tous les messages"
+  ],
+  "This connection joins conflicting supplies. Connect anyway?": [
+    "Эта связь соединяет противоречивые поставки.",
+    "Це з' єднання об' єднує несумісні доставки. З' єднатись попри все?",
+    "Esta conexión une suministros conflictivos. ¿Conectar de todos modos?",
+    "Cette connexion rejoint des approvisionnements contradictoires."
+  ],
+  "Potentiometer position changes the ADC value and LED brightness.": [
+    "Потенциометр изменяет значение ADC и яркость СИД.",
+    "Позиція позиметра змінює значення ADC і світлодіодну яскравість.",
+    "La posición del potenciómetro cambia el valor ADC y el brillo del LED.",
+    "La position du potentiomètre change la valeur ADC et la luminosité LED."
+  ],
+  "Numeric operation requires numbers": [
+    "Цифровая операция требует номеров",
+    "Для виконання числової дії потрібні числа",
+    "La operación numérica requiere números",
+    "L'opération numérique nécessite des nombres"
+  ],
+  "The OLED shows approximately 25 degrees Celsius; the sensor value can be changed.": [
+    "OLED показывает примерно 25°С; значение датчика может быть изменено.",
+    "ОРСЛ показує близько 25 градусів Цельсія; значення сенсора можна змінити.",
+    "El OLED muestra aproximadamente 25 grados Celsius; el valor del sensor se puede cambiar.",
+    "L'OLED montre environ 25 degrés Celsius; la valeur du capteur peut être modifiée."
+  ],
+  "Invalid assignment": [
+    "Неверное назначение",
+    "Некоректне призначення",
+    "Asignación no válida",
+    "Affectation non valide"
+  ],
+  "Starter: I2C scanner": [
+    "Starter: I2C сканер",
+    "Початок: сканер I2C",
+    "Iniciador: escáner I2C",
+    "Démarreur : scanner I2C"
+  ],
+  "Global variables…": [
+    "Глобальные переменные...",
+    "Загальні змінні...",
+    "Variables globales...",
+    "Les variables globales..."
+  ],
+  "Protocol view (model)": [
+    "Протокольный вид (модель)",
+    "Перегляд протоколів (модель)",
+    "Vista del protocolo (modelo)",
+    "Vue du protocole (modèle)"
+  ],
+  "Change a device address or use a separate bus.": [
+    "Поменяй адрес устройства или используй отдельный автобус.",
+    "Змінити адресу пристрою або скористатися окремою шиною.",
+    "Cambiar una dirección del dispositivo o utilizar un bus separado.",
+    "Changez l'adresse d'un appareil ou utilisez un bus séparé."
+  ],
+  "The LED regularly switches on and off.": [
+    "СИД регулярно включается и выключается.",
+    "Лампа світлодіоди постійно вмикає або вимикається.",
+    "El LED se enciende y apaga regularmente.",
+    "La LED s'allume et s'éteint régulièrement."
+  ],
+  "Add": [
+    "Добавить",
+    "Додати",
+    "Añadir",
+    "Ajouter"
+  ],
+  "Diagnostics": [
+    "Диагностика",
+    "Діагностика",
+    "Diagnosis",
+    "Diagnostic"
+  ],
+  "Trigger channel": [
+    "Сигнал",
+    "Задіяти канал",
+    "Canal de activación",
+    "Chaîne de déclenchement"
+  ],
+  "LED is connected directly to the supply without an identifiable current limiter.": [
+    "СИД подсоединяется непосредственно к источнику питания без идентифицируемого ограничителя тока.",
+    "Позначка з' єднується безпосередньо з поставкою без визначення поточного обмеження.",
+    "El LED se conecta directamente al suministro sin un limitador de corriente identificable.",
+    "LED est connectée directement à l'alimentation sans limiteur de courant identifiable."
+  ],
+  "Export bill of materials": [
+    "Экспортный вексель материалов",
+    "Експортувати рахунок матеріалів",
+    "Carta de exportación de materiales",
+    "Importation de matériaux"
+  ],
+  "Compare PWM duty cycle and brightness.": [
+    "Сравните рабочий цикл PWM и яркость.",
+    "Порівняти цикл і яскравість дій PWM.",
+    "Compare el ciclo de trabajo PWM y el brillo.",
+    "Comparer le cycle de travail et la luminosité du PWM."
+  ],
+  "Incorrect initial value type": [
+    "Неправильное начальное значение типа",
+    "Неправильний тип початкового значення",
+    "Tipo de valor inicial incorrecto",
+    "Type de valeur initiale incorrecte"
+  ],
+  "Invalid function parameters": [
+    "Неверные функциональные параметры",
+    "Некоректні параметри функції",
+    "Parámetros de función no válidos",
+    "Paramètres de fonction non valides"
+  ],
+  "Invalid or duplicate variable": [
+    "Неверная или дубликат переменной",
+    "Некоректна або дубльована змінна",
+    "Variable no válida o duplicada",
+    "Variable non valide ou dupliquée"
+  ],
+  "Starter: ultrasound": [
+    "Стартер: ультразвук",
+    "Початок: ультразвук",
+    "Inicio: ultrasonido",
+    "Démarreur : échographie"
+  ],
+  "Unknown expression": [
+    "Неизвестное выражение",
+    "Невідомий вираз",
+    "Expresión desconocida",
+    "Expression inconnue"
+  ],
+  "Compare ADC values at 25, 50 and 75 percent.": [
+    "Сравните значения ADC на 25, 50 и 75%.",
+    "Порівняйте значення ADC на 25, 50 і 75%.",
+    "Compare los valores de ADC a 25, 50 y 75 por ciento.",
+    "Comparez les valeurs ADC à 25, 50 et 75 pour cent."
+  ],
+  "Function / command": [
+    "Функция/ команда",
+    "Функція / команда",
+    "Función / comando",
+    "Fonction / commande"
+  ],
+  "Starter: potentiometer": [
+    "Starter: Poweriotor",
+    "Початковий: потужний",
+    "Inicio: potenciómetro",
+    "Démarreur : potentiomètre"
+  ],
+  "ESP32 with TMP36 on GPIO34 and SSD1306 on GPIO21/22.": [
+    "ESP32 с TMP36 на GPIO34 и SD1306 на GPIO21/22.",
+    "ESP32 з TMP36 на GPIO34 і SSD1306 на GPIO21/22.",
+    "ESP32 con TMP36 en GPIO34 y SSD1306 en GPIO21/22.",
+    "ESP32 avec TMP36 sur GPIO34 et SSD1306 sur GPIO21/22."
+  ],
+  "Starter: servo": [
+    "Starter: servo",
+    "Початок: серво",
+    "Iniciador: servo",
+    "Démarreur : servo"
+  ],
+  "Reset block data": [
+    "Перезагрузить блок-данные",
+    "Скинути дані блоків",
+    "Reiniciar los datos de bloques",
+    "Réinitialiser les données du bloc"
+  ],
+  "UART RX pins are connected without an identifiable TX driver.": [
+    "UART RX соединены без опознанного водителя TX.",
+    "З' єднані UART RX піни без звичайного драйвера TX.",
+    "Los pines UART RX están conectados sin un controlador TX identificable.",
+    "Les broches UART RX sont connectées sans pilote TX identifiable."
+  ],
+  "Oldest samples overwritten: %1": [
+    "Перезаписано старых отсчётов: %1",
+    "Перезаписано старих відліків: %1",
+    "Muestras más antiguas sobrescritas: %1",
+    "Échantillons les plus anciens écrasés : %1"
+  ],
+  "An I²C access was not acknowledged.": [
+    "Доступ I2C не был признан.",
+    "Не було прийнято доступ до I2C.",
+    "No se reconoció el acceso a la I2C.",
+    "Un accès I2C n'a pas été reconnu."
+  ],
+  "Invalid global initializer": [
+    "Неверный глобальный инициатор",
+    "Некоректний глобальний ініціатор",
+    "Iniciador global no válido",
+    "Invalidateur mondial non valide"
+  ],
+  "Number": [
+    "Номер",
+    "Номер",
+    "Número",
+    "Numéro"
+  ],
+  "Local library files are not included; install them separately if needed.": [
+    "Файлы местной библиотеки не включаются; устанавливать их отдельно, если это необходимо.",
+    "Файли локальної бібліотеки не включено; за потреби встановіть їх окремо.",
+    "Los archivos de la biblioteca local no están incluidos; instálelos por separado si es necesario.",
+    "Les fichiers de bibliothèque locale ne sont pas inclus; installez-les séparément si nécessaire."
+  ],
+  "Could not write project archive": [
+    "Не удалось записать архив проекта",
+    "Не вдалося записати архів проекту",
+    "No se pudo escribir el archivo del proyecto",
+    "Impossible d'écrire l'archive du projet"
+  ],
+  "10 kilohm potentiometer between 5 V and GND, wiper on A0.": [
+    "10 килохм мощнееометр между 5 В и GND, стеклоочиститель на A0.",
+    "10 кілохмогаметр від 5 до GND, гумка на А0.",
+    "Potenciómetro de 10 kilohm entre 5 V y GND, limpiaparabrisas A0.",
+    "Potentiomètre de 10 kilohm entre 5 V et GND, essuie-glaces sur A0."
+  ],
+  "Integer": [
+    "Интегер",
+    "Ціле число",
+    "Entero",
+    "Entier"
+  ],
+  "Invalid expression": [
+    "Неверное выражение",
+    "Некоректний вираз",
+    "Expresión no válida",
+    "Expression non valide"
+  ],
+  "Starter: WS2812B": [
+    "Starter: WS2812B",
+    "Початок: WS2812B",
+    "Iniciador: WS2812B",
+    "Démarreur: WS2812B"
+  ],
+  "Diagnostic filter": [
+    "Диагностический фильтр",
+    "Фільтр діагностики",
+    "Filtro de diagnóstico",
+    "Filtre de diagnostic"
+  ],
+  "Eight addressable RGB pixels on Uno D6 with 5 V/GND.": [
+    "Восемь адресных пикселей RGB на Uno D6 с 5 V/GND.",
+    "Вісім придатних для адрес пікселів RGB на Uno D6 з 5 V/ GND.",
+    "Ocho píxeles RGB direccionables en Uno D6 con 5 V/GND.",
+    "Huit pixels RGB adressables sur Uno D6 avec 5 V/GND."
+  ],
+  "Invalid number": [
+    "Неверный номер",
+    "Некоректне число",
+    "Número no válido",
+    "Numéro non valable"
+  ],
+  "Add block": [
+    "Добавить блок",
+    "Додати блок",
+    "Añadir bloque",
+    "Ajouter un bloc"
+  ],
+  "Compare PWM and filtered voltage on the oscilloscope.": [
+    "Сравните PWM и отфильтрованное напряжение на осциллоскопе.",
+    "Порівняти PWM з відфільтрованою напругою осцилограма.",
+    "Comparar PWM y tensión filtrada en el osciloscopio.",
+    "Comparer PWM et tension filtrée sur l'oscilloscope."
+  ],
+  "If / else": [
+    "Если/другое",
+    "Якщо / else",
+    "Si / de lo contrario",
+    "Si / autre"
+  ],
+  "Warnings and errors": [
+    "Оповещения и ошибки",
+    "Попередження і помилки",
+    "Advertencias y errores",
+    "Avertissements et erreurs"
+  ],
+  "ESP8266 with LED and 220 ohm series resistor.": [
+    "ESP8266 с СИД и резистор 220 ом.",
+    "ESP8266 з світлодіодом і 220 послідовним резистором Ohm.",
+    "ESP8266 con LED y resistencia de la serie 220 ohmios.",
+    "ESP8266 avec résistance LED et série 220 ohm."
+  ],
+  "Temperature and humidity appear in serial output every 2.1 seconds.": [
+    "Температура и влажность появляются в серийном выпуске каждые 2,1 секунды.",
+    "Температура і вологість з'являються у послідовному вигляді кожні 2,1 секунди.",
+    "La temperatura y la humedad aparecen en la salida en serie cada 2,1 segundos.",
+    "La température et l'humidité apparaissent en sortie série toutes les 2,1 secondes."
+  ],
+  "Separate power nets and never connect opposing outputs.": [
+    "Разделить силовые сети и никогда не соединять противные выходы.",
+    "Відокремлювати електричні мережі і ніколи не з' єднуватись з виводами, що противляться.",
+    "Separar las redes eléctricas y nunca conectar salidas opuestas.",
+    "Séparer les filets électriques et ne jamais connecter les sorties opposées."
+  ],
+  "Unknown constant": [
+    "Неизвестной константы",
+    "Невідома константа",
+    "Constante desconocida",
+    "constante inconnue"
+  ],
+  "Bill of materials as CSV…": [
+    "Билет материалов как CSV...",
+    "Балачка матеріалів як CSV...",
+    "Factura de materiales como CSV...",
+    "Bille de matériel en tant que CSV..."
+  ],
+  "Export": [
+    "Экспорт",
+    "Експортувати",
+    "Exportar",
+    "Exportations"
+  ],
+  "Export project": [
+    "Экспортный проект",
+    "Експортувати проект",
+    "Proyecto de exportación",
+    "Projet d ' exportation"
+  ],
+  "Unexpected nested blocks": [
+    "Неожиданные блоки с гнездами",
+    "Несподівані вкладені блоки",
+    "Bloques anidados inesperados",
+    "Blocs imbriqués inattendus"
+  ],
+  "Could not save image export": [
+    "Не удалось сохранить экспорт изображения",
+    "Не вдалося зберегти експорт зображень",
+    "No se pudo guardar la exportación de imágenes",
+    "Impossible d'enregistrer l'exportation d'image"
+  ],
+  "Quantity": [
+    "Количество",
+    "Кількість",
+    "Cantidad",
+    "Quantité"
+  ],
+  "Add a suitable series resistor or reduce the supply voltage.": [
+    "Добавить подходящий резистор серии или уменьшить напряжение питания.",
+    "Додайте відповідну серію резисторів або зменшіть напругу поставки.",
+    "Agregue una resistencia de serie adecuada o reduzca la tensión de alimentación.",
+    "Ajoutez une résistance de série appropriée ou réduisez la tension d'alimentation."
+  ],
+  "Apply block": [
+    "Применить блок",
+    "Застосувати блок",
+    "Aplicar bloque",
+    "Appliquer le bloc"
+  ],
+  "Understand independent sketches and serial communication.": [
+    "Поймите независимые наброски и серийные сообщения.",
+    "Зрозуміти незалежні ескізи і серійну комунікацію.",
+    "Entender los bocetos independientes y la comunicación en serie.",
+    "Comprendre les croquis indépendants et la communication en série."
+  ],
+  "Invalid or duplicate function": [
+    "Неверная или дублирующая функция",
+    "Некоректна або дубльована функція",
+    "Función no válida o duplicada",
+    "Fonction non valide ou dupliquée"
+  ],
+  "Binary operation needs two arguments": [
+    "Двухкратная операция требует двух аргументов",
+    "Двійкові дії потребують двох аргументів",
+    "La operación binaria necesita dos argumentos",
+    "L'opération binaire nécessite deux arguments"
+  ],
+  "Modeled transactions; not measured bus edges.": [
+    "Моделированные операции, не измеряемые края автобуса.",
+    "Моделювання операцій; не виміряні краї автобуса.",
+    "Transacciones modeladas; bordes de bus no medidos.",
+    "Transactions modélisées; non mesurées bords de bus."
+  ],
+  "Invalid condition": [
+    "Неверное состояние",
+    "Некоректна умова",
+    "Condición no válida",
+    "État non valide"
+  ],
+  "Read inputs with a pull-up.": [
+    "Прочитать входные данные с помощью подтяжки.",
+    "Читати вхідні дані зі звантаженням.",
+    "Lea las entradas con un pull-up.",
+    "Lisez les entrées avec une traction."
+  ],
+  "Unknown function": [
+    "Неизвестное назначение",
+    "Невідома функція",
+    "Función desconocida",
+    "Fonction inconnue"
+  ],
+  "Invalid visual program": [
+    "Неверная видеопрограмма",
+    "Некоректна візуальна програма",
+    "Programa visual no válido",
+    "Programme visuel non valide"
+  ],
+  "Data type": [
+    "Тип данных",
+    "Тип даних",
+    "Tipo de datos",
+    "Type de données"
+  ],
+  "Errors only": [
+    "Только ошибки",
+    "Лише помилки",
+    "Sólo errores",
+    "Erreurs seulement"
+  ],
+  "Missing argument": [
+    "Недостоверный аргумент",
+    "Відсутній аргумент",
+    "Falta el argumento",
+    "Arguments manquants"
+  ],
+  "Program blocks": [
+    "программные блоки",
+    "Блоки програм",
+    "Bloques de programas",
+    "Blocs de programmes"
+  ],
+  "Invalid boolean": [
+    "Неверный булеан",
+    "Некоректне булеве значення",
+    "Booleano inválido",
+    "Booléen invalide"
+  ],
+  "Exercise": [
+    "Упражнение",
+    "Вправа",
+    "Ejercicio",
+    "Exercice"
+  ],
+  "Structure": [
+    "Структура",
+    "Структура",
+    "Estructura",
+    "Structure"
+  ],
+  "Measure analog voltage and convert it to PWM.": [
+    "Измерить аналоговое напряжение и преобразовать его в PWM.",
+    "Вимірювати аналогову напругу і перетворювати її на PWM.",
+    "Mida el voltaje analógico y conviértalo a PWM.",
+    "Mesurez la tension analogique et convertissez-la en PWM."
+  ],
+  "Digital input has no defined level.": [
+    "Цифровой ввод не имеет определенного уровня.",
+    "Цифрове введення не має визначеного рівня.",
+    "La entrada digital no tiene un nivel definido.",
+    "L'entrée numérique n'a pas de niveau défini."
+  ],
+  "Unexpected expression arguments": [
+    "Аргументы, касающиеся неожиданных выражений",
+    "Неочікуваний аргумент виразу",
+    "Argumentos de expresión inesperados",
+    "Arguments d'expression imprévus"
+  ],
+  "Regenerate C++": [
+    "Реджинерат C+++",
+    "Повторно створити C++",
+    "Regenerar C++",
+    "Régénérer C++"
+  ],
+  "Rising edge": [
+    "Растущая сторона",
+    "Піднімаючий край",
+    "Borde ascendente",
+    "Bord de montée"
+  ],
+  "Preview: possible supply short circuit.": [
+    "Просмотр: возможное короткое замыкание.",
+    "Перегляд: можлива пропозиція короткого графу.",
+    "Vista previa: posible cortocircuito de suministro.",
+    "Aperçu: court-circuit d'alimentation possible."
+  ],
+  "Falling edge": [
+    "Падающий край",
+    "Прикордонна межа",
+    "Borde descendente",
+    "Bord de chute"
+  ],
+  "Overlapping wires": [
+    "Перекрывающая проволока",
+    "Перекриті дроти",
+    "Alambres superpuestos",
+    "Câblage des fils"
+  ],
+  "These terminals are already electrically connected.": [
+    "Эти терминалы уже подсоединены к электросети.",
+    "Эти терминалы уже на электрические.",
+    "Estos terminales ya están conectados eléctricamente.",
+    "Ces terminaux sont déjà raccordés électriquement."
+  ],
+  "Wires partially overlap. Overlapping does not connect nets. Route anyway?": [
+    "Провода частично пересекаются. Перехват не соединит сети.",
+    "частково перетинаються шини. Перекривання не з' єднує мережі. Шлях все одно?",
+    "Los cables se superponen parcialmente.",
+    "Les fils se chevauchent partiellement. Le chevauchement ne relie pas les filets."
+  ],
+  "Could not open documentation.": [
+    "Не удалось открыть документацию.",
+    "Не вдалося відкрити документацію.",
+    "No se pudo abrir la documentación.",
+    "Impossible d'ouvrir la documentation."
+  ],
+  "Blocks, breadboard and measurement": [
+    "Блоки, хлебная доска и измерение",
+    "Блоки, дошка для хліба і розмір",
+    "Bloques, panecillos y medidas",
+    "Blocs, planche à pain et mesure"
+  ],
+  "Blocks, breadboard and measurement…": [
+    "Блоки, хлебная доска и измерения...",
+    "Блоки, дошка для хліба і розмір...",
+    "Bloques, panecillo y medidas...",
+    "Blocs, planche à pain et mesure..."
   ]
 }

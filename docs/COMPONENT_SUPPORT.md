@@ -1,6 +1,6 @@
 # Bauteilunterstützung in ThinkCad
 
-Version 1.0.0 enthält die unten genannten Modelle einschließlich der
+Stand 1.2.9: Die unten genannten Modelle einschließlich der
 [Analog-Erweiterung](ANALOG_SIMULATION.md).
 
 Die Forderung nach sämtlichen Tinkercad-Bauteilen ist noch nicht vollständig umgesetzt.
@@ -9,7 +9,7 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 
 | Bauteil | Modell und Grenzen |
 | --- | --- |
-| Keypad / Keyboard (unveröffentlicht) | 4×4- bzw. 4×8-Kontaktmatrix (25 Keyboard-Tasten), Scannen mit Pullups, optionaler serieller MIDI-Eingang; keine USB-PC-Tastaturemulation |
+| Keypad / Keyboard | 4×4- bzw. 4×8-Kontaktmatrix (25 Keyboard-Tasten), Scannen mit Pullups, optionaler serieller MIDI-Eingang; keine USB-PC-Tastaturemulation |
 | Drehencoder (unveröffentlicht) | Passive A/B-Quadraturkontakte und Drucktaster; vier Flanken pro Klick, Polling-Adapter |
 | Breadboard mit Stromschienen (unveröffentlicht) | 300 Signal- und 100 Schienenkontakte, vier getrennte ungeteilte Schienen; keine eingebaute Versorgung |
 | Notiz (1.2.0) | Nicht elektrisch; Text per Kontextmenü/Doppelklick, verschiebbar und im Projekt gespeichert |
@@ -106,3 +106,24 @@ der Orientierung; die Anschlussnamen im Projekt bestimmen die elektrische Funkti
 Bei 25 °C liegen 0,75 V an OUT. Temperatur im Eigenschaftenfeld verändern.
 Beim nackten ESP8266 überschreiten Temperaturen über 50 °C dessen 1-V-ADC-Bereich;
 entsprechend einen Spannungsteiler oder ein anderes Board verwenden.
+
+## 1.2.9: Netze, Diagnose und Messung
+
+- Breadboard-Kontaktgruppen und die vorhandenen Stromschienen verwenden jetzt
+  dieselbe explizite `NetTopology` wie der elektrische Solver. Geometrische
+  Kabelkreuzungen und Überdeckungen erzeugen keine Verbindung.
+- Diagnose ist regel- und zustandsbasiert. UART-Rollen stammen aus tatsächlicher
+  Portkonfiguration; fehlende I²C-Bestätigung aus aufgezeichneten Transaktionen.
+  Unbenutzte Eingänge werden nicht pauschal als Fehler gemeldet. Ein eigenständiger
+  Batteriestromkreis braucht keinen Board-GND.
+- Oszilloskop und Logikanalysator erfassen Solver-Werte mit virtueller Zeit.
+  Auflösung und Genauigkeit bleiben durch den Zeitschritt und die Bauteilmodelle
+  begrenzt. Pro Instrument werden bis zu 20.000 Punkte gehalten.
+- UART-/I²C-/SPI-API-Aufrufe sind teilweise Transaktionsmodelle. Aus ihnen werden
+  keine vermeintlich gemessenen elektrischen Busflanken erzeugt. Die Protokollansicht
+  und der Simulationsinspektor zeigen diese Modelldaten ausdrücklich getrennt.
+- Der Blockeditor unterstützt einen begrenzten Arduino-C++-Befehlssatz. Das
+  erweitert nicht automatisch die simulierte Hardware oder Bibliotheksabdeckung.
+
+Bedienung und genaue Grenzen: [Deutsch](VISUAL_CODING.de.md) /
+[English](VISUAL_CODING.en.md).
