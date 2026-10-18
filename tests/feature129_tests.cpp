@@ -1,4 +1,8 @@
 #include "mainwindow.hpp"
+#include "diagnosticspanel.hpp"
+#include <QToolButton>
+#include <QListWidget>
+#include <QAction>
 #include "circuitcanvas.hpp"
 #include "blockeditor/blockeditor.hpp"
 #include "blockeditor/blockpersistence.hpp"
@@ -222,6 +226,56 @@ class Feature129Tests : public QObject {
         editor.setExecutionLocked(false);
         QVERIFY(!editor.findChild<QComboBox *>("codingMode")->isEnabled());
         QVERIFY(!editor.findChild<QPushButton *>("regenerateBlocks")->isEnabled());
+    }
+    void duckAssistantExplainsRealDiagnosticsAndNavigatesOnce() {
+        Language::set("en");
+        DiagnosticsPanel panel;
+        panel.resize(640, 440);
+        panel.show();
+        panel.showAssistant();
+        auto *mascot = panel.findChild<QLabel *>("duckAssistantMascot");
+        QVERIFY(!mascot->pixmap().isNull());
+        auto *explanation = panel.findChild<QLabel *>("duckAssistantExplanation");
+        auto *show = panel.findChild<QPushButton *>("duckShowTarget");
+        QVERIFY(explanation->text().contains("no diagnostic messages"));
+        QVERIFY(!show->isEnabled());
+        CircuitDocument doc;
+        doc.connect({"board", "3V3"}, {"board", "GND"});
+        Esp8266Board board;
+        panel.refresh(doc, NetTopology(doc), {}, {{"board", &board}}, nullptr, nullptr);
+        QVERIFY(explanation->text().contains("Quack!"));
+        QVERIFY(show->isEnabled());
+        QSignalSpy navigation(&panel, &DiagnosticsPanel::targetActivated);
+        QTest::mouseClick(show, Qt::LeftButton);
+        QCOMPARE(navigation.count(), 1);
+        QCOMPARE(navigation.first().first().toString(), QString("board"));
+        QVERIFY(panel.findChild<QListWidget *>("circuitDiagnostics")->item(0)->text().startsWith("Error"));
+        auto *toggle = panel.findChild<QToolButton *>("duckAssistantToggle");
+        toggle->setChecked(false);
+        QVERIFY(!panel.findChild<QWidget *>("duckAssistant")->isVisible());
+        panel.showAssistant();
+        QVERIFY(panel.findChild<QWidget *>("duckAssistant")->isVisible());
+        if (!qEnvironmentVariable("THINKCAD_REVIEW_DIR").isEmpty()) {
+            QDir().mkpath(qEnvironmentVariable("THINKCAD_REVIEW_DIR"));
+            panel.grab().save(qEnvironmentVariable("THINKCAD_REVIEW_DIR") + "/duck-assistant.png");
+        }
+        doc.clearWires();
+        panel.refresh(doc, NetTopology(doc), {}, {{"board", &board}}, nullptr, nullptr);
+        QVERIFY(!show->isEnabled());
+        QVERIFY(explanation->text().contains("no diagnostic messages"));
+        Language::set("de");
+        panel.refresh(doc, NetTopology(doc), {}, {{"board", &board}}, nullptr, nullptr);
+        QVERIFY(explanation->text().contains("Quak!"));
+    }
+    void duckAssistantHelpOpensDock() {
+        MainWindow window;
+        window.show();
+        QTest::qWait(30);
+        auto *action = window.findChild<QAction *>("duckAssistantAction");
+        QVERIFY(action);
+        action->trigger();
+        QVERIFY(window.findChild<QDockWidget *>("diagnosticsDock")->isVisible());
+        QVERIFY(window.findChild<QWidget *>("duckAssistant")->isVisible());
     }
     void auxiliaryCppChangesBreakSynchronization() {
         BlockProgram p;
