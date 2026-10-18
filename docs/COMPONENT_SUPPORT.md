@@ -1,6 +1,6 @@
 # Bauteilunterstützung in ThinkCad
 
-Stand 1.2.9: Die unten genannten Modelle einschließlich der
+Stand 1.3.1: Die unten genannten Modelle einschließlich der
 [Analog-Erweiterung](ANALOG_SIMULATION.md).
 
 Die Forderung nach sämtlichen Tinkercad-Bauteilen ist noch nicht vollständig umgesetzt.
@@ -107,7 +107,16 @@ Bei 25 °C liegen 0,75 V an OUT. Temperatur im Eigenschaftenfeld verändern.
 Beim nackten ESP8266 überschreiten Temperaturen über 50 °C dessen 1-V-ADC-Bereich;
 entsprechend einen Spannungsteiler oder ein anderes Board verwenden.
 
-## 1.2.9: Netze, Diagnose und Messung
+## Geometrie in 1.3.0
+
+Die realistische Darstellung verwendet physische Millimeterkoordinaten und
+explizite Anschlussgeometrien. Gehäusevarianten, aufgeformte Beine,
+Headeradapter und die Migration älterer Direktkontakte sind in den
+[Änderungen zu 1.3.0](RELEASE_NOTES_1.3.0.md) beschrieben.
+Taster: vier Kontakte (1/3 und 2/4 intern verbunden).
+Uno: zusätzliche obere Masse GND3. 7-Segment: COM und COM2 verbunden.
+
+## 1.3.1: Netze, Diagnose und Messung
 
 - Breadboard-Kontaktgruppen und die vorhandenen Stromschienen verwenden jetzt
   dieselbe explizite `NetTopology` wie der elektrische Solver. Geometrische

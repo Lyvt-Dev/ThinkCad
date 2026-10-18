@@ -143,11 +143,11 @@ private slots:
         for(const auto& spec:componentCatalog())if(spec.kind!=PartKind::Esp8266){add(spec.kind,{},0,0);}
         add(PartKind::Oled,"ssd1306-128x32",0,1450);
         for(const auto& part:document.parts()){
-            const auto bounds=ComponentDesign::bounds(part);std::set<std::pair<double,double>> positions;
+            const auto bounds=ComponentDesign::bounds(part);std::map<std::pair<double,double>,std::string> positions;
             for(const auto& pin:CircuitDocument::pins(part)){
                 const auto point=ComponentDesign::pinPosition(part,pin);
                 QVERIFY2(bounds.contains(QRectF(point-QPointF(7,7),QSizeF(14,14))),part.id.c_str());
-                QVERIFY2(positions.emplace(point.x(),point.y()).second,pin.c_str());
+                auto [existing,unique]=positions.emplace(std::make_pair(point.x(),point.y()),pin);if(!unique)QVERIFY2(document.connected({part.id,pin},{part.id,existing->second}),pin.c_str());
             }
         }
         CircuitCanvas canvas(document);CircuitState state;std::map<std::string,OledDisplay> displays;

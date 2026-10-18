@@ -1,3 +1,4 @@
+#include "motion.hpp"
 #include "theme.hpp"
 #include <QApplication>
 #include <QPalette>
@@ -7,6 +8,7 @@
 #include <QTextDocument>
 #include <QSyntaxHighlighter>
 void Theme::apply(bool dark){
+    Motion::install();
     qApp->setProperty("darkMode",dark);
     QPalette p;p.setColor(QPalette::Window,dark?QColor("#101722"):QColor("#f4f7fb"));p.setColor(QPalette::WindowText,dark?QColor("#e2e8f0"):QColor("#27364b"));p.setColor(QPalette::Base,dark?QColor("#17212f"):QColor("#ffffff"));p.setColor(QPalette::AlternateBase,dark?QColor("#111b29"):QColor("#f8fafc"));p.setColor(QPalette::Text,p.color(QPalette::WindowText));p.setColor(QPalette::Button,p.color(QPalette::Base));p.setColor(QPalette::ButtonText,p.color(QPalette::Text));p.setColor(QPalette::Highlight,QColor("#0d9488"));p.setColor(QPalette::HighlightedText,Qt::white);p.setColor(QPalette::Mid,dark?QColor("#475569"):QColor("#dbe4ef"));p.setColor(QPalette::PlaceholderText,dark?QColor("#aab7c9"):QColor("#64748b"));qApp->setPalette(p);
     const QString base=p.color(QPalette::Base).name(),text=p.color(QPalette::Text).name(),border=p.color(QPalette::Mid).name();

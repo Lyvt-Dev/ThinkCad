@@ -1,6 +1,6 @@
 # Visual Coding, Breadboard Intelligence & Measurement
 
-ThinkCad 1.2.9 remains a local native C++20 / Qt application. Opening a project
+ThinkCad 1.3.1 remains a local native C++20 / Qt application. Opening a project
 never runs a sketch. Choose **Start simulation** to compile/run it.
 
 ## Start with a working block program
@@ -115,8 +115,8 @@ compiler library roots, not absolute paths. Library files are optional. The SDK
 comes with ThinkCad. ZIP uses standard stored entries with CRC32, UTF-8 names and
 bounded sizes; exporting does not upload anything.
 
-Project format 7 preserves formats 1–6 on input. It adds optional per-board visual
+Project format 8 preserves formats 1–7 on input. It adds optional per-board visual
 metadata, including graph positions, generator version, fingerprint and backup.
-Older ThinkCad releases cannot read format 7. Transient topology caches and running
+Older ThinkCad releases cannot read format 8. Transient topology caches and running
 measurement histories are not embedded in the project. LAN sharing, recovery and
 board copy/paste preserve visual metadata; received code is never auto-executed.

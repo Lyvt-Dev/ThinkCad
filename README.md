@@ -10,6 +10,15 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.3.0
+
+- Physische Gehäuse und Anschlussraster für die realistische Ansicht; direkt steckbare Bauteile und Board-Header passen zum 2,54-mm-Breadboard.
+- Vierpolige Taster, zusätzlicher Uno-GND mit oberen I²C-Anschlüssen und beide gemeinsamen Anschlüsse der 7-Segment-Anzeige.
+- Überarbeitete flache Vektorgrafiken ohne gestreckte Beschriftungen; Pin-Namen per Hover statt weißer Kästen.
+- Widerstandswerte ohne Fokusverlust bearbeiten. Shift richtet neue Kabelsegmente in 45°-Schritten aus, unabhängig vom Raster.
+- Dezente, abschaltbare Schaltflächen-, Platzierungs- und Kontaktanimationen.
+
+[Änderungen und Modellgrenzen](docs/RELEASE_NOTES_1.3.0.md)
 ## Neu in 1.2.8
 
 - Überarbeitete Hauptmenü-Navigation und Bauteilliste mit Suche, Filtern und einklappbaren Kategorien.
@@ -425,7 +434,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=1.2.8 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=1.3.0 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

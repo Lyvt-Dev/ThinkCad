@@ -15,6 +15,7 @@ NetTopology::NetTopology(const CircuitDocument &doc) {
             if (!profile.arduino() && profile.id != "esp8266")
                 join({part.id, "A0"}, {part.id, profile.pinName(profile.defaultAdc)});
             join({part.id, "GND"}, {part.id, "GND2"});
+            if(profile.id=="arduino-uno"){join({part.id,"GND"},{part.id,"GND3"});join({part.id,"SDA"},{part.id,"A4"});join({part.id,"SCL"},{part.id,"A5"});}
             if (!profile.arduino())
                 join({part.id, "3V3"}, {part.id, "3V3_2"});
         }
@@ -28,6 +29,8 @@ NetTopology::NetTopology(const CircuitDocument &doc) {
                 join(it->second, {p.id, "NET"});
         }
     for (const auto &p : doc.parts()) {
+        if(p.kind==PartKind::SevenSegment)join({p.id,"COM"},{p.id,"COM2"});
+        if(p.kind==PartKind::Button){join({p.id,"1"},{p.id,"3"});join({p.id,"2"},{p.id,"4"});}
         if ((p.kind == PartKind::ToggleSwitch || p.kind == PartKind::Button ||
              p.kind == PartKind::TiltSwitch || p.kind == PartKind::ReedSwitch) &&
             p.pressed)

@@ -53,7 +53,8 @@ public:
     void changeValue(const std::string& id,double value);
     void changeParameter(const std::string& id,const std::string& name,double value);
     void recordMove(const thinkercad::CircuitDocument& before);
-    void moveBend(const std::string& id,std::size_t index,QPointF position);
+    QPointF constrainBend(const std::string& id,std::size_t index,QPointF position,Qt::KeyboardModifiers modifiers)const;
+    void moveBend(const std::string& id,std::size_t index,QPointF position,Qt::KeyboardModifiers modifiers=Qt::NoModifier);
     void addBend(const std::string& id,QPointF position);
     void updateSimulation(const thinkercad::CircuitState& state,const std::map<std::string,thinkercad::OledDisplay>& displays);
     QString selectedPart() const;
@@ -78,6 +79,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void mouseDoubleClickEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
     void drawBackground(QPainter* painter,const QRectF& rect) override;
 private:
@@ -101,6 +103,7 @@ private:
     QPointF lastPointer_;
     void refreshBendHandles();
     QPainterPath previewPath(QPointF end)const;
+    QPointF wirePoint(QPointF point,Qt::KeyboardModifiers modifiers)const;
     QPointF pinPosition(const thinkercad::Endpoint& pin) const;
     QPainterPath routedWire(const thinkercad::CircuitWire& wire) const;
     void redrawWires();

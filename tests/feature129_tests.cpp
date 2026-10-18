@@ -116,7 +116,7 @@ class Feature129Tests : public QObject {
                                  {"futureExtension", QJsonObject{{"keep", true}}}};
         project.boardSketches["board"] = project.sketch;
         const auto data = ProjectIO::serialize(project);
-        QCOMPARE(QJsonDocument::fromJson(data).object()["version"].toInt(), 7);
+        QCOMPARE(QJsonDocument::fromJson(data).object()["version"].toInt(), 8);
         auto restored = ProjectIO::deserialize(data);
         QCOMPARE(restored.boardSketches["board"].visual, project.sketch.visual);
         QCOMPARE(
@@ -324,7 +324,7 @@ class Feature129Tests : public QObject {
             AppPaths::python(),
             {"-c",
              "import zipfile,sys,json; z=zipfile.ZipFile(sys.argv[1]); assert z.testzip() is None; assert "
-             "json.loads(z.read('project.thinkcad'))['version']==7; assert 'README.md' in z.namelist()",
+             "json.loads(z.read('project.thinkcad'))['version']==8; assert 'README.md' in z.namelist()",
              zip});
         QVERIFY(python.waitForFinished(10000));
         QVERIFY2(python.exitCode() == 0, python.readAllStandardError().constData());

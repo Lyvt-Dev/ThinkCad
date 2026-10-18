@@ -112,6 +112,7 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
     if(k==PartKind::Oscilloscope)return {"A","B","GND"};
     if(k==PartKind::LogicAnalyzer)return {"D0","D1","D2","D3","D4","D5","D6","D7","GND"};
     if(k==PartKind::CurrentProbe)return {"+","-"};
+    if(k==PartKind::Button)return {"1","2","3","4"};
     if(k==PartKind::Oled)return {"GND","VCC","SCL","SDA"};
     if(k==PartKind::Led||k==PartKind::Diode)return {"A","K"};
     if(k==PartKind::TemperatureSensor)return {"VCC","OUT","GND"};
@@ -119,7 +120,7 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
     if(k==PartKind::Potentiometer)return {"1","W","2"};
     if(k==PartKind::SlideSwitch)return {"1","C","2"};
     if(k==PartKind::RGBLed)return {"R","G","B","K"};
-    if(k==PartKind::SevenSegment)return {"a","b","c","d","e","f","g","dp","COM"};
+    if(k==PartKind::SevenSegment)return {"a","b","c","d","e","f","g","dp","COM","COM2"};
     if(k==PartKind::Battery3V||k==PartKind::Battery9V||k==PartKind::PowerSupply||k==PartKind::Voltmeter)return {"+","-"};
     if(k==PartKind::Breadboard30){std::vector<std::string> names;for(char letter='a';letter<='j';++letter)for(int n=1;n<=30;++n)names.push_back(std::string(1,letter)+std::to_string(n));return names;}
     if(k==PartKind::AnalogSource)return {"OUT","GND"};
@@ -132,7 +133,7 @@ std::vector<std::string> CircuitDocument::pins(const CircuitPart& part){
 
     if(part.kind!=PartKind::Esp8266||part.model.empty()||part.model=="esp8266")return pins(part.kind);
     const auto profile=BoardProfile::get(part.model);
-    if(profile.arduino()){std::vector<std::string> names{"5V","3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.push_back("GND2");return names;}
+    if(profile.arduino()){std::vector<std::string> names{"5V","3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.push_back("GND2");if(profile.id=="arduino-uno")names.insert(names.end(),{"GND3","SDA","SCL"});return names;}
     std::vector<std::string> names{"3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.insert(names.end(),{"A0","GND2","3V3_2"});return names;
 }
 CircuitPart& CircuitDocument::part(const std::string& id) {for(auto& p:parts_)if(p.id==id)return p;throw std::out_of_range("Unknown component: "+id);}

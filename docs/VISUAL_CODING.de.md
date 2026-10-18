@@ -1,6 +1,6 @@
 # Blöcke, Breadboard und Messungen
 
-ThinkCad 1.2.9 bleibt eine lokale native C++20-/Qt-Anwendung. Ein geöffnetes
+ThinkCad 1.3.1 bleibt eine lokale native C++20-/Qt-Anwendung. Ein geöffnetes
 Projekt führt keinen Code aus. Erst **Simulation starten** kompiliert und startet.
 
 ## Mit einem fertigen Blockprogramm beginnen
@@ -109,8 +109,8 @@ absoluten lokalen Pfade. Bibliotheksdateien sind optional, das Simulator-SDK geh
 zur ThinkCad-Installation. ZIP verwendet Standard-Einträge mit CRC32 und UTF-8-
 Namen. Alles wird ausschließlich lokal gespeichert.
 
-Projektformat 7 liest weiterhin Formate 1–6. Blockdaten, Kartenpositionen,
+Projektformat 8 liest weiterhin Formate 1–7. Blockdaten, Kartenpositionen,
 Generatorversion, Fingerabdruck und Sicherung werden pro Board aufbewahrt.
-Ältere ThinkCad-Versionen können Format 7 nicht lesen. Laufende Messdaten und
+Ältere ThinkCad-Versionen können Format 8 nicht lesen. Laufende Messdaten und
 Topologie-Caches werden nicht eingebettet. Wiederherstellung, LAN und Board-
 Kopieren erhalten die Metadaten; empfangener Code startet nicht automatisch.

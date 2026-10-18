@@ -12,7 +12,7 @@ QJsonObject CollaborationProject::encode(const SavedProject& project){
     return object;
 }
 SavedProject CollaborationProject::decode(const QJsonObject& document){
-    static const QSet<QString> allowed={"format","version","executionMode","componentModels","parts","wires","boardSketches","unassignedSketch"};
+    static const QSet<QString> allowed={"format","version","physicalLayout","executionMode","componentModels","parts","wires","boardSketches","unassignedSketch"};
     for(auto it=document.begin();it!=document.end();++it)if(!allowed.contains(it.key()))throw std::runtime_error("Unexpected LAN document field");
     auto object=document;const auto sketches=object["boardSketches"].toObject();
     QJsonObject primary;
