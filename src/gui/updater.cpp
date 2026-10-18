@@ -270,6 +270,8 @@ void Updater::skipVersion() {
     if (busy_)
         return;
     QSettings().setValue("updates/skippedVersion", version());
+    available_ = false;
+    cancelDownload(false);
     report(t("Diese Version wird bei automatischen Prüfungen übersprungen."));
     if (dialog_)
         dialog_->hide();

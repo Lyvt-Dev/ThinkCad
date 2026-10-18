@@ -96,6 +96,25 @@ class UpdateTests : public QObject {
         QSettings().clear();
         Language::set("en");
     }
+    void unusedCancellationNeverDeletesWorkingDirectoryFiles() {
+        QTemporaryDir dir;
+        struct Restore {
+            QString path;
+            ~Restore() {
+                QDir::setCurrent(path);
+            }
+        } restore{QDir::currentPath()};
+        QVERIFY(QDir::setCurrent(dir.path()));
+        for (const auto &name : {".part", ".json"}) {
+            QFile f(QString::fromLatin1(name));
+            QVERIFY(f.open(QIODevice::WriteOnly));
+            f.write("user data");
+        }
+        UpdateDownload download;
+        download.cancel(false);
+        QVERIFY(QFileInfo::exists(".part"));
+        QVERIFY(QFileInfo::exists(".json"));
+    }
     void completeAndHashFailure() {
         QTemporaryDir dir;
         UpdateDownload d(nullptr, true);

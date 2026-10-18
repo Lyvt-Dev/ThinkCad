@@ -325,6 +325,10 @@ void UpdateDownload::resume() {
     }
 }
 void UpdateDownload::cancel(bool keep) {
+    if (destination_.isEmpty()) {
+        setState(State::Cancelled);
+        return;
+    }
     retry_.stop();
     if (state_ == State::Hashing) {
         hashTimer_.stop();
