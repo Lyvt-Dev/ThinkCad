@@ -65,10 +65,10 @@ SavedProject ExampleCatalog::create(const QString& id){
     }else if(id=="ask_pair"){
         doc.part("board").model="esp32";auto tx=doc.addPart(PartKind::RadioTransmitter,430,20),rx=doc.addPart(PartKind::RadioReceiver,700,250);power("board",tx);power("board",rx);doc.connect({"board","GPIO25"},{tx,"DATA"});doc.connect({"board","GPIO26"},{rx,"DATA"});
     }else if(id=="lcd_parallel"||id=="lcd_i2c"){
-        doc.part("board").model="arduino-uno";bool i2c=id=="lcd_i2c";const auto lcd=doc.addPart(i2c?PartKind::I2cCharacterLcd:PartKind::CharacterLcd,480,100);doc.part(lcd).model=i2c?"lcd-20x4":"lcd-16x2";doc.connect({"board","5V"},{lcd,"VCC"});doc.connect({"board","GND"},{lcd,"GND"});
+        doc.part("board").model="arduino-uno";bool i2c=id=="lcd_i2c";const auto lcd=doc.addPart(i2c?PartKind::I2cCharacterLcd:PartKind::CharacterLcd,560,100);doc.part(lcd).model=i2c?"lcd-20x4":"lcd-16x2";doc.connect({"board","5V"},{lcd,"VCC"});doc.connect({"board","GND"},{lcd,"GND"});
         if(i2c){doc.connect({"board","A4"},{lcd,"SDA"});doc.connect({"board","A5"},{lcd,"SCL"});}else{doc.connect({"board","GND"},{lcd,"RW"});doc.connect({"board","GND"},{lcd,"VO"});const std::vector<std::pair<std::string,std::string>> pins{{"D12","RS"},{"D11","E"},{"D5","D4"},{"D4","D5"},{"D3","D6"},{"D2","D7"}};for(const auto& [board,pin]:pins)doc.connect({"board",board},{lcd,pin});}
     }else if(id=="servo_sweep"){
-        doc.part("board").model="arduino-uno";const auto servo=doc.addPart(PartKind::ServoMotor,480,100);doc.connect({"board","5V"},{servo,"VCC"});doc.connect({"board","GND"},{servo,"GND"});doc.connect({"board","D9"},{servo,"SIGNAL"});
+        doc.part("board").model="arduino-uno";const auto servo=doc.addPart(PartKind::ServoMotor,560,100);doc.connect({"board","5V"},{servo,"VCC"});doc.connect({"board","GND"},{servo,"GND"});doc.connect({"board","D9"},{servo,"SIGNAL"});
     }else if(id=="dc_motor"){
         doc.removePart("board");const auto ground=doc.addPart(PartKind::Ground,100,350),source=doc.addPart(PartKind::PowerSupply,100,60),motor=doc.addPart(PartKind::DcMotor,550,60),probe=doc.addPart(PartKind::CurrentProbe,330,60);doc.connect({source,"-"},{ground,"GND"});doc.connect({source,"+"},{probe,"+"});doc.connect({probe,"-"},{motor,"+"});doc.connect({motor,"-"},{ground,"GND"});
     }else if(id.startsWith("analog_")||id=="pwm_filter"){

@@ -66,11 +66,14 @@ struct Nodes {
             const auto profile=BoardProfile::get(part.model);
             if(!profile.arduino()&&profile.id!="esp8266")join({part.id,"A0"},{part.id,profile.pinName(profile.defaultAdc)});
             join({part.id,"GND"},{part.id,"GND2"});
+            if(profile.id=="arduino-uno"){join({part.id,"GND"},{part.id,"GND3"});join({part.id,"SDA"},{part.id,"A4"});join({part.id,"SCL"},{part.id,"A5"});}
             if(!profile.arduino())join({part.id,"3V3"},{part.id,"3V3_2"});
         }
         for(const auto& w:doc.wires())join(w.a,w.b);
         std::map<std::string,Endpoint> named;for(const auto& p:doc.parts())if(p.kind==PartKind::NetLabel&&!p.netName.empty()){auto [it,inserted]=named.emplace(p.netName,Endpoint{p.id,"NET"});if(!inserted)join(it->second,{p.id,"NET"});}
         for(const auto& p:doc.parts()){
+            if(p.kind==PartKind::SevenSegment)join({p.id,"COM"},{p.id,"COM2"});
+            if(p.kind==PartKind::Button){join({p.id,"1"},{p.id,"3"});join({p.id,"2"},{p.id,"4"});}
             if((p.kind==PartKind::ToggleSwitch||p.kind==PartKind::Button||p.kind==PartKind::TiltSwitch||p.kind==PartKind::ReedSwitch)&&p.pressed)join({p.id,"1"},{p.id,"2"});
             if(p.kind==PartKind::RotaryEncoder){const int phase=parameter(p,"phase",0);if(phase==1||phase==2)join({p.id,"A"},{p.id,"GND"});if(phase==2||phase==3)join({p.id,"B"},{p.id,"GND"});if(parameter(p,"switch",0))join({p.id,"SW"},{p.id,"GND"});}
             if(p.kind==PartKind::Keypad||p.kind==PartKind::Keyboard){const auto mask=static_cast<uint32_t>(parameter(p,"keys",0));const int columns=p.kind==PartKind::Keypad?4:8;for(int key=0;key<(p.kind==PartKind::Keypad?16:25);++key)if(mask&(1u<<key))join({p.id,"R"+std::to_string(key/columns+1)},{p.id,"C"+std::to_string(key%columns+1)});}
@@ -134,6 +137,7 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
     if(k==PartKind::Oscilloscope)return {"A","B","GND"};
     if(k==PartKind::LogicAnalyzer)return {"D0","D1","D2","D3","D4","D5","D6","D7","GND"};
     if(k==PartKind::CurrentProbe)return {"+","-"};
+    if(k==PartKind::Button)return {"1","2","3","4"};
     if(k==PartKind::Oled)return {"GND","VCC","SCL","SDA"};
     if(k==PartKind::Led||k==PartKind::Diode)return {"A","K"};
     if(k==PartKind::TemperatureSensor)return {"VCC","OUT","GND"};
@@ -141,7 +145,7 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
     if(k==PartKind::Potentiometer)return {"1","W","2"};
     if(k==PartKind::SlideSwitch)return {"1","C","2"};
     if(k==PartKind::RGBLed)return {"R","G","B","K"};
-    if(k==PartKind::SevenSegment)return {"a","b","c","d","e","f","g","dp","COM"};
+    if(k==PartKind::SevenSegment)return {"a","b","c","d","e","f","g","dp","COM","COM2"};
     if(k==PartKind::Battery3V||k==PartKind::Battery9V||k==PartKind::PowerSupply||k==PartKind::Voltmeter)return {"+","-"};
     if(k==PartKind::Breadboard30){std::vector<std::string> names;for(char letter='a';letter<='j';++letter)for(int n=1;n<=30;++n)names.push_back(std::string(1,letter)+std::to_string(n));return names;}
     if(k==PartKind::AnalogSource)return {"OUT","GND"};
@@ -153,7 +157,7 @@ std::vector<std::string> CircuitDocument::pins(const CircuitPart& part){
 
     if(part.kind!=PartKind::Esp8266||part.model.empty()||part.model=="esp8266")return pins(part.kind);
     const auto profile=BoardProfile::get(part.model);
-    if(profile.arduino()){std::vector<std::string> names{"5V","3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.push_back("GND2");return names;}
+    if(profile.arduino()){std::vector<std::string> names{"5V","3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.push_back("GND2");if(profile.id=="arduino-uno")names.insert(names.end(),{"GND3","SDA","SCL"});return names;}
     std::vector<std::string> names{"3V3","GND"};for(int gpio:profile.gpio)names.push_back("GPIO"+std::to_string(gpio));names.insert(names.end(),{"A0","GND2","3V3_2"});return names;
 }
 CircuitPart& CircuitDocument::part(const std::string& id) {for(auto& p:parts_)if(p.id==id)return p;throw std::out_of_range("Unknown component: "+id);}
