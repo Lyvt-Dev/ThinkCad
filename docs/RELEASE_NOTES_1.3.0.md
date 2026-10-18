@@ -81,3 +81,7 @@ die Paketprüfung erfolgt zusätzlich über die Release-CI.
 Die Renderings sind eigene vereinfachte Vektorgrafiken. Gedämpft gezeichnete, nicht anklickbare Buchsen sind unmodellierte
 Hardwarekontakte. Header-/PCB-Maße sind von der elektrischen Emulation zu unterscheiden; die Anwendung bildet weiterhin
 eine Arduino-API-Teilmenge und keine vollständige Chip-/Peripherieemulation ab.
+
+## Zusammenführung
+
+Enthält außerdem sämtliche Änderungen aus 1.2.6 bis 1.2.8, einschließlich MicroPython, Debugger, lokalen Modulen und LAN-Zusammenarbeit. Das gemeinsame Projektformat 7 erhält deren Daten und ergänzt die physische Layoutrevision.
