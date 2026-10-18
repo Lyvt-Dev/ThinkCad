@@ -10,6 +10,12 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.3.3 — Transparente Updates
+
+Nativer Update-Dialog mit Release-Notes, echtem Downloadfortschritt, Pause/Fortsetzung und sichtbarer SHA-256-/Sigstore-Prüfung. Windows erhält einen separaten Installationshelfer mit Sicherung, echtem Installer-Fortschritt und Wiederherstellung. Das AppImage nutzt atomaren Austausch mit Sicherung; Distributionspakete bleiben bei der Paketverwaltung.
+
+[Release Notes 1.3.3](docs/RELEASE_NOTES_1.3.3.md) · [Update-Ablauf und Grenzen](docs/UPDATER.md)
+
 ## Neu in 1.3.2 — Quak-Assistent
 
 Die pixelige Diagnose-Ente erklärt vorhandene elektrische Diagnosemeldungen und zeigt auf Wunsch die betroffene Stelle. Öffnen über **Hilfe → Quak-Assistent**, direkt im Diagnose-Dock ausblendbar. Vollständig lokal und regelbasiert.
