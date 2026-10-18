@@ -3874,5 +3874,213 @@
   "Information": [
     "Informazione",
     "Informação"
+  ],
+  "Update ThinkCad": [
+    "Aggiorna ThinkCad",
+    "Atualização ThinkCad"
+  ],
+  "Update progress": [
+    "Aggiorna i progressi",
+    "Atualizar progresso"
+  ],
+  "Automatically check for updates": [
+    "Controlla automaticamente gli aggiornamenti",
+    "Verificar automaticamente se há atualizações"
+  ],
+  "Download": [
+    "Scarica",
+    "Download"
+  ],
+  "Save and install": [
+    "Salva e installa",
+    "Salvar e instalar"
+  ],
+  "Skip this version": [
+    "Salta questa versione",
+    "Ignorar esta versão"
+  ],
+  "Open update log": [
+    "Apri registro di aggiornamento",
+    "Abrir log de atualização"
+  ],
+  "Cancel download": [
+    "Annulla download",
+    "Cancelar download"
+  ],
+  "Keep partial download for later? No removes temporary download data.": [
+    "Mantenere il download parziale per più tardi? Nessun rimuove i dati temporanei di download.",
+    "Manter o download parcial para mais tarde? Não remove dados de download temporários."
+  ],
+  "Confirm installation": [
+    "Conferma installazione",
+    "Confirme a instalação"
+  ],
+  "Checksum and provenance are valid. Unsaved changes must be saved first. Projects, libraries and settings are retained. ThinkCad will close and restart after installation. Continue?": [
+    "Checksum e provenienza sono validi. Le modifiche non salvate devono essere salvate prima. I progetti, le librerie e le impostazioni vengono mantenute. ThinkCad chiuderà e riavvierà dopo l'installazione. Continuare?",
+    "A soma de verificação e a proveniência são válidas. As alterações não salvas devem ser salvas primeiro. Projetos, bibliotecas e configurações são retidos. O ThinkCad fechará e reiniciará após a instalação. Continuar?"
+  ],
+  "Current version": [
+    "Versione attuale",
+    "Versão Atual"
+  ],
+  "Available version": [
+    "Versione disponibile",
+    "Versão disponível"
+  ],
+  "Release date": [
+    "Data di rilascio",
+    "Data de lançamento"
+  ],
+  "Download size": [
+    "Dimensione download",
+    "Tamanho do download"
+  ],
+  "Not yet known": [
+    "Non ancora nota",
+    "Ainda não conhecido"
+  ],
+  "Installation time depends on storage, backup and file locks.": [
+    "Il tempo di installazione dipende da storage, backup e blocchi di file.",
+    "O tempo de instalação depende do armazenamento, backup e bloqueios de arquivos."
+  ],
+  "Rough time estimate based on the last update:": [
+    "Stima del tempo difficile in base all'ultimo aggiornamento:",
+    "Estimativa do tempo aproximado com base na última atualização:"
+  ],
+  "Checksum valid": [
+    "Checksum valido",
+    "Checksum válido"
+  ],
+  "Not yet verified": [
+    "Non ancora verificato",
+    "Ainda não verificado"
+  ],
+  "Build provenance": [
+    "Provenienza di costruzione",
+    "Procedência de construção"
+  ],
+  "Valid: repository, workflow, branch and commit": [
+    "Valido: repository, workflow, branch e commit",
+    "Valid: repositório, fluxo de trabalho, ramificação e commit"
+  ],
+  "Use your package manager for this installation. Gentoo: update the overlay and run emerge --ask --oneshot media-gfx/thinkcad.": [
+    "Use your package manager for this installation. Gentoo: update the overlay and run emerge --ask --oneshot media-gfx/thinkcad.",
+    "Use your package manager for this installation. Gentoo: update the overlay and run emerge --ask --oneshot media-gfx/thinkcad."
+  ],
+  "Download update": [
+    "Scarica l'aggiornamento",
+    "Actualização de download"
+  ],
+  "Download paused. The partial file remains stored locally.": [
+    "Scaricare in pausa. Il file parziale rimane memorizzato localmente.",
+    "Faça o download pausado. O arquivo parcial permanece armazenado localmente."
+  ],
+  "Connection interrupted. Retrying with a limited number of attempts…": [
+    "Riprovare con un numero limitato di tentativi.",
+    "Conexão interrompida. Tentando novamente com um número limitado de tentativas..."
+  ],
+  "Verifying SHA-256…": [
+    "Verifica SHA-256...",
+    "Verificando SHA-256..."
+  ],
+  "Download cancelled.": [
+    "Scaricamento annullato.",
+    "Download cancelado."
+  ],
+  "Download or checksum invalid. Installation blocked.": [
+    "Scarica o checksum non valido. Installazione bloccata.",
+    "Download ou checksum inválido. Instalação bloqueada."
+  ],
+  "Check the connection, free space and write permissions. Download again if the checksum is invalid.": [
+    "Controllare la connessione, lo spazio libero e le autorizzazioni di scrittura. Scaricare nuovamente se il checksum non è valido.",
+    "Verifique a conexão, espaço livre e permissões de gravação. Baixe novamente se o checksum for inválido."
+  ],
+  "Could not verify update metadata.": [
+    "Impossibile verificare i metadati dell'aggiornamento.",
+    "Não foi possível verificar os metadados de atualização."
+  ],
+  "Check the connection and start the update check again.": [
+    "Controlla la connessione e riavvia il controllo dell'aggiornamento.",
+    "Verifique a conexão e inicie a verificação de atualização novamente."
+  ],
+  "Checking for updates…": [
+    "Controllo degli aggiornamenti...",
+    "A verificar as actualizações..."
+  ],
+  "AppImage updates require x86_64 Linux.": [
+    "AppImage aggiornamenti richiedono x86_64 Linux.",
+    "As atualizações da AppImage requerem x86_64 Linux."
+  ],
+  "New version available. Read the release notes before downloading.": [
+    "Nuova versione disponibile. Leggere le note di rilascio prima di scaricare.",
+    "Nova versão disponível. Leia as notas de lançamento antes de baixar."
+  ],
+  "Automatic checks will skip this version.": [
+    "I controlli automatici salteranno questa versione.",
+    "As verificações automáticas ignorarão esta versão."
+  ],
+  "Loading release commit and checksum…": [
+    "Caricamento commit release e checksum...",
+    "A carregar a liberação commit e checksum..."
+  ],
+  "Repair this installation. Update installation is blocked.": [
+    "Riparare questa installazione. L'installazione di aggiornamento è bloccata.",
+    "Reparar esta instalação. A instalação de atualização está bloqueada."
+  ],
+  "Checksum valid. Verifying GitHub/Sigstore build provenance…": [
+    "Checksum valido. Verifica della provenienza di GitHub/Sigstore...",
+    "Verificando a proveniência da construção GitHub/Sigstore..."
+  ],
+  "Build provenance invalid. Installation blocked.": [
+    "Costruire provenienza non valida. Installazione bloccata.",
+    "Construção de proveniência inválida. Instalação bloqueada."
+  ],
+  "Repository, workflow, branch or source commit does not match, or the verifier could not run. Download again or repair the installation.": [
+    "Repository, workflow, branch o source commit non corrispondono o il verificatore non è in grado di eseguire. Scaricare nuovamente o riparare l'installazione.",
+    "Repositório, fluxo de trabalho, ramo ou commit fonte não corresponde, ou o verificador não poderia ser executado. Baixe novamente ou reparar a instalação."
+  ],
+  "Update verified and ready to install.": [
+    "Aggiornamento verificato e pronto all'installazione.",
+    "Atualização verificada e pronta para instalar."
+  ],
+  "Backing up and atomically replacing AppImage…": [
+    "Backup e sostituzione atomica di AppImage...",
+    "Fazendo backup e substituindo atomicamente AppImage..."
+  ],
+  "AppImage installation failed.": [
+    "Installazione di AppImage non riuscita.",
+    "A instalação do AppImage falhou."
+  ],
+  "Checking the new installation…": [
+    "Controllo della nuova installazione...",
+    "Verificando a nova instalação..."
+  ],
+  "Application health check failed.": [
+    "Controllo dello stato di salute dell'applicazione non riuscito.",
+    "A verificação de saúde da aplicação falhou."
+  ],
+  "Previous AppImage version restored.": [
+    "Precedente AppVersione immagine restaurata.",
+    "Versão anterior do AppImage restaurada."
+  ],
+  "Resume": [
+    "Riprendi",
+    "Currículo"
+  ],
+  "Release does not contain an installer with checksum and provenance.": [
+    "Il rilascio non contiene un installatore con checksum e provenienza.",
+    "A liberação não contém um instalador com soma de verificação e proveniência."
+  ],
+  "Could not download build provenance.": [
+    "Impossibile scaricare la provenienza della costruzione.",
+    "Não foi possível baixar a proveniência da compilação."
+  ],
+  "Could not save build provenance.": [
+    "Impossibile salvare la provenienza della costruzione.",
+    "Não foi possível salvar a proveniência da construção."
+  ],
+  "Last successful update": [
+    "Ultimo aggiornamento riuscito",
+    "Última atualização bem-sucedida"
   ]
 }

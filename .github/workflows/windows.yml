@@ -167,6 +167,10 @@ jobs:
           $installer = (Get-ChildItem out/installer/*.exe).FullName
           Copy-Item '${{ steps.provenance.outputs.bundle-path }}' "$installer.sigstore.jsonl"
           Invoke-Checked "$pwd/build/update_verifier_tests.exe" @("$pwd/out/stage/verifier", $installer, $env:GITHUB_SHA)
+      - name: Exercise verified update transaction and retained user files
+        if: github.event_name != 'pull_request'
+        shell: pwsh
+        run: ./.github/scripts/Test-UpdateTransaction.ps1
       - name: Collect corresponding compiler sources
         if: github.event_name != 'pull_request'
         shell: msys2 {0}
