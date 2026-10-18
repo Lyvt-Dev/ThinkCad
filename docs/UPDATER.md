@@ -37,7 +37,8 @@ The detached, statically linked helper is copied outside the installation. It:
 6. Runs the signed/attested Inno installer in a process job. The progress callback
    reports actual Inno progress; extraction and replacement remain one phase.
 7. Runs the installed application with `--smoke-test` and the expected version.
-8. Records a receipt, commits the journal, removes RunOnce and restarts ThinkCad.
+8. Records a receipt, commits the journal, removes RunOnce, cleans the cached
+   installer/verifier where safe and restarts ThinkCad. Logs and backups remain.
 
 Cancel/timeout terminates the install process job before attempting rollback.
 Rollback retains the failed tree separately and renames the backup into place;

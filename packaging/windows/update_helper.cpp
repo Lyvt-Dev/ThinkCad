@@ -31,6 +31,7 @@ std::wstring text(const std::wstring &s) {
          L"Programmdateien entpacken und ersetzen. Projekte und Einstellungen bleiben lokal…"},
         {L"Extracting and replacing application files...", L"Programmdateien entpacken und ersetzen…"},
         {L"Applying configuration...", L"Konfiguration übernehmen…"},
+        {L"Cleaning update cache...", L"Update-Cache aufräumen…"},
         {L"Checking the new application before committing the update...",
          L"Neue Anwendung vor dem Abschluss prüfen…"},
         {L"Preserving configuration and recording successful installation...",
@@ -356,6 +357,17 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
         } catch (const std::exception &cleanup) {
             logFile << "Cleanup warning: " << cleanup.what() << '\n';
         }
+        phase(L"Cleaning update cache...");
+        std::error_code cleanupError;
+        if (installer.parent_path() == cache) {
+            fs::remove(installer, cleanupError);
+            if (cleanupError)
+                logFile << "Installer cleanup: " << cleanupError.message() << '\n';
+            fs::remove(fs::path(installer.wstring() + L".sigstore.jsonl"), cleanupError);
+        }
+        fs::remove_all(cache / "verifier", cleanupError);
+        if (cleanupError)
+            logFile << "Verifier cleanup: " << cleanupError.message() << '\n';
         phase(L"Complete. Backup retained next to the installation.", 100);
         active = false;
         ShellExecuteW(nullptr, L"open", (target / L"ThinkCad.exe").c_str(), nullptr, target.c_str(),

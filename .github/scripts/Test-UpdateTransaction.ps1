@@ -19,6 +19,7 @@ if (-not $helper.WaitForExit(600000)) {
   throw 'Update helper timed out; transaction must remain recoverable.'
 }
 Get-Content "$cache/installation.log" | Write-Host
+if (-not (Test-Path $installer)) { throw 'Updater deleted an installer outside its cache.' }
 if ($helper.ExitCode -ne 0) { throw "Update helper failed: $($helper.ExitCode)" }
 if ((Get-Content "$target/local-user-library.txt" -Raw) -ne 'must survive update') { throw 'Local library changed.' }
 if (-not (Test-Path "$target/thinkcad-update-receipt.ini")) { throw 'Installation receipt missing.' }
