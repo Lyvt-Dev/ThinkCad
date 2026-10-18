@@ -10,6 +10,16 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.3.1 — Visual Coding, Breadboard Intelligence & Measurement
+
+- Nativer Block-Editor mit drei Ansichten und deterministischer Arduino-C++-Generierung; manuelle C++-Änderungen werden ausdrücklich als nicht synchron markiert.
+- Gemeinsames Breadboard-Netzmodell mit Hover-Hervorhebung, Verbindungsvorschau und Verdrahtungswarnungen; strukturiertes Diagnose-Panel mit auswählbaren Fehlerstellen.
+- Erweiterter Zweikanal-Messpfad, auswählbare Trigger und begrenzte Aufzeichnung; elektrische Signale und modellierte Protokolltransaktionen bleiben unterscheidbar.
+- Zwölf verdrahtete Lernprojekte mit Lernziel und erwartetem Verhalten.
+- Lokale PNG-/SVG-, BOM- und Projekt-ZIP-Exporte. Projektformat 8 erhält bestehende Schaltungen und die physischen Layouts aus 1.3.0.
+
+[Release Notes 1.3.1](docs/RELEASE_NOTES_1.3.1.md) · [Anleitung Deutsch](docs/VISUAL_CODING.de.md) · [English guide](docs/VISUAL_CODING.en.md)
+
 ## Neu in 1.3.0
 
 - Physische Gehäuse und Anschlussraster für die realistische Ansicht; direkt steckbare Bauteile und Board-Header passen zum 2,54-mm-Breadboard.
