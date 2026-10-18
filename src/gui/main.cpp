@@ -35,6 +35,9 @@ int main(int argc,char** argv){
     app.setDesktopFileName("io.github.LyvtDev.ThinkCad");
 #endif
     Theme::apply(QSettings().value("darkMode",false).toBool());
+    for(const auto& argument:app.arguments())if(argument.startsWith("--update-health-check=")){
+        if(argument.mid(QString("--update-health-check=").size())!=QString(THINKERCAD_VERSION)){qCritical()<<"Updated application version does not match requested release";return 1;}
+    }
     if(app.arguments().contains("--smoke-test")){
         QTemporaryDir data;const auto source=data.filePath("frames.webm");QString error;
         if(!QFile::copy(":/smoke/frames.webm",source)||!videoImportSmokeTest(source,&error)){qCritical()<<"Video import smoke failed:"<<error;return 1;}

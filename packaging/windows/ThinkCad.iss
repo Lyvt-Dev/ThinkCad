@@ -56,3 +56,24 @@ function UpdateRestartRequested: Boolean;
 begin
   Result := WizardSilent and (ExpandConstant('{param:RESTARTTHINKERCAD|0}') = '1');
 end;
+
+procedure ReportUpdateProgress(const Phase: String; const Percent: Integer);
+var Path: String;
+begin
+  Path := ExpandConstant('{param:THINKCADPROGRESS|}');
+  if Path <> '' then
+    SaveStringToFile(Path, Phase + ' ' + IntToStr(Percent), False);
+end;
+
+procedure CurInstallProgressChanged(CurProgress, MaxProgress: Integer);
+begin
+  if MaxProgress > 0 then
+    ReportUpdateProgress('files', Round(100.0 * CurProgress / MaxProgress));
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssInstall then ReportUpdateProgress('files', 0);
+  if CurStep = ssPostInstall then ReportUpdateProgress('configuration', 100);
+  if CurStep = ssDone then ReportUpdateProgress('complete', 100);
+end;

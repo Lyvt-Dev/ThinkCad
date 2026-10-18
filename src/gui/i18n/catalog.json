@@ -5812,5 +5812,317 @@
     "Інформація",
     "Información",
     "Information"
+  ],
+  "Update ThinkCad": [
+    "Обновить мыслитель-кад",
+    "Оновити ThinkCad",
+    "Actualizar ThinkCad",
+    "Mettre à jour ThinkCad"
+  ],
+  "Update progress": [
+    "Обновление информации о ходе работы",
+    "Оновити поступ",
+    "Actualizar el progreso",
+    "Actualiser les progrès accomplis"
+  ],
+  "Automatically check for updates": [
+    "Автоматически проверять обновления",
+    "Автоматично перевіряти оновлення",
+    "Buscar actualizaciones automáticamente",
+    "Rechercher automatiquement les mises à jour"
+  ],
+  "Download": [
+    "Загрузить",
+    "Звантажити",
+    "Descargar",
+    "Télécharger"
+  ],
+  "Save and install": [
+    "Сохранить и установить",
+    "Зберегти й установити",
+    "Guardar e instalar",
+    "Enregistrer et installer"
+  ],
+  "Skip this version": [
+    "Пропустить эту версию",
+    "Пропустити цю версію",
+    "Saltar esta versión",
+    "Sauter cette version"
+  ],
+  "Open update log": [
+    "Открыть журнал обновления",
+    "Відкрити журнал оновлення",
+    "Abrir registro de actualización",
+    "Ouvrir le journal des mises à jour"
+  ],
+  "Cancel download": [
+    "Отменить загрузку",
+    "Скасувати звантаження",
+    "Cancelar descarga",
+    "Annuler le téléchargement"
+  ],
+  "Keep partial download for later? No removes temporary download data.": [
+    "Сохранить частичную загрузку на потом? «Нет» удаляет временные данные загрузки.",
+    "Зберегти часткове завантаження на потім? «Ні» видаляє тимчасові дані завантаження.",
+    "¿Conservar la descarga parcial para después? «No» elimina los datos temporales de descarga.",
+    "Conserver le téléchargement partiel pour plus tard ? «Non» supprime les données temporaires du téléchargement."
+  ],
+  "Confirm installation": [
+    "Подтверждение установки",
+    "Підтвердити встановлення",
+    "Confirmar la instalación",
+    "Confirmer l'installation"
+  ],
+  "Checksum and provenance are valid. Unsaved changes must be saved first. Projects, libraries and settings are retained. ThinkCad will close and restart after installation. Continue?": [
+    "Проверочные записи и отправка действительны. Несохранённые изменения должны быть сохранены сначала. Проекты, библиотеки и настройки сохранены. ThinkCad будет закрываться и возобновляться после установки. Продолжать?",
+    "Контрольна сума і контрольна сума є чинними. Незбережені зміни слід спочатку зберегти. Проекти, бібліотеки та параметри зберігаються. ThinkCad закриє і перезапустить після встановлення. Продовжити?",
+    "La suma de comprobación y la procedencia son válidas. Los cambios no guardados deben guardarse primero. Se conservan los proyectos, bibliotecas y configuraciones. ThinkCad se cerrará y reiniciará después de la instalación. ¿Continuar?",
+    "Les modifications non enregistrées doivent d'abord être sauvegardées. Les projets, les bibliothèques et les paramètres sont conservés. ThinkCad va fermer et redémarrer après l'installation. Continuer?"
+  ],
+  "Current version": [
+    "Текущая версия",
+    "Поточна версія",
+    "Versión actual",
+    "Version actuelle"
+  ],
+  "Available version": [
+    "Имеющаяся версия",
+    "Доступна версія",
+    "Versión disponible",
+    "Version disponible"
+  ],
+  "Release date": [
+    "Дата выпуска",
+    "Дата випуску",
+    "Fecha de lanzamiento",
+    "Date de sortie"
+  ],
+  "Download size": [
+    "Размер загрузки",
+    "Розмір звантаження",
+    "Tamaño de descarga",
+    "Télécharger la taille"
+  ],
+  "Not yet known": [
+    "Еще не известно",
+    "Ще не відомо",
+    "No conocida aún",
+    "Non encore connu"
+  ],
+  "Installation time depends on storage, backup and file locks.": [
+    "Время установки зависит от хранения, резервного копирования и файловых замков.",
+    "Час встановлення залежить від зберігання, резервної копії і блокування файлів.",
+    "El tiempo de instalación depende del almacenamiento, copia de seguridad y bloqueos de archivos.",
+    "Le temps d'installation dépend du stockage, de la sauvegarde et des verrous de fichiers."
+  ],
+  "Rough time estimate based on the last update:": [
+    "Тяжелое время на основе последнего обновления:",
+    "Важка оцінка часу, заснована на останньому оновленні:",
+    "Estimación del tiempo aproximado basada en la última actualización:",
+    "Estimation de la durée approximative basée sur la dernière mise à jour:"
+  ],
+  "Checksum valid": [
+    "Активная сумма",
+    "Некоректна контрольна сума",
+    "Suma de comprobación válida",
+    "Sommes de contrôle valides"
+  ],
+  "Not yet verified": [
+    "Еще не проверено",
+    "Ще не перевірено",
+    "No verificado aún",
+    "Non encore vérifié"
+  ],
+  "Build provenance": [
+    "Строить происхождение",
+    "Доведеного збирання",
+    "Construir procedencia",
+    "Construire la provenance"
+  ],
+  "Valid: repository, workflow, branch and commit": [
+    "Действительно: хранилище, рабочий процесс, филиал и обязательства",
+    "Коректний: сховище, обробка, гілка і внесення даних",
+    "Válido: repositorio, flujo de trabajo, rama y commit",
+    "Valable: dépôt, workflow, branche et commit"
+  ],
+  "Use your package manager for this installation. Gentoo: update the overlay and run emerge --ask --oneshot media-gfx/thinkcad.": [
+    "Use your package manager for this installation. Gentoo: update the overlay and run emerge --ask --oneshot media-gfx/thinkcad.",
+    "Use your package manager for this installation. Gentoo: update the overlay and run emerge --ask --oneshot media-gfx/thinkcad.",
+    "Use your package manager for this installation. Gentoo: update the overlay and run emerge --ask --oneshot media-gfx/thinkcad.",
+    "Use your package manager for this installation. Gentoo: update the overlay and run emerge --ask --oneshot media-gfx/thinkcad."
+  ],
+  "Download update": [
+    "Загрузить обновление",
+    "Звантажити оновлення",
+    "Descargar actualización",
+    "Télécharger la mise à jour"
+  ],
+  "Download paused. The partial file remains stored locally.": [
+    "Загрузить паузу. Частичный файл хранится на месте.",
+    "Звантаження призупинено. Файл часткової частини залишиться локальним.",
+    "Descargar pausado. El archivo parcial permanece almacenado localmente.",
+    "Téléchargement interrompu. Le fichier partiel reste stocké localement."
+  ],
+  "Connection interrupted. Retrying with a limited number of attempts…": [
+    "Связь прервана. Повторяю с ограниченным числом попыток...",
+    "З' єднання перервано. Спробування з обмеженою кількістю спроб...",
+    "Conexión interrumpida, reintentando con un número limitado de intentos...",
+    "Connexion interrompue. Réessayer avec un nombre limité de tentatives..."
+  ],
+  "Verifying SHA-256…": [
+    "Проверка SHA-256...",
+    "Перевірка SHA- 256...",
+    "Verificando SHA-256...",
+    "Vérification SHA-256..."
+  ],
+  "Download cancelled.": [
+    "Загрузка отменена.",
+    "Звантаження скасовано.",
+    "Descarga cancelada.",
+    "Télécharger annulé."
+  ],
+  "Download or checksum invalid. Installation blocked.": [
+    "Загрузить или загрузить чеки ненадлежащим образом. Установка заблокирована.",
+    "Звантажити або контрольну суму некоректно. Встановлення заблоковано.",
+    "Descarga o checksum inválido. Instalación bloqueada.",
+    "Téléchargement ou somme de contrôle invalide. Installation bloquée."
+  ],
+  "Check the connection, free space and write permissions. Download again if the checksum is invalid.": [
+    "Проверьте соединение, свободное пространство и разрешение на запись. Загрузите еще раз, если чеки недействительны.",
+    "Перевірте з' єднання, вільні місця і права запису. Звантажте знову, якщо контрольна сума неправильна.",
+    "Compruebe la conexión, el espacio libre y los permisos de escritura. Descargue de nuevo si la suma de comprobación no es válida.",
+    "Vérifiez la connexion, l'espace libre et les permissions d'écrire. Télécharger à nouveau si le somme de contrôle est invalide."
+  ],
+  "Could not verify update metadata.": [
+    "Не удалось проверить обновление метаданных.",
+    "Не вдалося перевірити метадані оновлення.",
+    "No se pudieron verificar los metadatos de actualización.",
+    "Impossible de vérifier les métadonnées mises à jour."
+  ],
+  "Check the connection and start the update check again.": [
+    "Проверь соединение и начинай проверку обновления снова.",
+    "Перевірте з' єднання і знову запустіть перевірку оновлення.",
+    "Compruebe la conexión e inicie de nuevo la comprobación de actualización.",
+    "Vérifiez la connexion et recommencez la vérification de mise à jour."
+  ],
+  "Checking for updates…": [
+    "Проверка обновления...",
+    "Перевірка наявності оновлень...",
+    "Comprobando si hay actualizaciones...",
+    "Vérification des mises à jour..."
+  ],
+  "AppImage updates require x86_64 Linux.": [
+    "AppImage news требует x86_44 Linux.",
+    "Для оновлення AppImage потрібен x86_ 64 Linux.",
+    "Las actualizaciones de AppImage requieren x86_64 Linux.",
+    "Les mises à jour d'AppImage nécessitent x86_64 Linux."
+  ],
+  "New version available. Read the release notes before downloading.": [
+    "Новая версия доступна. Прочитать записи для выпуска перед загрузкой.",
+    "Доступна нова версія. Перед звантаженням прочитайте нотатки про випуск.",
+    "Nueva versión disponible. Lea las notas de la versión antes de descargar.",
+    "Nouvelle version disponible. Lisez les notes de sortie avant de télécharger."
+  ],
+  "Automatic checks will skip this version.": [
+    "Автоматические проверки пропустит эту версию.",
+    "Автоматичні перевірки пропускатимуть цю версію.",
+    "Las comprobaciones automáticas omitirán esta versión.",
+    "Les vérifications automatiques vont sauter cette version."
+  ],
+  "Loading release commit and checksum…": [
+    "Загрузка релиза и чеки...",
+    "Завантаження випуску і контрольної суми...",
+    "Cargando la liberación commit y checksum...",
+    "Chargement de la libération commit et checksum..."
+  ],
+  "Repair this installation. Update installation is blocked.": [
+    "Ремонт этой установки. Установка обновления заблокирована.",
+    "Виправити встановлення. Встановлення оновлено.",
+    "Reparar esta instalación. Actualizar la instalación está bloqueada.",
+    "Réparer cette installation. L'installation de mise à jour est bloquée."
+  ],
+  "Checksum valid. Verifying GitHub/Sigstore build provenance…": [
+    "Проверка происхождения GitHub/Sigstore",
+    "Підтвердження контрольної суми. Перевірка збирання GitHub/Sigstor...",
+    "Checksum valido. Verificando la procedencia de GitHub/Sigstore...",
+    "Vérification de la provenance de GitHub/Sigstore..."
+  ],
+  "Build provenance invalid. Installation blocked.": [
+    "Неверный источник. Установка заблокирована.",
+    "Нечинне збирання. Встановлення заблоковано.",
+    "No se puede construir la procedencia. Instalación bloqueada.",
+    "Construire la provenance invalide. Installation bloquée."
+  ],
+  "Repository, workflow, branch or source commit does not match, or the verifier could not run. Download again or repair the installation.": [
+    "Хранилище, трафик, ветка или источник не соответствуют, либо проверяющий не смог запустить. Загрузить снова или восстановить установку.",
+    "Сховище, робочий файл, гілка або запис джерела не збігаються або неможливо запустити ідентифікатор. Звантажте його знову і виправте встановлення.",
+    "El repositorio, el flujo de trabajo, la rama o la confirmación de origen no coinciden o el verificador no pudo ejecutarse. Descargue de nuevo o repare la instalación.",
+    "Dépôt, workflow, branche ou source commit ne correspond pas, ou le vérificateur n'a pas pu exécuter. Télécharger à nouveau ou réparer l'installation."
+  ],
+  "Update verified and ready to install.": [
+    "Обновить проверено и готово к установке.",
+    "Оновлення перевірене і готове до встановлення.",
+    "Actualización verificada y lista para instalar.",
+    "Mise à jour vérifiée et prête à être installée."
+  ],
+  "Backing up and atomically replacing AppImage…": [
+    "Поддержка и атомная замена AppImmage...",
+    "Створення резервної копії та заміна AppImage...",
+    "Hacer copias de seguridad y reemplazar atómicamente AppImage...",
+    "Sauvegarder et remplacer atomiquement AppImage..."
+  ],
+  "AppImage installation failed.": [
+    "Ошибка установки AppImmage.",
+    "Встановлення AppImage зазнало невдачі.",
+    "La instalación de AppImage falló.",
+    "L'installation AppImage a échoué."
+  ],
+  "Checking the new installation…": [
+    "Проверяю новую установку...",
+    "Перевірка нового встановлення...",
+    "Comprobando la nueva instalación...",
+    "Vérification de la nouvelle installation..."
+  ],
+  "Application health check failed.": [
+    "Не удалось проверить состояние здоровья приложения.",
+    "Спроба перевірки стану програм зазнала невдачі.",
+    "Fallo en el control de salud de la aplicación.",
+    "Le contrôle de santé de l'application a échoué."
+  ],
+  "Previous AppImage version restored.": [
+    "Предыдущая версия AppImmage восстановлена.",
+    "Попередня версія AppImage відновлена.",
+    "Versión anterior de AppImage restaurada.",
+    "Précédent AppImage version restaurée."
+  ],
+  "Resume": [
+    "Повторить",
+    "Поновити",
+    "Continuar",
+    "Reprendre"
+  ],
+  "Release does not contain an installer with checksum and provenance.": [
+    "Освобождение не содержит установочного устройства с контрольным и исходным кодом.",
+    "У випуску не міститься інструменту встановлення з контрольною сумою і доведеною сумою.",
+    "La liberación no contiene un instalador con checksum y procedencia.",
+    "Release ne contient pas d'installateur avec somme de contrôle et provenance."
+  ],
+  "Could not download build provenance.": [
+    "Не удалось загрузить цокольный код.",
+    "Не вдалося звантажити перевірку збирання.",
+    "No se pudo descargar la procedencia de compilación.",
+    "Impossible de télécharger build provenance."
+  ],
+  "Could not save build provenance.": [
+    "Не удалось сохранить происхождение строений.",
+    "Не вдалося зберегти доказ збирання.",
+    "No se pudo guardar la procedencia de la construcción.",
+    "Impossible d'économiser la provenance de la construction."
+  ],
+  "Last successful update": [
+    "Последнее успешное обновление",
+    "Попереднє успішне оновленняThe type of update",
+    "Última actualización exitosa",
+    "Dernière mise à jour réussie"
   ]
 }
