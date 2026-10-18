@@ -119,6 +119,8 @@ UpdateDialog::UpdateDialog(Updater &u, QWidget *p) : QDialog(p), updater_(u) {
     connect(&u, &Updater::changed, this, &UpdateDialog::refresh);
     connect(&u, &Updater::transferProgress, this,
             [this](qint64 bytes, qint64 total, double speed, qint64 remaining) {
+                received_ = bytes;
+                total_ = total;
                 progress_->setRange(0, 1000);
                 progress_->setValue(total ? int(bytes * 1000 / total) : 0);
                 metrics_->setText(
@@ -165,6 +167,10 @@ void UpdateDialog::refresh() {
     pause_->setText(s == S::Paused ? t("Fortsetzen") : t("Pausieren"));
     pause_->setEnabled(active || s == S::Paused);
     cancel_->setEnabled(updater_.busy() || active || s == S::Paused);
+    if ((s == S::Paused || s == S::Retrying) && total_ > 0)
+        metrics_->setText(QString("%1 / %2 MiB · 0 MiB/s")
+                              .arg(received_ / 1048576., 0, 'f', 1)
+                              .arg(total_ / 1048576., 0, 'f', 1));
     install_->setEnabled(updater_.ready() && !updater_.busy());
     skip_->setEnabled(updater_.available() && !updater_.busy());
     if (updater_.busy() && !active && s != S::Paused) {

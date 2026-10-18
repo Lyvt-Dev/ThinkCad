@@ -12,6 +12,7 @@ class UpdateDialog final : public QDialog {
 
   private:
     Updater &updater_;
+    qint64 received_ = 0, total_ = 0;
     QLabel *release_, *status_, *security_, *metrics_;
     QProgressBar *progress_;
     QTextBrowser *notes_;
