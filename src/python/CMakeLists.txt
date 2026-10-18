@@ -8,6 +8,8 @@ set_target_properties(thinkcad_micropython PROPERTIES OUTPUT_NAME thinkcad-micro
 target_include_directories(thinkcad_micropython PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/third_party/micropython")
 if(MSVC)
+    # Pinned upstream Windows-port shim, preserving unmodified MicroPython core.
+    target_include_directories(thinkcad_micropython PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/msvc")
     target_compile_definitions(thinkcad_micropython PRIVATE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS)
 else()
     target_link_libraries(thinkcad_micropython PRIVATE m)
