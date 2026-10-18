@@ -235,6 +235,11 @@ if(THINKERCAD_GUI)
     add_test(NAME desktop_interactions COMMAND desktop_tests -o "${CMAKE_CURRENT_BINARY_DIR}/desktop-tests.txt,txt" -o -,txt)
     set_tests_properties(desktop_interactions PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 300)
     if(WIN32)
+      # Compiles dozens of sketches: 1.3.1 already took 286 s on hosted Windows.
+      # Keep per-case assertions/timeouts while allowing aggregate runner variance.
+      set_tests_properties(desktop_interactions PROPERTIES TIMEOUT 420)
+    endif()
+    if(WIN32)
       add_test(NAME windows_native_chrome COMMAND desktop_tests nativeWindowChrome)
       set_tests_properties(windows_native_chrome PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=windows" TIMEOUT 30)
     endif()
