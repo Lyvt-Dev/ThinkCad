@@ -6096,9 +6096,9 @@
     "Précédent AppImage version restaurée."
   ],
   "Resume": [
-    "Повторить",
-    "Поновити",
-    "Continuar",
+    "Продолжить",
+    "Продовжити",
+    "Reanudar",
     "Reprendre"
   ],
   "Release does not contain an installer with checksum and provenance.": [
