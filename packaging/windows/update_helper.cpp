@@ -9,6 +9,7 @@
 #include <vector>
 #include <optional>
 #include <map>
+#include <algorithm>
 #include "verify_attestation.hpp"
 #include "update_transaction.hpp"
 namespace fs = std::filesystem;
@@ -16,6 +17,7 @@ namespace {
 bool german = PRIMARYLANGID(GetUserDefaultUILanguage()) == LANG_GERMAN;
 std::wstring text(const std::wstring &s) {
     static const std::map<std::wstring, std::wstring> de{
+        {L"Cancel", L"Abbrechen"},
         {L"Cancel and restore the previous installation?",
          L"Abbrechen und die vorherige Installation wiederherstellen?"},
         {L"Preparing update...", L"Update vorbereiten…"},
@@ -39,7 +41,7 @@ std::wstring text(const std::wstring &s) {
     auto it = de.find(s);
     return german && it != de.end() ? it->second : s;
 }
-HWND window, status, bar;
+HWND window, status, bar, cancelButton;
 bool cancel = false, active = true;
 std::ofstream logFile;
 fs::path installerProgress;
@@ -51,6 +53,8 @@ void pump() {
     }
 }
 LRESULT CALLBACK proc(HWND w, UINT m, WPARAM a, LPARAM b) {
+    if (m == WM_COMMAND && LOWORD(a) == 1)
+        return proc(w, WM_CLOSE, 0, 0);
     if (m == WM_CLOSE) {
         if (!active || MessageBoxW(w, text(L"Cancel and restore the previous installation?").c_str(),
                                    L"ThinkCad Update", MB_YESNO | MB_ICONQUESTION) == IDYES)
@@ -70,7 +74,10 @@ void phase(const std::wstring &name, int percent = -1) {
     last = name;
     lastPercent = percent;
     tick = GetTickCount64();
-    SetWindowTextW(status, text(name).c_str());
+    const auto label = text(name) + (percent >= 0 ? L" (" + std::to_wstring(percent) + L"%)" : L"");
+    SetWindowTextW(status, label.c_str());
+    auto style = GetWindowLongPtrW(bar, GWL_STYLE);
+    SetWindowLongPtrW(bar, GWL_STYLE, percent < 0 ? (style | PBS_MARQUEE) : (style & ~PBS_MARQUEE));
     SendMessageW(bar, PBM_SETMARQUEE, percent < 0, 40);
     if (percent >= 0)
         SendMessageW(bar, PBM_SETPOS, percent, 0);
@@ -196,11 +203,16 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
     RegisterClassW(&cls);
     window =
         CreateWindowExW(0, cls.lpszClassName, L"ThinkCad Update", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
-                        CW_USEDEFAULT, CW_USEDEFAULT, 650, 180, nullptr, nullptr, instance, nullptr);
+                        CW_USEDEFAULT, CW_USEDEFAULT, 650, 220, nullptr, nullptr, instance, nullptr);
     status = CreateWindowW(L"STATIC", L"Preparing update...", WS_CHILD | WS_VISIBLE, 18, 18, 605, 50, window,
                            nullptr, instance, nullptr);
     bar = CreateWindowW(PROGRESS_CLASSW, nullptr, WS_CHILD | WS_VISIBLE | PBS_MARQUEE, 18, 82, 605, 24,
                         window, nullptr, instance, nullptr);
+    cancelButton =
+        CreateWindowW(L"BUTTON", text(L"Cancel").c_str(), WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+                      510, 122, 110, 30, window, HMENU(1), instance, nullptr);
+    for (auto child : {status, cancelButton})
+        SendMessageW(child, WM_SETFONT, WPARAM(GetStockObject(DEFAULT_GUI_FONT)), TRUE);
     SendMessageW(bar, PBM_SETRANGE32, 0, 100);
     ShowWindow(window, SW_SHOW);
     UpdateWindow(window);
@@ -210,6 +222,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
         return 1;
     if (argc == 7)
         german = std::wstring(argv[6]) == L"de";
+    SetWindowTextW(cancelButton, text(L"Cancel").c_str());
     wchar_t module[32768]{};
     GetModuleFileNameW(nullptr, module, 32768);
     const fs::path helper(module), cache = helper.parent_path();
@@ -219,6 +232,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
     const auto regSnapshot = L"Software\\Lyvt-Dev\\ThinkCad\\UpdateRegistryBackup";
     HANDLE lock = INVALID_HANDLE_VALUE;
     try {
+        if (!logFile)
+            throw std::runtime_error("Cannot open local installation log");
         if (argc == 3 && std::wstring(argv[1]) == L"--recover") {
             if (fs::path(argv[2]) != journal)
                 throw std::runtime_error("Recovery journal is outside this update session");
@@ -240,6 +255,15 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
             throw std::runtime_error("Invalid application process ID");
         const fs::path installer(argv[2]), target(argv[3]);
         const std::wstring commit = argv[4], version = argc >= 6 ? argv[5] : L"";
+        if (!version.empty()) {
+            if (std::count(version.begin(), version.end(), L'.') != 2 || version.front() == L'.' ||
+                version.back() == L'.' || version.find(L"..") != std::wstring::npos)
+                throw std::runtime_error("Invalid update version");
+            for (auto c : version)
+                if (c != L'.' && (c < L'0' || c > L'9'))
+                    throw std::runtime_error("Invalid update version");
+            SetWindowTextW(window, (L"ThinkCad " + version + L" Update").c_str());
+        }
         LocalFree(argv);
         argv = nullptr;
         if (!thinkercad_update::safe(target.wstring()) || !thinkercad_update::safe(installer.wstring()))
