@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot/Invoke-Checked.ps1"
-$root = Join-Path $env:RUNNER_TEMP 'ThinkCad update transaction'
+$root = Join-Path $env:RUNNER_TEMP ('ThinkCad update transaction ' + [Guid]::NewGuid().ToString())
 $cache = Join-Path $root 'cache'
 $target = Join-Path $root 'ThinkCad'
 New-Item -ItemType Directory -Force $cache, $target | Out-Null
