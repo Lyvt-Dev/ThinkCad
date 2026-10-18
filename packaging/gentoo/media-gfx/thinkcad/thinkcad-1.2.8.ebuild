@@ -25,7 +25,7 @@ COMMON_DEPEND="
  virtual/zlib:="
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND} >=sys-devel/gcc-12[cxx] debugger? ( dev-debug/gdb ) python? ( dev-lang/python:3.13 )"
-BDEPEND="test? ( >=sys-devel/gcc-12[cxx] media-fonts/dejavu )"
+BDEPEND="test? ( >=sys-devel/gcc-12[cxx] media-fonts/dejavu dev-lang/python:3.13 )"
 
 src_configure() {
  local mycmakeargs=(

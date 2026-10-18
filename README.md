@@ -10,6 +10,15 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.2.8
+
+- Überarbeitete Hauptmenü-Navigation und Bauteilliste mit Suche, Filtern und einklappbaren Kategorien.
+- Arduino C++ und echtes MicroPython pro Board, auch gleichzeitig in einer Schaltung.
+- Separate lokale Python-3-Skripte unter Werkzeuge; Python ist im Windows-Paket enthalten.
+- Acht Oberflächensprachen: Deutsch, Englisch, Russisch, Ukrainisch, Spanisch, Französisch, Italienisch und Portugiesisch.
+
+[Release Notes 1.2.8](docs/RELEASE_NOTES_1.2.8.md) · [Python-Unterstützung und Grenzen](docs/PYTHON.md)
+
 ## Neu in 1.2.7
 
 - Robuste SHA-Abfrage im Updater auch für große Release-Commits.
@@ -416,7 +425,7 @@ kopieren; dieser Pfad wird automatisch erkannt. Der CI-Workflow übernimmt dies.
 Den Installer mit Inno Setup 6 erstellen:
 
 ```powershell
-ISCC.exe /DVersion=1.2.7 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
+ISCC.exe /DVersion=1.2.8 /DStagingDir=C:\Pfad\ThinkCad\out\stage packaging/windows/ThinkCad.iss
 ```
 
 Er installiert ohne Administratorrechte nach `%LOCALAPPDATA%\Programs\ThinkCad`,

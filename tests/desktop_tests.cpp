@@ -71,7 +71,7 @@ private slots:
     }
     void helpShowsOfflineChangelogs(){
         MainWindow window;bool opened=false;
-        QTimer::singleShot(0,&window,[&]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());if(!dialog)return;QTimer::singleShot(1000,dialog,&QDialog::reject);opened=dialog->objectName()=="changelogDialog";auto* versions=dialog->findChild<QComboBox*>("changelogVersions");auto* text=dialog->findChild<QTextBrowser*>("changelogText");QVERIFY(versions&&text);QCOMPARE(versions->currentText(),QString("1.2.7"));QVERIFY(text->toPlainText().contains("ThinkCad 1.2.7"));const int previous=versions->findText("1.2.6");QVERIFY(previous>=0);versions->setCurrentIndex(previous);QVERIFY(text->toPlainText().contains("ThinkCad 1.2.6"));dialog->reject();});
+        QTimer::singleShot(0,&window,[&]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());if(!dialog)return;QTimer::singleShot(1000,dialog,&QDialog::reject);opened=dialog->objectName()=="changelogDialog";auto* versions=dialog->findChild<QComboBox*>("changelogVersions");auto* text=dialog->findChild<QTextBrowser*>("changelogText");QVERIFY(versions&&text);QCOMPARE(versions->currentText(),QString(THINKERCAD_VERSION));QVERIFY(text->toPlainText().contains("ThinkCad " THINKERCAD_VERSION));const int previous=versions->findText("1.2.7");QVERIFY(previous>=0);versions->setCurrentIndex(previous);QVERIFY(text->toPlainText().contains("ThinkCad 1.2.7"));dialog->reject();});
         auto* action=window.findChild<QAction*>("showChangelog");QVERIFY(action);action->trigger();QVERIFY(opened);
     }
     void releaseCommitUsesBoundedShaResponse(){
