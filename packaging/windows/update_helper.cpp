@@ -230,7 +230,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
     logFile.open(cache / "installation.log", std::ios::app | std::ios::binary);
     std::optional<thinkcad_update::Transaction> transaction;
     const auto journal = cache / "transaction.journal";
-    const auto regSnapshot = L"Software\\Lyvt-Dev\\ThinkCad\\UpdateRegistryBackup";
+    const auto regSnapshot = L"Software\\Lyvt-Dev\\ThinkCadUpdate\\UninstallBackup";
     HANDLE lock = INVALID_HANDLE_VALUE;
     try {
         if (!logFile)
@@ -300,6 +300,12 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
                 throw std::runtime_error("Unfinished update exists; run recovery before retrying");
         }
         const auto token = std::to_string(GetCurrentProcessId()) + "-" + std::to_string(GetTickCount64());
+        DWORD pendingBytes = 0;
+        if (RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                         L"ThinkCadUpdateRecovery", RRF_RT_REG_SZ, nullptr, nullptr,
+                         &pendingBytes) == ERROR_SUCCESS)
+            throw std::runtime_error("An interrupted update is pending. Complete its recovery at the next "
+                                     "Windows sign-in before starting another update.");
         transaction = thinkcad_update::Transaction::create(target, journal, token);
         transaction->save();
         registry(false, regSnapshot);
