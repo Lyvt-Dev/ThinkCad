@@ -89,6 +89,8 @@ int main() {
         board.digitalWrite(4, true);
         state = pulse();
         check(state.partValues.at(driver) == 18.4375, "ENABLE high disables stepping");
+        check(state.partValues.at(motor + "/coils") == 0 && state.partValues.at(motor + "/rpm") == 0,
+              "Disabled motor has no energized coils or inferred RPM");
         board.digitalWrite(4, false);
         doc.part(power).value = 0;
         state = pulse();
@@ -165,6 +167,28 @@ int main() {
                 }
             check(state.partValues.at(m + "/steps") == 4,
                   "Sequential GPIO writes must not lose full steps at invalid intermediate coil masks");
+            for (int i = 0; i < 4; ++i)
+                board.digitalWrite(i + 2, (3 >> i) & 1);
+            engine.reset();
+            engine.evaluate(unipolar, {{"board", &board}});
+            for (int mask : {6, 12, 9, 3}) {
+                engine.advance(unipolar, {{"board", &board}}, engine.now() + 10000);
+                for (int i : {0, 2, 1, 3}) {
+                    board.digitalWrite(i + 2, (mask >> i) & 1);
+                    state = engine.evaluate(unipolar, {{"board", &board}});
+                }
+                check(std::abs(state.partValues.at(m + "/stepRate") - 100) < 1e-6,
+                      "Sequential coil writes at one timestamp must retain commanded step rate");
+                check(std::abs(state.partValues.at(m + "/rpm") -
+                               6000 / parameter(unipolar.part(m), "steps",
+                                                std::string(model) == "stepper-5" ? 2048 : 200)) < 1e-6,
+                      "RPM follows full steps and configured motor resolution");
+            }
+            for (int i = 0; i < 4; ++i)
+                board.digitalWrite(i + 2, false);
+            state = engine.evaluate(unipolar, {{"board", &board}});
+            check(state.partValues.at(m + "/rpm") == 0 && state.partValues.at(m + "/coils") == 0,
+                  "Unenergized windings report zero RPM and no active coils");
         }
         CircuitDocument endstop;
         endstop.part("board").model = "arduino-uno";

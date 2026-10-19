@@ -192,6 +192,7 @@ void observeActuators(const CircuitDocument &doc, const CircuitState &state, Dev
         if (p.kind == PartKind::Module && motor(p.model)) {
             auto &r = memory[p.id];
             r[6] = 0;
+            r[2] = 0;
             if (now > r[4] && now - r[4] > 1000000)
                 r[5] = 0;
             bool assigned = false;
@@ -269,9 +270,21 @@ void observeActuators(const CircuitDocument &doc, const CircuitState &state, Dev
                     delta = -2;
                 if (delta >= -2 && delta <= 2 && delta != 0) {
                     move(r, delta * 8);
-                    r[5] = r[4] && now > r[4] ? 1000000000ULL * std::abs(delta) / (now - r[4]) / 2 : 0;
-                    r[4] = now;
+                    // A Stepper command writes several GPIOs at the same virtual time. Combine
+                    // their signed phase changes before deriving the rate from the last interval.
+                    if (now != r[4]) {
+                        r[11] = now - r[4];
+                        r[12] = 0;
+                        r[4] = now;
+                    }
+                    r[12] += static_cast<std::uint64_t>(delta);
+                    const auto phaseDelta = std::bit_cast<std::int64_t>(r[12]);
+                    r[5] = r[11] ? 500000000ULL * std::abs(phaseDelta) / r[11] : 0;
                 }
+            }
+            if (!r[7]) {
+                r[4] = now;
+                r[11] = r[12] = 0;
             }
             r[7] = 1;
             r[8] = phase;
@@ -291,10 +304,10 @@ void describeActuators(const CircuitDocument &doc, const DeviceRegisters &memory
                 state.partValues[p.id + "/microsteps"] = r[3];
                 state.partValues[p.id + "/coils"] = r[2];
                 state.partValues[p.id + "/enabled"] = r[6];
-                state.partValues[p.id + "/stepRate"] = r[5] / 1000.;
+                state.partValues[p.id + "/stepRate"] = r[6] ? r[5] / 1000. : 0;
                 if (motor(p.model))
                     state.partValues[p.id + "/rpm"] =
-                        r[5] * .06 / parameter(p, "steps", p.model == "stepper-5" ? 2048 : 200);
+                        r[6] ? r[5] * .06 / parameter(p, "steps", p.model == "stepper-5" ? 2048 : 200) : 0;
             } else if (p.model == "relay-5v") {
                 const auto current = state.branchCurrent.find(p.id);
                 (void)current;

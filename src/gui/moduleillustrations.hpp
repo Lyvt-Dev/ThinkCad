@@ -38,7 +38,7 @@ inline bool paint(QPainter& painter,const CircuitPart& part,const CircuitState& 
         if(auto found=state.colorDisplays.find(part.id);found!=state.colorDisplays.end()&&found->second){const auto& frame=*found->second;
             QImage image(reinterpret_cast<const uchar*>(frame.pixels.data()),frame.width,frame.height,frame.width*4,QImage::Format_ARGB32);
             p.save();p.setOpacity(frame.brightness);p.drawImage(screen,image);p.restore();}
-        a.label({2,h-9,w-4,4},id=="ili9341"?"ILI9341":"ST7735",1.5);a.pins();return true;
+        a.label({2,h-5,w-4,4},id=="ili9341"?"ILI9341":"ST7735",1.5);a.pins();return true;
     }
     if(id.starts_with("stepper-")){
         const QPointF center(w/2,h/2);a.box({0,0,w,h},QColor("#5d656b"),2);
