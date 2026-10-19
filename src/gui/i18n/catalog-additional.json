@@ -4146,5 +4146,77 @@
   "System power (USB through a Schottky diode)": [
     "Alimentazione di sistema (USB tramite diodo Schottky)",
     "Alimentação do sistema (USB através de diodo Schottky)"
+  ],
+  "Off": [
+    "Disattivato",
+    "Desativado"
+  ],
+  "Detailed": [
+    "Dettagliato",
+    "Detalhado"
+  ],
+  "Hide hint": [
+    "Nascondi suggerimento",
+    "Ocultar dica"
+  ],
+  "Show hint": [
+    "Mostra suggerimento",
+    "Mostrar dica"
+  ],
+  "Quack assistant · hint": [
+    "Assistente · suggerimento",
+    "Assistente · dica"
+  ],
+  "Next step": [
+    "Passo successivo",
+    "Próximo passo"
+  ],
+  "Open output": [
+    "Apri output",
+    "Abrir saída"
+  ],
+  "Open pin inspector": [
+    "Apri ispettore dei pin",
+    "Abrir inspetor de pinos"
+  ],
+  "Select a board to edit its sketch. Use the pin inspector to check connections.": [
+    "Seleziona una scheda per modificare lo sketch. Controlla i collegamenti nell’ispettore dei pin.",
+    "Selecione uma placa para editar o sketch. Confira as conexões no inspetor de pinos."
+  ],
+  "The board has been added. Select it and check its sketch and pin assignments.": [
+    "La scheda è stata aggiunta. Selezionala e controlla lo sketch e l’assegnazione dei pin.",
+    "A placa foi adicionada. Selecione-a e confira o sketch e a atribuição dos pinos."
+  ],
+  "The component has been added. Check its pins and required supply in the pin inspector.": [
+    "Il componente è stato aggiunto. Controlla i pin e l’alimentazione richiesta nell’ispettore dei pin.",
+    "O componente foi adicionado. Confira os pinos e a alimentação necessária no inspetor de pinos."
+  ],
+  "The connection has been added. Use the pin inspector to check which pins share a net.": [
+    "Il collegamento è stato creato. Controlla nell’ispettore quali pin condividono la stessa rete.",
+    "A conexão foi criada. Confira no inspetor quais pinos pertencem à mesma rede."
+  ],
+  "The simulation is starting. The models do not cover every property of real hardware.": [
+    "La simulazione si sta avviando. I modelli non coprono tutte le proprietà dell’hardware reale.",
+    "A simulação está iniciando. Os modelos não abrangem todas as propriedades do hardware real."
+  ],
+  "The sketch could not be compiled.": [
+    "Impossibile compilare lo sketch.",
+    "Não foi possível compilar o sketch."
+  ],
+  "The compiler reported a warning.": [
+    "Il compilatore ha segnalato un avviso.",
+    "O compilador emitiu um aviso."
+  ],
+  "Open the output and check the first message with a filename and line number.": [
+    "Apri l’output e controlla il primo messaggio con nome del file e numero di riga.",
+    "Abra a saída e confira a primeira mensagem com nome de arquivo e número de linha."
+  ],
+  "Open the pin inspector and check power, ground and net status.": [
+    "Apri l’ispettore dei pin e controlla alimentazione, massa e stato della rete.",
+    "Abra o inspetor de pinos e confira alimentação, terra e estado da rede."
+  ],
+  "There are no diagnostic messages in this view. This is no guarantee for real hardware.": [
+    "Questa vista non contiene messaggi diagnostici. Non è una garanzia per l’hardware reale.",
+    "Esta vista não contém mensagens de diagnóstico. Isso não garante o funcionamento do hardware real."
   ]
 }

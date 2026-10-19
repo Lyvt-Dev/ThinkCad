@@ -37,6 +37,7 @@ signals:
     void log(const QString& message);
     void activeChanged(bool active);
     void readyToRun();
+    void compilationDiagnostic(bool error);
 private:
     QProcess compiler_, worker_;
     GdbSession debugger_;
@@ -61,7 +62,7 @@ private:
     struct LibraryUnit {QString root,base;QStringList sources;bool builtin=false;};
     QList<LibraryUnit> libraries_;QSet<int> selectedLibraries_;
     QStringList compileArguments_;QString compilerExecutable_,outputPath_;
-    QByteArray dependencyOutput_;bool scanning_=false;int dependencyPasses_=0;
+    QByteArray compilerDiagnostics_, dependencyOutput_;bool scanning_=false;int dependencyPasses_=0;
     void launchCompilation(bool scan);
     void compilationFinished(int code,QProcess::ExitStatus status);
 };

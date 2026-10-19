@@ -36,7 +36,7 @@ Nativer Update-Dialog mit Release-Notes, echtem Downloadfortschritt, Pause/Forts
 
 Die pixelige Diagnose-Ente erklärt vorhandene elektrische Diagnosemeldungen und zeigt auf Wunsch die betroffene Stelle. Öffnen über **Hilfe → Quak-Assistent**, direkt im Diagnose-Dock ausblendbar. Vollständig lokal und regelbasiert.
 
-[Release Notes 1.3.2](docs/RELEASE_NOTES_1.3.2.md)
+[Release Notes 1.3.2](docs/RELEASE_NOTES_1.3.2.md) · [Quack-Assistent: Hinweise und Einstellungen](docs/QUACK_ASSISTANT.md)
 
 ## Neu in 1.3.1 — Visual Coding, Breadboard Intelligence & Measurement
 

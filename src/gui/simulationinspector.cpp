@@ -47,6 +47,13 @@ void SimulationInspector::configure(){
     for(const auto& item:doc.parts()){const auto id=QString::fromStdString(item.id);parts_->addItem(id+" · "+Language::text(QString::fromStdString(componentSpec(item.kind).label)),id);if(item.kind==PartKind::Module){const auto& model=ModuleRegistry::get(item.model);if(model.bus=="i2c"||model.bus=="spi")modules_->addItem(id+" · "+QString::fromStdString(model.label),id);environment_->addItem(id+" · "+QString::fromStdString(model.label),id);}}
     auto restore=[](QComboBox* box,const QVariant& id){const auto index=box->findData(id);box->setCurrentIndex(index>=0?index:box->count()?0:-1);};restore(parts_,part);restore(modules_,module);restore(environment_,environment);pins_->clear();selected_={};history_.clear();historyDirty_=true;netSignature_.clear();registerPart_.clear();
 }
+void SimulationInspector::showPins(const QString &part) {
+    configure();
+    if (auto *tabs = findChild<QTabWidget *>()) tabs->setCurrentIndex(0);
+    const int index = parts_->findData(part);
+    if (index >= 0) parts_->setCurrentIndex(index);
+    refreshPins();
+}
 void SimulationInspector::selectPin(){auto* item=pins_->currentItem();if(!item)return;const Endpoint next{parts_->currentData().toString().toStdString(),item->text(0).toStdString()};if(next==selected_)return;selected_=next;history_.clear();historyDirty_=true;netSignature_.clear();if(state_)sample(now_,*state_);}
 void SimulationInspector::sample(Microseconds time,const CircuitState& state){
     now_=time;if(!isVisible()||selected_.part.empty())return;const auto found=state.voltage.find(selected_);if(found==state.voltage.end())return;const auto value=found->second;const auto level=state.level(selected_);

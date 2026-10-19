@@ -24,9 +24,13 @@ CodeInterpreter::CodeInterpreter(QObject* parent) : QObject(parent) {
     connect(&watchdog_, &QTimer::timeout, this, [this] { emit log("Ausführung abgebrochen: Zeitlimit / fehlende Rückmeldung."); stop(); });
     rateWindow_.setInterval(1000);
     connect(&rateWindow_, &QTimer::timeout, this, [this] { linesThisSecond_=0; });
-    connect(&compiler_, &QProcess::readyReadStandardError, this, [this] { emit log(QString::fromLocal8Bit(compiler_.readAllStandardError()).left(16000)); });
+    connect(&compiler_, &QProcess::readyReadStandardError, this, [this] { const auto bytes=compiler_.readAllStandardError();
+        compilerDiagnostics_ += bytes;
+        if(compilerDiagnostics_.size()>32000)compilerDiagnostics_=compilerDiagnostics_.right(32000);
+        if(compilerDiagnostics_.contains(": warning:")||compilerDiagnostics_.contains(": Warnung:"))emit compilationDiagnostic(false);
+        emit log(QString::fromLocal8Bit(bytes).left(16000)); });
     connect(&compiler_,&QProcess::readyReadStandardOutput,this,[this]{const auto bytes=compiler_.readAllStandardOutput();if(!active_)return;if(scanning_){dependencyOutput_+=bytes;if(dependencyOutput_.size()>8*1024*1024){emit log("Compiler-Abhängigkeiten zu groß.");stop();}}else emit log(QString::fromLocal8Bit(bytes).left(16000));});
-    connect(&compiler_, &QProcess::errorOccurred, this, [this](QProcess::ProcessError e) { if (e==QProcess::FailedToStart) { emit log("Compiler konnte nicht gestartet werden. Unter Einstellungen einen g++-Compiler wählen."); stop(); } });
+    connect(&compiler_, &QProcess::errorOccurred, this, [this](QProcess::ProcessError e) { if (e==QProcess::FailedToStart) { emit compilationDiagnostic(true); emit log("Compiler konnte nicht gestartet werden. Unter Einstellungen einen g++-Compiler wählen."); stop(); } });
     connect(&compiler_,qOverload<int,QProcess::ExitStatus>(&QProcess::finished),this,&CodeInterpreter::compilationFinished);
     connect(&worker_, &QProcess::readyReadStandardOutput, this, &CodeInterpreter::readProtocol);
     connect(&worker_, &QProcess::readyReadStandardError, this, [this] { const auto bytes=worker_.readAllStandardError();emit log((workerArguments_.isEmpty()?QString::fromLocal8Bit(bytes):QString::fromUtf8(bytes)).left(16000)); });
@@ -169,11 +173,11 @@ void CodeInterpreter::readProtocol() {
 }
 
 void CodeInterpreter::launchCompilation(bool scan){
-    scanning_=scan;dependencyOutput_.clear();auto arguments=compileArguments_;int count=0;for(int i:selectedLibraries_)for(const auto& source:libraries_.at(i).sources){if(++count>200){emit log("Zu viele verwendete Bibliotheksquellen.");stop();return;}arguments<<source;}
+    scanning_=scan;compilerDiagnostics_.clear();dependencyOutput_.clear();auto arguments=compileArguments_;int count=0;for(int i:selectedLibraries_)for(const auto& source:libraries_.at(i).sources){if(++count>200){emit log("Zu viele verwendete Bibliotheksquellen.");stop();return;}arguments<<source;}
     if(scan)arguments<<"-MM"<<"-MT"<<"sketch";else arguments<<"-o"<<outputPath_;compiler_.start(compilerExecutable_,arguments);
 }
 void CodeInterpreter::compilationFinished(int code,QProcess::ExitStatus status){
-    if(!active_)return;if(code||status!=QProcess::NormalExit){emit log(QString("Kompilierung fehlgeschlagen (Exit %1).").arg(code));stop();return;}
+    if(!active_)return;if(code||status!=QProcess::NormalExit){emit compilationDiagnostic(true);emit log(QString("Kompilierung fehlgeschlagen (Exit %1).").arg(code));stop();return;}
     if(scanning_){dependencyOutput_+=compiler_.readAllStandardOutput();auto paths=QString::fromLocal8Bit(dependencyOutput_).replace("\\ "," ").replace("\\:",":");bool changed=false;
         for(int i=0;i<libraries_.size();++i){const auto& lib=libraries_.at(i);
 #ifdef Q_OS_WIN

@@ -63,6 +63,7 @@ public:
     void selectPart(const std::string& id);
     const thinkercad::CircuitDocument& document() const{return document_;}
     bool editingEnabled() const{return editingEnabled_;}
+    bool wireInProgress() const{return wireStart_.has_value();}
 signals:
     void documentChanged();
     void selectionChanged();

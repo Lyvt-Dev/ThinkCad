@@ -6220,5 +6220,113 @@
     "Живлення системи (USB через діод Шотткі)",
     "Alimentación del sistema (USB mediante diodo Schottky)",
     "Alimentation du système (USB via une diode Schottky)"
+  ],
+  "Off": [
+    "Выкл.",
+    "Вимкнено",
+    "Desactivado",
+    "Désactivé"
+  ],
+  "Detailed": [
+    "Подробно",
+    "Докладно",
+    "Detallado",
+    "Détaillé"
+  ],
+  "Hide hint": [
+    "Скрыть подсказку",
+    "Приховати підказку",
+    "Ocultar consejo",
+    "Masquer le conseil"
+  ],
+  "Show hint": [
+    "Показать подсказку",
+    "Показати підказку",
+    "Mostrar consejo",
+    "Afficher le conseil"
+  ],
+  "Quack assistant · hint": [
+    "Помощник · подсказка",
+    "Помічник · підказка",
+    "Asistente · consejo",
+    "Assistant · conseil"
+  ],
+  "Next step": [
+    "Следующий шаг",
+    "Наступний крок",
+    "Siguiente paso",
+    "Étape suivante"
+  ],
+  "Open output": [
+    "Открыть вывод",
+    "Відкрити вивід",
+    "Abrir salida",
+    "Ouvrir la sortie"
+  ],
+  "Open pin inspector": [
+    "Открыть инспектор выводов",
+    "Відкрити інспектор контактів",
+    "Abrir inspector de pines",
+    "Ouvrir l’inspecteur des broches"
+  ],
+  "Select a board to edit its sketch. Use the pin inspector to check connections.": [
+    "Выберите плату для редактирования скетча. Проверьте соединения в инспекторе выводов.",
+    "Виберіть плату для редагування скетчу. Перевірте з’єднання в інспекторі контактів.",
+    "Selecciona una placa para editar su sketch. Revisa las conexiones en el inspector de pines.",
+    "Sélectionnez une carte pour modifier son sketch. Vérifiez les connexions dans l’inspecteur des broches."
+  ],
+  "The board has been added. Select it and check its sketch and pin assignments.": [
+    "Плата добавлена. Выберите её и проверьте скетч и назначение выводов.",
+    "Плату додано. Виберіть її та перевірте скетч і призначення контактів.",
+    "La placa se ha añadido. Selecciónala y revisa su sketch y asignación de pines.",
+    "La carte a été ajoutée. Sélectionnez-la et vérifiez son sketch et l’affectation des broches."
+  ],
+  "The component has been added. Check its pins and required supply in the pin inspector.": [
+    "Компонент добавлен. Проверьте выводы и требуемое питание в инспекторе выводов.",
+    "Компонент додано. Перевірте контакти й потрібне живлення в інспекторі контактів.",
+    "El componente se ha añadido. Revisa sus pines y la alimentación necesaria en el inspector de pines.",
+    "Le composant a été ajouté. Vérifiez ses broches et l’alimentation requise dans l’inspecteur des broches."
+  ],
+  "The connection has been added. Use the pin inspector to check which pins share a net.": [
+    "Соединение создано. Проверьте в инспекторе, какие выводы входят в одну сеть.",
+    "З’єднання створено. Перевірте в інспекторі, які контакти належать до однієї мережі.",
+    "La conexión se ha creado. Revisa en el inspector qué pines pertenecen a la misma red.",
+    "La connexion a été créée. Vérifiez dans l’inspecteur quelles broches partagent le même réseau."
+  ],
+  "The simulation is starting. The models do not cover every property of real hardware.": [
+    "Симуляция запускается. Модели не охватывают все свойства реального оборудования.",
+    "Симуляція запускається. Моделі не охоплюють усі властивості справжнього обладнання.",
+    "La simulación se está iniciando. Los modelos no cubren todas las propiedades del hardware real.",
+    "La simulation démarre. Les modèles ne couvrent pas toutes les propriétés du matériel réel."
+  ],
+  "The sketch could not be compiled.": [
+    "Не удалось скомпилировать скетч.",
+    "Не вдалося скомпілювати скетч.",
+    "No se pudo compilar el sketch.",
+    "Le sketch n’a pas pu être compilé."
+  ],
+  "The compiler reported a warning.": [
+    "Компилятор выдал предупреждение.",
+    "Компілятор видав попередження.",
+    "El compilador ha emitido una advertencia.",
+    "Le compilateur a émis un avertissement."
+  ],
+  "Open the output and check the first message with a filename and line number.": [
+    "Откройте вывод и проверьте первое сообщение с именем файла и номером строки.",
+    "Відкрийте вивід і перевірте перше повідомлення з назвою файлу та номером рядка.",
+    "Abre la salida y revisa el primer mensaje con nombre de archivo y número de línea.",
+    "Ouvrez la sortie et vérifiez le premier message avec un nom de fichier et un numéro de ligne."
+  ],
+  "Open the pin inspector and check power, ground and net status.": [
+    "Откройте инспектор выводов и проверьте питание, землю и состояние сети.",
+    "Відкрийте інспектор контактів і перевірте живлення, землю та стан мережі.",
+    "Abre el inspector de pines y revisa alimentación, masa y estado de la red.",
+    "Ouvrez l’inspecteur des broches et vérifiez l’alimentation, la masse et l’état du réseau."
+  ],
+  "There are no diagnostic messages in this view. This is no guarantee for real hardware.": [
+    "В этом представлении нет диагностических сообщений. Это не гарантия для реального оборудования.",
+    "У цьому поданні немає діагностичних повідомлень. Це не гарантія для справжнього обладнання.",
+    "No hay mensajes de diagnóstico en esta vista. Esto no garantiza el funcionamiento del hardware real.",
+    "Cette vue ne contient aucun message de diagnostic. Cela ne garantit pas le fonctionnement du matériel réel."
   ]
 }

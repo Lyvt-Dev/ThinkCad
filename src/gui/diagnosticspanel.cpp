@@ -10,6 +10,8 @@
 #include <QToolButton>
 #include <QSettings>
 #include <QPixmap>
+#include <QSignalBlocker>
+#include <algorithm>
 static void initializeAssistantResources() {
     Q_INIT_RESOURCE(thinkcad_assistant);
 }
@@ -20,8 +22,16 @@ DiagnosticsPanel::DiagnosticsPanel(QWidget *parent) : QWidget(parent) {
     assistantToggle_ = new QToolButton;
     assistantToggle_->setObjectName("duckAssistantToggle");
     assistantToggle_->setCheckable(true);
-    assistantToggle_->setChecked(QSettings().value("duckAssistantVisible", true).toBool());
-    layout->addWidget(assistantToggle_);
+    assistantToggle_->setChecked(true);
+    auto *controls = new QHBoxLayout;
+    controls->addWidget(assistantToggle_);
+    modeChoice_ = new QComboBox;
+    modeChoice_->setObjectName("duckAssistantMode");
+    for (const auto *label : {"Aus", "Nur Fehler", "Normal", "Ausführlich"})
+        modeChoice_->addItem(Language::text(label));
+    controls->addWidget(modeChoice_);
+    controls->addStretch();
+    layout->addLayout(controls);
     assistant_ = new QWidget;
     assistant_->setObjectName("duckAssistant");
     auto *assistantLayout = new QHBoxLayout(assistant_);
@@ -29,8 +39,8 @@ DiagnosticsPanel::DiagnosticsPanel(QWidget *parent) : QWidget(parent) {
     auto *duck = new QLabel;
     duck->setObjectName("duckAssistantMascot");
     duck->setPixmap(
-        QPixmap(":/assistant/duck.png").scaled(80, 80, Qt::KeepAspectRatio, Qt::FastTransformation));
-    duck->setFixedSize(88, 88);
+        QPixmap(":/assistant/duck.png").scaled(32, 32, Qt::KeepAspectRatio, Qt::FastTransformation));
+    duck->setFixedSize(36, 36);
     duck->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
     assistantLayout->addWidget(duck, 0, Qt::AlignTop);
     auto *words = new QVBoxLayout;
@@ -47,15 +57,23 @@ DiagnosticsPanel::DiagnosticsPanel(QWidget *parent) : QWidget(parent) {
     nextHint_->setObjectName("duckNextHint");
     buttons->addWidget(showTarget_);
     buttons->addWidget(nextHint_);
+    inspect_ = new QPushButton;
+    inspect_->setObjectName("duckInspectPins");
+    buttons->addWidget(inspect_);
     buttons->addStretch();
     words->addLayout(buttons);
     assistantLayout->addLayout(words, 1);
     layout->addWidget(assistant_);
-    assistant_->setVisible(assistantToggle_->isChecked());
     connect(assistantToggle_, &QToolButton::toggled, this, [this](bool visible) {
-        assistant_->setVisible(visible);
-        QSettings().setValue("duckAssistantVisible", visible);
+        if (!visible && !currentKey_.isEmpty()) dismissed_.insert(currentKey_);
+        if (visible) { dismissed_.remove(currentKey_); manual_ = true; }
+        updateVisibility();
     });
+    connect(modeChoice_, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int index) {
+        QSettings().setValue("duckAssistantMode", index);
+        reloadPreferences();
+    });
+    connect(inspect_, &QPushButton::clicked, this, [this] { emit inspectorRequested(inspectionPart_); });
     filter_ = new QComboBox;
     filter_->setAccessibleName(Language::text("Diagnosefilter"));
     for (const auto &s : {"Alle Meldungen", "Warnungen und Fehler", "Nur Fehler"})
@@ -68,45 +86,133 @@ DiagnosticsPanel::DiagnosticsPanel(QWidget *parent) : QWidget(parent) {
     layout->addWidget(list_);
     connect(list_, &QListWidget::currentRowChanged, this, [this] { explainSelection(); });
     connect(showTarget_, &QPushButton::clicked, this, [this] {
-        if (const auto *item = list_->currentItem(); item && showTarget_->isEnabled())
+        if (!showTarget_->isEnabled()) return;
+        if (currentKey_.startsWith("compiler/")) { emit outputRequested(); return; }
+        if (const auto *item = list_->currentItem())
             emit targetActivated(item->data(Qt::UserRole).toString(), item->data(Qt::UserRole + 1).toString(),
                                  item->data(Qt::UserRole + 2).toString());
     });
     connect(nextHint_, &QPushButton::clicked, this, [this] {
-        if (list_->count() > 1)
-            list_->setCurrentRow((list_->currentRow() + 1) % list_->count());
+        if (list_->count() > 1) list_->setCurrentRow((list_->currentRow() + 1) % list_->count());
     });
     connect(filter_, qOverload<int>(&QComboBox::currentIndexChanged), this, [this] { render(); });
     connect(list_, &QListWidget::itemActivated, this, [this](QListWidgetItem *item) {
         emit targetActivated(item->data(Qt::UserRole).toString(), item->data(Qt::UserRole + 1).toString(),
                              item->data(Qt::UserRole + 2).toString());
     });
+    reloadPreferences();
+}
+DiagnosticsPanel::Mode DiagnosticsPanel::savedMode() {
+    QSettings settings;
+    const int legacy = settings.value("duckAssistantVisible", true).toBool() ? 2 : 0;
+    return static_cast<Mode>(std::clamp(settings.value("duckAssistantMode", legacy).toInt(), 0, 3));
+}
+void DiagnosticsPanel::reloadPreferences() {
+    mode_ = savedMode();
+    { QSignalBlocker block(modeChoice_); modeChoice_->setCurrentIndex(static_cast<int>(mode_)); }
     render();
 }
 void DiagnosticsPanel::showAssistant() {
-    assistantToggle_->setChecked(true);
-    assistantToggle_->setFocus();
+    manual_ = true;
+    dismissed_.remove(currentKey_);
+    explainSelection(); // An explicit request never changes the saved mode or grabs focus.
+}
+QString DiagnosticsPanel::issueKey(const DiagnosticIssue &issue) const {
+    return QString::fromStdString(issue.rule + "/" + issue.target.part + "/" + issue.target.pin + "/" +
+                                issue.wire + "/" + std::to_string(int(issue.severity)) + "/" + issue.explanation);
+}
+void DiagnosticsPanel::updateVisibility() {
+    const bool visible = mode_ != Mode::Off && !currentKey_.isEmpty() && !dismissed_.contains(currentKey_);
+    { QSignalBlocker block(assistantToggle_); assistantToggle_->setChecked(visible); }
+    assistantToggle_->setText(Language::text(visible ? "Hinweis ausblenden" : "Hinweis anzeigen"));
+    assistant_->setVisible(visible);
+    emit hintAvailable(visible);
+}
+void DiagnosticsPanel::beginProject(const CircuitDocument &doc) {
+    seen_.clear(); dismissed_.clear(); compilationIssues_.clear(); issues_.clear();
+    contextKey_.clear(); currentKey_.clear(); manual_ = false;
+    parts_.clear(); wires_.clear();
+    for (const auto &p : doc.parts()) parts_.insert(QString::fromStdString(p.id));
+    for (const auto &w : doc.wires()) wires_.insert(QString::fromStdString(w.id));
+    elapsed_.invalidate(); signature_.clear();
+    offerHint(Context::ProjectOpened);
+    render();
+}
+void DiagnosticsPanel::documentEdited(const CircuitDocument &doc) {
+    QSet<QString> parts, wires;
+    for (const auto &p : doc.parts()) {
+        const auto id = QString::fromStdString(p.id); parts.insert(id);
+        if (!parts_.contains(id) && p.kind != PartKind::Note && p.kind != PartKind::Junction && p.kind != PartKind::NetLabel)
+            offerHint(p.kind == PartKind::Esp8266 ? Context::BoardAdded : Context::PartAdded, id);
+    }
+    for (const auto &w : doc.wires()) {
+        const auto id = QString::fromStdString(w.id); wires.insert(id);
+        if (!wires_.contains(id)) offerHint(Context::Wired, QString::fromStdString(w.b.part));
+    }
+    parts_ = std::move(parts); wires_ = std::move(wires);
+    if (!contextPart_.isEmpty() && !parts_.contains(contextPart_)) { contextKey_.clear(); explainSelection(); }
+}
+void DiagnosticsPanel::offerHint(Context context, const QString &part) {
+    const auto key = QString("context/%1/%2").arg(int(context)).arg(part);
+    if (seen_.contains(key)) return;
+    seen_.insert(key);
+    context_ = context; contextPart_ = part; contextKey_ = key;
+    manual_ = false;
+    explainSelection();
+}
+QString DiagnosticsPanel::contextText() const {
+    switch (context_) {
+    case Context::ProjectOpened: return Language::text("Wähle ein Board, um seinen Sketch zu bearbeiten. Im Pin-Inspektor kannst du die Verbindungen prüfen.");
+    case Context::BoardAdded: return Language::text("Das Board ist eingefügt. Wähle es aus und prüfe Sketch und Pinbelegung.");
+    case Context::PartAdded: return Language::text("Das Bauteil ist eingefügt. Prüfe seine Anschlüsse und die benötigte Versorgung im Pin-Inspektor.");
+    case Context::Wired: return Language::text("Die Verbindung ist angelegt. Prüfe im Pin-Inspektor, welche Anschlüsse zum selben Netz gehören.");
+    case Context::SimulationStarted: return Language::text("Die Simulation wird gestartet. Die Modelle bilden nicht alle Eigenschaften echter Hardware ab.");
+    }
+    return {};
+}
+void DiagnosticsPanel::clearCompilationHints() { compilationIssues_.clear(); render(); }
+void DiagnosticsPanel::compilationHint(const QString &board, bool error) {
+    auto found = compilationIssues_.find(board);
+    if (found != compilationIssues_.end() && found->severity == Severity::Error && !error) return;
+    DiagnosticIssue issue{"compiler", error ? "Der Sketch konnte nicht kompiliert werden." : "Der Compiler hat eine Warnung gemeldet.",
+        "Öffne die Ausgabe und prüfe die erste Meldung mit Dateiname und Zeile.",
+        error ? Severity::Error : Severity::Warning, {board.toStdString(), {}}, {}};
+    if (found != compilationIssues_.end() && found.value() == issue) return;
+    compilationIssues_[board] = std::move(issue);
+    render();
 }
 void DiagnosticsPanel::explainSelection() {
     showTarget_->setEnabled(false);
+    showTarget_->setText(Language::text("Stelle zeigen"));
+    inspect_->setVisible(false);
     nextHint_->setEnabled(list_->count() > 1);
     const auto *item = list_->currentItem();
     bool valid = false;
     const int index = item ? item->data(Qt::UserRole + 3).toInt(&valid) : -1;
-    if (!valid || index < 0 || index >= static_cast<int>(issues_.size())) {
-        assistantText_->setText(Language::text("Quak! In dieser Ansicht gibt es keine Diagnosemeldungen. Das "
-                                               "ist keine Garantie für echte Hardware."));
-        return;
+    if (valid && index >= 0 && index < static_cast<int>(displayIssues_.size()) &&
+        (mode_ != Mode::ErrorsOnly || displayIssues_[index].severity != Severity::Info)) {
+        const auto &issue = displayIssues_[index];
+        currentKey_ = issueKey(issue);
+        inspectionPart_ = QString::fromStdString(issue.target.part);
+        const auto target = QString::fromStdString(issue.target.part) +
+            (issue.target.pin.empty() ? QString() : "." + QString::fromStdString(issue.target.pin));
+        auto text = Language::text(QString::fromStdString(issue.explanation)) + "\n" +
+            Language::text("Nächster Schritt") + ": " + Language::text(QString::fromStdString(issue.solution));
+        if (!target.isEmpty()) text.prepend(target + "\n");
+        assistantText_->setText(text);
+        if (issue.rule == "compiler") showTarget_->setText(Language::text("Ausgabe öffnen"));
+        showTarget_->setEnabled(issue.rule == "compiler" || !issue.target.part.empty() || !issue.wire.empty());
+        inspect_->setVisible(issue.rule != "compiler");
+    } else {
+        const bool contextual = mode_ >= Mode::Normal && !contextKey_.isEmpty() &&
+            (context_ != Context::SimulationStarted || mode_ == Mode::Verbose);
+        currentKey_ = contextual ? contextKey_ : (manual_ && mode_ >= Mode::Normal ? "manual" : QString());
+        inspectionPart_ = contextPart_;
+        assistantText_->setText(contextual ? contextText() : Language::text(
+            "In dieser Ansicht gibt es keine Diagnosemeldungen. Das ist keine Garantie für echte Hardware."));
+        inspect_->setVisible(contextual);
     }
-    const auto &issue = issues_[index];
-    const auto target =
-        QString::fromStdString(issue.target.part) +
-        (issue.target.pin.empty() ? QString() : "." + QString::fromStdString(issue.target.pin));
-    assistantText_->setText(
-        Language::text("Quak! Schauen wir uns das an:") + (target.isEmpty() ? QString() : " " + target) +
-        "\n" + Language::text(QString::fromStdString(issue.explanation)) + "\n" + Language::text("Lösung") +
-        ": " + Language::text(QString::fromStdString(issue.solution)));
-    showTarget_->setEnabled(!issue.target.part.empty() || !issue.wire.empty());
+    updateVisibility();
 }
 void DiagnosticsPanel::refresh(const CircuitDocument &doc, const NetTopology &net, const CircuitState &state,
                                const std::map<std::string, const Esp8266Board *> &boards, const UartBus *uart,
@@ -120,7 +226,7 @@ void DiagnosticsPanel::refresh(const CircuitDocument &doc, const NetTopology &ne
     auto previous = std::move(issues_);
     issues_ = DiagnosticEngine::analyze(doc, net, state, boards, uart, traffic);
     for (const auto &message : state.errors) {
-        DiagnosticIssue issue{"solver",        message, "Verdrahtung und Modellgrenzen prüfen.",
+        DiagnosticIssue issue{"solver",        message, "Öffne den Pin-Inspektor und prüfe Versorgung, Masse und Netzstatus.",
                               Severity::Error, {},      {}};
         for (const auto &p : doc.parts())
             if (message.find(p.id) != std::string::npos) {
@@ -132,7 +238,7 @@ void DiagnosticsPanel::refresh(const CircuitDocument &doc, const NetTopology &ne
     for (const auto &warning : state.warnings)
         issues_.push_back({"solver-warning",
                            warning.message,
-                           "Verdrahtung und Modellgrenzen prüfen.",
+                           "Öffne den Pin-Inspektor und prüfe Versorgung, Masse und Netzstatus.",
                            Severity::Warning,
                            {warning.part, {}},
                            {}});
@@ -142,7 +248,11 @@ void DiagnosticsPanel::refresh(const CircuitDocument &doc, const NetTopology &ne
     }
 }
 void DiagnosticsPanel::render() {
-    assistantToggle_->setText(Language::text("Quak-Assistent"));
+    assistantToggle_->setText(Language::text("Hinweis ausblenden"));
+    modeChoice_->setAccessibleName(Language::text("Quack-Assistent"));
+    const char *modes[] = {"Aus", "Nur Fehler", "Normal", "Ausführlich"};
+    for (int i = 0; i < 4; ++i) modeChoice_->setItemText(i, Language::text(modes[i]));
+    inspect_->setText(Language::text("Pin-Inspektor öffnen"));
     findChild<QLabel *>("duckAssistantMascot")->setAccessibleName(Language::text("Diagnose-Ente"));
     showTarget_->setText(Language::text("Stelle zeigen"));
     nextHint_->setText(Language::text("Nächster Hinweis"));
@@ -151,9 +261,23 @@ void DiagnosticsPanel::render() {
                                                : i == 1 ? "Warnungen und Fehler"
                                                         : "Nur Fehler"));
     const int scroll = list_->verticalScrollBar()->value();
+    const auto selectedKey = currentKey_;
+    QSignalBlocker block(list_);
     list_->clear();
-    for (std::size_t index = 0; index < issues_.size(); ++index) {
-        const auto &issue = issues_[index];
+    displayIssues_ = issues_;
+    for (const auto &issue : compilationIssues_) displayIssues_.push_back(issue);
+    std::stable_sort(displayIssues_.begin(), displayIssues_.end(), [](const auto &a, const auto &b) {
+        return a.severity > b.severity;
+    });
+    QSet<QString> active;
+    for (const auto &issue : displayIssues_) active.insert(issueKey(issue));
+    for (auto it = dismissed_.begin(); it != dismissed_.end();) {
+        if (!it->startsWith("context/") && *it != "manual" && !active.contains(*it)) it = dismissed_.erase(it);
+        else ++it;
+    }
+    int selection = 0;
+    for (std::size_t index = 0; index < displayIssues_.size(); ++index) {
+        const auto &issue = displayIssues_[index];
         if (filter_->currentIndex() == 2 && issue.severity != Severity::Error)
             continue;
         if (filter_->currentIndex() == 1 && issue.severity == Severity::Info)
@@ -171,10 +295,12 @@ void DiagnosticsPanel::render() {
         item->setData(Qt::UserRole + 2, QString::fromStdString(issue.wire));
         item->setData(Qt::UserRole + 3, static_cast<int>(index));
         item->setToolTip(text);
+        if (issueKey(issue) == selectedKey && issue.severity == displayIssues_.front().severity)
+            selection = list_->row(item);
     }
     if (list_->count() == 0)
         list_->addItem(Language::text("Keine elektrischen Fehler erkannt. Modellgrenzen beachten."));
-    list_->setCurrentRow(0);
+    list_->setCurrentRow(selection);
     explainSelection();
     list_->verticalScrollBar()->setValue(scroll);
 }

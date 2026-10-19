@@ -1,5 +1,10 @@
 #include "mainwindow.hpp"
 #include "diagnosticspanel.hpp"
+#include "codeinterpreter.hpp"
+#include "preferences.hpp"
+#include <QDialogButtonBox>
+#include <QLineEdit>
+#include <QVBoxLayout>
 #include <QToolButton>
 #include <QListWidget>
 #include <QAction>
@@ -243,7 +248,8 @@ class Feature129Tests : public QObject {
         doc.connect({"board", "3V3"}, {"board", "GND"});
         Esp8266Board board;
         panel.refresh(doc, NetTopology(doc), {}, {{"board", &board}}, nullptr, nullptr);
-        QVERIFY(explanation->text().contains("Quack!"));
+        QVERIFY(explanation->text().contains("Next step"));
+        QVERIFY(!explanation->text().contains("Quack!"));
         QVERIFY(show->isEnabled());
         QSignalSpy navigation(&panel, &DiagnosticsPanel::targetActivated);
         QTest::mouseClick(show, Qt::LeftButton);
@@ -265,7 +271,184 @@ class Feature129Tests : public QObject {
         QVERIFY(explanation->text().contains("no diagnostic messages"));
         Language::set("de");
         panel.refresh(doc, NetTopology(doc), {}, {{"board", &board}}, nullptr, nullptr);
-        QVERIFY(explanation->text().contains("Quak!"));
+        QVERIFY(explanation->text().contains("keine Diagnosemeldungen"));
+    }
+    void duckAssistantModesMigratePersistAndKeepDiagnostics() {
+        QSettings().setValue("duckAssistantVisible", false);
+        DiagnosticsPanel panel;
+        panel.show();
+        auto *card = panel.findChild<QWidget *>("duckAssistant");
+        auto *mode = panel.findChild<QComboBox *>("duckAssistantMode");
+        QCOMPARE(mode->currentIndex(), 0);
+        panel.beginProject(CircuitDocument{});
+        panel.showAssistant();
+        QVERIFY(!card->isVisible());
+        panel.compilationHint("board", true);
+        QVERIFY(!card->isVisible());
+        QVERIFY(panel.findChild<QListWidget *>("circuitDiagnostics")->item(0)->text().contains("compiled"));
+        mode->setCurrentIndex(1);
+        QVERIFY(card->isVisible());
+        panel.clearCompilationHints();
+        QVERIFY(!card->isVisible());
+        panel.offerHint(DiagnosticsPanel::Context::PartAdded, "led");
+        QVERIFY(!card->isVisible());
+        panel.compilationHint("board", false); // Actionable warnings belong to Errors only.
+        QVERIFY(card->isVisible());
+        mode->setCurrentIndex(0);
+        DiagnosticsPanel restored;
+        QCOMPARE(restored.findChild<QComboBox *>("duckAssistantMode")->currentIndex(), 0);
+        panel.showAssistant();
+        QVERIFY(!card->isVisible());
+    }
+    void duckAssistantContextIsOncePerProjectAndNeverTakesFocus() {
+        QWidget host;
+        auto *layout = new QVBoxLayout(&host);
+        auto *editor = new QLineEdit;
+        auto *panel = new DiagnosticsPanel;
+        layout->addWidget(editor); layout->addWidget(panel);
+        host.show();host.activateWindow();editor->setFocus();
+        QTRY_COMPARE(QApplication::focusWidget(), editor);
+        auto *card = panel->findChild<QWidget *>("duckAssistant");
+        auto *text = panel->findChild<QLabel *>("duckAssistantExplanation");
+        auto *mode = panel->findChild<QComboBox *>("duckAssistantMode");
+        auto *toggle = panel->findChild<QToolButton *>("duckAssistantToggle");
+        CircuitDocument doc;
+        panel->beginProject(doc);
+        QVERIFY(card->isVisible());QVERIFY(text->text().contains("sketch"));
+        QCOMPARE(QApplication::focusWidget(), editor);
+        toggle->setChecked(false);
+        panel->offerHint(DiagnosticsPanel::Context::ProjectOpened);
+        QVERIFY(!card->isVisible());
+        const auto led = doc.addPart(PartKind::Led, 300, 200);
+        panel->documentEdited(doc);
+        QVERIFY(card->isVisible());QVERIFY(text->text().contains("component"));
+        toggle->setChecked(false);
+        panel->documentEdited(doc);
+        QVERIFY(!card->isVisible());
+        doc.connect({"board", "GND"}, {led, "K"});
+        panel->documentEdited(doc);
+        QVERIFY(card->isVisible());QVERIFY(text->text().contains("connection"));
+        QCOMPARE(QApplication::focusWidget(), editor);
+        const auto board = doc.addPart(PartKind::Esp8266, 600, 0);
+        panel->documentEdited(doc);
+        QVERIFY(text->text().contains("board has been added"));
+        doc.removePart(board);panel->documentEdited(doc);
+        QVERIFY(!card->isVisible());
+        panel->offerHint(DiagnosticsPanel::Context::SimulationStarted);
+        QVERIFY(!card->isVisible());
+        mode->setCurrentIndex(3);
+        QVERIFY(card->isVisible());QVERIFY(text->text().contains("real hardware"));
+        toggle->setChecked(false);panel->reloadPreferences();
+        QVERIFY(!card->isVisible());
+        panel->beginProject(doc);
+        QVERIFY(card->isVisible());
+        QCOMPARE(QApplication::focusWidget(), editor);
+    }
+    void duckAssistantPrioritizesErrorsAndKeepsDismissalAcrossRefresh() {
+        DiagnosticsPanel panel;panel.show();
+        auto *text = panel.findChild<QLabel *>("duckAssistantExplanation");
+        auto *card = panel.findChild<QWidget *>("duckAssistant");
+        auto *toggle = panel.findChild<QToolButton *>("duckAssistantToggle");
+        auto *show = panel.findChild<QPushButton *>("duckShowTarget");
+        panel.compilationHint("board", false);
+        QSignalSpy output(&panel, &DiagnosticsPanel::outputRequested);
+        QTest::mouseClick(show, Qt::LeftButton);
+        QCOMPARE(output.count(), 1);
+        CircuitDocument doc;Esp8266Board board;
+        doc.connect({"board", "3V3"}, {"board", "GND"});
+        panel.refresh(doc, NetTopology(doc), {}, {{"board", &board}}, nullptr, nullptr);
+        QVERIFY(!text->text().contains("compiler reported"));
+        QVERIFY(text->text().contains("Next step"));
+        toggle->setChecked(false);
+        panel.compilationHint("board", false);
+        QVERIFY(!card->isVisible());
+        panel.offerHint(DiagnosticsPanel::Context::ProjectOpened);
+        QVERIFY(!card->isVisible());
+        panel.clearCompilationHints(); // Rerender must not redisplay the dismissed electrical error.
+        QVERIFY(!card->isVisible());
+        doc.clearWires();
+        panel.refresh(doc, NetTopology(doc), {}, {{"board", &board}}, nullptr, nullptr);
+        QVERIFY(text->text().contains("sketch"));
+        panel.compilationHint("board", true);
+        QVERIFY(card->isVisible());QVERIFY(text->text().contains("could not be compiled"));
+        panel.compilationHint("board", false);
+        QVERIFY(text->text().contains("could not be compiled"));
+    }
+    void duckAssistantCompilerSignalsReflectActualCompilation() {
+        CodeInterpreter interpreter;
+        QSignalSpy diagnostics(&interpreter, &CodeInterpreter::compilationDiagnostic);
+        QSignalSpy ready(&interpreter, &CodeInterpreter::readyToRun);
+        interpreter.start("#warning assistant-test\nvoid setup() {}\nvoid loop() {}", AppPaths::compiler(), AppPaths::sdk(), {}, {}, "esp8266", true);
+        QTRY_VERIFY_WITH_TIMEOUT(ready.count() == 1, 60000);
+        QVERIFY(!diagnostics.isEmpty());
+        for (const auto &message : diagnostics) QCOMPARE(message.first().toBool(), false);
+        interpreter.stop();diagnostics.clear();
+        interpreter.start("void setup() { invalid syntax }\nvoid loop() {}", AppPaths::compiler(), AppPaths::sdk(), {});
+        QTRY_VERIFY_WITH_TIMEOUT(!diagnostics.isEmpty() && diagnostics.last().first().toBool(), 60000);
+        QTRY_VERIFY(!interpreter.active());
+    }
+    void duckAssistantEventsDoNotOpenDock() {
+        MainWindow window;window.show();
+        auto *dock = window.findChild<QDockWidget *>("diagnosticsDock");
+        QVERIFY(!dock->isVisible());
+        auto *panel = window.findChild<DiagnosticsPanel *>();
+        panel->offerHint(DiagnosticsPanel::Context::PartAdded, "led");
+        panel->compilationHint("board", true);
+        QTest::qWait(30);
+        QVERIFY(!dock->isVisible());
+        auto *status = window.findChild<QToolButton *>("duckAssistantStatus");
+        QVERIFY(status->text().contains("hint"));
+        QTest::mouseClick(status, Qt::LeftButton);
+        QVERIFY(dock->isVisible());
+        auto *mode = panel->findChild<QComboBox *>("duckAssistantMode");
+        mode->setCurrentIndex(0);
+        window.findChild<QAction *>("duckAssistantAction")->trigger();
+        QVERIFY(!panel->findChild<QWidget *>("duckAssistant")->isVisible());
+    }
+    void duckAssistantPreferencesApplyOnlyAfterSave() {
+        MainWindow window;window.show();
+        auto *panel = window.findChild<DiagnosticsPanel *>();
+        QTimer::singleShot(0, &window, [&] {
+            auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+            QVERIFY(dialog);
+            auto *mode = dialog->findChild<QComboBox *>("preferencesAssistantMode");
+            QVERIFY(mode);QCOMPARE(mode->currentIndex(), 2);
+            mode->setCurrentIndex(0);
+            dialog->reject();
+        });
+        window.findChild<QAction *>("openPreferences")->trigger();
+        QCOMPARE(panel->findChild<QComboBox *>("duckAssistantMode")->currentIndex(), 2);
+        QTimer::singleShot(0, &window, [&] {
+            auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+            QVERIFY(dialog);
+            dialog->findChild<QComboBox *>("preferencesAssistantMode")->setCurrentIndex(0);
+            QTest::mouseClick(dialog->findChild<QDialogButtonBox *>()->button(QDialogButtonBox::Save), Qt::LeftButton);
+        });
+        window.findChild<QAction *>("openPreferences")->trigger();
+        QCOMPARE(panel->findChild<QComboBox *>("duckAssistantMode")->currentIndex(), 0);
+        QCOMPARE(static_cast<int>(DiagnosticsPanel::savedMode()), 0);
+    }
+    void duckAssistantWaitsForFinishedWiringAndInspectsTheTarget() {
+        MainWindow window;window.show();
+        window.findChild<QAction *>("duckAssistantAction")->trigger();
+        auto *panel = window.findChild<DiagnosticsPanel *>();
+        auto *canvas = window.findChild<CircuitCanvas *>();
+        auto *text = panel->findChild<QLabel *>("duckAssistantExplanation");
+        const auto before = text->text();
+        std::string led;
+        canvas->mutate("test component", [&](auto &doc) { led = doc.addPart(PartKind::Led, 500, 500); });
+        QCOMPARE(text->text(), before);
+        canvas->connectPin({"board", "GND"});
+        QVERIFY(canvas->wireInProgress());
+        QTest::qWait(450);
+        QCOMPARE(text->text(), before);
+        canvas->connectPin({led, "K"});
+        QVERIFY(!canvas->wireInProgress());
+        QTRY_VERIFY_WITH_TIMEOUT(text->text().contains("connection has been added"), 2000);
+        QTest::mouseClick(panel->findChild<QPushButton *>("duckInspectPins"), Qt::LeftButton);
+        QVERIFY(window.findChild<QDockWidget *>("simulationInspectorDock")->isVisible());
+        QCOMPARE(window.findChild<QComboBox *>("inspectorPart")->currentData().toString(), QString::fromStdString(led));
+        canvas->history()->setClean(); // No unsaved-edit prompt when the test window closes.
     }
     void duckAssistantHelpOpensDock() {
         MainWindow window;

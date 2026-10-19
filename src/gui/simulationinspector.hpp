@@ -17,6 +17,7 @@ public:
     SimulationInspector(CircuitCanvas* canvas,const thinkercad::CircuitState& state,const thinkercad::ModuleDevices& devices,const thinkercad::UartBus& uart,thinkercad::BusTraffic& traffic,BoardLookup board,QWidget* parent=nullptr);
     void sample(thinkercad::Microseconds time,const thinkercad::CircuitState& state);
     void refresh();
+    void showPins(const QString &part);
     void reset();
     void shutdown();
     bool capturing()const;

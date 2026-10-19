@@ -124,6 +124,8 @@ private:
     InstrumentPanel* instruments_;
     SerialTools* serial_;
     DiagnosticsPanel* diagnostics_;
+    QTimer assistantDebounce_;
+    bool assistantRefreshPending_ = false;
     QDockWidget* inspectorDock_=nullptr;
     bool hadInstruments_=false;
     QDoubleSpinBox* powerRating_;
