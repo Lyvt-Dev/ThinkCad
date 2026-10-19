@@ -1,3 +1,4 @@
+#include "thinkercad/actuators.hpp"
 #include "thinkercad/circuit.hpp"
 #include "thinkercad/nettopology.hpp"
 #include "thinkercad/modules.hpp"
@@ -512,6 +513,8 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
     for(const auto& [id,source]:boards){if(!source)continue;const auto& board=*source;for(const auto& ep:result.voltage)if(ep.first.part==id&&ep.second){const auto& name=ep.first.pin;const double limit=name=="VIN"?(board.profile().arduino()?20.:12.):name=="5V"||name=="VBUS"||name=="VSYS"?5.5:name=="A0"?board.profile().adcMax:board.profile().voltage+0.3;if(*ep.second>limit+1e-6||*ep.second<-0.3)result.errors.push_back("Überspannung am Boardpin "+id+"."+ep.first.pin);}
 
     }
+    static const DeviceRegisters emptyActuators;
+    describeActuators(*this,memory?memory->electronics:emptyActuators,result);
     return result;
 }
 std::vector<SoundSignal> CircuitDocument::soundSignals(const std::map<std::string,const Esp8266Board*>& boards,std::vector<std::string>* errors)const {

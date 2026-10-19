@@ -41,7 +41,9 @@ struct SoundSignal {
     double frequency=0, amplitude=0; // Normalized AC peak, including electrical attenuation.
 };
 struct CircuitIssue {std::string part,message;};
+struct ColorFrame {int width=0,height=0;std::vector<std::uint32_t> pixels;double brightness=1;};
 struct CircuitState {
+    std::map<std::string,std::shared_ptr<const ColorFrame>> colorDisplays;
     std::map<Endpoint,std::optional<double>> voltage;
     std::map<Endpoint,double> logicVoltage;
     std::map<std::string,double> ledCurrent;

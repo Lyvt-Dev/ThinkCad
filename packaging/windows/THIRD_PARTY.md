@@ -41,3 +41,8 @@ licenses and user rights for Qt/toolchain components remain as described above. 
   `licenses/CPYTHON_LICENSE.txt`. Downloaded from python.org and checked against
   the pinned SHA-256 before packaging. `pip` is not included; a separately installed
   Python interpreter can be selected for additional local packages.
+
+ThinkCad 1.3.5 also bundles Monocypher 4.0.2 (BSD-2-Clause / CC0), Nayuki
+qrcodegen (MIT), quirc 1.2 (ISC) and Adafruit/Bosch BME680 drivers (BSD).
+Their pinned source provenance and full copyright/license notices are preserved
+in the source tree and installed licenses directory.

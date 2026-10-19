@@ -1,5 +1,7 @@
 # Quack-Assistent / Quack assistant
 
+[Ergänzungsplan für 1.3.5: kontextspezifische Modellhinweise und Nyra-Skin](QUACK_ASSISTANT_PLAN_1.3.5.md)
+
 ## Bedienung
 
 Der Assistent erklärt vorhandene Diagnosen und bietet kurze Orientierungshilfen.
@@ -11,12 +13,20 @@ Unter **Einstellungen → Allgemein → Quack-Assistent** und direkt im Diagnose
 | --- | --- |
 | Aus | Keine Assistentenhinweise. Die normale Diagnoseliste bleibt verfügbar. |
 | Nur Fehler | Fehler und Warnungen mit Handlungsbedarf, einschließlich Compilerwarnungen. |
-| Normal | Zusätzlich kurze Hinweise beim Projektöffnen, Hinzufügen und Verdrahten. |
-| Ausführlich | Zusätzlich ein Hinweis beim Starten der Simulation mit Modellgrenzen. |
+| Normal | Zusätzlich kurze Hinweise beim Projektöffnen, Hinzufügen, Verdrahten und Vorbereiten der Simulation. |
+| Ausführlich | Zusätzlich Modellgrenzen beim Starten der Simulation. |
 
 Die Auswahl bleibt nach einem Neustart erhalten. Ein zuvor dauerhaft ausgeblendeter
 Assistent bleibt beim Umstieg ausgeschaltet. **Hilfe → Quack-Assistent** oder die
 Schaltfläche in der Statusleiste öffnet den Diagnose-Dock, ändert aber nicht den Modus.
+
+Unter **Einstellungen → Allgemein → Assistenten-Skin** stehen **Quack** und
+**Nyra Quack** mit Bildvorschau zur Auswahl. Erst **Speichern** übernimmt den Skin;
+**Abbrechen** verwirft die Auswahl. Sie bleibt nach einem Neustart erhalten.
+Nyra Quack verwendet eine transparente, aus der Nutzervorlage vorbereitete Grafik.
+Beide Skins verwenden dieselben Hinweise und dieselbe Diagnose. Ein Skinwechsel
+schaltet einen deaktivierten Assistenten nicht ein. Unbekannte Skin-Einstellungen
+fallen auf Quack zurück. Die Grafiken sind lokal eingebettet; es gibt keinen Download.
 
 **Hinweis ausblenden** schließt die aktuelle Karte. Dieselbe Meldung erscheint bei
 Aktualisierungen nicht sofort wieder. Nach behobener und erneut auftretender Ursache
@@ -60,24 +70,13 @@ werden ebenfalls nur auf ausdrücklichen Klick ausgeführt.
   Ein erkannter Fehler ist keine vollständige Hardwareprüfung; eine ausbleibende
   Diagnose garantiert keine korrekte reale Schaltung.
 
-Die Basis dieses Changes ist ThinkCad 1.3.4. A4988/ULN2003-Schrittmotoren,
-Relaismodule, TFTs, BME680, MH-Z19 und Share-Code sind in diesem Stand noch nicht
-implementiert. Daher gibt es dafür keine vorgetäuschten Zustandsdiagnosen.
-
-Für deren spätere Integration sind folgende kurze Texte vorgesehen:
-
-| Funktion | Text und notwendige Daten |
-| --- | --- |
-| Relais | „Dieses Relais benötigt eine Versorgung und einen Steuerpin.“ Nur für ein tatsächlich registriertes Relaismodell mit entsprechenden Pins. |
-| A4988 | „Der Schrittmotor ist verbunden, aber der Treiber hat noch keine Versorgung. Prüfe GND, VMOT und VDD des A4988.“ Nur bei bestätigter Motorzuordnung und fehlender Versorgung im Netzmodell. |
-| TFT | „Dieses TFT-Modell benötigt CS, DC, RESET und die vorgesehenen SPI-Leitungen.“ Aus dem konkreten Displaymodell ableiten; Versorgung und Initialisierung separat prüfen. |
-| BME680 | „Die Messwerte sind simuliert. Eine chemische Gasanalyse ist nicht modelliert.“ Nur soweit dies dem implementierten Modell entspricht. |
-| MH-Z19 | „Der Sensor antwortet nicht. Prüfe Versorgung und die Zuordnung von TX und RX.“ Aus einem echten UART-Timeout ableiten. |
-| Share-Code | „Der Share-Code enthält deine Schaltung und deinen Code. Ohne Passwort ist er nicht vertraulich.“ Im tatsächlichen Exportdialog aus dessen Verschlüsselungszustand ableiten. |
-
-Neue Hardwarehinweise müssen aus Modelldefinitionen und tatsächlichen Netz-/Buszuständen
-entstehen, nicht aus Anzeigenamen. Ihre Tests müssen jeweils korrekte Verdrahtung,
-fehlende Versorgung und die dokumentierten Modellgrenzen abdecken.
+In 1.3.5 sind A4988/ULN2003, Schrittmotoren, Relais, TFTs, BME680, MH-Z19B
+und Share-Code angebunden. Orientierung nennt passende Pins und Modellgrenzen.
+Eine tatsächliche A4988-Versorgungsdiagnose benötigt einen verbundenen Motor und
+ungültige Versorgung im elektrischen Modell; aktivierte Sensorfehler werden als
+simulierte Fehler bezeichnet. Unverschlüsselter Share-Export meldet fehlende
+Vertraulichkeit. Die dauerhafte Sicherheitsinformation im Exportdialog bleibt
+auch bei ausgeschaltetem Assistenten sichtbar.
 
 ## Tests
 
@@ -90,13 +89,18 @@ OLED-Beispiel und prüft die simulierte Ausgabe.
 
 ## English
 
+Choose **Quack** or **Nyra Quack** under **Settings → General → Assistant skin**.
+Save applies and persists the choice; Cancel discards it. Both skins use the same
+guidance. Changing the skin never enables a disabled assistant. Images are bundled
+locally; unknown skin settings fall back to Quack.
+
 The local, rule-based assistant stays inside the diagnostics dock. Choose **Off /
 Errors only / Normal / Detailed** in Settings → General or in the dock. Errors only
 also includes actionable warnings. The choice persists; an assistant previously
 hidden in older versions stays off. Opening Help never overrides Off.
 
-Normal adds once-per-context guidance for project opening, component placement and
-completed connections. Detailed also explains model limits when starting a simulation.
+Normal adds once-per-context guidance for project opening, component placement,
+completed connections and simulation preparation. Detailed also explains model limits when starting a simulation.
 Hints never open docks automatically, take focus or interrupt simulation. Use the status
 bar button to open a pending hint. Hide the current hint, or select Off to disable all
 assistant hints. Ordinary diagnostics remain available in every mode.
@@ -104,5 +108,5 @@ assistant hints. Ordinary diagnostics remain available in every mode.
 Error hints suggest a practical next step and offer explicit navigation to the affected
 part, its pin inspector or the compiler output. Compiler output retains original file
 and line information. Hardware statements come from existing diagnostics; missing
-models are not presented as supported hardware. The proposed 1.3.5 component-specific
-and share-code hints await their corresponding model and export implementations.
+models are not presented as supported hardware. The 1.3.5 model-specific and share-code hints use the actual implemented models
+and the export encryption state.

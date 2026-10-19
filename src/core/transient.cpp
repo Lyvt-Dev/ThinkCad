@@ -27,9 +27,10 @@ std::pair<Microseconds,Microseconds> TransientSimulation::pulse(const CircuitDoc
 }
 CircuitState TransientSimulation::advance(const CircuitDocument& document,const Boards& boards,Microseconds target,const std::function<void(Microseconds,const CircuitState&)>& sample){
     if(target<now_)throw std::invalid_argument("Transient clock cannot go backwards");
-    bool stepping=!memory_.peripheralSignals.empty(),ultrasonic=false;for(const auto& p:document.parts()){ultrasonic|=p.kind==PartKind::Module&&(p.model=="hcsr04"||p.model=="ping3");stepping|=p.kind==PartKind::ServoMotor||p.kind==PartKind::DcMotor||p.kind==PartKind::Capacitor||p.kind==PartKind::Inductor||p.kind==PartKind::FunctionGenerator||p.kind==PartKind::Oscilloscope||p.kind==PartKind::LogicAnalyzer||p.kind==PartKind::CurrentProbe;}stepping|=ultrasonic;for(const auto& p:document.parts())stepping|=p.kind==PartKind::Module&&ModuleRegistry::get(p.model).bus=="electrical";
+    bool stepping=std::any_of(memory_.peripheralSignals.begin(),memory_.peripheralSignals.end(),[](const auto& entry){return !entry.second.empty();}),ultrasonic=false;for(const auto& p:document.parts()){ultrasonic|=p.kind==PartKind::Module&&(p.model=="hcsr04"||p.model=="ping3");stepping|=p.kind==PartKind::ServoMotor||p.kind==PartKind::DcMotor||p.kind==PartKind::Capacitor||p.kind==PartKind::Inductor||p.kind==PartKind::FunctionGenerator||p.kind==PartKind::Oscilloscope||p.kind==PartKind::LogicAnalyzer||p.kind==PartKind::CurrentProbe;}stepping|=ultrasonic;for(const auto& p:document.parts())stepping|=p.kind==PartKind::Module&&ModuleRegistry::get(p.model).bus=="electrical"&&
+        p.model!="a4988"&&p.model!="uln2003"&&p.model!="stepper-4"&&p.model!="stepper-5"&&p.model!="stepper-6"&&p.model!="relay-5v"&&p.model!="limit-switch"&&p.model!="mh-z19b";
     for(const auto& [id,board]:boards)if(board)for(int pin:board->profile().gpio)stepping|=board->pin(pin).pwm||(digitalSampling_&&board->pin(pin).frequency);
-    if(!stepping){now_=target;auto result=document.solve(boards);if(sample)sample(now_,result);return result;}
+    if(!stepping){now_=target;auto result=evaluate(document,boards);if(sample)sample(now_,result);return result;}
     auto result=evaluate(document,boards);std::size_t steps=0;
     while(now_<target){
         if(++steps>10000)throw std::runtime_error("Transient step budget exceeded; reduce simulation speed or signal frequency.");

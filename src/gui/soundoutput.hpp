@@ -8,6 +8,7 @@
 #include <mutex>
 #include <deque>
 class QAudioSink;
+class QSoundEffect;
 // Pull-based PCM source, also usable without an audio device in tests.
 class SoundStream final:public QIODevice {
 public:
@@ -38,6 +39,7 @@ public:
     void appendPcm(const std::vector<float>& samples);
     void prepare();
     void setEnabled(bool enabled);
+    void relayStates(const std::map<std::string,bool>& states);
     void stop();
 signals:
     void notice(const QString& message);
@@ -50,4 +52,6 @@ private:
     QAudioFormat format_;
     std::unique_ptr<QAudioSink> sink_;
     bool enabled_=true,warned_=false;
+    QSoundEffect* relay_=nullptr;
+    std::map<std::string,bool> relayStates_;
 };

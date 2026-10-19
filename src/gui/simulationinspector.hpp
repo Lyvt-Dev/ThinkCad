@@ -36,6 +36,7 @@ private:
     QTreeWidget *pins_,*historyView_,*busView_,*uartView_;
     QTableWidget* registers_;
     QLabel *net_,*registerHint_,*trafficHint_;
+    QLabel* actuatorTelemetry_;
     QCheckBox* capture_;
     QWidget* controls_;
     ModuleControls* environmentControls_=nullptr;

@@ -1,5 +1,6 @@
 #include "language.hpp"
 #include "examples.hpp"
+#include "feature135examples.hpp"
 #include "moduleexamples.hpp"
 #include "starterprojects.hpp"
 #include "paths.hpp"
@@ -43,7 +44,7 @@ QList<CircuitExample> ExampleCatalog::entries(){QList<CircuitExample> values{
     {"esp32_s3_adc","ESP32-S3: ADC",Language::text("12-Bit-ADC an A0/GPIO1. Eine Quelle mit 1,65 V schaltet die LED an GPIO5 ein.")},
     {"oled_text_32",Language::text("OLED-Text 128×32"),Language::text("setCursor, setTextColor und Textgröße auf einem korrekt verkabelten 128×32-SSD1306.")},
     {"two_oleds",Language::text("Zwei OLEDs am I²C-Bus"),Language::text("Zwei Displays teilen D2/SDA und D1/SCL. Adressen 0x3C und 0x3D; Flash-Bitmaps bewegen sich gegenläufig.")}
-};values.append(StarterProjects::entries());return values;}
+};values.append(StarterProjects::entries());values.append(feature135Examples());return values;}
 SavedProject ExampleCatalog::create(const QString& id){
     if(id.startsWith("starter_"))return StarterProjects::create(id);
     const auto entries=ExampleCatalog::entries();if(std::none_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.id==id;}))throw std::invalid_argument("Unbekanntes Beispiel.");
@@ -56,7 +57,8 @@ SavedProject ExampleCatalog::create(const QString& id){
     auto oled=[&](double x,double y,int address){const auto display=doc.addPart(PartKind::Oled,x,y);doc.part(display).value=address;
         doc.connect({"board","3V3"},{display,"VCC"},"#ec5967");doc.connect({"board","GND"},{display,"GND"},"#64748b");doc.connect({"board","GPIO5"},{display,"SCL"},"#e9ad33");doc.connect({"board","GPIO4"},{display,"SDA"},"#378bcb");};
     auto power=[&](const std::string& board,const std::string& module){doc.connect({board,"3V3"},{module,"VCC"},"#ef4444");doc.connect({board,"GND"},{module,"GND"},"#64748b");};
-    if(configureModuleExample(id,result)){}
+    if(configureFeature135Example(id,result)){}
+    else if(configureModuleExample(id,result)){}
     else if(id=="keypad_matrix"||id=="midi_keyboard"){
         doc.part("board").model="arduino-uno";const auto input=doc.addPart(id=="keypad_matrix"?PartKind::Keypad:PartKind::Keyboard,650,100);for(int r=0;r<4;++r)doc.connect({input,"R"+std::to_string(r+1)},{"board","D"+std::to_string(2+r)});for(int c=0;c<(id=="keypad_matrix"?4:8);++c)doc.connect({input,"C"+std::to_string(c+1)},{"board","D"+std::to_string(6+c)});
     }else if(id=="dj_controller"){

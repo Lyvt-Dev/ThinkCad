@@ -6328,5 +6328,917 @@
     "У цьому поданні немає діагностичних повідомлень. Це не гарантія для справжнього обладнання.",
     "No hay mensajes de diagnóstico en esta vista. Esto no garantiza el funcionamiento del hardware real.",
     "Cette vue ne contient aucun message de diagnostic. Cela ne garantit pas le fonctionnement du matériel réel."
+  ],
+  "Assistant skin": [
+    "Облик ассистента",
+    "Вигляд асистента",
+    "Apariencia del asistente",
+    "Apparence de l’assistant"
+  ],
+  "The simulation is being prepared. Open Output to see messages from your sketch.": [
+    "Симуляция готовится к запуску. Откройте вывод, чтобы увидеть сообщения скетча.",
+    "Симуляція готується до запуску. Відкрийте вивід, щоб побачити повідомлення скетчу.",
+    "La simulación se está preparando. Abre la salida para ver los mensajes de tu sketch.",
+    "La simulation est en préparation. Ouvrez la sortie pour voir les messages de votre sketch."
+  ],
+  "Find component": [
+    "Найти компонент",
+    "Знайти компонент",
+    "Buscar componente",
+    "Trouver un composant"
+  ],
+  "Recent components first. Arrow keys: select · Enter: insert · Esc: close": [
+    "Последние компоненты сначала. Клавиши Стрелы: Выбрать «Enter »: Вставить « Esc »: закрыть",
+    "Нещодавні компоненти Спочатку. Клавіші стрілок: виберіть · Enter: вставити · Esc: Закрити",
+    "Primero los componentes recientes. Teclas de flecha: seleccionar · Entrar: insertar · Esc: cerrar",
+    "Les composants récents d'abord. touches fléchées: sélectionnez · Entrez: insert · Escal: fermer"
+  ],
+  "Search results": [
+    "Результаты поиска",
+    "Результати пошуку",
+    "Resultados de la búsqueda",
+    "Résultats de la recherche"
+  ],
+  "Insert component": [
+    "Вставить компонент",
+    "Вставити компонент",
+    "Insertar un componente",
+    "Insérer un composant"
+  ],
+  "Share code is too large.": [
+    "Код акций слишком большой.",
+    "Обмін кодом завеликий.",
+    "El código de acciones es demasiado grande.",
+    "Le code de partage est trop grand."
+  ],
+  "Unknown share-code format.": [
+    "Неизвестный формат обмена кодом.",
+    "Невідомий формат спільного коду.",
+    "Formato de código compartido desconocido.",
+    "Format de code de partage inconnu."
+  ],
+  "Share code is damaged or unsupported.": [
+    "Share code повреждён или не поддерживается.",
+    "Спільний код пошкоджено або не підтримується.",
+    "El código de Compartir está dañado o no soportado.",
+    "Le code de partage est endommagé ou non supporté."
+  ],
+  "This share code requires a password.": [
+    "Этот код обмена требует пароля.",
+    "Для цього спільного коду потрібен пароль.",
+    "Este código compartido requiere una contraseña.",
+    "Ce code de partage nécessite un mot de passe."
+  ],
+  "The password is too long.": [
+    "Пароль слишком длинный.",
+    "Пароль задовга.",
+    "La contraseña es demasiado larga.",
+    "Le mot de passe est trop long."
+  ],
+  "Project is too large for a share code.": [
+    "Проект слишком большой для кода акций.",
+    "Проект завеликий для коду спільного ресурсу.",
+    "El proyecto es demasiado grande para un código de acción.",
+    "Le projet est trop important pour un code d'action."
+  ],
+  "Invalid project size in the share code.": [
+    "Неверный размер проекта в коде акций.",
+    "Некоректний розмір проекту у коді спільного ресурсу.",
+    "Tamaño del proyecto no válido en el código de acción.",
+    "Taille du projet non valide dans le code d'action."
+  ],
+  "Encrypted share code is incomplete.": [
+    "Зашифрованный код акций неполен.",
+    "Зашифрований код спільного ресурсу незавершений.",
+    "El código de acción cifrado está incompleto.",
+    "Le code d'action chiffré est incomplet."
+  ],
+  "Incorrect password or damaged share code. Nothing was imported.": [
+    "Неверный пароль или повреждённый код обмена. Ничего не импортировано.",
+    "Неправильний пароль або пошкоджений код спільного ресурсу. Нічого не імпортовано.",
+    "Contraseña incorrecta o código para compartir dañado. No se ha importado nada.",
+    "Mot de passe incorrect ou code de partage endommagé. Rien n'a été importé."
+  ],
+  "Share-code checksum does not match. Please copy the complete code again.": [
+    "Проверки Share-code не совпадают. Скопировать код снова.",
+    "Контрольна сума спільного коду не збігається. Будь ласка, ще раз скопіюйте весь код.",
+    "La suma de comprobación de código compartido no coincide. Por favor, copie el código completo de nuevo.",
+    "Le total de vérifications du code de partage ne correspond pas. Veuillez copier à nouveau le code complet."
+  ],
+  "Share code could not be safely decompressed.": [
+    "Код акций не может быть безопасно декомпрессирован.",
+    "Не вдалося безпечно стиснути спільний код.",
+    "No se pudo descomprimir de forma segura el código de acciones.",
+    "Le code de partage ne pouvait pas être décomprimé en toute sécurité."
+  ],
+  "Invalid project in the share code.": [
+    "Неверный проект в коде акций.",
+    "Некоректний проект у коді спільного ресурсу.",
+    "Proyecto no válido en el código de acción.",
+    "Projet non valide dans le code d'action."
+  ],
+  "Invalid share-code metadata.": [
+    "Неверные метаданные по коду обмена.",
+    "Некоректні метадані спільного доступу.",
+    "Metadatos de código compartido no válidos.",
+    "métadonnées de code d'action non valides."
+  ],
+  "Project format or contents are unsupported.": [
+    "Формат или содержание проекта не поддерживается.",
+    "Формат проекту або його вміст не підтримуються.",
+    "El formato o contenido del proyecto no son soportados.",
+    "Le format ou le contenu du projet n'est pas pris en charge."
+  ],
+  "Project is too large for a QR code. Please copy the share code instead.": [
+    "Проект слишком большой для QR-кода. Пожалуйста, скопируйте код обмена.",
+    "Проект завеликий для QR- коду. Будь ласка, скопіюйте код спільного ресурсу.",
+    "El proyecto es demasiado grande para un código QR. Por favor copie el código compartido en su lugar.",
+    "Le projet est trop grand pour un code QR. Veuillez copier le code de partage à la place."
+  ],
+  "Invalid QR image size.": [
+    "Неверный размер изображения QR.",
+    "Некоректний розмір зображення QR.",
+    "Tamaño de imagen QR no válido.",
+    "Taille de l'image QR non valide."
+  ],
+  "QR image is missing or too large.": [
+    "QR-снимок отсутствует или слишком большой.",
+    "Зображення QR відсутні або завелике.",
+    "Falta la imagen QR o es demasiado grande.",
+    "L'image QR est manquante ou trop grande."
+  ],
+  "QR image could not be read.": [
+    "QR-образец не может быть снят.",
+    "Зображення QR неможливо прочитати.",
+    "No se pudo leer la imagen QR.",
+    "L'image QR ne pouvait pas être lue."
+  ],
+  "Multiple ThinkCad QR codes found. Please import one project at a time.": [
+    "Множественные коды QR DisplayCad. Пожалуйста, импортируйте один проект за раз.",
+    "Знайдено декілька кодів QR ThinkCad. Будь ласка, імпортуйте один проект одночасно.",
+    "Múltiples códigos ThinkCad QR encontrados. Por favor, importe un proyecto a la vez.",
+    "Plusieurs codes QR de ThinkCad trouvés. Veuillez importer un projet à la fois."
+  ],
+  "No readable ThinkCad QR code found in the image.": [
+    "В образе нет считываемого кода QR DisplayCad.",
+    "Не знайдено придатного для читання коду ThinkCad QR у зображенні.",
+    "No se ha encontrado ningún código QR de ThinkCad legible en la imagen.",
+    "Aucun code QR de ThinkCad lisible trouvé dans l'image."
+  ],
+  "Share project…": [
+    "Разделить проект...",
+    "Спільний проект...",
+    "Compartir proyecto...",
+    "Partager le projet..."
+  ],
+  "The share code contains your circuit and code. Without a password, it is not confidential.": [
+    "Код обмена содержит схему и код. Без пароля он не является конфиденциальным.",
+    "У коді спільного ресурсу містяться дані вашого кола і коду. Без пароля, цей код не є конфіденційним.",
+    "El código de acción contiene su circuito y código. Sin una contraseña, no es confidencial.",
+    "Le code de partage contient votre circuit et votre code. Sans mot de passe, il n'est pas confidentiel."
+  ],
+  "Everything is generated locally. Required libraries are listed by name and version, rather than embedded.": [
+    "Всё производится на месте.",
+    "Все створено локально. Потрібні бібліотеки наведено у списку за назвою і версією, а не вбудованими.",
+    "Todo se genera localmente. Las bibliotecas necesarias se enumeran por nombre y versión, en lugar de incrustarse.",
+    "Tout est généré localement. Les bibliothèques requises sont listées par nom et version, plutôt que intégrées."
+  ],
+  "Password (optional)": [
+    "Пароль (факультативно)",
+    "Пароль (не обов' язково)",
+    "Contraseña (opcional)",
+    "Mot de passe (facultatif)"
+  ],
+  "Generate share code": [
+    "Генерировать код акций",
+    "Створити код спільного ресурсу",
+    "Generar código de acción",
+    "Générer le code d'action"
+  ],
+  "Share code": [
+    "Share code",
+    "Спільний код",
+    "Código de la participación",
+    "Code de partage"
+  ],
+  "Copy share code": [
+    "Скопировать код раздела",
+    "Скопіювати код спільного ресурсу",
+    "Copiar código de uso compartido",
+    "Copier le code de partage"
+  ],
+  "Save QR image…": [
+    "Сохранить изображение QR...",
+    "Зберегти зображення QR...",
+    "Guardar imagen QR...",
+    "Enregistrer l'image QR..."
+  ],
+  "QR image could not be saved.": [
+    "QR-снимок не удалось сохранить.",
+    "Зображення QR неможливо зберегти.",
+    "La imagen QR no se pudo guardar.",
+    "L'image QR n'a pas pu être enregistrée."
+  ],
+  "Preparing share code locally…": [
+    "Готовить код обмена на месте...",
+    "Підготовка спільного коду локально...",
+    "Preparando el código de acciones localmente...",
+    "Préparer le code de partage localement..."
+  ],
+  "Share code is password protected. Share the password through a separate channel.": [
+    "Share code - это защищенный пароль.",
+    "Спільний код захищено паролем. Ділитися паролем за допомогою окремого каналу.",
+    "El código compartido está protegido por contraseña. Comparta la contraseña a través de un canal separado.",
+    "Le code de partage est protégé par un mot de passe."
+  ],
+  "Without a password, the share code is not confidential.": [
+    "Без пароля код обмена не является конфиденциальным.",
+    "Без пароля код спільного доступу не є конфіденційним.",
+    "Sin contraseña, el código compartido no es confidencial.",
+    "Sans mot de passe, le code de partage n'est pas confidentiel."
+  ],
+  "Import from share code…": [
+    "Импорт из кода акций...",
+    "Імпортувати з спільного коду...",
+    "Importar desde código de acciones...",
+    "Importation à partir du code d'action..."
+  ],
+  "Paste a code or open a QR image. Existing project files will not be overwritten.": [
+    "Вставить код или открыть изображение QR. Существующие файлы проекта не будут записаны.",
+    "Вставити код або відкрити зображення QR. Файли проектів, які вже існують не буде перезаписано.",
+    "Pegar un código o abrir una imagen QR. Los archivos de proyecto existentes no se sobrescriben.",
+    "Coller un code ou ouvrir une image QR. Les fichiers de projet existants ne seront pas écrasés."
+  ],
+  "Open QR image…": [
+    "Открытое изображение QR...",
+    "Відкрити зображення QR...",
+    "Abrir imagen QR...",
+    "Ouvrir l'image QR..."
+  ],
+  "Scan QR code with camera": [
+    "Сканировать QR код с камерой",
+    "Сканувати QR- код фотоапаратом",
+    "Escanea el código QR con la cámara",
+    "Scannez le code QR avec la caméra"
+  ],
+  "Password (if required)": [
+    "Пароль (если требуется)",
+    "Пароль (за потреби)",
+    "Contraseña (si es necesario)",
+    "Mot de passe (si nécessaire)"
+  ],
+  "Validate import preview": [
+    "Проверка просмотра импорта",
+    "Перегляд імпортування",
+    "Validar la vista previa de importación",
+    "Valider l'aperçu de l'importation"
+  ],
+  "Import as new project": [
+    "Импорт в качестве нового проекта",
+    "Імпортувати як новий проект",
+    "Importar como proyecto nuevo",
+    "Importer comme nouveau projet"
+  ],
+  "Checking share code locally…": [
+    "Проверка кода акций на месте...",
+    "Перевірка локального коду спільного ресурсу...",
+    "Comprobando el código de acción localmente...",
+    "Vérifier le code de partage localement..."
+  ],
+  "Project: %1\nBoards: %2\nComponents: %3 · Project format: %4\nRequired libraries: %5\nLibraries are not installed automatically. Check local availability before starting.": [
+    "Проект:%1 Советы:%2 Компоненты:%3 формат проекта:%4 Затрагиваемые библиотеки:%5 Библиотеки не установлены автоматически. Проверьте наличие на месте перед началом.",
+    "Проект:%1 Дошки:%2 Компоненти:%3 · Формат проекту:%4 Потрібні бібліотеки:%5 Бібліотеки не встановлено автоматично. Перевірте локальну доступність перед початком.",
+    "Proyecto: %1 Tableros: %2 Componentes: %3 · Formato del proyecto: %4 Bibliotecas requeridas: %5 Las bibliotecas no se instalan automáticamente. Compruebe la disponibilidad local antes de comenzar.",
+    "Projet & #160;: %1 Cartes & #160;: %2 Composants & #160;: %3 · Format du projet & #160;: %4 Bibliothèques obligatoires & #160;: %5 Les bibliothèques ne sont pas installées automatiquement. Vérifiez la disponibilité locale avant de commencer."
+  ],
+  "None specified": [
+    "Не указано",
+    "Не вказано жодного",
+    "Ninguno especificado",
+    "Aucune donnée spécifiée"
+  ],
+  "Camera images stay local and are not saved or transmitted.": [
+    "Снимки камеры остаются локальными и не сохраняются или не передаются.",
+    "Фотознімки фотоапаратів залишаються локальними і не зберігаються і не передаються.",
+    "Las imágenes de la cámara se mantienen locales y no se guardan ni transmiten.",
+    "Les images de l'appareil photo restent locales et ne sont pas enregistrées ou transmises."
+  ],
+  "Camera": [
+    "Камера",
+    "Камера",
+    "Cámara",
+    "Caméra"
+  ],
+  "Camera could not be started. Check access permissions or open a QR image instead.": [
+    "Не удалось запустить камеру. Проверьте разрешения доступа или вместо этого откройте QR изображение.",
+    "Не вдалося запустити фотоапарат. Перевірте права доступу або відкрийте зображення QR.",
+    "No se pudo iniciar la cámara. Compruebe los permisos de acceso o abra una imagen QR en su lugar.",
+    "La caméra ne pouvait pas être démarrée. Vérifiez les permissions d'accès ou ouvrez une image QR à la place."
+  ],
+  "No camera available. Open a QR image instead.": [
+    "Нет камеры. Откройте вместо этого QR-снимок.",
+    "Камера недоступна. Замість цього відкрийте зображення QR.",
+    "No hay cámara disponible. Abra una imagen QR en su lugar.",
+    "Aucune caméra disponible. Ouvrez une image QR à la place."
+  ],
+  "Camera access was not granted. Open a QR image instead.": [
+    "Доступ к камерам не был предоставлен. Откройте вместо этого QR изображение.",
+    "Не вдалося надати доступ до фотоапарата. Замість цього відкрийте зображення QR.",
+    "No se concedió el acceso a la cámara. Abra una imagen QR en su lugar.",
+    "L'accès à la caméra n'a pas été accordé. Ouvrez plutôt une image QR."
+  ],
+  "A4988: steps and direction": [
+    "A4988: шаги и направление",
+    "A4988: сходи і напрямок",
+    "A4988: pasos y dirección",
+    "A4988: marches et direction"
+  ],
+  "Uno with a 12 V motor supply and separate STEP/DIR signals. Follow the position in the inspector.": [
+    "Уно с 12-вольтным двигателем и отдельными сигналами STEP/DIR. Следуйте за положением в инспекторе.",
+    "Uno з постацією 12 V і окремими сигналами CT/ DIR. Слідкуйте за позицією у інспекторі.",
+    "Uno con un suministro de motor de 12 V y señales STEP/DIR separadas. Siga la posición en el inspector.",
+    "Uno avec une alimentation de 12 V et des signaux STEP/DIR séparés. Suivez la position dans l'inspecteur."
+  ],
+  "Understand STEP/DIR and power connections.": [
+    "Поймите STEP/DIR и силовые соединения.",
+    "Розпочати визначення STAT/DIR і живлення з' єднання.",
+    "Comprender el PASO/DIR y las conexiones de energía.",
+    "Comprendre les connexions STEP/DIR et la puissance."
+  ],
+  "The motor moves forward and backward by 20 full steps.": [
+    "Мотор двигается вперед и назад на 20 полных шагов.",
+    "Двигун рухається вперед і назад на 20 повний сходинок.",
+    "El motor se mueve hacia adelante y hacia atrás por 20 pasos completos.",
+    "Le moteur avance et recule par 20 marches complètes."
+  ],
+  "Enable MS1 and compare the half-step movement.": [
+    "Включите MS1 и сравните полфаза движения.",
+    "Увімкнути MS1 і порівняти рух за півкроком.",
+    "Habilitar MS1 y comparar el movimiento de medio paso.",
+    "Activer MS1 et comparer le mouvement en demi-étape."
+  ],
+  "A4988: AccelStepper": [
+    "A4988: AccelStepper",
+    "A4988: AccelStemper",
+    "A4988: AccelStepper",
+    "A4988: AccelStepper"
+  ],
+  "The same wired circuit with a target position and simplified acceleration in the sketch.": [
+    "Та же проволочная цепь с целевым положением и упрощенным ускорением на рисунке.",
+    "Те саме вмонтоване коло з призначенням і спрощене прискорення на ескізі.",
+    "El mismo circuito cableado con una posición de destino y aceleración simplificada en el dibujo.",
+    "Le même circuit câblé avec une position cible et une accélération simplifiée dans le croquis."
+  ],
+  "Learn nonblocking position control.": [
+    "Учитесь не блокировать положение.",
+    "Вчися керувати позицією, яка не блокує.",
+    "Aprende a controlar la posición sin bloqueo.",
+    "Apprendre à ne pas bloquer le contrôle de la position."
+  ],
+  "The sketch moves between positions 0 and 20.": [
+    "Рисунок двигается между позициями 0 и 20.",
+    "Малюнок рухається між точками 0 і 20.",
+    "El bosquejo se mueve entre las posiciones 0 y 20.",
+    "Le croquis se déplace entre les positions 0 et 20."
+  ],
+  "Change speed and acceleration in the sketch.": [
+    "Изменить скорость и ускорение в рисунке.",
+    "Змінити швидкість і прискорення ескіза.",
+    "Cambie la velocidad y aceleración en el boceto.",
+    "Changer la vitesse et l'accélération dans le croquis."
+  ],
+  "ULN2003: 28BYJ-48": [
+    "ULN 2003: 28BYJ-48",
+    "ULN2003: 28BYJ- 48",
+    "ULN2003: 28BYJ-48",
+    "ULN2003: 28BYJ-48"
+  ],
+  "Five-wire motor with a shared 5 V supply and the Stepper library.": [
+    "Пятипроводной двигатель с общим 5-вольтным запасом и библиотекой Степпера.",
+    "Пять заключённых двигатели с распоряжением 5 V и библиотекой Stepper.",
+    "Motor de cinco hilos con un suministro compartido de 5 V y la biblioteca Stepper.",
+    "Moteur à cinq fils avec une alimentation partagée de 5 V et la bibliothèque Stepper."
+  ],
+  "Understand the coil sequence and initial alignment.": [
+    "Поймите последовательность катушек и первоначальную регулировку.",
+    "Розпізнайте спіральну послідовність і початкове вирівнювання.",
+    "Comprender la secuencia de bobinas y la alineación inicial.",
+    "Comprendre la séquence de bobines et l'alignement initial."
+  ],
+  "After alignment, the motor moves forward and backward by 32 steps.": [
+    "После регулировки двигатель движется вперед и назад на 32 шага.",
+    "Після вирівнювання двигуни рухаються вперед і назад на 32 кроки.",
+    "Después de la alineación, el motor se mueve hacia adelante y hacia atrás por 32 pasos.",
+    "Après l'alignement, le moteur avance et recule de 32 marches."
+  ],
+  "Disconnect one coil wire and check the valid step sequence.": [
+    "Отключите один провод и проверьте действительный последовательность шагов.",
+    "Розірвати один скручений дріт і перевірити коректну послідовність кроку.",
+    "Desconecte un cable de bobina y compruebe la secuencia de pasos válida.",
+    "Débranchez un fil de bobine et vérifiez la séquence d'étape valide."
+  ],
+  "ULN2003: six-wire motor": [
+    "ULN2003: шестипроводной двигатель",
+    "ULN2003: шестиприкладний рушій",
+    "ULN2003: motor de seis hilos",
+    "ULN2003: moteur à six fils"
+  ],
+  "Both center taps connect to 5 V, with four winding ends connected to the driver.": [
+    "Обе центральные краны соединяются с 5 В, и четыре конца соединены с водителем.",
+    "Обидва центральні крани з'єднані з 5 V, з 4 звивистими кінцями, які приєднані до водія.",
+    "Ambos grifos centrales se conectan a 5 V, con cuatro extremos de bobinado conectados al conductor.",
+    "Les deux robinets centraux se connectent à 5 V, avec quatre extrémités d'enroulement connectées au conducteur."
+  ],
+  "Understand center taps and unipolar drive.": [
+    "Поймите центральные краны и однополюсный двигатель.",
+    "Зрозуміла, що в центрі є крани і однополярний диск.",
+    "Entender los grifos centrales y la unidad unipolar.",
+    "Comprendre les robinets centraux et le lecteur unipolaire."
+  ],
+  "After alignment, the shaft moves by a quarter turn.": [
+    "После выравнивания шахта двигается на четверть поворота.",
+    "Після вирівнювання вал рухається на чверть оберту.",
+    "Después de la alineación, el eje se mueve por un cuarto de vuelta.",
+    "Après alignement, l'arbre se déplace d'un quart de tour."
+  ],
+  "Compare steps per revolution and shaft speed.": [
+    "Сравните шаги на оборот и скорость вала.",
+    "Порівняйте кроки за революцією і швидкістю шахт.",
+    "Compare los pasos por revolución y velocidad del eje.",
+    "Comparer les marches par révolution et la vitesse de l'arbre."
+  ],
+  "Relay: button and LED": [
+    "Реле: кнопка и светодиод",
+    "Перестановка: кнопка і світлодіод",
+    "Relé: botón y LED",
+    "Relais: bouton et LED"
+  ],
+  "A button controls the relay contact; the LED has a 220 ohm series resistor.": [
+    "Кнопка контролирует контакт реле; СИД имеет резистор 220 Ом.",
+    "Кнопка керує контактом з редагацією; на світлодіоді буде встановлено резистор послідовності 220 ом.",
+    "Un botón controla el contacto del relé; el LED tiene una resistencia de la serie 220 ohmios.",
+    "Un bouton contrôle le contact du relais; la LED a une résistance de série 220 ohm."
+  ],
+  "Distinguish the control circuit from the load circuit.": [
+    "Отличить управляющую цепь от цепи нагрузки.",
+    "Отключите контрольную схему из скачки.",
+    "Distinguir el circuito de control del circuito de carga.",
+    "Distinguer le circuit de commande du circuit de charge."
+  ],
+  "Holding the button connects COM to NO and lights the LED.": [
+    "Держащая кнопку соединяет COM с NO и зажигает светодиод.",
+    "Утримування кнопки з'єднує COM з NO і запалює світлодіод.",
+    "Sostener el botón conecta COM a NO y enciende el LED.",
+    "Maintenez le bouton relie COM à NO et allume la LED."
+  ],
+  "Move the load from NO to NC and compare the behavior.": [
+    "Перенести нагрузку из NO в NC и сравнить поведение.",
+    "Пересуньте навантаження з NO до NC і порівняйте поведінку програми.",
+    "Mueva la carga de NO a NC y compare el comportamiento.",
+    "Déplacez la charge de NO vers NC et comparez le comportement."
+  ],
+  "ILI9341: color graphics": [
+    "ILI9341: цветная графика",
+    "ISLI9341: графіка кольорів",
+    "ILI9341: gráficos a color",
+    "ILI9341: graphiques en couleurs"
+  ],
+  "ESP32-S3 with SPI, CS, DC, RESET and powered backlight.": [
+    "ESP32-S3 с SPI, CS, DC, RESET и подсветкой.",
+    "ESP32-S3 со СЛ, CS, DC, RESET и регистраторское зажигание.",
+    "ESP32-S3 con SPI, CS, DC, RESET y retroiluminación.",
+    "ESP32-S3 avec SPI, CS, DC, RESET et rétroéclairage motorisé."
+  ],
+  "Use RGB565, text, graphics and rotation.": [
+    "Используйте RGB565, текст, графику и вращению.",
+    "Використовувати RGB565, текст, графіку і обертання.",
+    "Utilice RGB565, texto, gráficos y rotación.",
+    "Utilisez RGB565, texte, graphiques et rotation."
+  ],
+  "Text, a circle and changing colored areas appear on the TFT.": [
+    "Текст, круг и меняющиеся цветные области появляются на TFT.",
+    "Текст, коло та зміна кольорових ділянок з'являються на ТФТ.",
+    "El texto, un círculo y las áreas de color cambiantes aparecen en la TFT.",
+    "Le texte, un cercle et des zones de couleur changeantes apparaissent sur le TFT."
+  ],
+  "Disconnect RESET or backlight power and examine the difference.": [
+    "Отключить ПЭАС или подсветку и изучить разницу.",
+    "Відключіть силу або запаліть назад і перевіряйте різницю.",
+    "Desconectar la energía de RESET o retroiluminación y examinar la diferencia.",
+    "Déconnectez la puissance RESET ou rétroéclairage et examinez la différence."
+  ],
+  "ST7735: compact graphics": [
+    "ST7735: компактная графика",
+    "ST7735: компактна графіка",
+    "ST7735: gráficos compactos",
+    "ST7735: graphiques compacts"
+  ],
+  "128×160 TFT on ESP32-S3; rotation provides a 160×128 view.": [
+    "128×160 TFT на ESP32-S3; вращение обеспечивает просмотр 160×128.",
+    "128 =160 TFT на обертання ESP32- S3; - це вигляд 16x128.",
+    "128×160 TFT en ESP32-S3; la rotación proporciona una vista 160×128.",
+    "128×160 TFT sur ESP32-S3 ; la rotation offre une vue 160×128."
+  ],
+  "Adapt graphics to different resolutions.": [
+    "Адаптация графиков к различным резолюциям.",
+    "Пристосовувати графіку до різних роздільних здатністьх.",
+    "Adaptar gráficos a diferentes resoluciones.",
+    "Adapter les graphiques à différentes résolutions."
+  ],
+  "Text and colored shapes appear on the smaller display.": [
+    "Тексты и цветные формы появляются на меньшем дисплее.",
+    "На меншому дисплеї з'являються тексти і кольорові форми.",
+    "El texto y las formas de colores aparecen en la pantalla más pequeña.",
+    "Le texte et les formes colorées apparaissent sur l'écran plus petit."
+  ],
+  "Switch between portrait and landscape rotation.": [
+    "Перемены между портретом и вращением ландшафта.",
+    "Перемикання між книжковим та альбомним поворотом.",
+    "Cambio entre el retrato y la rotación del paisaje.",
+    "Changement entre le portrait et la rotation du paysage."
+  ],
+  "BME680: environment monitor": [
+    "BME680: Экологический мониторинг",
+    "BME680: Монітор середовища",
+    "BME680: monitor de medio ambiente",
+    "BME680: moniteur de l'environnement"
+  ],
+  "I²C sensor on GPIO8/9 using the original Adafruit/Bosch library. Gas values are simulated.": [
+    "I2C-сенсор на GPIO8/9 с использованием оригинальной библиотеки Adafruit/Bosch. Значения газа моделируются.",
+    "Датчик I2C на GPIO8/ 9 за допомогою початкової бібліотеки Adafir/ Booksch. Значення газу імітуються.",
+    "Sensor I2C en GPIO8/9 usando la biblioteca original de Adafruit/Bosch. Los valores de gas son simulados.",
+    "Capteur I2C sur GPIO8/9 en utilisant la bibliothèque originale Adafruit/Bosch. Les valeurs de gaz sont simulées."
+  ],
+  "Read temperature, humidity, pressure and gas resistance.": [
+    "Считывать температуру, влажность, давление и сопротивление газу.",
+    "Читайте температуру, вологість, тиск і опір газу.",
+    "Leer temperatura, humedad, presión y resistencia al gas.",
+    "Lire la température, l'humidité, la pression et la résistance au gaz."
+  ],
+  "Output shows the measurement values set in the inspector.": [
+    "Результат показывает значения измерения, установленные инспектором.",
+    "Вивід показує значення виміру, встановлені у інспекторі.",
+    "La salida muestra los valores de medición establecidos en el inspector.",
+    "La sortie indique les valeurs de mesure fixées dans l'inspecteur."
+  ],
+  "Try another address or a simulated communication fault.": [
+    "Попробуйте другой адрес или смоделированную коммуникационную ошибку.",
+    "Спробуйте іншу адресу або симуляцію зв'язку.",
+    "Pruebe otra dirección o un fallo de comunicación simulado.",
+    "Essayez une autre adresse ou un défaut de communication simulé."
+  ],
+  "MH-Z19B: CO₂ over UART": [
+    "MH-Z19B: CO2 над UART",
+    "MH- Z19B: CO2 over UART",
+    "MH-Z19B: CO2 sobre UART",
+    "MH-Z19B: CO2 au-dessus de l'UART"
+  ],
+  "ESP32-S3 with a 5 V sensor supply and crossed 3.3 V UART lines on GPIO17/18.": [
+    "ESP32-S3 с 5-вольтовым датчиком питания и пересекли 3,3 В UART линии на GPIO17/18.",
+    "ESP32- S3 з кодом 5 V і перетнули лінії VUART на GPIO17/18.",
+    "ESP32-S3 con una fuente de sensor de 5 V y cruzó las líneas UART de 3,3 V en GPIO17/18.",
+    "ESP32-S3 avec une alimentation de capteur 5 V et a traversé les lignes UART 3.3 V sur GPIO17/18."
+  ],
+  "Check UART responses and checksums.": [
+    "Проверьте ответы UART и чеки.",
+    "Перевірити відповіді та контрольні суми ВВАР.",
+    "Comprueba las respuestas de UART y la suma de comprobación.",
+    "Vérifiez les réponses et les comptes de contrôle UART."
+  ],
+  "Output reports CO₂ values; an invalid-checksum fault causes a read error.": [
+    "Отчёт о результатах показывает значения CO2; ошибка при неверных проверках вызывает ошибку считывания.",
+    "Вивід повідомляє про значення CO2; некоректна помилка checksum призводить до помилки читання.",
+    "La salida reporta valores de CO2; una falla de comprobación no válida causa un error de lectura.",
+    "La sortie signale des valeurs de CO2; un défaut de vérification invalide provoque une erreur de lecture."
+  ],
+  "Change CO₂ in the inspector and enable the checksum fault.": [
+    "Заменить CO2 в инспекторе и допустить сбой в проверке.",
+    "Змініть CO2 в інспекторі і увімкніть помилку у контрольній сумі.",
+    "Cambiar el CO2 en el inspector y permitir la falla de la suma de comprobación.",
+    "Changez le CO2 dans l'inspecteur et activez le défaut de somme de contrôle."
+  ],
+  "Project sharing: round trip": [
+    "Совместное осуществление проекта: поездка в оба конца",
+    "Спільний проект: округла подорож",
+    "Intercambio de proyectos: ida y vuelta",
+    "Partage de projets: aller-retour"
+  ],
+  "Wired blink circuit for exporting and importing a share code.": [
+    "Проволочный контур для экспорта и импорта кода акций.",
+    "Округ шипіння для експорту та імпортування коду спільного ресурсу.",
+    "Circuito de parpadeo cableado para exportar e importar un código de acción.",
+    "Circuit cligneur filaire pour l'exportation et l'importation d'un code d'action."
+  ],
+  "Explore import preview and password protection.": [
+    "Изучайте предварительный просмотр импорта и защиту пароля.",
+    "Імпортувати перегляд і захист паролів.",
+    "Explore la vista previa de importación y protección de contraseñas.",
+    "Explorez l'aperçu des importations et la protection par mot de passe."
+  ],
+  "The imported copy contains the same circuit and sketch.": [
+    "В импортной копии содержится та же цепь и рисунок.",
+    "Імпортована копія містить одне коло і ескіз.",
+    "La copia importada contiene el mismo circuito y boceto.",
+    "La copie importée contient le même circuit et le même croquis."
+  ],
+  "Export with a password and try an incorrect password first when importing.": [
+    "Экспортировать с паролем и сначала попробовать неправильный пароль при импорте.",
+    "Експортувати з паролем і спробувати невірний пароль під час імпортування.",
+    "Exportar con una contraseña y probar primero una contraseña incorrecta al importar.",
+    "Exporter avec un mot de passe et essayer d'abord un mot de passe incorrect lors de l'importation."
+  ],
+  "Play relay click": [
+    "Воспроизвести щелчок реле",
+    "Наведення на кнопку переходу до відтворення з наступним клацанням",
+    "Reproducir relé haga clic",
+    "Lecture du clic relais"
+  ],
+  "Position / angle": [
+    "Положение/угол",
+    "Позиція / кут",
+    "Posición / ángulo",
+    "Position/angle"
+  ],
+  "Steps / microsteps / coils": [
+    "Шаги / микрошаги / катушки",
+    "Кроки / мікрокропки / спіральні",
+    "Pasos / micropasos / bobinas",
+    "Étapes / microétapes / bobines"
+  ],
+  "Step rate (full steps/s)": [
+    "Ставка ступени (полная ступень/с)",
+    "Крок- швидкість (повна сходи/ с)",
+    "Tasa de escalón (escaleras/s completas)",
+    "Taux d'échelonnement (étapes/s complètes)"
+  ],
+  "The sketch manages the target position. Load and resonance are not simulated.": [
+    "Рисунок управляет целевой позицией. Загрузить и резонанс не смоделировать.",
+    "За допомогою ескіза можна керувати призначенням. Завантажити і резонанс не буде симульовано.",
+    "El boceto gestiona la posición de destino. La carga y la resonancia no se simulan.",
+    "L'esquisse gère la position de la cible. La charge et la résonance ne sont pas simulées."
+  ],
+  "Relay energized: COM connected to NO.": [
+    "Relay Indowned: COM соединен с NO.",
+    "Змінено активізовано: COM з' єднано з NO.",
+    "Relé energizado: COM conectado al NO.",
+    "Relay sous tension: COM connecté au NO."
+  ],
+  "Relay released: COM connected to NC.": [
+    "Relay релиз: COM соединен с NC.",
+    "Выпускной монитор: соединить с NC.",
+    "Relé lanzado: COM conectado a NC.",
+    "Relay communiqué: COM connecté à NC."
+  ],
+  "This relay needs power and a control pin. Also check COM, NO and NC for the load circuit.": [
+    "Этому реле нужна мощность и контрольная булавка. Также проверьте COM, NO и NC на цепь нагрузки.",
+    "Для цього перемикання потрібні живлення і контрольний значок. Крім того, перевірте, чи слід використовувати процесори для завантаження, NO і NC.",
+    "Este relé necesita energía y un pin de control. También compruebe COM, NO y NC para el circuito de carga.",
+    "Ce relais a besoin de puissance et d'une broche de commande. Vérifiez également COM, NO et NC pour le circuit de charge."
+  ],
+  "Check GND, VMOT and VDD on the A4988. STEP and DIR control the motor; RESET and SLEEP must be released.": [
+    "Проверьте GND, VMOT и VDD на A4988. STEP и DIR контролируют двигатель; RESET и SLEP должны быть выпущены.",
+    "Перевірте, чи немає двигуна GND, VMOT і VDD на A4988. Для керування рушієм слід встановити STAT і DIR, РЕЙТ і SLEEP.",
+    "Compruebe GND, VMOT y VDD en el A4988. STEP y DIR controlan el motor; RESET y SLEEP deben ser liberados.",
+    "Vérifiez GND, VMOT et VDD sur l'A4988. STEP et DIR contrôlent le moteur; RESET et SLEEP doivent être libérés."
+  ],
+  "Connect the windings to the appropriate driver. Initial alignment defines the reference point; load and resonance are not simulated.": [
+    "Подключите ветки к соответствующему водителю. Первоначальная регулировка определяет исходную точку; нагрузка и резонанс не моделируются.",
+    "З' єднати змішування з відповідним драйвером. Початкове вирівнювання визначає точку посилання; завантаження і резонанс не імітуються.",
+    "Conecte las bobinas al controlador apropiado. La alineación inicial define el punto de referencia; la carga y la resonancia no se simulan.",
+    "Branchez les enroulements au conducteur approprié. L'alignement initial définit le point de référence; la charge et la résonance ne sont pas simulées."
+  ],
+  "This TFT needs power, CS, DC, RESET and SPI lines. Power the LED backlight too and call initialization in the sketch.": [
+    "Этому TFT нужна мощность, CS, DC, RESET и линии SPI. Включите светодиодный фонарь и вызовите инициализацию на рисунке.",
+    "Для цього TFT потрібна сила, CS, DC, RESET і ліній SPI. Крім того, живлення світлодіодного світла і ініціалізація викликів на ескізі.",
+    "Este TFT necesita energía, CS, DC, RESET y líneas SPI. Encienda la retroiluminación LED también y llame a inicialización en el bosquejo.",
+    "Ce TFT a besoin de puissance, CS, DC, RESET et les lignes SPI. Alimentez aussi le rétroéclairage LED et appelez initialisation dans le croquis."
+  ],
+  "BME680 readings are simulated. Check power, SDA/SCL and the address; chemical gas analysis is not modeled.": [
+    "Данные BME680 моделируются. Контрольная мощность, SDA/SCL и адрес; химический анализ газа не моделируется.",
+    "Програма симулює читання BME680. Перевірте живлення, SDA/ SCL і адресу; хімічний аналіз газу не моделюється.",
+    "Se simulan las lecturas de BME680. Compruebe la potencia, SDA/SCL y la dirección; no se modela el análisis químico de gases.",
+    "Les valeurs BME680 sont simulées. Puissance de contrôle, SDA/SCL et l'adresse; l'analyse des gaz chimiques n'est pas modélisée."
+  ],
+  "Connect TX to RX and RX to TX. The MH-Z19B needs a 5 V supply and 3.3 V UART signals; set CO₂ readings and faults in the inspector.": [
+    "Соединить TX с RX и RX с TX. MH-Z19B нуждается в 5 V питания и 3,3 V UART сигналов; установить показания CO2 и ошибки в инспекторе.",
+    "З’єднайте TX з RX і RX з TX. MH-Z19B потребує живлення 5 В та сигналів UART 3,3 В; значення CO₂ і помилки задаються в інспекторі.",
+    "Conecte TX a RX y RX a TX. El MH-Z19B necesita un suministro de 5 V y señales UART de 3,3 V; establezca lecturas de CO2 y fallas en el inspector.",
+    "Connectez TX à RX et RX à TX. Le MH-Z19B a besoin d'une alimentation de 5 V et de signaux UART de 3,3 V; réglez les valeurs de CO2 et les défauts dans l'inspecteur."
+  ],
+  "A4988 · STEP/DIR stepper driver": [
+    "A4988 · Степный водитель STEP/DIR",
+    "Драйвер патро- східця A4988 · CTH/ DIR",
+    "A4988 · PASO/DIR",
+    "A4988 · ÉTAPE/DIR conducteur pas à pas"
+  ],
+  "ULN2003 · unipolar stepper driver": [
+    "ULN2003 · однополюсный сапожник",
+    "ULN2003 · uni Полярний траєкторій",
+    "ULN2003 · Conductor de paso unipolar",
+    "ULN2003 · pilote de pas unipolaire"
+  ],
+  "28BYJ-48 · 5-wire stepper": [
+    "28BYJ-48 · 5-проводной ходячий",
+    "separator 28BYJ- 48 · 5- розводний",
+    "28BYJ-48 · Estepador de 5 hilos",
+    "28BYJ-48 · Stepper à 5 fils"
+  ],
+  "Bipolar stepper · 4 wire": [
+    "Биолярный ступенок · 4 проволоки",
+    "Біполярний крокатор · 4 дроту",
+    "Estepador bipolar · 4 hilos",
+    "Stepper bipolaire · 4 fils"
+  ],
+  "Unipolar stepper · 6 wire": [
+    "Unipolar stepper · 6 проволок",
+    "Uniporal stepper  + 6 дрот",
+    "Estepadora unipolar · 6 hilos",
+    "Unipolar stepper · 6 fils"
+  ],
+  "Relay module · 5 V SPDT": [
+    "Релейный модуль · 5 В SPDT",
+    "Перезапустити модуль · 5 V SPDT",
+    "Módulo de relé · 5 V SPDT",
+    "Module relais · 5 V SPDT"
+  ],
+  "Lever endstop · SPDT": [
+    "Lever end stop: SPDT",
+    "Важільний кінцевий вимикач · SPDT",
+    "Parada final de palanca · SPDT",
+    "L'arrêt de la mise à feu · SPDT"
+  ],
+  "Full steps per revolution": [
+    "Полные шаги за революцию",
+    "Повні кроки за революцією",
+    "Pasos completos por revolución",
+    "Étapes complètes par révolution"
+  ],
+  "Winding resistance": [
+    "Сопротивление качению",
+    "Вітряний опір",
+    "Resistencia al viento",
+    "Résistance au vent"
+  ],
+  "Active-low trigger": [
+    "Активно-низкий спусковой механизм",
+    "Активний низький перемикач",
+    "Activo-bajo gatillo",
+    "Déclencheur actif-faible"
+  ],
+  "Endstop actuated": [
+    "Остановить активирован",
+    "Завершальний момент активування",
+    "Endstop accionado",
+    "Arrêt définitif"
+  ],
+  "ILI9341 · 3.3 V SPI TFT": [
+    "ILI9341 · 3,3 V SPI TFT",
+    "IMLI931 · 3. 3 V SPI TFT",
+    "ILI9341 · 3,3 V SPI TFT",
+    "ILI9341 · 3.3 V TFT SPI"
+  ],
+  "ST7735 · 3.3 V SPI TFT": [
+    "ST7735 · 3,3 V SPI TFT",
+    "ST7735 · 3. 3 V SPI TFT",
+    "ST7735 · 3,3 V SPI TFT",
+    "ST7735 · 3.3 V TFT SPI"
+  ],
+  "BME680 · simulated environment / gas resistance": [
+    "BME680 - имитируемая среда/газостойкость",
+    "BME680 · симуляційне середовище/ газовий опір",
+    "BME680 · entorno simulado / resistencia al gas",
+    "BME680 · environnement simulé / résistance au gaz"
+  ],
+  "MH-Z19B · simulated CO2 / UART": [
+    "MH-Z19B - имитация CO2 / UART",
+    "MH- Z19B * симулював CO2 / UART",
+    "MH-Z19B · CO2 simulado / UART",
+    "MH-Z19B · simulation de CO2 / UART"
+  ],
+  "Simulated gas resistance": [
+    "Имитируемая резистентность к газу",
+    "Імітований опір газу",
+    "Resistencia a los gases simulados",
+    "Résistance aux gaz simulés"
+  ],
+  "Automatic simulated variation": [
+    "Автоматическая имитация вариаций",
+    "Автоматична симуляція варіації",
+    "Variación simulada automática",
+    "Variante automatique simulée"
+  ],
+  "Fault: no I2C response": [
+    "Неисправность: нет ответа I2C",
+    "Fault: не знайдено відповіді I2C",
+    "Falla: no hay respuesta I2C",
+    "Défaut: aucune réponse I2C"
+  ],
+  "Simulated CO2": [
+    "Симулированный CO2",
+    "Симульований CO2",
+    "CO2 simulado",
+    "CO2 simulé"
+  ],
+  "Simulated temperature": [
+    "Имитация температуры",
+    "Симулювати температуру",
+    "Temperatura simulada",
+    "Température simulée"
+  ],
+  "Fault: no UART response": [
+    "Неисправность: нет ответа UART",
+    "Fault: відсутність відповіді UART",
+    "Falla: no hay respuesta UART",
+    "Défaut: pas de réponse UART"
+  ],
+  "Fault: invalid response checksum": [
+    "Ошибка: неправильная проверка ответа",
+    "Помилковий: некоректна контрольна сума відповіді",
+    "Falla: comprobación de respuesta inválida",
+    "Défaut: nombre de réponses non valides"
+  ],
+  "UART response delay": [
+    "Задержка реагирования UART",
+    "Затримка UART- відповіді",
+    "Retraso en la respuesta de UART",
+    "Délai de réponse UART"
+  ],
+  "Deutsch": [
+    "Deutsch",
+    "Deutsch",
+    "Deutsch",
+    "Deutsch"
+  ],
+  "English": [
+    "English",
+    "English",
+    "English",
+    "English"
+  ],
+  "Русский": [
+    "Русский",
+    "Русский",
+    "Русский",
+    "Русский"
+  ],
+  "Українська": [
+    "Українська",
+    "Українська",
+    "Українська",
+    "Українська"
+  ],
+  "Español": [
+    "Español",
+    "Español",
+    "Español",
+    "Español"
+  ],
+  "Français": [
+    "Français",
+    "Français",
+    "Français",
+    "Français"
+  ],
+  "Italiano": [
+    "Italiano",
+    "Italiano",
+    "Italiano",
+    "Italiano"
+  ],
+  "Português": [
+    "Português",
+    "Português",
+    "Português",
+    "Português"
+  ],
+  "The stepper is connected, but its driver does not have a valid power supply.": [
+    "Степник подсоединен, но его водитель не имеет действительного источника питания.",
+    "Переводчик з' єднано, але його драйвер не має коректного джерела живлення.",
+    "La estepadora está conectada, pero su controlador no tiene una fuente de alimentación válida.",
+    "Le stepper est connecté, mais son conducteur n'a pas d'alimentation valide."
+  ],
+  "Check GND, VMOT (8–35 V) and VDD (3–5.5 V) on the A4988 in the pin inspector.": [
+    "Проверьте GND, VMOT (8–35 V) и VDD (3—5.5 V) на A4988 в инспекторе.",
+    "Перевірте GND, VMOT (835 V) і VDD (5, 5 V) на A4988 у інспекторі шпильок.",
+    "Compruebe GND, VMOT (8–35 V) y VDD (3–5,5 V) en la A4988 en el inspector de pines.",
+    "Vérifiez GND, VMOT (8–35 V) et VDD (3–5,5 V) sur l'A4988 dans l'inspecteur des broches."
+  ],
+  "A simulated communication fault is enabled for this sensor.": [
+    "Для этого датчика предусмотрена имитируемая неисправность связи.",
+    "Для цього сенсора увімкнено симуляційну помилку зв' язку.",
+    "Un fallo de comunicación simulado está habilitado para este sensor.",
+    "Un défaut de communication simulé est activé pour ce capteur."
+  ],
+  "Disable the fault in the inspector to read valid measurements again.": [
+    "Отключить ошибку инспектора, чтобы снова прочесть действительные измерения.",
+    "Вимкніть помилку у інспекторі, щоб знову прочитати коректні виміри.",
+    "Inhabilitar la falla en el inspector para leer mediciones válidas de nuevo.",
+    "Désactivez la faute de l'inspecteur de lire à nouveau les mesures valides."
+  ],
+  "Sketch target (steps)": [
+    "Цель скетча (шаги)",
+    "Ціль скетча (кроки)",
+    "Objetivo del sketch (pasos)",
+    "Cible du sketch (pas)"
   ]
 }

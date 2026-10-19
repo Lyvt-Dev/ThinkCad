@@ -4218,5 +4218,613 @@
   "There are no diagnostic messages in this view. This is no guarantee for real hardware.": [
     "Questa vista non contiene messaggi diagnostici. Non è una garanzia per l’hardware reale.",
     "Esta vista não contém mensagens de diagnóstico. Isso não garante o funcionamento do hardware real."
+  ],
+  "Assistant skin": [
+    "Aspetto dell’assistente",
+    "Aparência do assistente"
+  ],
+  "The simulation is being prepared. Open Output to see messages from your sketch.": [
+    "La simulazione è in preparazione. Apri l’output per vedere i messaggi dello sketch.",
+    "A simulação está a ser preparada. Abra a saída para ver as mensagens do sketch."
+  ],
+  "Find component": [
+    "Trova componente",
+    "Encontrar componente"
+  ],
+  "Recent components first. Arrow keys: select · Enter: insert · Esc: close": [
+    "Componenti recenti prima. Tasti freccia: selezionare · Inserisci: inserire · Esc: chiudere",
+    "Componentes recentes primeiro. Setas: selecionar · Enter: inserir · Esc: fechar"
+  ],
+  "Search results": [
+    "Risultati della ricerca",
+    "Resultados da pesquisa"
+  ],
+  "Insert component": [
+    "Inserisci componente",
+    "Inserir componente"
+  ],
+  "Share code is too large.": [
+    "Il codice di condivisione è troppo grande.",
+    "O código de compartilhamento é muito grande."
+  ],
+  "Unknown share-code format.": [
+    "Formato del codice di condivisione sconosciuto.",
+    "Formato de código de partilha desconhecido."
+  ],
+  "Share code is damaged or unsupported.": [
+    "Il codice di condivisione è danneggiato o non supportato.",
+    "O código de compartilhamento está danificado ou não é suportado."
+  ],
+  "This share code requires a password.": [
+    "Questo codice di condivisione richiede una password.",
+    "Este código de compartilhamento requer uma senha."
+  ],
+  "The password is too long.": [
+    "La password è troppo lunga.",
+    "A senha é muito longa."
+  ],
+  "Project is too large for a share code.": [
+    "Il progetto è troppo grande per un codice di condivisione.",
+    "O projeto é muito grande para um código de compartilhamento."
+  ],
+  "Invalid project size in the share code.": [
+    "Dimensione del progetto non valida nel codice di condivisione.",
+    "Tamanho do projeto inválido no código de compartilhamento."
+  ],
+  "Encrypted share code is incomplete.": [
+    "Il codice di condivisione criptato è incompleto.",
+    "O código de compartilhamento criptografado está incompleto."
+  ],
+  "Incorrect password or damaged share code. Nothing was imported.": [
+    "Password errata o codice di condivisione danneggiato. Nulla è stato importato.",
+    "Senha incorreta ou código de compartilhamento danificado. Nada foi importado."
+  ],
+  "Share-code checksum does not match. Please copy the complete code again.": [
+    "Il checksum del codice di condivisione non corrisponde. Copiare nuovamente il codice completo.",
+    "A soma de verificação do código de partilha não corresponde. Por favor, copie o código completo novamente."
+  ],
+  "Share code could not be safely decompressed.": [
+    "Il codice di condivisione non può essere decompresso in modo sicuro.",
+    "O código de compartilhamento não poderia ser descompactado com segurança."
+  ],
+  "Invalid project in the share code.": [
+    "Progetto non valido nel codice di condivisione.",
+    "Projeto inválido no código de compartilhamento."
+  ],
+  "Invalid share-code metadata.": [
+    "metadati del codice di condivisione non validi.",
+    "Metadados de código de partilha inválidos."
+  ],
+  "Project format or contents are unsupported.": [
+    "Il formato o il contenuto del progetto non sono supportati.",
+    "O formato ou conteúdo do projeto não são suportados."
+  ],
+  "Project is too large for a QR code. Please copy the share code instead.": [
+    "Il progetto è troppo grande per un codice QR. Si prega di copiare il codice condiviso.",
+    "O projeto é muito grande para um código QR. Por favor, copie o código de compartilhamento."
+  ],
+  "Invalid QR image size.": [
+    "Dimensione immagine QR non valida.",
+    "Tamanho de imagem QR inválido."
+  ],
+  "QR image is missing or too large.": [
+    "L'immagine QR è mancante o troppo grande.",
+    "A imagem QR está faltando ou muito grande."
+  ],
+  "QR image could not be read.": [
+    "Impossibile leggere l'immagine QR.",
+    "A imagem QR não pôde ser lida."
+  ],
+  "Multiple ThinkCad QR codes found. Please import one project at a time.": [
+    "Trovati più codici ThinkCad QR. Importa un progetto alla volta.",
+    "Vários códigos QR ThinkCad encontrados. Por favor, importe um projeto de cada vez."
+  ],
+  "No readable ThinkCad QR code found in the image.": [
+    "Nessun codice di ThinkCad QR leggibile trovato nell'immagine.",
+    "Nenhum código QR do ThinkCad legível encontrado na imagem."
+  ],
+  "Share project…": [
+    "Condividi progetto...",
+    "Compartilhe o projeto..."
+  ],
+  "The share code contains your circuit and code. Without a password, it is not confidential.": [
+    "Il codice di condivisione contiene il vostro circuito e codice. Senza una password, non è confidenziale.",
+    "O código de compartilhamento contém seu circuito e código. Sem uma senha, não é confidencial."
+  ],
+  "Everything is generated locally. Required libraries are listed by name and version, rather than embedded.": [
+    "Tutto è generato localmente. Le librerie richieste sono elencate per nome e versione, piuttosto che embedded.",
+    "Tudo é gerado localmente. As bibliotecas necessárias são listadas por nome e versão, em vez de incorporadas."
+  ],
+  "Password (optional)": [
+    "Password (facoltativo)",
+    "Senha (opcional)"
+  ],
+  "Generate share code": [
+    "Genera codice di condivisione",
+    "Gerar código de partilha"
+  ],
+  "Share code": [
+    "Codice azioni",
+    "Código de partilha"
+  ],
+  "Copy share code": [
+    "Copia il codice della condivisione",
+    "Copiar código de partilha"
+  ],
+  "Save QR image…": [
+    "Salva immagine QR...",
+    "Gravar imagem QR..."
+  ],
+  "QR image could not be saved.": [
+    "Impossibile salvare l'immagine QR.",
+    "A imagem QR não pôde ser salva."
+  ],
+  "Preparing share code locally…": [
+    "Preparazione del codice condiviso localmente...",
+    "Preparar o código de partilha localmente..."
+  ],
+  "Share code is password protected. Share the password through a separate channel.": [
+    "Il codice di condivisione è protetto da password. Condividi la password attraverso un canale separato.",
+    "O código de compartilhamento é protegido por senha. Compartilhe a senha através de um canal separado."
+  ],
+  "Without a password, the share code is not confidential.": [
+    "Senza password, il codice di condivisione non è riservato.",
+    "Sem uma senha, o código de compartilhamento não é confidencial."
+  ],
+  "Import from share code…": [
+    "Importa dal codice delle azioni...",
+    "Importar do código de partilha..."
+  ],
+  "Paste a code or open a QR image. Existing project files will not be overwritten.": [
+    "Incolla un codice o apri un'immagine QR. I file di progetto esistenti non verranno sovrascritti.",
+    "Cole um código ou abra uma imagem QR. Os arquivos de projeto existentes não serão substituídos."
+  ],
+  "Open QR image…": [
+    "Apri immagine QR...",
+    "Abra a imagem QR..."
+  ],
+  "Scan QR code with camera": [
+    "Scansione codice QR con fotocamera",
+    "Digitalizar código QR com câmera"
+  ],
+  "Password (if required)": [
+    "Password (se richiesta)",
+    "Senha (se necessário)"
+  ],
+  "Validate import preview": [
+    "Convalida l'anteprima di importazione",
+    "Validar a pré-visualização de importação"
+  ],
+  "Import as new project": [
+    "Importa come nuovo progetto",
+    "Importar como novo projeto"
+  ],
+  "Checking share code locally…": [
+    "Controllo del codice di condivisione localmente...",
+    "Verificando o código de compartilhamento localmente..."
+  ],
+  "Project: %1\nBoards: %2\nComponents: %3 · Project format: %4\nRequired libraries: %5\nLibraries are not installed automatically. Check local availability before starting.": [
+    "Progetto: %1 Schede: %2 Componenti: %3 · Formato progetto: %4 Librerie richieste: %5 Le biblioteche non sono installate automaticamente. Controllare la disponibilità locale prima di iniziare.",
+    "Projeto: %1\nPlacas: %2\nComponentes: %3 · Formato do projeto: %4\nBibliotecas necessárias: %5\nAs bibliotecas não são instaladas automaticamente. Verifique a disponibilidade local antes de iniciar."
+  ],
+  "None specified": [
+    "Nessuno specificato",
+    "Nenhum especificado"
+  ],
+  "Camera images stay local and are not saved or transmitted.": [
+    "Le immagini della fotocamera rimangono locali e non vengono salvate o trasmesse.",
+    "As imagens da câmera permanecem locais e não são salvas ou transmitidas."
+  ],
+  "Camera": [
+    "Macchina fotografica",
+    "câmera"
+  ],
+  "Camera could not be started. Check access permissions or open a QR image instead.": [
+    "Impossibile avviare la fotocamera. Controllare le autorizzazioni di accesso o aprire un'immagine QR.",
+    "A câmera não pôde ser iniciada. Verifique as permissões de acesso ou abra uma imagem QR em vez disso."
+  ],
+  "No camera available. Open a QR image instead.": [
+    "Nessuna fotocamera disponibile. Aprire invece un'immagine QR.",
+    "Em vez disso, abra uma imagem QR."
+  ],
+  "Camera access was not granted. Open a QR image instead.": [
+    "L'accesso alla fotocamera non è stato concesso. Aprire invece un'immagine QR.",
+    "O acesso à câmera não foi concedido. Abra uma imagem QR em vez disso."
+  ],
+  "A4988: steps and direction": [
+    "A4988: passi e direzione",
+    "A4988: passos e direção"
+  ],
+  "Uno with a 12 V motor supply and separate STEP/DIR signals. Follow the position in the inspector.": [
+    "Uno con alimentazione a 12 V e segnali separati STEP/DIR. Seguire la posizione dell'ispettore.",
+    "Uno com 12 V de alimentação do motor e sinais STEP/DIR separados. Siga a posição no inspetor."
+  ],
+  "Understand STEP/DIR and power connections.": [
+    "Comprendere STEP/DIR e connessioni di alimentazione.",
+    "Entenda STEP / DIR e conexões de energia."
+  ],
+  "The motor moves forward and backward by 20 full steps.": [
+    "Il motore si muove in avanti e indietro di 20 passaggi completi.",
+    "O motor se move para frente e para trás por 20 passos completos."
+  ],
+  "Enable MS1 and compare the half-step movement.": [
+    "Abilita MS1 e confronta il movimento a metà passo.",
+    "Habilite MS1 e compare o movimento de meia etapa."
+  ],
+  "A4988: AccelStepper": [
+    "A4988: AccelStepper",
+    "A4988: AccelStepper"
+  ],
+  "The same wired circuit with a target position and simplified acceleration in the sketch.": [
+    "Lo stesso circuito cablato con una posizione target e accelerazione semplificata nello schizzo.",
+    "O mesmo circuito com fio com uma posição de destino e aceleração simplificada no esboço."
+  ],
+  "Learn nonblocking position control.": [
+    "Impara il controllo della posizione non bloccante.",
+    "Aprenda a não bloquear o controle de posição."
+  ],
+  "The sketch moves between positions 0 and 20.": [
+    "Lo schizzo si muove tra le posizioni 0 e 20.",
+    "O esboço move-se entre as posições 0 e 20."
+  ],
+  "Change speed and acceleration in the sketch.": [
+    "Cambia velocità e accelerazione nello schizzo.",
+    "Mudança e aceleração no esboço."
+  ],
+  "ULN2003: 28BYJ-48": [
+    "ULN2003: 28BYJ-48",
+    "ULN2003: 28BYJ-48"
+  ],
+  "Five-wire motor with a shared 5 V supply and the Stepper library.": [
+    "Motore a cinque fili con alimentazione condivisa a 5 V e libreria Stepper.",
+    "Motor de cinco fios com um fornecimento compartilhado de 5 V e a biblioteca Stepper."
+  ],
+  "Understand the coil sequence and initial alignment.": [
+    "Comprendere la sequenza della bobina e l'allineamento iniziale.",
+    "Entenda a sequência da bobina e o alinhamento inicial."
+  ],
+  "After alignment, the motor moves forward and backward by 32 steps.": [
+    "Dopo l'allineamento, il motore si muove in avanti e indietro di 32 passi.",
+    "Após o alinhamento, o motor se move para frente e para trás por 32 passos."
+  ],
+  "Disconnect one coil wire and check the valid step sequence.": [
+    "Scollegare un filo di bobina e controllare la sequenza di gradini valida.",
+    "Desconecte um fio de bobina e verifique a sequência de etapas válida."
+  ],
+  "ULN2003: six-wire motor": [
+    "ULN2003: motore a sei fili",
+    "ULN2003: motor de seis fios"
+  ],
+  "Both center taps connect to 5 V, with four winding ends connected to the driver.": [
+    "Entrambi i rubinetti centrali si collegano a 5 V, con quattro estremità di avvolgimento collegate al driver.",
+    "Ambas as torneiras centrais conectam-se a 5 V, com quatro extremidades sinuosas conectadas ao motorista."
+  ],
+  "Understand center taps and unipolar drive.": [
+    "Capire rubinetti centrali e unità unipolare.",
+    "Compreender torneiras centrais e unidade unipolar."
+  ],
+  "After alignment, the shaft moves by a quarter turn.": [
+    "Dopo l'allineamento, l'albero si muove di un quarto di giro.",
+    "Após o alinhamento, o eixo se move por um quarto de volta."
+  ],
+  "Compare steps per revolution and shaft speed.": [
+    "Confronta i passi per giro e velocità dell'albero.",
+    "Compare passos por revolução e velocidade do eixo."
+  ],
+  "Relay: button and LED": [
+    "Relè: pulsante e LED",
+    "Relé: botão e LED"
+  ],
+  "A button controls the relay contact; the LED has a 220 ohm series resistor.": [
+    "Un pulsante controlla il contatto del relè; il LED ha una resistenza della serie 220 ohm.",
+    "Um botão controla o contato de relé; o LED tem um resistor da série 220 ohms."
+  ],
+  "Distinguish the control circuit from the load circuit.": [
+    "Distingui il circuito di controllo dal circuito di carico.",
+    "Distinguir o circuito de controle do circuito de carga."
+  ],
+  "Holding the button connects COM to NO and lights the LED.": [
+    "Tenendo premuto il pulsante si collega COM a NO e accende il LED.",
+    "Segurar o botão liga COM a NO e acende o LED."
+  ],
+  "Move the load from NO to NC and compare the behavior.": [
+    "Spostare il carico da NO a NC e confrontare il comportamento.",
+    "Mova a carga de NO para NC e compare o comportamento."
+  ],
+  "ILI9341: color graphics": [
+    "ILI9341: grafica a colori",
+    "ILI9341: gráficos coloridos"
+  ],
+  "ESP32-S3 with SPI, CS, DC, RESET and powered backlight.": [
+    "ESP32-S3 con SPI, CS, DC, RESET e retroilluminazione.",
+    "ESP32-S3 com SPI, CS, DC, RESET e retroiluminação."
+  ],
+  "Use RGB565, text, graphics and rotation.": [
+    "Utilizzare RGB565, testo, grafica e rotazione.",
+    "Use RGB565, texto, gráficos e rotação."
+  ],
+  "Text, a circle and changing colored areas appear on the TFT.": [
+    "Testo, un cerchio e cambiare le aree colorate appaiono sul TFT.",
+    "Texto, um círculo e áreas coloridas em mudança aparecem no TFT."
+  ],
+  "Disconnect RESET or backlight power and examine the difference.": [
+    "Scollegare RESET o retroilluminazione ed esaminare la differenza.",
+    "Desconecte o poder RESET ou backlight e examine a diferença."
+  ],
+  "ST7735: compact graphics": [
+    "ST7735: grafica compatta",
+    "ST7735: gráficos compactos"
+  ],
+  "128×160 TFT on ESP32-S3; rotation provides a 160×128 view.": [
+    "128×160 TFT su ESP32-S3; rotazione fornisce una vista 160×128.",
+    "TFT 128×160 no ESP32-S3; a rotação permite uma vista 160×128."
+  ],
+  "Adapt graphics to different resolutions.": [
+    "Adattare la grafica a diverse risoluzioni.",
+    "Adapte gráficos a diferentes resoluções."
+  ],
+  "Text and colored shapes appear on the smaller display.": [
+    "Testo e forme colorate appaiono sul display più piccolo.",
+    "Texto e formas coloridas aparecem na tela menor."
+  ],
+  "Switch between portrait and landscape rotation.": [
+    "Passare tra ritratto e rotazione del paesaggio.",
+    "Alterne entre o retrato e a rotação da paisagem."
+  ],
+  "BME680: environment monitor": [
+    "BME680: monitoraggio ambientale",
+    "BME680: monitor de ambiente"
+  ],
+  "I²C sensor on GPIO8/9 using the original Adafruit/Bosch library. Gas values are simulated.": [
+    "Sensore I2C su GPIO8/9 utilizzando la libreria originale Adafruit/Bosch. Si simulano i valori del gas.",
+    "Sensor I2C em GPIO8/9 usando a biblioteca original de Adafruit/Bosch. Os valores do gás são simulados."
+  ],
+  "Read temperature, humidity, pressure and gas resistance.": [
+    "Temperatura di lettura, umidità, pressione e resistenza ai gas.",
+    "Leia a temperatura, umidade, pressão e resistência ao gás."
+  ],
+  "Output shows the measurement values set in the inspector.": [
+    "L'uscita mostra i valori di misura impostati nell'ispettore.",
+    "A saída mostra os valores de medição definidos no inspetor."
+  ],
+  "Try another address or a simulated communication fault.": [
+    "Provare un altro indirizzo o un guasto di comunicazione simulato.",
+    "Tente outro endereço ou uma falha de comunicação simulada."
+  ],
+  "MH-Z19B: CO₂ over UART": [
+    "MH-Z19B: CO2 su UART",
+    "MH-Z19B: CO2 sobre UART"
+  ],
+  "ESP32-S3 with a 5 V sensor supply and crossed 3.3 V UART lines on GPIO17/18.": [
+    "ESP32-S3 con un sensore a 5 V e linee UART 3.3 V incrociate su GPIO17/18.",
+    "ESP32-S3 com um sensor de 5 V e cruzou linhas UART 3.3 V no GPIO17/18."
+  ],
+  "Check UART responses and checksums.": [
+    "Controllare le risposte UART e checksum.",
+    "Verifique as respostas e checksums do UART."
+  ],
+  "Output reports CO₂ values; an invalid-checksum fault causes a read error.": [
+    "L'output segnala i valori di CO2; un errore non valido-checksum causa un errore di lettura.",
+    "A saída relata valores de CO2; uma falha de verificação inválida causa um erro de leitura."
+  ],
+  "Change CO₂ in the inspector and enable the checksum fault.": [
+    "Cambiare la CO2 nell'ispettore e abilitare l'errore checksum.",
+    "Mudança de CO2 no inspetor e ativar a falha checksum."
+  ],
+  "Project sharing: round trip": [
+    "Condivisione dei progetti: andata e ritorno",
+    "Partilha de projetos: ida e volta"
+  ],
+  "Wired blink circuit for exporting and importing a share code.": [
+    "Circuito di blink cablato per l'esportazione e l'importazione di un codice azionario.",
+    "Circuito de piscamento com fio para exportar e importar um código de ação."
+  ],
+  "Explore import preview and password protection.": [
+    "Esplora l'anteprima di importazione e la protezione da password.",
+    "Explore a pré-visualização de importação e proteção por senha."
+  ],
+  "The imported copy contains the same circuit and sketch.": [
+    "La copia importata contiene lo stesso circuito e schizzo.",
+    "A cópia importada contém o mesmo circuito e esboço."
+  ],
+  "Export with a password and try an incorrect password first when importing.": [
+    "Esporta con una password e prova prima una password errata quando si importa.",
+    "Exporte com uma senha e tente uma senha incorreta primeiro ao importar."
+  ],
+  "Play relay click": [
+    "Riproduci clic sul relè",
+    "Toque relay clique"
+  ],
+  "Position / angle": [
+    "Posizione / angolo",
+    "Posição / ângulo"
+  ],
+  "Steps / microsteps / coils": [
+    "Passi / micropassi / bobine",
+    "Passos / micropassos / bobinas"
+  ],
+  "Step rate (full steps/s)": [
+    "Tasso di step (passi/s completi)",
+    "Taxa de passos (passos completos / s)"
+  ],
+  "The sketch manages the target position. Load and resonance are not simulated.": [
+    "Lo schizzo gestisce la posizione del bersaglio. Il carico e la risonanza non sono simulati.",
+    "O esboço gerencia a posição alvo. Carga e ressonância não são simuladas."
+  ],
+  "Relay energized: COM connected to NO.": [
+    "Relè energizzato: COM collegato a NO.",
+    "Relé energizado: COM ligado a NO."
+  ],
+  "Relay released: COM connected to NC.": [
+    "Relè rilasciato: COM collegato a NC.",
+    "Relé liberado: COM conectado ao NC."
+  ],
+  "This relay needs power and a control pin. Also check COM, NO and NC for the load circuit.": [
+    "Questo relè ha bisogno di energia e un perno di controllo. Controllare anche COM, NO e NC per il circuito di carico.",
+    "Este relé precisa de energia e um pino de controle. Verifique também COM, NO e NC para o circuito de carga."
+  ],
+  "Check GND, VMOT and VDD on the A4988. STEP and DIR control the motor; RESET and SLEEP must be released.": [
+    "Controllare GND, VMOT e VDD sulla A4988. STEP e DIR controllano il motore; RESET e SLEEP devono essere rilasciati.",
+    "Verifique GND, VMOT e VDD no A4988. PASSO e DIR controlam o motor; RESET e SLEEP devem ser liberados."
+  ],
+  "Connect the windings to the appropriate driver. Initial alignment defines the reference point; load and resonance are not simulated.": [
+    "Collegare gli avvolgimenti al driver appropriato. L'allineamento iniziale definisce il punto di riferimento; carico e risonanza non sono simulati.",
+    "Conecte os enrolamentos ao driver apropriado. O alinhamento inicial define o ponto de referência; carga e ressonância não são simuladas."
+  ],
+  "This TFT needs power, CS, DC, RESET and SPI lines. Power the LED backlight too and call initialization in the sketch.": [
+    "Questo TFT ha bisogno di linee di potenza, CS, DC, RESET e SPI. Alimenta anche la retroilluminazione a LED e chiama l'inizializzazione nello schizzo.",
+    "Este TFT precisa de energia, CS, DC, linhas RESET e SPI. Ligue a luz de fundo do LED também e chame a inicialização no esboço."
+  ],
+  "BME680 readings are simulated. Check power, SDA/SCL and the address; chemical gas analysis is not modeled.": [
+    "Si simulano letture BME680. Verificare potenza, SDA/SCL e indirizzo; l'analisi chimica del gas non è modellata.",
+    "As leituras do BME680 são simuladas. Verifique o poder, SDA/SCL e o endereço; a análise de gás químico não é modelada."
+  ],
+  "Connect TX to RX and RX to TX. The MH-Z19B needs a 5 V supply and 3.3 V UART signals; set CO₂ readings and faults in the inspector.": [
+    "Collegare TX a RX e RX a TX. MH-Z19B ha bisogno di un alimentatore da 5 V e segnali UART 3,3 V; impostare letture di CO2 e difetti nell'ispettore.",
+    "Conectar TX a RX e RX a TX. O MH-Z19B precisa de um fornecimento de 5 V e sinais UART 3.3 V; definir leituras de CO2 e falhas no inspetor."
+  ],
+  "A4988 · STEP/DIR stepper driver": [
+    "A4988 · Driver stepper STEP/DIR",
+    "A4988 · Condutor de passo STEP/DIR"
+  ],
+  "ULN2003 · unipolar stepper driver": [
+    "ULN2003 · driver stepper unipolare",
+    "ULN2003 · driver de passo unipolar"
+  ],
+  "28BYJ-48 · 5-wire stepper": [
+    "28BYJ-48 · Stepper a 5 fili",
+    "28BYJ-48 · passo de 5 fios"
+  ],
+  "Bipolar stepper · 4 wire": [
+    "Stepper bipolare · 4 fili",
+    "Stepper bipolar · 4 fios"
+  ],
+  "Unipolar stepper · 6 wire": [
+    "Stepper unipolare · 6 fili",
+    "stepper unipolar · 6 fios"
+  ],
+  "Relay module · 5 V SPDT": [
+    "Modulo relè · 5 V SPDT",
+    "Módulo de relé · 5 V SPDT"
+  ],
+  "Lever endstop · SPDT": [
+    "Lever endstop · SPDT",
+    "Endstop de alavanca · SPDT"
+  ],
+  "Full steps per revolution": [
+    "Passi completi per rivoluzione",
+    "Passos completos por revolução"
+  ],
+  "Winding resistance": [
+    "Resistenza al vento",
+    "Resistência de enrolamento"
+  ],
+  "Active-low trigger": [
+    "Active-low trigger",
+    "gatilho ativo-baixo"
+  ],
+  "Endstop actuated": [
+    "Endstop attivato",
+    "Endstop atuado"
+  ],
+  "ILI9341 · 3.3 V SPI TFT": [
+    "ILI9341 · 3.3 V SPI TFT",
+    "ILI9341 · 3.3 V SPI TFT"
+  ],
+  "ST7735 · 3.3 V SPI TFT": [
+    "ST7735 · 3.3 V SPI TFT",
+    "ST7735 · 3.3 V SPI TFT"
+  ],
+  "BME680 · simulated environment / gas resistance": [
+    "BME680 · ambiente simulato / resistenza ai gas",
+    "BME680 · ambiente simulado / resistência a gás"
+  ],
+  "MH-Z19B · simulated CO2 / UART": [
+    "MH-Z19B · CO2 simulato / UART",
+    "MH-Z19B · CO2 simulado / UART"
+  ],
+  "Simulated gas resistance": [
+    "Resistenza al gas simulato",
+    "Resistência simulada ao gás"
+  ],
+  "Automatic simulated variation": [
+    "Variazione simulata automatica",
+    "Variação automática simulada"
+  ],
+  "Fault: no I2C response": [
+    "Fault: nessuna risposta I2C",
+    "Falha: sem resposta I2C"
+  ],
+  "Simulated CO2": [
+    "CO2 simulato",
+    "CO2 simulado"
+  ],
+  "Simulated temperature": [
+    "Temperatura simulata",
+    "Temperatura simulada"
+  ],
+  "Fault: no UART response": [
+    "Fault: nessuna risposta UART",
+    "Falha: sem resposta UART"
+  ],
+  "Fault: invalid response checksum": [
+    "Fault: checksum di risposta non valido",
+    "Falha: checksum de resposta inválida"
+  ],
+  "UART response delay": [
+    "Ritardo nella risposta dell'UART",
+    "Atraso de resposta UART"
+  ],
+  "Deutsch": [
+    "Deutsch",
+    "Deutsch"
+  ],
+  "English": [
+    "English",
+    "English"
+  ],
+  "Русский": [
+    "Русский",
+    "Русский"
+  ],
+  "Українська": [
+    "Українська",
+    "Українська"
+  ],
+  "Español": [
+    "Español",
+    "Español"
+  ],
+  "Français": [
+    "Français",
+    "Français"
+  ],
+  "Italiano": [
+    "Italiano",
+    "Italiano"
+  ],
+  "Português": [
+    "Português",
+    "Português"
+  ],
+  "The stepper is connected, but its driver does not have a valid power supply.": [
+    "Lo stepper è collegato, ma il suo driver non ha un alimentatore valido.",
+    "O stepper está conectado, mas seu motorista não possui uma fonte de alimentação válida."
+  ],
+  "Check GND, VMOT (8–35 V) and VDD (3–5.5 V) on the A4988 in the pin inspector.": [
+    "Controllare la GND, la VMOT (8.535.5 V) e la VDD (3.495.5 V) sull'A4988 nell'ispettore dei pin.",
+    "Verifique GND, VMOT (8–35 V) e VDD (3–5,5 V) do A4988 no inspetor de pinos."
+  ],
+  "A simulated communication fault is enabled for this sensor.": [
+    "Per questo sensore è abilitato un guasto simulato alla comunicazione.",
+    "Uma falha de comunicação simulada é ativada para este sensor."
+  ],
+  "Disable the fault in the inspector to read valid measurements again.": [
+    "Disabilitare il difetto dell'ispettore per leggere di nuovo le misure valide.",
+    "Desabilite a falha no inspetor para ler as medições válidas novamente."
+  ],
+  "Sketch target (steps)": [
+    "Obiettivo dello sketch (passi)",
+    "Destino do sketch (passos)"
   ]
 }

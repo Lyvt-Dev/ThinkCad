@@ -15,12 +15,12 @@ class DiagnosticsPanel final : public QWidget {
     explicit DiagnosticsPanel(QWidget *parent = nullptr);
     void showAssistant();
     enum class Mode { Off, ErrorsOnly, Normal, Verbose };
-    enum class Context { ProjectOpened, BoardAdded, PartAdded, Wired, SimulationStarted };
+    enum class Context { ProjectOpened, BoardAdded, PartAdded, Wired, SimulationStarted, ShareUnencrypted };
     static Mode savedMode();
     void reloadPreferences();
     void beginProject(const thinkercad::CircuitDocument &);
     void documentEdited(const thinkercad::CircuitDocument &);
-    void offerHint(Context, const QString &part = {});
+    void offerHint(Context, const QString &part = {},const QString &model = {});
     void clearCompilationHints();
     void compilationHint(const QString &board, bool error);
     void refresh(const thinkercad::CircuitDocument &, const thinkercad::NetTopology &,
@@ -47,6 +47,7 @@ class DiagnosticsPanel final : public QWidget {
     QMap<QString, thinkercad::DiagnosticIssue> compilationIssues_;
     QSet<QString> parts_, wires_;
     QString currentKey_, contextKey_, contextPart_, inspectionPart_;
+    QString contextModel_;
     Context context_ = Context::ProjectOpened;
     bool manual_ = false;
     QElapsedTimer elapsed_;

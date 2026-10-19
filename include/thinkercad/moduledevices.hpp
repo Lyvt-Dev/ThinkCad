@@ -1,6 +1,7 @@
 #pragma once
 #include "circuit.hpp"
 #include "modules.hpp"
+#include "tft.hpp"
 #include <array>
 #include <deque>
 namespace thinkercad {
@@ -15,6 +16,8 @@ public:
     void select(const CircuitPart&,bool active);
     unsigned maximumSpiClock(const CircuitPart&)const;
     void receiveMidi(const CircuitPart&,const std::vector<std::uint8_t>&,Microseconds);
+    void applyDisplayFrames(const CircuitDocument&,CircuitState&,Microseconds);
+    void setDisplayDataMode(const std::string& id,bool value){states_[id].dataMode=value;}
     void setCodecDataMode(const std::string& id,bool mode){states_[id].dataMode=mode;}
     struct CodecChunk {std::string id;std::vector<std::uint8_t> bytes;std::uint64_t generation;};
     std::vector<CodecChunk> takeCodecChunks();
@@ -31,6 +34,7 @@ public:
     static std::uint8_t crc8(const std::vector<std::uint8_t>& bytes);
 private:
     struct State {
+        TftController tft;
         std::array<std::uint8_t,256> reg{};
         std::array<std::uint32_t,8> words{};
         std::uint16_t serialWord=0,control=0;

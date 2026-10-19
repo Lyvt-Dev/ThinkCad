@@ -153,6 +153,10 @@ DiagnosticEngine::analyze(const CircuitDocument &doc, const NetTopology &net, co
                         rx[net.node(e)].push_back(e);
                     }
                 }
+        for(const auto& part:doc.parts())if(part.kind==PartKind::Module&&part.model=="mh-z19b"){
+            const auto v=voltage({part.id,"VCC"}),g=voltage({part.id,"GND"});
+            if(v&&g&&*v-*g>=4.5&&*v-*g<=5.5){tx[net.node({part.id,"TX"})].push_back({part.id,"TX"});rx[net.node({part.id,"RX"})].push_back({part.id,"RX"});}
+        }
         for (const auto &[node, list] : tx)
             if (list.size() > 1)
                 add("uart-tx", Severity::Error, list.front(),
@@ -163,6 +167,23 @@ DiagnosticEngine::analyze(const CircuitDocument &doc, const NetTopology &net, co
                 add("uart-rx", Severity::Warning, list.front(),
                     "UART-RX-Pins sind ohne erkennbaren TX-Treiber verbunden.",
                     "TX des einen Boards mit RX des anderen verbinden und GND verbinden.");
+    }
+    for(const auto& part:doc.parts())if(part.kind==PartKind::Module){
+        if(part.model=="a4988"){
+            bool motorConnected=false;
+            for(const auto& motor:doc.parts())if(motor.kind==PartKind::Module&&(motor.model=="stepper-4"||motor.model=="stepper-6")&&
+                net.connected({part.id,"1A"},{motor.id,"A1"})&&net.connected({part.id,"1B"},{motor.id,"A2"})&&
+                net.connected({part.id,"2A"},{motor.id,"B1"})&&net.connected({part.id,"2B"},{motor.id,"B2"}))motorConnected=true;
+            const auto vm=voltage({part.id,"VMOT"}),mg=voltage({part.id,"GND_MOT"}),vdd=voltage({part.id,"VDD"}),gnd=voltage({part.id,"GND"});
+            if(motorConnected&&(!vm||!mg||!vdd||!gnd||*vm-*mg<8||*vm-*mg>35||*vdd-*gnd<3||*vdd-*gnd>5.5))
+                add("stepper-supply",Severity::Warning,{part.id,"VMOT"},
+                    "Der Schrittmotor ist verbunden, aber der Treiber hat keine gültige Versorgung.",
+                    "Prüfe GND, VMOT (8–35 V) und VDD (3–5,5 V) des A4988 im Pin-Inspektor.");
+        }
+        if((part.model=="bme680"||part.model=="mh-z19b")&&(parameter(part,"faultNoResponse",0)||parameter(part,"faultChecksum",0)))
+            add("sensor-fault",Severity::Warning,{part.id,part.model=="bme680"?"SDA":"TX"},
+                "Ein simulierter Kommunikationsfehler ist für diesen Sensor aktiviert.",
+                "Deaktiviere den Fehlerfall im Inspektor, wenn du wieder gültige Messwerte lesen möchtest.");
     }
     // Protocol errors remain evidence from actual operations, not sketch parsing.
     if (traffic)

@@ -14,8 +14,22 @@ std::map<std::string,ModuleDefinition>& models(){
             if(d.bus=="i2c"||d.bus=="pulse"||d.bus=="single-wire"||d.bus=="onewire"||d.implementation=="mfrc522"){const double pitch=d.implementation=="ds18b20"?1.27:2.54;for(std::size_t i=0;i<d.pins.size();++i)d.pinPositions[d.pins[i]]={d.width/2+(double(i)-(d.pins.size()-1)/2.)*pitch,d.height};}
             result.emplace(d.id,d);
         };
+        for(const char* id:{"ili9341","st7735"}){
+            const bool ili=std::string(id)=="ili9341";
+            add(id,ili?"ILI9341 · 3.3 V SPI TFT":"ST7735 · 3.3 V SPI TFT","spi",id,{"VCC","GND","CS","RESET","DC","MOSI","SCK","LED","MISO"},{},ili?50:30,ili?86:40,3,3.6,0,20000000);
+            auto& display=result.at(id);for(std::size_t i=0;i<display.pins.size();++i)display.pinPositions[display.pins[i]]={display.width/2+(double(i)-4)*2.54,display.height};
+        }
         const std::vector<ModuleParameter> environment{{"temperature","Temperature","°C",25,-40,85},{"humidity","Humidity","%",50,0,100},{"pressure","Pressure","hPa",1013.25,300,1100}};
         add("bme280","BME280 · I2C","i2c","bme280",{"VCC","GND","SDA","SCL"},environment,11.5,15,1.71,3.6,0x76);
+        auto bme680Environment=environment;bme680Environment.push_back({"gasResistance","Simulated gas resistance","Ω",100000,100,10000000});
+        bme680Environment.push_back({"variation","Automatic simulated variation","",0,0,1});
+        bme680Environment.push_back({"faultNoResponse","Fault: no I2C response","",0,0,1});
+        add("bme680","BME680 · simulated environment / gas resistance","i2c","bme680",{"VCC","GND","SDA","SCL"},bme680Environment,15,18,1.71,3.6,0x76);
+        add("mh-z19b","MH-Z19B · simulated CO2 / UART","electrical","mh-z19b",{"VCC","GND","TX","RX"},
+            {{"co2","Simulated CO2","ppm",400,0,10000},{"temperature","Simulated temperature","°C",25,-10,50},
+             {"variation","Automatic simulated variation","",0,0,1},{"faultNoResponse","Fault: no UART response","",0,0,1},
+             {"faultChecksum","Fault: invalid response checksum","",0,0,1},{"responseMs","UART response delay","ms",100,0,1000}},32,20,4.5,5.5);
+        result.at("mh-z19b").idleCurrent=.06;
         add("bme280-spi","BME280 · SPI","spi","bme280",{"VCC","GND","SCK","MISO","MOSI","CS"},environment,15,18,1.71,3.6,0,10000000);
         add("mpu6050","MPU6050 · 3.3 V","i2c","mpu6050",{"VCC","GND","SDA","SCL","INT"},{{"accelX","Acceleration X","g",0,-16,16},{"accelY","Acceleration Y","g",0,-16,16},{"accelZ","Acceleration Z","g",1,-16,16},{"gyroX","Angular velocity X","°/s",0,-2000,2000},{"gyroY","Angular velocity Y","°/s",0,-2000,2000},{"gyroZ","Angular velocity Z","°/s",0,-2000,2000},{"temperature","Temperature","°C",25,-40,85}},20,16,2.375,3.46,0x68);
         add("dht22","DHT22 / AM2302","single-wire","dht22",{"VCC","DATA","GND"},{{"temperature","Temperature","°C",25,-40,80},{"humidity","Humidity","%",50,0,100}},15.1,25,3.3,6);

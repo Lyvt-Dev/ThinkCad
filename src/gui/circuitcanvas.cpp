@@ -506,7 +506,7 @@ bool CircuitCanvas::beginControl(const std::string& id,QPointF scenePoint,Qt::Mo
         if(button==Qt::RightButton||QRectF(18,27,6,4).contains(mm)){gesture("module-button");controlParameter_="pressed";changeParameter(id,"pressed",1);}
         else {gesture("joystick");moveControl(scenePoint);}return true;
     }
-    if(part.model=="arcade-button"||part.model=="pir"){gesture("module-button");controlParameter_=part.model=="pir"?"motion":"pressed";changeParameter(id,controlParameter_,1);return true;}
+    if(part.model=="arcade-button"||part.model=="limit-switch"||part.model=="pir"){gesture("module-button");controlParameter_=part.model=="pir"?"motion":"pressed";changeParameter(id,controlParameter_,1);return true;}
     if(part.model=="drum-pad"){gesture("module-button");controlParameter_="strike";changeParameter(id,"strike",100);return true;}
     if(part.model=="softpot"){gesture("softpot");changeParameter(id,"touch",1);moveControl(scenePoint);return true;}
     if(part.model=="fsr"||part.model=="flex"){gesture(part.model=="fsr"?"force":"level");if(part.model=="fsr")changeParameter(id,"level",100);return true;}

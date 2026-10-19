@@ -23,7 +23,8 @@ public:
     static QMap<QString,QByteArray> bundleLibraries(const QStringList& directories);
     static QStringList extractLibraries(const QMap<QString,QByteArray>& files,const QString& destination);
     static QByteArray serialize(const SavedProject& project);
-    static SavedProject deserialize(const QByteArray& data);
+    // Preview may validate embedded descriptor models without retaining registry changes.
+    static SavedProject deserialize(const QByteArray& data,bool retainEmbeddedModels=true);
     static void save(const QString& path,const SavedProject& project);
     static SavedProject load(const QString& path);
     static bool validFileName(const QString& name);

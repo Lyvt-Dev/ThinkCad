@@ -96,6 +96,7 @@ private:
         thinkercad::Esp8266Board board;
         CodeInterpreter interpreter;
         std::map<int,std::string> displayBindings;
+        std::map<std::string,double> stepperTargets;
         struct LcdBinding{std::string id;std::vector<int> pins;int address=-1;};
         std::map<int,LcdBinding> lcdBindings;
         int busSda=4,busScl=5,writes=0;

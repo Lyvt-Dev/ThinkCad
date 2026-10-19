@@ -10,6 +10,15 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.3.5 — Aktoren, TFT, Sensoren und lokales Teilen
+
+Schrittmotoren mit A4988/ULN2003, Relais, ILI9341/ST7735, BME680 und MH-Z19B.
+Zehn verdrahtete Beispiele, lokale passwortgeschützte Share-/QR-Codes,
+Bauteilsuche **Strg+P** und der Assistenten-Skin **Nyra Quack**.
+[Release Notes DE/EN](docs/RELEASE_NOTES_1.3.5.md) ·
+[Bedienung und Modellgrenzen](docs/FEATURES_1.3.5.md) ·
+[Implementierungsplan](docs/PLAN_1.3.5.md) · [Share-Code](docs/SHARE_CODE.md)
+
 ## Neu in 1.3.4 — Bedienung und Stabilität
 
 Direkt bedienbarer Joystick, Regler, Taster und Sensorschieberegler statt bloßer

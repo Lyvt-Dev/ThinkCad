@@ -1,0 +1,6 @@
+Upstream: https://github.com/nayuki/QR-Code-generator
+Commit: 3c6d0b3cefb4e049dc337e82237c9644399716a8
+Files (SHA-256):
+8948b57053deb5d132bfc675ca2688b7abef9f03ec633c0de59770c945a66fc9  qrcodegen.cpp
+b779c3b156cf7a57ce789d6fee4fc991ccc2913774d26c909d22bb8f26b2a793  qrcodegen.hpp
+eea862d8e975c6df197b050e5bd6c93b70c046952ac704b4ee1d213f2393f52a  README.md

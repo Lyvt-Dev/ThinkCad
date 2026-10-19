@@ -1,14 +1,22 @@
 # Bauteilunterstützung in ThinkCad
 
-Stand 1.3.1: Die unten genannten Modelle einschließlich der
+Stand 1.3.5: Die unten genannten Modelle einschließlich der
 [Analog-Erweiterung](ANALOG_SIMULATION.md).
 
 Die Forderung nach sämtlichen Tinkercad-Bauteilen ist noch nicht vollständig umgesetzt.
 Diese Liste beschreibt die tatsächlich implementierten Modelle. Sie garantiert keine
 identische Hardware- oder Tinkercad-Genauigkeit.
 
+Neue 1.3.5-Modelle: [Anschluss, APIs und Grenzen](FEATURES_1.3.5.md).
+
 | Bauteil | Modell und Grenzen |
 | --- | --- |
+| A4988 / ULN2003 / Schrittmotor 4/5/6 Leiter | Flanken-/Spulensequenzen, STEP/DIR, Mikrosteps, Versorgung, relative Welle; vereinfachte Wicklungsausgänge; keine Last/Resonanz/Stromregelung |
+| Hebel-Endschalter | Bedienbarer SPDT-Kontakt COM/NO/NC; Sketch wertet elektrische Zustände aus, keine automatische Achsgeometrie |
+| Relais 5 V SPDT | Versorgte aktive HIGH/LOW-Steuerung, COM/NO/NC, LED, optionaler Klick; kein Prellen/Lichtbogen |
+| ILI9341 / ST7735 | 16-Bit-SPI, RAMWR/Adressfenster, Initialisierung, Rotation/Scrollregister und GFX; 240×320 bzw. 128×160, kein vollständiges analoges Panel |
+| BME680 | I²C 0x76/0x77, Forced-Modus, Bosch-Kompensation, T/H/P/simulierter Gaswiderstand; kein BSEC oder chemisches Modell |
+| MH-Z19B | 5-V-Versorgung, 3,3-V-UART 9600 8N1, 0x86-Antwort/Prüfsumme/Verzögerung und Fehlerfälle; keine NDIR-Physik oder Kalibrierung |
 | Keypad / Keyboard | 4×4- bzw. 4×8-Kontaktmatrix (25 Keyboard-Tasten), Scannen mit Pullups, optionaler serieller MIDI-Eingang; keine USB-PC-Tastaturemulation |
 | Drehencoder (unveröffentlicht) | Passive A/B-Quadraturkontakte und Drucktaster; vier Flanken pro Klick, Polling-Adapter |
 | Breadboard mit Stromschienen (unveröffentlicht) | 300 Signal- und 100 Schienenkontakte, vier getrennte ungeteilte Schienen; keine eingebaute Versorgung |

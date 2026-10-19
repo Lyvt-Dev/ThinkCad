@@ -1,5 +1,7 @@
 #include "mainwindow.hpp"
 #include "diagnosticspanel.hpp"
+#include "assistantskin.hpp"
+#include "componentfinder.hpp"
 #include "codeinterpreter.hpp"
 #include "preferences.hpp"
 #include <QDialogButtonBox>
@@ -335,7 +337,10 @@ class Feature129Tests : public QObject {
         doc.removePart(board);panel->documentEdited(doc);
         QVERIFY(!card->isVisible());
         panel->offerHint(DiagnosticsPanel::Context::SimulationStarted);
-        QVERIFY(!card->isVisible());
+        QVERIFY(card->isVisible());
+        QVERIFY(text->text().contains("Open Output"));
+        QVERIFY(!text->text().contains("real hardware"));
+        QCOMPARE(QApplication::focusWidget(), editor);
         mode->setCurrentIndex(3);
         QVERIFY(card->isVisible());QVERIFY(text->text().contains("real hardware"));
         toggle->setChecked(false);panel->reloadPreferences();
@@ -414,19 +419,71 @@ class Feature129Tests : public QObject {
             auto *mode = dialog->findChild<QComboBox *>("preferencesAssistantMode");
             QVERIFY(mode);QCOMPARE(mode->currentIndex(), 2);
             mode->setCurrentIndex(0);
+            dialog->findChild<QComboBox *>("preferencesAssistantSkin")->setCurrentIndex(1);
             dialog->reject();
         });
         window.findChild<QAction *>("openPreferences")->trigger();
         QCOMPARE(panel->findChild<QComboBox *>("duckAssistantMode")->currentIndex(), 2);
+        QCOMPARE(AssistantSkins::savedId(), QString("quack"));
         QTimer::singleShot(0, &window, [&] {
             auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
             QVERIFY(dialog);
             dialog->findChild<QComboBox *>("preferencesAssistantMode")->setCurrentIndex(0);
+            dialog->findChild<QComboBox *>("preferencesAssistantSkin")->setCurrentIndex(1);
             QTest::mouseClick(dialog->findChild<QDialogButtonBox *>()->button(QDialogButtonBox::Save), Qt::LeftButton);
         });
         window.findChild<QAction *>("openPreferences")->trigger();
         QCOMPARE(panel->findChild<QComboBox *>("duckAssistantMode")->currentIndex(), 0);
         QCOMPARE(static_cast<int>(DiagnosticsPanel::savedMode()), 0);
+        QCOMPARE(AssistantSkins::savedId(), QString("nyra-quack"));
+        QCOMPARE(panel->findChild<QLabel *>("duckAssistantMascot")->accessibleName(), QString("Nyra Quack"));
+        DiagnosticsPanel reopened;
+        QCOMPARE(reopened.findChild<QLabel *>("duckAssistantMascot")->property("assistantSkin").toString(),
+                 QString("nyra-quack"));
+        QVERIFY(!reopened.findChild<QWidget *>("duckAssistant")->isVisible());
+    }
+    void duckAssistantSkinResourcesAndUnknownSetting() {
+        const auto quack = AssistantSkins::pixmap("quack");
+        const auto nyra = AssistantSkins::pixmap("nyra-quack");
+        QVERIFY(!quack.isNull());
+        QVERIFY(!nyra.isNull());
+        QVERIFY(quack.toImage() != nyra.toImage());
+        QVERIFY(nyra.hasAlphaChannel());
+        const auto human=AssistantSkins::pixmap("nyra");QVERIFY(!human.isNull());QVERIFY(human.hasAlphaChannel());QVERIFY(human.toImage()!=nyra.toImage());
+        QSettings().setValue("duckAssistantSkin", "unknown-future-skin");
+        QCOMPARE(AssistantSkins::savedId(), QString("quack"));
+        QCOMPARE(AssistantSkins::pixmap("unknown-future-skin").toImage(), quack.toImage());
+    }
+    void componentFinderFiltersNavigatesAndRemembers() {
+        std::vector<ComponentSearchEntry> entries{{"ESP32-S3","Boards","esp32-s3","GPIO / ADC",0},
+            {"A4988","Actuators","a4988","STEP DIR driver",int(PartKind::Module)},
+            {"28BYJ-48","Actuators","stepper-5","Unipolar motor",int(PartKind::Module)}};
+        ComponentFinder dialog(entries);dialog.show();dialog.activateWindow();
+        auto* query=dialog.findChild<QLineEdit*>("componentFinderQuery");
+        auto* results=dialog.findChild<QListWidget*>("componentFinderResults");
+        QTRY_COMPARE(QApplication::focusWidget(),query);
+        query->setText("actuators");QCOMPARE(results->count(),2);
+        QTest::keyClick(query,Qt::Key_Down);QCOMPARE(results->currentRow(),1);
+        QTest::keyClick(query,Qt::Key_Return);QVERIFY(dialog.chosen());
+        QCOMPARE(dialog.chosen()->model,QString("stepper-5"));
+        ComponentFinder::remember(*dialog.chosen());
+        ComponentFinder reopened(entries);
+        QVERIFY(reopened.findChild<QListWidget*>("componentFinderResults")->item(0)->text().contains("28BYJ"));
+        reopened.findChild<QLineEdit*>("componentFinderQuery")->setText("nonexistent component");
+        QCOMPARE(reopened.findChild<QListWidget*>("componentFinderResults")->count(),0);
+    }
+    void componentFinderPlacesThroughUndoAndHonorsCancel() {
+        MainWindow window;window.show();
+        auto* canvas=window.findChild<CircuitCanvas*>();const auto before=canvas->document().parts().size();
+        auto* command=window.findChild<QAction*>("findComponent");QVERIFY(command);
+        QCOMPARE(command->shortcut(),QKeySequence(Qt::CTRL|Qt::Key_P));
+        QTimer::singleShot(0,&window,[&]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());QVERIFY(dialog);
+            auto* query=dialog->findChild<QLineEdit*>("componentFinderQuery");query->setText("a4988");QTest::keyClick(query,Qt::Key_Return);});
+        command->trigger();QCOMPARE(canvas->document().parts().size(),before+1);
+        QVERIFY(std::any_of(canvas->document().parts().begin(),canvas->document().parts().end(),[](const auto& p){return p.model=="a4988";}));
+        canvas->history()->undo();QCOMPARE(canvas->document().parts().size(),before);
+        QTimer::singleShot(0,&window,[]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());QVERIFY(dialog);dialog->reject();});
+        command->trigger();QCOMPARE(canvas->document().parts().size(),before);
     }
     void duckAssistantWaitsForFinishedWiringAndInspectsTheTarget() {
         MainWindow window;window.show();

@@ -17,3 +17,8 @@ host-specific GPU drivers. Desktop and hardware integration still uses the host.
 
 Adafruit-GFX font notices are installed in the application license directory.
 Application ownership and licensing remain as stated in the repository license.
+
+ThinkCad 1.3.5 also bundles Monocypher 4.0.2 (BSD-2-Clause / CC0), Nayuki
+qrcodegen (MIT), quirc 1.2 (ISC) and Adafruit/Bosch BME680 drivers (BSD).
+Their pinned source provenance and full copyright/license notices are preserved
+in the source tree and installed licenses directory.

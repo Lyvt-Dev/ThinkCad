@@ -27,6 +27,7 @@ void UartBus::begin(const CircuitDocument& doc,const std::string& board,int numb
 }
 void UartBus::end(const std::string& board,int number){ports_.erase({board,number});}
 void UartBus::write(const CircuitDocument& doc,const CircuitState& state,const std::string& board,int number,const std::vector<std::uint8_t>& bytes,Microseconds now,bool emulation,const std::map<std::string,const Esp8266Board*>& boards){
+    synchronizeDevices(doc,state,now);
     if(bytes.size()>512)throw std::invalid_argument("UART write exceeds 512 bytes");auto& source=require(board,number);if(source.config.tx<0)throw std::invalid_argument("UART is receive-only");const auto profile=BoardProfile::get(doc.part(board).model);const Endpoint tx{board,profile.pinName(source.config.tx)};
     const unsigned bits=1+source.config.dataBits+source.config.stopBits+(source.config.parity!=Parity::None);const Microseconds duration=emulation?(bits*1000000ull+source.config.baud-1)/source.config.baud:0;auto start=emulation?std::max(now,source.nextWrite):now;if(duration&&bytes.size()>(std::numeric_limits<Microseconds>::max()-start)/duration)throw std::overflow_error("UART clock overflow");if(start>now&&start-now>10000000)throw std::invalid_argument("UART transmit queue exceeds ten seconds");
     const auto v=state.voltage.find(tx),g=state.voltage.find({board,"GND"});const bool driven=v!=state.voltage.end()&&g!=state.voltage.end()&&v->second&&g->second&&*v->second-*g->second>=.7*profile.voltage;
@@ -38,7 +39,7 @@ void UartBus::write(const CircuitDocument& doc,const CircuitState& state,const s
             Byte incoming{start,ready,std::uint8_t(byte&((1u<<source.config.dataBits)-1)),{board,number},true};if(emulation)for(auto& pending:receiver.rx)if(pending.source!=incoming.source&&pending.ready>start&&pending.start<ready){if(pending.valid)++receiver.errors.collision;pending.valid=false;incoming.valid=false;}if(!incoming.valid)++receiver.errors.collision;
             if(receiver.rx.size()>=256){++receiver.errors.overrun;continue;}const auto position=std::upper_bound(receiver.rx.begin(),receiver.rx.end(),ready,[](auto at,const auto& pending){return at<pending.ready;});receiver.rx.insert(position,std::move(incoming));
         }start=ready;}
-    source.nextWrite=start;if(transmitted)transmitted(board,source.config.tx,source.config.baud,bytes,start);
+    source.nextWrite=start;receiveSensors(doc,state,board,number,bytes,start,boards);if(transmitted)transmitted(board,source.config.tx,source.config.baud,bytes,start);
 }
 void UartBus::discardInvalid(Port& port,Microseconds now){while(!port.rx.empty()&&port.rx.front().ready<=now&&!port.rx.front().valid)port.rx.pop_front();}
 unsigned UartBus::available(const std::string& board,int number,Microseconds now){auto& port=require(board,number);discardInvalid(port,now);return unsigned(std::count_if(port.rx.begin(),port.rx.end(),[&](const auto& byte){return byte.ready<=now&&byte.valid;}));}

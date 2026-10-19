@@ -80,7 +80,7 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
     }
     // Bundled source libraries are compiled only when the existing dependency
     // scan finds their headers. Unused sensor libraries add no sketch build work.
-    for(const auto* name:{"busio","sensor","bme280","mpu6050","mfrc522","dallas"}){
+    for(const auto* name:{"busio","sensor","bme280","bme680","mpu6050","mfrc522","dallas"}){
         const auto root=QDir::fromNativeSeparators(QFileInfo(sdk+"/vendor/"+name).absoluteFilePath());if(!QDir(root).exists())continue;args<<"-I"+root;LibraryUnit unit{root,root,{},true};QDirIterator source(root,{"*.cpp"},QDir::Files);while(source.hasNext())unit.sources<<source.next();libraries_<<unit;
     }
     for(const auto& lib:libraries){

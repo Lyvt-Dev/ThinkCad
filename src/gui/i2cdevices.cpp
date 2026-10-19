@@ -14,6 +14,7 @@ I2cDevices::Reply I2cDevices::transfer(const CircuitDocument& doc,const CircuitS
     for(const auto& part:doc.parts()){
         const bool module=part.kind==PartKind::Module;const ModuleDefinition* definition=module?&ModuleRegistry::get(part.model):nullptr;
         if(module?definition->bus!="i2c"||int(parameter(part,"address",definition->address))!=address:((part.kind!=PartKind::I2cCharacterLcd&&part.kind!=PartKind::Oled)||static_cast<int>(part.value)!=address))continue;
+        if(module&&parameter(part,"faultNoResponse",0)>0)continue;
         const auto power=module?definition->power:std::string("VCC"),ground=module?definition->ground:std::string("GND");const auto v=state.voltage.find({part.id,power}),g=state.voltage.find({part.id,ground});
         if(v==state.voltage.end()||g==state.voltage.end()||!v->second||!g->second)continue;
         const double supply=*v->second-*g->second;

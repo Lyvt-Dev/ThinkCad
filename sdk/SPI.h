@@ -39,6 +39,17 @@ public:
 #endif
         return uint8_t(result);
     }
+    void writeBytes(const uint8_t* bytes,std::size_t length){
+        if(!ready_||(!bytes&&length)||length>1024*1024)throw std::invalid_argument("Invalid SPI write buffer");
+        for(std::size_t at=0;at<length;){const auto count=std::min<std::size_t>(1024,length-at);
+            if(!thinker::standalone){constexpr char hex[]="0123456789abcdef";std::string payload;payload.reserve(count*2);
+                for(std::size_t i=0;i<count;++i){payload+=hex[bytes[at+i]>>4];payload+=hex[bytes[at+i]&15];}
+                const int delivered=thinker::request("SPI_WRITE "+std::to_string(pins_[0])+" "+std::to_string(pins_[1])+" "+std::to_string(pins_[2])+" "+std::to_string(settings_.clock())+" "+std::to_string(settings_.mode())+" "+std::to_string(settings_.order())+" "+payload);
+                if(delivered!=int(count))throw std::runtime_error("SPI block was not delivered");
+            }
+            thinker::advance((count*8000000ULL+settings_.clock()-1)/settings_.clock());at+=count;
+        }
+    }
     uint16_t transfer16(uint16_t value){if(settings_.order()==LSBFIRST){const auto lo=transfer(uint8_t(value));return uint16_t(lo|(uint16_t(transfer(uint8_t(value>>8)))<<8));}const auto hi=transfer(uint8_t(value>>8));return uint16_t((uint16_t(hi)<<8)|transfer(uint8_t(value)));}
     void transfer(void* buffer,std::size_t length){if((!buffer&&length)||length>4096)throw std::invalid_argument("Invalid SPI transfer buffer");auto* bytes=static_cast<uint8_t*>(buffer);for(std::size_t i=0;i<length;++i)bytes[i]=transfer(bytes[i]);}
 private:int pins_[4]{};bool ready_=false;SPISettings settings_;

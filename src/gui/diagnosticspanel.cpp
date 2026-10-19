@@ -1,5 +1,6 @@
 #include "diagnosticspanel.hpp"
 #include "language.hpp"
+#include "assistantskin.hpp"
 #include <QListWidget>
 #include <QScrollBar>
 #include <QComboBox>
@@ -109,6 +110,15 @@ DiagnosticsPanel::Mode DiagnosticsPanel::savedMode() {
 }
 void DiagnosticsPanel::reloadPreferences() {
     mode_ = savedMode();
+    const auto skinId = AssistantSkins::savedId();
+    auto *mascot = findChild<QLabel *>("duckAssistantMascot");
+    const auto ratio = mascot->devicePixelRatioF();
+    auto image = AssistantSkins::pixmap(skinId).scaled(QSize(32, 32) * ratio,
+                                                    Qt::KeepAspectRatio, Qt::FastTransformation);
+    image.setDevicePixelRatio(ratio);
+    mascot->setPixmap(image);
+    mascot->setAccessibleName(QString::fromLatin1(AssistantSkins::find(skinId).name));
+    mascot->setProperty("assistantSkin", skinId);
     { QSignalBlocker block(modeChoice_); modeChoice_->setCurrentIndex(static_cast<int>(mode_)); }
     render();
 }
@@ -143,30 +153,48 @@ void DiagnosticsPanel::documentEdited(const CircuitDocument &doc) {
     for (const auto &p : doc.parts()) {
         const auto id = QString::fromStdString(p.id); parts.insert(id);
         if (!parts_.contains(id) && p.kind != PartKind::Note && p.kind != PartKind::Junction && p.kind != PartKind::NetLabel)
-            offerHint(p.kind == PartKind::Esp8266 ? Context::BoardAdded : Context::PartAdded, id);
+            offerHint(p.kind == PartKind::Esp8266 ? Context::BoardAdded : Context::PartAdded, id,
+                      p.kind==PartKind::Module?QString::fromStdString(p.model):QString());
     }
     for (const auto &w : doc.wires()) {
         const auto id = QString::fromStdString(w.id); wires.insert(id);
-        if (!wires_.contains(id)) offerHint(Context::Wired, QString::fromStdString(w.b.part));
+        if (!wires_.contains(id)) {
+            const auto& a=doc.part(w.a.part);const auto& b=doc.part(w.b.part);
+            const auto& target=b.kind==PartKind::Esp8266?a:b;
+            offerHint(Context::Wired,QString::fromStdString(target.id),target.kind==PartKind::Module?QString::fromStdString(target.model):QString());
+        }
     }
     parts_ = std::move(parts); wires_ = std::move(wires);
     if (!contextPart_.isEmpty() && !parts_.contains(contextPart_)) { contextKey_.clear(); explainSelection(); }
 }
-void DiagnosticsPanel::offerHint(Context context, const QString &part) {
-    const auto key = QString("context/%1/%2").arg(int(context)).arg(part);
+void DiagnosticsPanel::offerHint(Context context, const QString &part,const QString& model) {
+    const auto key = QString("context/%1/%2/%3").arg(int(context)).arg(part,model);
     if (seen_.contains(key)) return;
     seen_.insert(key);
     context_ = context; contextPart_ = part; contextKey_ = key;
+    contextModel_=model;
     manual_ = false;
     explainSelection();
 }
 QString DiagnosticsPanel::contextText() const {
+    if(context_==Context::PartAdded||context_==Context::Wired){
+        if(contextModel_=="relay-5v")return Language::text("Dieses Relais benötigt eine Versorgung und einen Steuerpin. Prüfe außerdem COM, NO und NC für deinen Lastkreis.");
+        if(contextModel_=="a4988")return Language::text("Prüfe GND, VMOT und VDD des A4988. STEP und DIR steuern den Motor; RESET und SLEEP müssen freigegeben sein.");
+        if(contextModel_=="uln2003"||(contextModel_=="stepper-4"||contextModel_=="stepper-5"||contextModel_=="stepper-6"))return Language::text("Verbinde die Wicklungen mit dem passenden Treiber. Die Anfangsausrichtung ist der Bezugspunkt; Last und Resonanzen werden nicht simuliert.");
+        if(contextModel_=="ili9341"||contextModel_=="st7735")return Language::text("Dieses TFT benötigt Versorgung, CS, DC, RESET und SPI-Leitungen. Versorge auch die LED-Hintergrundbeleuchtung und rufe die Initialisierung im Sketch auf.");
+        if(contextModel_=="bme680")return Language::text("Die BME680-Messwerte sind simuliert. Prüfe Versorgung, SDA/SCL und Adresse; eine chemische Gasanalyse wird nicht modelliert.");
+        if(contextModel_=="mh-z19b")return Language::text("Verbinde TX mit RX und RX mit TX. Der MH-Z19B benötigt 5-V-Versorgung und 3,3-V-UART-Signale; CO₂-Werte und Fehler stellst du im Inspektor ein.");
+    }
     switch (context_) {
     case Context::ProjectOpened: return Language::text("Wähle ein Board, um seinen Sketch zu bearbeiten. Im Pin-Inspektor kannst du die Verbindungen prüfen.");
     case Context::BoardAdded: return Language::text("Das Board ist eingefügt. Wähle es aus und prüfe Sketch und Pinbelegung.");
     case Context::PartAdded: return Language::text("Das Bauteil ist eingefügt. Prüfe seine Anschlüsse und die benötigte Versorgung im Pin-Inspektor.");
     case Context::Wired: return Language::text("Die Verbindung ist angelegt. Prüfe im Pin-Inspektor, welche Anschlüsse zum selben Netz gehören.");
-    case Context::SimulationStarted: return Language::text("Die Simulation wird gestartet. Die Modelle bilden nicht alle Eigenschaften echter Hardware ab.");
+    case Context::SimulationStarted:
+        return mode_ == Mode::Verbose
+            ? Language::text("Die Simulation wird gestartet. Die Modelle bilden nicht alle Eigenschaften echter Hardware ab.")
+            : Language::text("Die Simulation wird vorbereitet. In der Ausgabe siehst du Meldungen des Sketches.");
+    case Context::ShareUnencrypted:return Language::text("Der Share-Code enthält deine Schaltung und deinen Code. Ohne Passwort ist er nicht vertraulich.");
     }
     return {};
 }
@@ -204,8 +232,7 @@ void DiagnosticsPanel::explainSelection() {
         showTarget_->setEnabled(issue.rule == "compiler" || !issue.target.part.empty() || !issue.wire.empty());
         inspect_->setVisible(issue.rule != "compiler");
     } else {
-        const bool contextual = mode_ >= Mode::Normal && !contextKey_.isEmpty() &&
-            (context_ != Context::SimulationStarted || mode_ == Mode::Verbose);
+        const bool contextual = mode_ >= Mode::Normal && !contextKey_.isEmpty();
         currentKey_ = contextual ? contextKey_ : (manual_ && mode_ >= Mode::Normal ? "manual" : QString());
         inspectionPart_ = contextPart_;
         assistantText_->setText(contextual ? contextText() : Language::text(
@@ -253,7 +280,8 @@ void DiagnosticsPanel::render() {
     const char *modes[] = {"Aus", "Nur Fehler", "Normal", "Ausführlich"};
     for (int i = 0; i < 4; ++i) modeChoice_->setItemText(i, Language::text(modes[i]));
     inspect_->setText(Language::text("Pin-Inspektor öffnen"));
-    findChild<QLabel *>("duckAssistantMascot")->setAccessibleName(Language::text("Diagnose-Ente"));
+    findChild<QLabel *>("duckAssistantMascot")->setAccessibleName(
+        QString::fromLatin1(AssistantSkins::find(AssistantSkins::savedId()).name));
     showTarget_->setText(Language::text("Stelle zeigen"));
     nextHint_->setText(Language::text("Nächster Hinweis"));
     for (int i = 0; i < 3; ++i)

@@ -1,8 +1,10 @@
 #include "thinkercad/electronics.hpp"
+#include "thinkercad/actuators.hpp"
 #include <algorithm>
 #include <cmath>
 namespace thinkercad {
 void registerElectronics(std::map<std::string,ModuleDefinition>& catalog){
+    registerActuators(catalog);
     auto add=[&](std::string id,std::string label,std::vector<std::string> pins,std::vector<ModuleParameter> parameters={},double width=7.62,double height=20,bool powered=true){ModuleDefinition d;d.id=id;d.label=label;d.bus="electrical";d.implementation=id;d.pins=pins;d.parameters=parameters;d.width=width;d.height=height;d.builtin=true;d.minVoltage=2;d.maxVoltage=6;d.idleCurrent=powered?.00001:0;if(!powered)d.power=d.ground="";for(std::size_t i=0;i<pins.size();++i){const int half=int((pins.size()+1)/2);if(1.5+(half-1)*2.54>height)d.pinPositions[pins[i]]={1.27+i*2.54,height};else d.pinPositions[pins[i]]={i<std::size_t(half)?0:width,1.5+(i<std::size_t(half)?i:pins.size()-1-i)*2.54};}catalog.emplace(id,d);};
     add("cd74hc4067","CD74HC4067 · 16-channel analog multiplexer",{"C9","C10","C11","C12","C13","C14","C15","SIG","EN","S0","S1","GND","S3","S2","C0","C1","C2","C3","C4","C5","C6","C7","C8","VCC"},{},7.62,30);
     add("74hc165","74HC165 · parallel-in shift register",{"PL","CP","D4","D5","D6","D7","Q7N","GND","Q7","DS","D0","D1","D2","D3","CE","VCC"});
@@ -99,7 +101,9 @@ void registerElectronics(std::map<std::string,ModuleDefinition>& catalog){
 
 }
 std::vector<ElectricalBranch> electronicBranches(const CircuitPart& p,const std::function<std::optional<double>(const std::string&)>& voltage,const DeviceRegisters* memory,double time,const std::map<std::string,AnalogDeviceState>* analog){
-    const auto& model=ModuleRegistry::get(p.model);std::vector<ElectricalBranch> result;auto add=[&](const std::string& a,const std::string& b,double r,double offset=0){result.push_back({a,b,std::max(.001,r),offset});};
+    std::vector<ElectricalBranch> result;
+    if(actuatorBranches(p,voltage,memory,result))return result;
+    const auto& model=ModuleRegistry::get(p.model);auto add=[&](const std::string& a,const std::string& b,double r,double offset=0){result.push_back({a,b,std::max(.001,r),offset});};
     auto v=[&](const std::string& name,double fallback=0){return voltage(name).value_or(fallback);};const auto id=p.model;
     if(id.starts_with("battery-")){add("+","-",.15*parameter(p,"cells",double(id.back()-'0')),1.5*parameter(p,"cells",double(id.back()-'0')));return result;}
     if(id=="r2r-dac"){
@@ -139,6 +143,10 @@ std::vector<ElectricalBranch> electronicBranches(const CircuitPart& p,const std:
     if(id=="arcade-button"){if(parameter(p,"pressed",0))add("COM","NO",.01);return result;}
     if(id=="drum-pad"){double signal=analog&&analog->contains(p.id)?analog->at(p.id).outL:0;add("+","-",10000,signal);return result;}
     if(id=="6n138"||id=="6n137"){double forward=v("A")-v("K");add("A","K",forward>1.3?30:1e10,forward>1.3?1.3:0);if(v("VCC")-v("GND")>=4.5&&v("VCC")-v("GND")<=5.5&&forward>1.33&&(id=="6n138"||v("EN")-v("GND")>=2))add("OUT","GND",25);return result;}
+    if(id=="mh-z19b"){
+        if(voltage("VCC")&&voltage("GND")&&v("VCC")-v("GND")>=4.5&&v("VCC")-v("GND")<=5.5)add("TX","GND",50,3.3);
+        add("RX","GND",1000000);return result;
+    }
     if(model.power.empty())return result;
     const auto supply=voltage(model.power),ground=voltage(model.ground);if(!supply||!ground||*supply-*ground<model.minVoltage||*supply-*ground>model.maxVoltage)return result;
     const double lo=*ground,hi=*supply,range=hi-lo;auto high=[&](const std::string& pin){return voltage(pin)&&v(pin)-lo>=range*.5;};
@@ -209,6 +217,7 @@ void advanceAnalogDevices(const CircuitDocument& doc,const CircuitState& circuit
     }
 }
 void observeElectronics(const CircuitDocument& doc,const CircuitState& circuit,DeviceRegisters& memory,Microseconds now){
+    observeActuators(doc,circuit,memory,now);
     for(const auto& p:doc.parts())if(p.kind==PartKind::Module){const auto& model=ModuleRegistry::get(p.model);if(model.bus!="electrical"||model.power.empty())continue;auto read=[&](const std::string& name)->std::optional<double>{auto it=circuit.voltage.find({p.id,name});return it==circuit.voltage.end()?std::nullopt:it->second;};auto supply=read(model.power),ground=read(model.ground);if(!supply||!ground||*supply-*ground<model.minVoltage||*supply-*ground>model.maxVoltage){memory.erase(p.id);continue;}auto& s=memory[p.id];const double range=*supply-*ground;auto high=[&](const std::string& name){auto v=read(name);return v&&*v-*ground>=range*.5;};auto edge=[&](const std::string& pin,int slot,bool rising=true){bool value=high(pin),old=s[slot];s[slot]=value;return rising?value&&!old:!value&&old;};
         if(p.model=="as3340"||p.model=="cem3340"){if(edge("HARD_SYNC",13))s[14]=now;}
         else if(p.model=="ay-3-8910"||p.model=="ym2149f"){

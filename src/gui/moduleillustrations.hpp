@@ -30,8 +30,35 @@ struct Drawing {
         disc(at,radius+.4,metal);disc(at,radius,ink);line(at+QPointF(std::sin(angle),-std::cos(angle))*(radius*.4),at+QPointF(std::sin(angle),-std::cos(angle))*(radius*.85),QColor("#e4e9e5"),.35);
     }
 };
-inline bool paint(QPainter& painter,const CircuitPart& part,const CircuitState&){
+inline bool paint(QPainter& painter,const CircuitPart& part,const CircuitState& state){
     const auto& d=ModuleRegistry::get(part.model);const auto& id=part.model;Drawing a{painter,part,d};auto& p=painter;const double w=d.width,h=d.height;const QColor pcb("#286a54"),plastic("#252d31"),metal("#b9c2c3");
+    if(id=="ili9341"||id=="st7735"){
+        a.board(QColor("#27518b"));const double screenWidth=w-6,screenHeight=screenWidth*(id=="ili9341"?320./240:160./128);
+        const QRectF screen(3,4,screenWidth,screenHeight);a.box(screen,QColor("#080b0f"),.4);
+        if(auto found=state.colorDisplays.find(part.id);found!=state.colorDisplays.end()&&found->second){const auto& frame=*found->second;
+            QImage image(reinterpret_cast<const uchar*>(frame.pixels.data()),frame.width,frame.height,frame.width*4,QImage::Format_ARGB32);
+            p.save();p.setOpacity(frame.brightness);p.drawImage(screen,image);p.restore();}
+        a.label({2,h-9,w-4,4},id=="ili9341"?"ILI9341":"ST7735",1.5);a.pins();return true;
+    }
+    if(id.starts_with("stepper-")){
+        const QPointF center(w/2,h/2);a.box({0,0,w,h},QColor("#5d656b"),2);
+        for(double x:{3.,w-3})for(double y:{3.,h-3})a.hole({x,y});
+        a.disc(center,std::min(w,h)*.36,QColor("#232a30"));a.disc(center,std::min(w,h)*.27,metal);
+        const auto found=state.partValues.find(part.id);const double angle=found==state.partValues.end()?0:std::fmod(found->second,360.);
+        p.save();p.translate(center);p.rotate(angle);a.box({-2,-2,4,4},QColor("#d2d6d7"));a.line({0,0},{0,-std::min(w,h)*.23},QColor("#222c31"),.8);p.restore();
+        a.label({3,h-8,w-6,4},QString("%1°").arg(angle,0,'f',1),1.5);a.pins();return true;
+    }
+    if(id=="limit-switch"){
+        const bool pressed=parameter(part,"pressed",0)>0;a.box({0,2,w,h-2},QColor("#30363a"),1);a.line({2,3},{w-2,pressed?2.:1.3},metal,.7);a.disc({w-2,pressed?2.:1.3},1.2,metal);a.label({1,4,w-2,3},pressed?"COM → NO":"COM → NC",1);a.pins();return true;
+    }
+    if(id=="relay-5v"){
+        a.board(pcb);a.box({3,3,w-6,h*.48},QColor("#3076a8"),.8);a.label({3,6,w-6,6},"5 V RELAY",1.5);
+        const bool on=state.partValues.contains(part.id)&&state.partValues.at(part.id)>0;
+        a.disc({w-5,h*.65},1,on?QColor("#52de86"):QColor("#34583c"));
+        a.line({w*.3,h*.8},{w*(on?.7:.45),h*.68},metal,.6);
+        a.disc({w*.45,h*.68},.7,metal);a.disc({w*.7,h*.68},.7,metal);
+        a.label({2,h-6,w-4,3},on?"COM → NO":"COM → NC",1.2);a.pins();return true;
+    }
     if(id=="joystick"){
         a.board(pcb);a.box({4,5,18,18},metal,1.2);a.box({2,8,4,12},QColor("#43866c"),.5);a.box({7,2.6,12,4},QColor("#43866c"),.5);
         for(double y:{7.,20.}){a.line({5,y},{21,y},QColor("#79888b"),.35);a.box({4,y-.6,2,1.2},metal);a.box({20,y-.6,2,1.2},metal);}
