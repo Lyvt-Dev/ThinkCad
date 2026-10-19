@@ -340,11 +340,12 @@ void CircuitCanvas::rotateSelected(){
 }
 void CircuitCanvas::recordMove(const CircuitDocument& before){seatContacts(document_,before);history_.push(new Snapshot(this,before,document_,Language::text("Bauteil verschieben")));}
 void CircuitCanvas::setButtonPressed(const std::string& id,bool pressed){
+    if(std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& part){return part.id==id;}))return;
     if(document_.part(id).pressed==pressed)return;
     if(editingEnabled_){mutate(Language::text("Kontakt umschalten"),[&](auto& doc){doc.part(id).pressed=pressed;});return;}
     document_.part(id).pressed=pressed;if(parts_.contains(id))parts_.at(id)->update();if(document_.part(id).kind!=PartKind::Button&&document_.part(id).kind!=PartKind::InfraredRemote)emit inputValueChanged();emit runtimeInputChanged();
 }
-void CircuitCanvas::toggleButton(const std::string& id){setButtonPressed(id,!document_.part(id).pressed);}
+void CircuitCanvas::toggleButton(const std::string& id){if(std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& part){return part.id==id;}))return;setButtonPressed(id,!document_.part(id).pressed);}
 void CircuitCanvas::focusOutEvent(QFocusEvent* event){
     if(!heldButton_.empty()){const auto id=std::exchange(heldButton_,{});setButtonPressed(id,false);}
     QGraphicsView::focusOutEvent(event);
@@ -397,7 +398,7 @@ void CircuitCanvas::moveBend(const std::string& id,std::size_t index,QPointF poi
 void CircuitCanvas::addBend(const std::string& id,QPointF point){mutate(Language::text("Kabelknick hinzufügen"),[&](auto& doc){for(auto& wire:const_cast<std::vector<CircuitWire>&>(doc.wires()))if(wire.id==id){if(wire.points.size()>=64)throw std::runtime_error(Language::text("Maximal 64 Kabelknicke").toStdString());auto position=wire.points.end();double distance=1e100;QPointF previous=pinPosition(wire.a);for(std::size_t i=0;i<=wire.points.size();++i){const QPointF next=i<wire.points.size()?QPointF(wire.points[i].x,wire.points[i].y):pinPosition(wire.b);const double candidate=QLineF(previous,point).length()+QLineF(point,next).length()-QLineF(previous,next).length();if(candidate<distance){distance=candidate;position=wire.points.begin()+i;}previous=next;}auto target=snapped(point);wire.points.insert(position,{target.x(),target.y()});}});}
 void CircuitCanvas::mouseDoubleClickEvent(QMouseEvent* event){if(!editingEnabled_){mousePressEvent(event);return;}auto* item=itemAt(event->pos());if(item&&item->data(0)=="wire"){addBend(item->data(1).toString().toStdString(),mapToScene(event->pos()));event->accept();return;}QGraphicsView::mouseDoubleClickEvent(event);}
 
-void CircuitCanvas::changeValue(const std::string& id,double value){if(editingEnabled_){mutate(Language::text("Bauteilwert ändern"),[&](auto& doc){doc.part(id).value=value;});return;}auto next=document_;next.part(id).value=value;try{next.validate();document_=std::move(next);emit inputValueChanged();emit runtimeInputChanged();viewport()->update();}catch(const std::exception& error){emit notice(QString::fromUtf8(error.what()));}}
+void CircuitCanvas::changeValue(const std::string& id,double value){if(std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& part){return part.id==id;}))return;if(editingEnabled_){mutate(Language::text("Bauteilwert ändern"),[&](auto& doc){doc.part(id).value=value;});return;}auto next=document_;next.part(id).value=value;try{next.validate();document_=std::move(next);emit inputValueChanged();emit runtimeInputChanged();viewport()->update();}catch(const std::exception& error){emit notice(QString::fromUtf8(error.what()));}}
 
 void CircuitCanvas::copySelected(){
     SavedProject fragment;fragment.circuit.removePart("board");fragment.sketch.order={"sketch.ino"};fragment.sketch.files["sketch.ino"]="void setup(){} void loop(){}";std::set<std::string> ids;
@@ -448,6 +449,8 @@ void CircuitCanvas::dropEvent(QDropEvent* e){
 void CircuitCanvas::editNote(const std::string& id){if(!editingEnabled_)return;QTimer::singleShot(0,this,[this,id]{if(!editingEnabled_||std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& part){return part.id==id&&part.kind==PartKind::Note;}))return;bool ok=false;auto text=QInputDialog::getMultiLineText(this,Language::text("Notiz bearbeiten"),Language::text("Text"),QString::fromStdString(document_.part(id).model),&ok);if(ok)mutate(Language::text("Notiz bearbeiten"),[&](auto& doc){doc.part(id).model=text.toStdString();});});}
 
 void CircuitCanvas::changeParameter(const std::string& id,const std::string& name,double value){
+    // A hidden editor can commit a pending value after its component was removed.
+    if(std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& part){return part.id==id;}))return;
     const auto& part=document_.part(id);if(part.kind!=PartKind::Module)throw std::invalid_argument("Not a module parameter");const auto& model=ModuleRegistry::get(part.model);bool valid=false;
     for(const auto& field:model.parameters)if(field.name==name&&std::isfinite(value)&&value>=field.min&&value<=field.max&&(field.unit!="count"||value==std::floor(value)))valid=true;
     if(name=="address")valid=editingEnabled_&&model.bus=="i2c"&&value==std::floor(value)&&value>=(model.builtin?model.address:8)&&value<=(model.builtin?model.address+model.addressCount-1:119);

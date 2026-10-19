@@ -121,6 +121,19 @@ void loop(){if(digitalRead(SW)==HIGH){digitalWrite(STATUS,HIGH);}else{digitalWri
         }
         if(!image.isNull())QVERIFY(image.save(root+QString("/component-gallery-%1.png").arg(page,2,10,QChar('0'))));QVERIFY(index>80);
     }
+    void attinyBatteryWiringWithDiagnostics(){
+        MainWindow window;window.show();auto* diagnostics=window.findChild<QDockWidget*>("diagnosticsDock");diagnostics->show();diagnostics->raise();QTest::qWait(5);
+        auto* canvas=window.canvas();std::string battery;
+        canvas->mutate("Bare ATtiny",[&](auto& d){d.part("board").model="attiny85";battery=d.addPart(PartKind::PowerSupply,300,0);d.part(battery).value=5;});
+        for(int repeat=0;repeat<5;++repeat){canvas->connectPin({battery,"+"});canvas->connectPin({"board","VCC"});QCoreApplication::processEvents();canvas->connectPin({battery,"-"});canvas->connectPin({"board","GND"});QCoreApplication::processEvents();QVERIFY(window.circuitState().errors.empty());canvas->history()->undo();canvas->history()->undo();QCoreApplication::processEvents();}
+    }
+    void staleModuleControlsAndPendingAnalogEdits(){
+        MainWindow window;window.show();auto* canvas=window.canvas();std::string module;
+        canvas->mutate("Joystick",[&](auto& d){module=d.addPart(PartKind::Module,400,0);d.part(module).model="joystick";});canvas->selectPart(module);
+        auto* input=window.findChild<QDoubleSpinBox*>("moduleParam_x");QVERIFY(input);canvas->mutate("Remove selected module",[&](auto& d){d.removePart(module);});
+        input->setValue(12);QCoreApplication::processEvents();QVERIFY(!canvas->document().parts().empty());
+        for(int repeat=0;repeat<20;++repeat){std::string analog;canvas->mutate("Analog source",[&](auto& d){analog=d.addPart(PartKind::AnalogSource,400,250);});canvas->selectPart(analog);auto* editor=window.findChild<QDoubleSpinBox*>("componentValue");editor->show();editor->setFocus();editor->findChild<QLineEdit*>()->setText("3.25");canvas->mutate("Delete with a pending edit",[&](auto& d){d.removePart(analog);});QCoreApplication::processEvents();canvas->history()->undo();QCoreApplication::processEvents();canvas->history()->redo();QCoreApplication::processEvents();}
+    }
     void codecMp3DecodesToRealPcm(){
         QFile fixture(QFINDTESTDATA("fixtures/vs1053-tone.mp3"));QVERIFY(fixture.open(QIODevice::ReadOnly));auto encoded=fixture.readAll();AudioCodecDecoder decoder;std::shared_ptr<const std::vector<float>> pcm;unsigned rate=0,callbacks=0;std::size_t delivered=0;QString error;
         decoder.notice=[&](const auto& text){error=text;};decoder.decoded=[&](const auto& id,auto data,unsigned hz,std::uint64_t generation){QCOMPARE(id,std::string("codec"));QCOMPARE(generation,std::uint64_t(42));++callbacks;delivered+=data->size();pcm=std::move(data);rate=hz;};decoder.append("codec",{encoded.begin(),encoded.end()},42);

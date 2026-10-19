@@ -20,9 +20,13 @@ DiagnosticEngine::analyze(const CircuitDocument &doc, const NetTopology &net, co
     };
     std::map<int, std::vector<std::pair<Endpoint, double>>> drivers;
     for (const auto &[id, board] : boards) {
+        if (!board || !net.contains({id, "GND"})) continue;
         drivers[net.node({id, "GND"})].push_back({{id, "GND"}, 0});
-        drivers[net.node({id, "3V3"})].push_back({{id, "3V3"}, 3.3});
-        if (board->profile().arduino())
+        // Bare chips have externally supplied VCC, not a development board's
+        // ideal 3V3/5V rails. Diagnose only terminals actually in the netlist.
+        if (net.contains({id, "3V3"}))
+            drivers[net.node({id, "3V3"})].push_back({{id, "3V3"}, 3.3});
+        if (board->profile().arduino() && net.contains({id, "5V"}))
             drivers[net.node({id, "5V"})].push_back({{id, "5V"}, 5});
         for (int gpio : board->profile().gpio) {
             Endpoint ep{id, board->profile().pinName(gpio)};

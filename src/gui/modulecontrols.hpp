@@ -9,6 +9,7 @@ public:
     const std::string& modelId()const{return model_;}
     void refresh();
 private:
+    bool matchesDocument() const;
     CircuitCanvas* canvas_;
     std::string id_,model_;
 };
