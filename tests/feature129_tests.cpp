@@ -450,6 +450,19 @@ class Feature129Tests : public QObject {
         QCOMPARE(window.findChild<QComboBox *>("inspectorPart")->currentData().toString(), QString::fromStdString(led));
         canvas->history()->setClean(); // No unsaved-edit prompt when the test window closes.
     }
+    void duckAssistantRefreshDoesNotChangeSketchDirtyState() {
+        MainWindow window;window.show();
+        auto *canvas = window.findChild<CircuitCanvas *>();
+        canvas->mutate("test component", [](auto &doc) { doc.addPart(PartKind::Resistor, 500, 500); });
+        QVERIFY(window.saveProjectTo(temp_.filePath("assistant-dirty.thinkcad")));
+        auto *editor = qobject_cast<QPlainTextEdit *>(window.findChild<QTabWidget *>("codeTabs")->currentWidget());
+        QVERIFY(editor);
+        editor->appendPlainText("// edit while the assistant update is pending");
+        QTest::qWait(450);
+        editor->document()->setModified(false);
+        QVERIFY2(!window.windowTitle().contains(" *"), qPrintable(window.windowTitle()));
+        QVERIFY(!window.simulationActive());
+    }
     void duckAssistantHelpOpensDock() {
         MainWindow window;
         window.show();
