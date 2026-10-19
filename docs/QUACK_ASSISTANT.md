@@ -21,7 +21,7 @@ Assistent bleibt beim Umstieg ausgeschaltet. **Hilfe → Quack-Assistent** oder 
 Schaltfläche in der Statusleiste öffnet den Diagnose-Dock, ändert aber nicht den Modus.
 
 Unter **Einstellungen → Allgemein → Assistenten-Skin** stehen **Quack** und
-**Nyra Quack** mit Bildvorschau zur Auswahl. Erst **Speichern** übernimmt den Skin;
+**Nyra** und **Nyra Quack** mit Bildvorschau zur Auswahl. Erst **Speichern** übernimmt den Skin;
 **Abbrechen** verwirft die Auswahl. Sie bleibt nach einem Neustart erhalten.
 Nyra Quack verwendet eine transparente, aus der Nutzervorlage vorbereitete Grafik.
 Beide Skins verwenden dieselben Hinweise und dieselbe Diagnose. Ein Skinwechsel
@@ -89,7 +89,7 @@ OLED-Beispiel und prüft die simulierte Ausgabe.
 
 ## English
 
-Choose **Quack** or **Nyra Quack** under **Settings → General → Assistant skin**.
+Choose **Quack**, **Nyra** or **Nyra Quack** under **Settings → General → Assistant skin**.
 Save applies and persists the choice; Cancel discards it. Both skins use the same
 guidance. Changing the skin never enables a disabled assistant. Images are bundled
 locally; unknown skin settings fall back to Quack.

@@ -1,5 +1,4 @@
 #include "projectshare.hpp"
-#include "language.hpp"
 #include "monocypher.h"
 #include "qrcodegen.hpp"
 #include "quirc.h"
@@ -16,7 +15,7 @@
 
 namespace {
 [[noreturn]] void fail(const char *message) {
-    throw std::runtime_error(Language::text(message).toStdString());
+    throw std::runtime_error(message);
 }
 QByteArray rawCode(const QString &code) {
     if (code.size() > ProjectShare::MaximumCodeBytes)

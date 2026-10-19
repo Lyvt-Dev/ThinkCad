@@ -10,7 +10,7 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
-## Neu in 1.3.5 — Aktoren, TFT, Sensoren und lokales Teilen
+## Neu in 1.3.5 — Halloween, Aktoren, TFT und lokales Teilen
 
 Schrittmotoren mit A4988/ULN2003, Relais, ILI9341/ST7735, BME680 und MH-Z19B.
 Zehn verdrahtete Beispiele, lokale passwortgeschützte Share-/QR-Codes,

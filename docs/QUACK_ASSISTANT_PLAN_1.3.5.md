@@ -85,8 +85,8 @@ Stimme und dieselben Hinweise. Keine zusätzlichen Animationen oder Audioeffekte
 Technische Ergänzung, bewusst klein:
 
 - Neues `src/gui/assistantskin.hpp`: kleine feste Registry aus stabiler ID,
-  Anzeigename und Qt-Ressourcenpfad. IDs `quack` und `nyra-quack`; Namen nicht als
-  Persistenzschlüssel verwenden. Für diese zwei Skins kein Plugin-System.
+  Anzeigename und Qt-Ressourcenpfad. IDs `quack`, `nyra` und `nyra-quack`; Namen nicht als
+  Persistenzschlüssel verwenden. Für diese drei Skins kein Plugin-System.
 - Aus der Nutzervorlage vorbereitete transparente Grafik als `assets/nyra-quack.png` in die vorhandene Ressourcengruppe
   `thinkcad_assistant` in `CMakeLists.txt` aufnehmen. Die Bilddatei muss tatsächlich
   vorliegen; ein Platzhalter oder eine fremde Ersatzgrafik zählt nicht als Nyra.
@@ -137,7 +137,7 @@ Bestehende Signale `hintAvailable`, `targetActivated`, `inspectorRequested` und
   laufender Simulation und keine Aktualisierung mitten in einer Kabeloperation.
 - Skinwechsel aktualisiert Bild und zugänglichen Namen; Aus bleibt Aus. Inhalte,
   Hinweispriorität und Simulation bleiben mit beiden Skins identisch.
-- Beide Bildressourcen vorhanden und nicht leer; Nyra-Verhältnis bleibt erhalten.
+- Alle drei Bildressourcen vorhanden und nicht leer; Nyra-Verhältnis bleibt erhalten.
   Fehlende/unbekannte Skin-ID fällt auf Quack zurück. Auswahl bleibt nach Neustart
   erhalten, Abbrechen des Einstellungsdialogs verwirft sie.
 - Modellbezogene Hinweise jeweils mit dem verdrahteten Beispiel testen:

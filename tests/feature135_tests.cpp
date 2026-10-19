@@ -115,11 +115,18 @@ class Feature135Tests : public QObject {
         sound.stop();
     }
     void assistantUsesActualModelAndExplainsLimits() {
-        DiagnosticsPanel panel;panel.show();auto* explanation=panel.findChild<QLabel*>("duckAssistantExplanation");QVERIFY(explanation);
-        panel.offerHint(DiagnosticsPanel::Context::PartAdded,"relay","relay-5v");QVERIFY(explanation->text().contains("COM, NO and NC"));
-        panel.offerHint(DiagnosticsPanel::Context::Wired,"display","ili9341");QVERIFY(explanation->text().contains("CS, DC, RESET"));
-        panel.offerHint(DiagnosticsPanel::Context::PartAdded,"sensor","bme680");QVERIFY(explanation->text().contains("chemical gas analysis is not modeled"));
-        panel.offerHint(DiagnosticsPanel::Context::ShareUnencrypted);QVERIFY(explanation->text().contains("not confidential"));
+        DiagnosticsPanel panel;
+        panel.show();
+        auto *explanation = panel.findChild<QLabel *>("duckAssistantExplanation");
+        QVERIFY(explanation);
+        panel.offerHint(DiagnosticsPanel::Context::PartAdded, "relay", "relay-5v");
+        QVERIFY(explanation->text().contains("COM, NO and NC"));
+        panel.offerHint(DiagnosticsPanel::Context::Wired, "display", "ili9341");
+        QVERIFY(explanation->text().contains("CS, DC, RESET"));
+        panel.offerHint(DiagnosticsPanel::Context::PartAdded, "sensor", "bme680");
+        QVERIFY(explanation->text().contains("chemical gas analysis is not modeled"));
+        panel.offerHint(DiagnosticsPanel::Context::ShareUnencrypted);
+        QVERIFY(explanation->text().contains("not confidential"));
     }
     void examplesRoundTrip() {
         for (const auto &entry : feature135Examples()) {

@@ -147,7 +147,7 @@ void showProjectShare(QWidget *parent, SavedProject project, const QStringList &
                 generate->setEnabled(true);
                 password->setEnabled(true);
                 if (!error.isEmpty()) {
-                    status->setText(error);
+                    status->setText(Language::text(error));
                     return;
                 }
                 code->setPlainText(value);
@@ -164,7 +164,7 @@ void showProjectShare(QWidget *parent, SavedProject project, const QStringList &
                                                                          Qt::FastTransformation));
                         save->setEnabled(true);
                     } catch (const std::exception &e) {
-                        status->setText(QString::fromUtf8(e.what()));
+                        status->setText(Language::text(QString::fromUtf8(e.what())));
                     }
                 } else
                     qr->setText(t("Projekt ist zu groß für einen QR-Code. Bitte den Share-Code kopieren."));
@@ -235,7 +235,7 @@ std::optional<DecodedShare> showShareImport(QWidget *parent) {
                 throw std::runtime_error(t("QR-Bild fehlt oder ist zu groß.").toStdString());
             code->setPlainText(ProjectShare::readQr(reader.read()));
         } catch (const std::exception &e) {
-            status->setText(QString::fromUtf8(e.what()));
+            status->setText(Language::text(QString::fromUtf8(e.what())));
         }
     });
     QObject::connect(scan, &QPushButton::clicked, &dialog, [&] {
@@ -271,7 +271,7 @@ std::optional<DecodedShare> showShareImport(QWidget *parent) {
                 if (requested != generation)
                     return;
                 if (!error.isEmpty()) {
-                    status->setText(error);
+                    status->setText(Language::text(error));
                     return;
                 }
                 try {
@@ -295,7 +295,7 @@ std::optional<DecodedShare> showShareImport(QWidget *parent) {
                     chosen = result;
                     applyImport->setEnabled(true);
                 } catch (const std::exception &e) {
-                    status->setText(QString::fromUtf8(e.what()));
+                    status->setText(Language::text(QString::fromUtf8(e.what())));
                 }
             });
     });

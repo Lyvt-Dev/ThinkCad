@@ -1,6 +1,9 @@
-# ThinkCad 1.3.5
+# ThinkCad 1.3.5 — Halloween
 
 ## Deutsch
+
+Halloween-Logo für App, Startmenü, Windows-Installer und Linux-Symbol.
+Die technische Version bleibt 1.3.5 für verlässliche Update-Vergleiche.
 
 - A4988 und ULN2003 mit 4-/5-/6-Leiter-Schrittmotoren, sichtbarer Welle,
   Schrittmodus, Spulen und Inspektor-Telemetrie. Stepper-/AccelStepper-Kern-APIs
@@ -33,6 +36,9 @@ Kamera und hörbarer Relaisklang benötigen zusätzlich reale Hardwareprüfung.
 [Anschluss und APIs](FEATURES_1.3.5.md) · [Share-Code-Sicherheit](SHARE_CODE.md)
 
 ## English
+
+Halloween branding for the app, welcome page, Windows installer and Linux icon.
+The technical version remains 1.3.5 for reliable update comparisons.
 
 - A4988/ULN2003 drivers and 4/5/6-wire steppers, visible shafts, coil/mode/rate
   telemetry, Stepper and core AccelStepper APIs, and a manually operated endstop.
