@@ -310,7 +310,21 @@ MainWindow::MainWindow(bool smokeTest):updater_(this),smokeTest_(smokeTest){
     powerRating_=new QDoubleSpinBox;powerRating_->setObjectName("resistorPowerRating");powerRating_->setRange(.01,1000);powerRating_->setDecimals(2);powerRating_->setSuffix(" W max");powerRating_->hide();inspectorLayout->addWidget(powerRating_);auto* keyButton=new QPushButton(Language::text("Tasten öffnen"));keyButton->setObjectName("openComponentKeys");keyButton->hide();inspectorLayout->addWidget(keyButton);connect(keyButton,&QPushButton::clicked,this,[this]{openInputControls(canvas_->selectedPart().toStdString());});connect(canvas_,&CircuitCanvas::encoderRotated,this,[this](const QString& id,int direction){if(simulationActive())turnEncoder(id.toStdString(),direction);});connect(canvas_,&CircuitCanvas::componentInputRequested,this,[this](const QString& id){openInputControls(id.toStdString());});auto* pianoButton=new QPushButton(Language::text("Piano öffnen · 88 Tasten"));pianoButton->setObjectName("openTonePiano");pianoButton->hide();inspectorLayout->addWidget(pianoButton);connect(pianoButton,&QPushButton::clicked,this,[this]{auto* piano=new TonePiano(this);piano->show();});inspectorLayout->addStretch();inspectorDock_=new QDockWidget(Language::text("Eigenschaften"),this);inspectorDock_->setObjectName("inspectorDock");inspectorDock_->setWidget(inspector);addDockWidget(Qt::LeftDockWidgetArea,inspectorDock_);tabifyDockWidget(partsDock,inspectorDock_);partsDock->raise();view->addAction(inspectorDock_->toggleViewAction());connect(powerRating_,qOverload<double>(&QDoubleSpinBox::valueChanged),this,[this](double rating){auto id=canvas_->selectedPart().toStdString();if(!id.empty())canvas_->mutate(Language::text("Belastbarkeit ändern"),[&](auto& doc){doc.part(id).parameters["powerRating"]=rating;});});
     diagnostics_=new DiagnosticsPanel;auto* diagnosticsDock=new QDockWidget(Language::text("Diagnose"),this);diagnosticsDock->setObjectName("diagnosticsDock");diagnosticsDock->setWidget(diagnostics_);addDockWidget(Qt::BottomDockWidgetArea,diagnosticsDock);view->addAction(diagnosticsDock->toggleViewAction());diagnosticsDock->hide();action(help,Language::text("Quak-Assistent"),{},[this,diagnosticsDock]{showEditor();diagnosticsDock->show();diagnosticsDock->raise();diagnostics_->showAssistant();updateCircuit();})->setObjectName("duckAssistantAction");connect(diagnosticsDock,&QDockWidget::visibilityChanged,this,[this](bool visible){if(visible)updateCircuit();});connect(diagnostics_,&DiagnosticsPanel::targetActivated,this,[this](const QString& part,const QString& pin,const QString& wire){canvas_->selectTarget({part.toStdString(),pin.toStdString()},wire.toStdString());});
     assistantDebounce_.setSingleShot(true);assistantDebounce_.setInterval(350);
-    connect(&assistantDebounce_,&QTimer::timeout,this,[this]{if(canvas_->wireInProgress()){assistantDebounce_.start();return;}diagnostics_->documentEdited(circuit_);assistantRefreshPending_=true;updateCircuit();});
+    connect(&assistantDebounce_,&QTimer::timeout,this,[this]{
+        if(canvas_->wireInProgress()){assistantDebounce_.start();return;}
+        diagnostics_->documentEdited(circuit_);
+        // Hints read the last solved state. Do not resync sketches, mutate dirty flags,
+        // advance simulation or run another solve just to update an explanation.
+        std::map<std::string,const Esp8266Board*> boards;
+        std::map<std::string,Esp8266Board> idle;
+        for(const auto& part:circuit_.parts())if(part.kind==PartKind::Esp8266){
+            const auto found=runtimes_.find(part.id);
+            if(found!=runtimes_.end()&&found->second->board.profile().id==BoardProfile::get(part.model).id)boards[part.id]=&found->second->board;
+            else{idle[part.id].configure(BoardProfile::get(part.model).id);boards[part.id]=&idle.at(part.id);}
+        }
+        diagnostics_->refresh(circuit_,canvas_->topology(),circuitState_,boards,&uart_,&busTraffic_);
+        assistantRefreshPending_=false;
+    });
     diagnostics_->beginProject(circuit_);
     connect(diagnostics_,&DiagnosticsPanel::outputRequested,this,[consoleDock]{consoleDock->show();consoleDock->raise();});
     connect(diagnostics_,&DiagnosticsPanel::inspectorRequested,this,[this](const QString& part){if(auto* dock=findChild<QDockWidget*>("simulationInspectorDock")){dock->show();dock->raise();simulationInspector_->showPins(part);}});
