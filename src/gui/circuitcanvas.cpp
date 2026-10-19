@@ -1,3 +1,5 @@
+#include "runtimecontrols.hpp"
+#include "physicalparts.hpp"
 #include "breadboardlayout.hpp"
 #include "notelayout.hpp"
 #include <QGraphicsSceneHoverEvent>
@@ -304,6 +306,7 @@ QPainterPath CircuitCanvas::routedWire(const CircuitWire& wire) const {
 
 void CircuitCanvas::redrawWires(){for(auto* item:scene()->items())if(item->data(0)=="wire"){const auto id=item->data(1).toString().toStdString();for(const auto& w:document_.wires())if(w.id==id){auto* path=static_cast<QGraphicsPathItem*>(item);auto rendered=w;for(auto* handle:scene()->items())if(handle->data(0)=="bend"&&handle->data(1).toString().toStdString()==w.id){const auto i=handle->data(2).toInt();if(i>=0&&i<static_cast<int>(rendered.points.size()))rendered.points[i]={handle->pos().x(),handle->pos().y()};}const auto next=routedWire(rendered);if(next!=path->path())path->setPath(next);break;}}}
 void CircuitCanvas::setEditingEnabled(bool enabled){
+    if(enabled){releaseControl();if(runtimeControls_)runtimeControls_->close();}
     if(enabled&&!heldButton_.empty()){const auto id=std::exchange(heldButton_,{});setButtonPressed(id,false);}
     editingEnabled_=enabled;if(!enabled)clearPlacementPreview();cancelWire();
     if(!enabled)scene()->clearSelection();
@@ -347,23 +350,24 @@ void CircuitCanvas::setButtonPressed(const std::string& id,bool pressed){
 }
 void CircuitCanvas::toggleButton(const std::string& id){if(std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& part){return part.id==id;}))return;setButtonPressed(id,!document_.part(id).pressed);}
 void CircuitCanvas::focusOutEvent(QFocusEvent* event){
+    releaseControl();
     if(!heldButton_.empty()){const auto id=std::exchange(heldButton_,{});setButtonPressed(id,false);}
     QGraphicsView::focusOutEvent(event);
 }
 void CircuitCanvas::fitCircuit(){fitInView(scene()->itemsBoundingRect().adjusted(-50,-50,50,50),Qt::KeepAspectRatio);if(transform().m11()>1.4){resetTransform();scale(1.4,1.4);}}
 void CircuitCanvas::zoom(double factor){const auto target=transform().m11()*factor;if(target>=0.25&&target<=3.5)scale(factor,factor);}
-void CircuitCanvas::updateSimulation(const CircuitState& state,const std::map<std::string,OledDisplay>& displays){for(auto& [id,item]:parts_){item->state=state;if(displays.contains(id)){item->visible=displays.at(id).frame();item->brightness=displays.at(id).brightness();}}viewport()->update();}
+void CircuitCanvas::updateSimulation(const CircuitState& state,const std::map<std::string,OledDisplay>& displays){for(auto& [id,item]:parts_){item->state=state;if(document_.part(id).kind==PartKind::ServoMotor){auto angle=state.partValues.find(id);item->setToolTip(angle==state.partValues.end()?partName(PartKind::ServoMotor):partName(PartKind::ServoMotor)+QString(" · %1°").arg(angle->second,0,'f',1));}if(displays.contains(id)){item->visible=displays.at(id).frame();item->brightness=displays.at(id).brightness();}}viewport()->update();}
 QString CircuitCanvas::selectedPart()const{for(auto* item:scene()->selectedItems())if(item->data(0)=="part")return item->data(1).toString();return {};}
 void CircuitCanvas::selectPart(const std::string& id){scene()->clearSelection();if(parts_.contains(id))parts_.at(id)->setSelected(true);}
-void CircuitCanvas::mouseMoveEvent(QMouseEvent* e){if(panning_){const auto delta=e->pos()-panOrigin_;panOrigin_=e->pos();horizontalScrollBar()->setValue(horizontalScrollBar()->value()-delta.x());verticalScrollBar()->setValue(verticalScrollBar()->value()-delta.y());e->accept();return;}QGraphicsView::mouseMoveEvent(e);lastPointer_=mapToScene(e->pos());if(preview_&&wireStart_)preview_->setPath(previewPath(wirePoint(lastPointer_,e->modifiers())));}
+void CircuitCanvas::mouseMoveEvent(QMouseEvent* e){if(!activeControl_.empty()){moveControl(mapToScene(e->pos()));e->accept();return;}if(panning_){const auto delta=e->pos()-panOrigin_;panOrigin_=e->pos();horizontalScrollBar()->setValue(horizontalScrollBar()->value()-delta.x());verticalScrollBar()->setValue(verticalScrollBar()->value()-delta.y());e->accept();return;}QGraphicsView::mouseMoveEvent(e);lastPointer_=mapToScene(e->pos());if(preview_&&wireStart_)preview_->setPath(previewPath(wirePoint(lastPointer_,e->modifiers())));}
 void CircuitCanvas::mousePressEvent(QMouseEvent* e){
     if(editingEnabled_&&e->button()==Qt::LeftButton)for(auto* item:items(e->pos()))if(auto* pin=dynamic_cast<PinItem*>(item)){connectPin(pin->endpoint());e->accept();return;}
 
     if(!editingEnabled_&&e->button()!=Qt::MiddleButton){
         QGraphicsItem* hit=nullptr;for(auto* candidate:items(e->pos()))if(dynamic_cast<PartItem*>(candidate)){hit=candidate;break;}
+        while(hit&&hit->parentItem())hit=hit->parentItem();
+            if(auto* control=dynamic_cast<PartItem*>(hit);control&&beginControl(control->id,mapToScene(e->pos()),e->button())){e->accept();return;}
         if(e->button()==Qt::LeftButton){
-            while(hit&&hit->parentItem())hit=hit->parentItem();
-            if(auto* control=dynamic_cast<PartItem*>(hit);control&&(control->kind>=PartKind::Keypad||control->kind==PartKind::Potentiometer||control->kind==PartKind::AnalogSource||control->kind==PartKind::Photoresistor||control->kind==PartKind::Thermistor||control->kind==PartKind::TemperatureSensor||control->kind==PartKind::FunctionGenerator||control->kind==PartKind::PowerSupply)){emit componentInputRequested(QString::fromStdString(control->id));e->accept();return;}
             if(auto* part=dynamic_cast<PartItem*>(hit);part&&switchable(part->kind)){
                 if(part->kind==PartKind::Button||part->kind==PartKind::InfraredRemote){heldButton_=part->id;setButtonPressed(part->id,true);}
                 else toggleButton(part->id);
@@ -374,6 +378,7 @@ void CircuitCanvas::mousePressEvent(QMouseEvent* e){
 if(e->button()==Qt::RightButton){auto* item=itemAt(e->pos());QMenu menu(this);if(auto* pin=dynamic_cast<PinItem*>(item)){auto ep=pin->endpoint();menu.addAction(Language::text("Netz hervorheben"),this,[this,ep]{highlightNet(ep);});if(editingEnabled_)menu.addAction(Language::text("Netzlabel setzen…"),this,[this,ep]{bool ok=false;auto name=QInputDialog::getText(this,Language::text("Netzlabel"),Language::text("Netzname (gleicher Name verbindet Pins)"),QLineEdit::Normal,{},&ok);if(ok&&!name.isEmpty()){auto point=pinPosition(ep)+QPointF(30,-30);mutate(Language::text("Netzlabel setzen"),[&](auto& doc){auto id=doc.addPart(PartKind::NetLabel,point.x(),point.y());doc.part(id).netName=name.toStdString();doc.connect(ep,{id,"NET"});});}});}else if(item&&item->data(0)=="wire"&&editingEnabled_){auto id=item->data(1).toString().toStdString();auto pos=mapToScene(e->pos());menu.addAction(Language::text("Abzweigung erstellen"),this,[this,id,pos]{branchWire(id,pos);});}if(editingEnabled_&&!item){const auto position=snapped(mapToScene(e->pos()));menu.addAction(Language::text("Notiz hinzufügen…"),this,[this,position]{bool ok=false;auto text=QInputDialog::getMultiLineText(this,Language::text("Notiz hinzufügen"),Language::text("Text"),{},&ok);if(ok&&!text.trimmed().isEmpty())mutate(Language::text("Notiz hinzufügen"),[&](auto& doc){auto id=doc.addPart(PartKind::Note,position.x(),position.y());doc.part(id).model=text.toStdString();});});}else if(editingEnabled_&&item&&item->data(0)=="part"&&document_.part(item->data(1).toString().toStdString()).kind==PartKind::Note){const auto id=item->data(1).toString().toStdString();menu.addAction(Language::text("Notiz bearbeiten…"),this,[this,id]{editNote(id);});}if(!menu.isEmpty()){menu.exec(e->globalPosition().toPoint());e->accept();return;}}
 if(e->button()==Qt::LeftButton){for(auto* candidate:items(e->pos()))if(auto* pin=dynamic_cast<PinItem*>(candidate)){connectPin(pin->endpoint());e->accept();return;}}if(e->button()==Qt::LeftButton&&wireStart_&&!dynamic_cast<PinItem*>(itemAt(e->pos()))){if(pendingBends_.size()<64){auto point=wirePoint(mapToScene(e->pos()),e->modifiers());pendingBends_.push_back({point.x(),point.y()});if(preview_)preview_->setPath(previewPath(point));}e->accept();return;}if(e->button()==Qt::MiddleButton){panning_=true;panOrigin_=e->pos();viewport()->setCursor(Qt::ClosedHandCursor);e->accept();return;}QGraphicsView::mousePressEvent(e);}
 void CircuitCanvas::mouseReleaseEvent(QMouseEvent* e){
+    if(e->button()!=Qt::MiddleButton&&!activeControl_.empty()){releaseControl();e->accept();return;}
     if(e->button()==Qt::LeftButton&&!heldButton_.empty()){const auto id=std::exchange(heldButton_,{});setButtonPressed(id,false);e->accept();return;}
     if(!editingEnabled_&&e->button()!=Qt::MiddleButton){e->accept();return;}
 if(e->button()==Qt::MiddleButton&&panning_){panning_=false;viewport()->unsetCursor();e->accept();return;}QGraphicsView::mouseReleaseEvent(e);}
@@ -461,3 +466,88 @@ void CircuitCanvas::changeParameter(const std::string& id,const std::string& nam
 void CircuitCanvas::setKeyPressed(const std::string& id,int key,bool pressed){auto it=std::find_if(document_.parts().begin(),document_.parts().end(),[&](const auto& p){return p.id==id;});if(it==document_.parts().end()||(it->kind!=PartKind::Keypad&&it->kind!=PartKind::Keyboard)||key<0||key>=(it->kind==PartKind::Keypad?16:25))return;auto& p=document_.part(id);auto mask=static_cast<uint32_t>(parameter(p,"keys",0));if(pressed)mask|=1u<<key;else mask&=~(1u<<key);if(mask)p.parameters["keys"]=mask;else p.parameters.erase("keys");if(parts_.contains(id))parts_.at(id)->update();emit runtimeInputChanged();}
 
 void CircuitCanvas::setEncoderInput(const std::string& id,int phase,int switchState){if(std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& p){return p.id==id&&p.kind==PartKind::RotaryEncoder;}))return;auto& part=document_.part(id);if(phase>=0)part.parameters["phase"]=phase%4;if(switchState>=0)part.parameters["switch"]=switchState?1:0;emit runtimeInputChanged();}
+
+namespace {
+QRectF controlBody(const CircuitPart& part){
+    if(part.kind==PartKind::Module){const auto& d=ModuleRegistry::get(part.model);return {0,0,d.width*6,d.height*6};}
+    if(ComponentDesign::realistic())if(auto physical=PhysicalParts::package(part))return QTransform::fromScale(6,6).mapRect(physical->body);
+    return blockBounds(part);
+}
+int canvasKey(const CircuitPart& part,QPointF point){
+    const auto mm=point/6;
+    if(part.kind==PartKind::Keypad){for(int key=0;key<16;++key)if(QRectF(4+(key%4)*16,5+(key/4)*18,14,15).contains(mm))return key;}
+    if(part.kind==PartKind::Keyboard){auto black=[](int n){n%=12;return n==1||n==3||n==6||n==8||n==10;};int white=0;for(int key=0;key<25;++key){if(!black(key)){++white;continue;}if(QRectF(6+white*12.5-3.5,14,7,31).contains(mm))return key;}white=0;for(int key=0;key<25;++key)if(!black(key)){if(QRectF(6+white*12.5,14,12,50).contains(mm))return key;++white;}}
+    return -1;
+}
+bool liveValue(const CircuitPart& p){return p.kind==PartKind::AnalogSource||p.kind==PartKind::PowerSupply||p.kind==PartKind::Photoresistor||p.kind==PartKind::Thermistor||p.kind==PartKind::TemperatureSensor||p.kind==PartKind::FunctionGenerator;}
+}
+void CircuitCanvas::showRuntimeControls(const std::string& id){
+    if(!parts_.contains(id)||std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& part){return part.id==id;}))return;
+    if(runtimeControls_)runtimeControls_->close();
+    runtimeControls_=new RuntimeControls(this,document_.part(id));
+    const auto center=parts_.at(id)->mapToScene(controlBody(document_.part(id)).center());
+    runtimeControls_->move(viewport()->mapToGlobal(mapFromScene(center))+QPoint(18,18));runtimeControls_->show();runtimeControls_->raise();
+}
+bool CircuitCanvas::beginControl(const std::string& id,QPointF scenePoint,Qt::MouseButton button){
+    const auto part=document_.part(id);const auto local=parts_.at(id)->mapFromScene(scenePoint);const auto body=controlBody(part);
+    if(button!=Qt::LeftButton&&!(button==Qt::RightButton&&(part.kind==PartKind::RotaryEncoder||(part.kind==PartKind::Module&&part.model=="joystick"))))return false;
+    auto gesture=[&](const std::string& type){activeControl_=id;controlGesture_=type;controlPrevious_=local;};
+    if(part.kind==PartKind::Keypad||part.kind==PartKind::Keyboard){heldControlKey_=canvasKey(part,local);gesture("key");if(heldControlKey_>=0)setKeyPressed(id,heldControlKey_,true);return true;}
+    if(part.kind==PartKind::Potentiometer){gesture(part.model.starts_with("slide-")?"slider":"pot");if(controlGesture_=="slider")moveControl(scenePoint);return true;}
+    if(part.kind==PartKind::RotaryEncoder){gesture(button==Qt::RightButton?"encoder-button":"encoder");controlAngle_=0;if(button==Qt::RightButton)setEncoderInput(id,-1,1);return true;}
+    if(liveValue(part)){showRuntimeControls(id);return true;}
+    if(part.kind!=PartKind::Module)return false;
+    const auto& model=ModuleRegistry::get(part.model);const auto mm=local/6;
+    if(part.model=="joystick"){
+        if(button==Qt::RightButton||QRectF(18,27,6,4).contains(mm)){gesture("module-button");controlParameter_="pressed";changeParameter(id,"pressed",1);}
+        else {gesture("joystick");moveControl(scenePoint);}return true;
+    }
+    if(part.model=="arcade-button"||part.model=="pir"){gesture("module-button");controlParameter_=part.model=="pir"?"motion":"pressed";changeParameter(id,controlParameter_,1);return true;}
+    if(part.model=="drum-pad"){gesture("module-button");controlParameter_="strike";changeParameter(id,"strike",100);return true;}
+    if(part.model=="softpot"){gesture("softpot");changeParameter(id,"touch",1);moveControl(scenePoint);return true;}
+    if(part.model=="fsr"||part.model=="flex"){gesture(part.model=="fsr"?"force":"level");if(part.model=="fsr")changeParameter(id,"level",100);return true;}
+    if(part.model.starts_with("dip-")){int count=std::stoi(part.model.substr(4)),bit=std::clamp(int((mm.y()-1)/2.54),0,count-1);changeParameter(id,"switches",int(parameter(part,"switches",0))^(1<<bit));return true;}
+    if(part.model.starts_with("toggle-")){bool two=part.model.ends_with("on-on");int position=mm.y()<model.height*(two?.5:.33)?1:mm.y()>model.height*(two?.5:.67)?2:0;changeParameter(id,"position",position);return true;}
+    if(part.model=="matrix-patch"){int col=std::clamp(qRound(mm.x()/8)-1,0,3),row=std::clamp(qRound(mm.y()/8)-1,0,3);changeParameter(id,"connections",int(parameter(part,"connections",0))^(1<<(row*4+col)));return true;}
+    if(part.model=="mpr121"){int col=std::clamp(int(mm.x()/model.width*6),0,5),row=mm.y()<model.height*.5?0:1;heldControlKey_=row*6+col;gesture("touch");changeParameter(id,"touchMask",int(parameter(part,"touchMask",0))|(1<<heldControlKey_));return true;}
+    if(part.model=="encoder-600"||part.model=="rotary-1p5t"){gesture("rotary");controlAngle_=0;return true;}
+    if(part.model=="ssi2144"||part.model=="pt2399"||part.model=="fv1"){
+        const std::vector<std::string> knobs=part.model=="ssi2144"?std::vector<std::string>{"cutoff","resonance"}:part.model=="pt2399"?std::vector<std::string>{"delay","feedback","mix"}:std::vector<std::string>{"mix","delay","feedback"};
+        if(mm.y()>model.height*.6){controlParameter_=knobs[std::clamp(int(mm.x()/model.width*knobs.size()),0,int(knobs.size()-1))];gesture("parameter");return true;}
+    }
+    if(std::any_of(model.parameters.begin(),model.parameters.end(),[](const auto& field){return field.max>field.min&&field.name!="rows"&&field.name!="columns"&&field.name!="pixels"&&field.name!="cells";})){showRuntimeControls(id);return true;}
+    return false;
+}
+void CircuitCanvas::moveControl(QPointF scenePoint){
+    if(activeControl_.empty()||!parts_.contains(activeControl_))return;
+    const auto id=activeControl_;const auto part=document_.part(id);auto point=parts_.at(id)->mapFromScene(scenePoint);auto body=controlBody(part);const auto delta=point-controlPrevious_;
+    if(controlGesture_=="joystick"){
+        QPointF offset=point/6-QPointF(13,14);double length=std::hypot(offset.x(),offset.y());if(length>5)offset*=5/length;
+        changeParameter(id,"x",std::clamp(50+offset.x()/5*50,0.,100.));changeParameter(id,"y",std::clamp(50-offset.y()/5*50,0.,100.));
+    }else if(controlGesture_=="softpot")changeParameter(id,"position",std::clamp((point.y()/6-8)/84*100,0.,100.));
+    else if(controlGesture_=="slider")changeValue(id,std::clamp(ComponentDesign::realistic()?(point.x()/6-14)/(PhysicalParts::package(part)->body.width()-28)*100:(point.x()-body.left())/body.width()*100,0.,100.));
+    else if(controlGesture_=="pot")changeValue(id,std::clamp(part.value+(delta.x()-delta.y())/body.width()*100,0.,100.));
+    else if(controlGesture_=="force"||controlGesture_=="level")changeParameter(id,"level",std::clamp(parameter(part,"level",0)-delta.y()/body.height()*100,0.,100.));
+    else if(controlGesture_=="rotary"||controlGesture_=="encoder"){
+        auto angle=[&](QPointF p){auto d=p-body.center();return std::atan2(d.y(),d.x())*180/3.141592653589793;};
+        double turn=angle(point)-angle(controlPrevious_);if(turn>180)turn-=360;if(turn< -180)turn+=360;
+        if(controlGesture_=="encoder"){controlAngle_+=turn;while(std::abs(controlAngle_)>=15){int direction=controlAngle_>0?1:-1;emit encoderRotated(QString::fromStdString(id),direction);controlAngle_-=direction*15;}}
+        else if(part.model=="encoder-600"){double value=std::fmod(parameter(part,"angle",0)+turn+360,360);changeParameter(id,"angle",value);}
+        else {controlAngle_+=turn;while(std::abs(controlAngle_)>=30){int direction=controlAngle_>0?1:-1;changeParameter(id,"position",std::clamp(parameter(document_.part(id),"position",1)+direction,1.,5.));controlAngle_-=direction*30;}}
+    }else if(controlGesture_=="parameter"){
+        const auto& fields=ModuleRegistry::get(part.model).parameters;auto field=std::find_if(fields.begin(),fields.end(),[&](const auto& f){return f.name==controlParameter_;});if(field!=fields.end())changeParameter(id,field->name,std::clamp(parameter(part,field->name,field->initial)+(delta.x()-delta.y())/120*(field->max-field->min),field->min,field->max));
+    }else if(controlGesture_=="key"){int next=canvasKey(part,point);if(next!=heldControlKey_){if(heldControlKey_>=0)setKeyPressed(id,heldControlKey_,false);heldControlKey_=next;if(next>=0)setKeyPressed(id,next,true);}}
+    controlPrevious_=point;
+}
+void CircuitCanvas::releaseControl(){
+    const auto id=std::exchange(activeControl_,{});const auto type=std::exchange(controlGesture_,{});if(id.empty())return;
+    if(std::none_of(document_.parts().begin(),document_.parts().end(),[&](const auto& p){return p.id==id;})){heldControlKey_=-1;return;}
+    if(type=="joystick"){changeParameter(id,"x",50);changeParameter(id,"y",50);}
+    else if(type=="softpot")changeParameter(id,"touch",0);
+    else if(type=="module-button")changeParameter(id,controlParameter_,0);
+    else if(type=="force")changeParameter(id,"level",0);
+    else if(type=="encoder-button")setEncoderInput(id,-1,0);
+    else if(type=="touch"&&heldControlKey_>=0)changeParameter(id,"touchMask",int(parameter(document_.part(id),"touchMask",0))&~(1<<heldControlKey_));
+    else if(type=="key"&&heldControlKey_>=0)setKeyPressed(id,heldControlKey_,false);
+    heldControlKey_=-1;
+}

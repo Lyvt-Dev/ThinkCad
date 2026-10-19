@@ -4,6 +4,7 @@
 #include "thinkercad/nettopology.hpp"
 #include <memory>
 #include <QGraphicsView>
+#include <QPointer>
 #include <QUndoStack>
 #include <functional>
 class PartItem;
@@ -50,6 +51,7 @@ public:
     void setButtonPressed(const std::string& id,bool pressed);
     void setEncoderInput(const std::string& id,int phase,int switchState=-1);
     void setKeyPressed(const std::string& id,int key,bool pressed);
+    void showRuntimeControls(const std::string& id);
     void changeValue(const std::string& id,double value);
     void changeParameter(const std::string& id,const std::string& name,double value);
     void recordMove(const thinkercad::CircuitDocument& before);
@@ -65,6 +67,7 @@ signals:
     void documentChanged();
     void selectionChanged();
     void runtimeInputChanged();
+    void encoderRotated(const QString& id,int direction);
     void componentInputRequested(const QString& id);
     void inputValueChanged();
     void notice(const QString& text);
@@ -98,6 +101,15 @@ private:
     bool editingEnabled_=true,wireMode_=false,panning_=false;
     QPoint panOrigin_;
     std::string heldButton_;
+    std::string activeControl_,controlGesture_,controlParameter_;
+    double controlAngle_=0;
+    QPointF controlPrevious_;
+    int heldControlKey_=-1;
+    QPointer<QWidget> runtimeControls_;
+    bool beginControl(const std::string&,QPointF,Qt::MouseButton);
+    void moveControl(QPointF);
+    void releaseControl();
+
     double gridSize_=10;bool snap_=true;
     std::vector<thinkercad::WirePoint> pendingBends_;
     QPointF lastPointer_;

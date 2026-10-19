@@ -1,4 +1,7 @@
 #include "projectio.hpp"
+#include "componentdesign.hpp"
+#include <QLineF>
+#include <QTransform>
 #include "modulepackages.hpp"
 #include <QDir>
 #include <QDirIterator>
@@ -131,6 +134,15 @@ SavedProject ProjectIO::deserialize(const QByteArray& data){
         const auto v=entry.toObject();thinkercad::CircuitWire wire;wire.a=endpoint(v["a"].toObject());wire.b=endpoint(v["b"].toObject());wire.color=v["color"].toString("#0d9488").toStdString();
         if(v.contains("direct")&&!v["direct"].isBool())throw std::runtime_error("Invalid direct contact flag");wire.direct=o["physicalLayout"].toInt(1)>=2&&v["direct"].toBool(false);
         if(v.contains("points")){if(!v["points"].isArray()||v["points"].toArray().size()>64)throw std::runtime_error("Invalid wire bends");for(const auto& point:v["points"].toArray()){const auto xy=point.toArray();if(xy.size()!=2||!xy[0].isDouble()||!xy[1].isDouble())throw std::runtime_error("Invalid wire bend");wire.points.push_back({xy[0].toDouble(),xy[1].toDouble()});}}
+        if(wire.direct){
+            auto changed=[&](const auto& ep){const auto& part=p.circuit.part(ep.part);if(part.kind!=thinkercad::PartKind::Module)return false;const auto& id=part.model;return id=="joystick"||id=="softpot"||id=="fsr"||id=="photodiode"||id=="tl431"||id=="rca"||id=="banana"||id=="dc-barrel"||id=="usb-c-power"||id.starts_with("header-")||id.starts_with("terminal-")||id.starts_with("jst-");};
+            if(changed(wire.a)||changed(wire.b)){
+                auto position=[&](const auto& ep){const auto& part=p.circuit.part(ep.part);auto center=ComponentDesign::bounds(part).center();QTransform transform;transform.translate(part.x+center.x(),part.y+center.y());transform.rotate(part.rotation);transform.translate(-center.x(),-center.y());return transform.map(ComponentDesign::pinPosition(part,ep.pin));};
+                // Keep electrical connectivity when a corrected footprint moves a
+                // contact: show a wire instead of an invisible long direct link.
+                if(QLineF(position(wire.a),position(wire.b)).length()>2)wire.direct=false;
+            }
+        }
         if(v.contains("id")){if(!v["id"].isString())throw std::runtime_error("Invalid wire identity");wire.id=v["id"].toString().toStdString();}
         else {p.circuit.connect(wire.a,wire.b,wire.color);auto& restored=const_cast<thinkercad::CircuitWire&>(p.circuit.wires().back());restored.points=std::move(wire.points);restored.direct=wire.direct;continue;}
         p.circuit.insertWire(std::move(wire));

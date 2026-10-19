@@ -86,6 +86,16 @@ void registerElectronics(std::map<std::string,ModuleDefinition>& catalog){
     for(const auto* name:{"tc7660","max1044","icl7660"}){add(name,std::string(name)+" · voltage inverter",{"BOOST","CAP+","GND","CAP-","VOUT","LV","OSC","VCC"},{},7.62,10.7);catalog.at(name).minVoltage=1.5;catalog.at(name).maxVoltage=10;}
     for(const auto* id:{"lm7805","ld1117v33","lm317","lm337"}){auto& regulator=catalog.at(id);regulator.width=10.16;regulator.height=25.4;for(std::size_t pin=0;pin<regulator.pins.size();++pin)regulator.pinPositions[regulator.pins[pin]]={2.54+pin*2.54,25.4};}
     add("tl431","TL431 · 2.495 V shunt reference",{"REF","ANODE","CATHODE"},{},4.6,4.6,false);
+    auto rowPins=[&](const std::string& id,double width,double height,double pitch){auto& model=catalog.at(id);model.width=width;model.height=height;model.pinPositions.clear();for(std::size_t i=0;i<model.pins.size();++i)model.pinPositions[model.pins[i]]={width/2+(double(i)-(model.pins.size()-1)/2.)*pitch,height};};
+    rowPins("joystick",26,34,2.54);rowPins("softpot",12,100,2.54);rowPins("fsr",18,55,2.54);rowPins("photodiode",5,12.7,2.54);rowPins("tl431",4.6,12.7,1.27);
+    for(int count:{2,3,4,6,8,10,16,20})rowPins("header-"+std::to_string(count),count*2.54,2.54,2.54);
+    for(int count:{2,3,4,6})rowPins("terminal-"+std::to_string(count),count*3.5,8,3.5);
+    for(int count:{2,3,4})rowPins("jst-"+std::to_string(count),5+(count-1)*2,8,2);
+    rowPins("rca",12,12,5.08);rowPins("banana",16,10,8);rowPins("dc-barrel",10,14,2.54);rowPins("usb-c-power",15.24,15.24,2.54);
+    catalog.at("banana").label="Banana socket pair";
+    for(int count:{2,3,4,6,8,10,16,20})for(auto& [name,at]:catalog.at("header-"+std::to_string(count)).pinPositions)at.second=1.27;
+    std::swap(catalog.at("joystick").pinPositions.at("GND"),catalog.at("joystick").pinPositions.at("VCC"));
+
 
 }
 std::vector<ElectricalBranch> electronicBranches(const CircuitPart& p,const std::function<std::optional<double>(const std::string&)>& voltage,const DeviceRegisters* memory,double time,const std::map<std::string,AnalogDeviceState>* analog){

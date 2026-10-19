@@ -48,7 +48,34 @@ CircuitState TransientSimulation::advance(const CircuitDocument& document,const 
         if(!result.errors.empty())return result;
         for(const auto& p:document.parts()){
             if(p.kind==PartKind::DcMotor){auto i=result.branchCurrent.at(p.id);if(i){memory_.motorCurrent[p.id]=*i;const double inertia=parameter(p,"inertia",.00001),old=memory_.motorSpeed[p.id],load=parameter(p,"loadTorque",0);double drive=.02**i;double next=(old+step*1e-6*(drive-(old>0?load:old<0?-load:std::clamp(drive,-load,load)))/inertia)/(1+step*1e-6*.00001/inertia);if(old*next<0&&std::abs(drive)<=load)next=0;memory_.motorSpeed[p.id]=next;memory_.motorAngle[p.id]+=(old+next)*.5*step*1e-6;result.partValues[p.id]=next*60/(2*3.141592653589793);}}
-            if(p.kind==PartKind::ServoMotor){auto v=result.voltage.at({p.id,"VCC"}),g=result.voltage.at({p.id,"GND"}),signal=result.voltage.at({p.id,"SIGNAL"});if(v&&g&&signal&&*v-*g>=4.5&&*v-*g<=6){bool level=*signal-*g>=2.;const double t=(now_+step*.5)*1e-6;if(level&&!memory_.servoLevel[p.id])memory_.servoRise[p.id]=t;if(!level&&memory_.servoLevel[p.id]){double pulse=t-memory_.servoRise[p.id];if(pulse>=.00045&&pulse<=.00255)memory_.servoPulse[p.id]=pulse;}memory_.servoLevel[p.id]=level;if(memory_.servoPulse.contains(p.id))result.partValues[p.id]=std::clamp((memory_.servoPulse[p.id]*1e6-544)*180/1856,0.,180.);}}
+            if(p.kind==PartKind::ServoMotor){
+                const auto v=result.voltage.at({p.id,"VCC"}),g=result.voltage.at({p.id,"GND"}),signal=result.voltage.at({p.id,"SIGNAL"});
+                const double t=(now_+step*.5)*1e-6;
+                if(v&&g&&signal&&*v-*g>=4.5&&*v-*g<=6){
+                    const bool level=*signal-*g>=2.;
+                    if(level&&!memory_.servoLevel[p.id])memory_.servoRise[p.id]=t;
+                    if(!level&&memory_.servoLevel[p.id]){
+                        const double pulse=t-memory_.servoRise[p.id];
+                        if(pulse>=.00045&&pulse<=.00255)memory_.servoPulse[p.id]=pulse;
+                    }
+                    memory_.servoLevel[p.id]=level;
+                    // A hobby servo holds a physical shaft, not an instantaneous
+                    // copy of the pulse command. Stop driving after missing pulses.
+                    if(memory_.servoPulse.contains(p.id)&&t-memory_.servoRise[p.id]<.06){
+                        auto position=memory_.servoAngle.try_emplace(p.id,90.).first;
+                        auto& angle=position->second;
+                        auto& velocity=memory_.servoVelocity[p.id];
+                        const double targetAngle=std::clamp((memory_.servoPulse[p.id]*1e6-544)*180/1856,0.,180.);
+                        const double dt=step*1e-6,error=targetAngle-angle;
+                        const double acceleration=std::clamp(324*error-36*velocity,-4000.,4000.);
+                        velocity=std::clamp(velocity+acceleration*dt,-500.,500.);
+                        const double next=std::clamp(angle+velocity*dt,0.,180.);
+                        if(error*(targetAngle-next)<=0){angle=targetAngle;velocity=0;}
+                        else angle=next;
+                    }else memory_.servoVelocity[p.id]=0;
+                }else{memory_.servoLevel[p.id]=false;memory_.servoVelocity[p.id]=0;memory_.servoPulse.erase(p.id);}
+                if(memory_.servoAngle.contains(p.id))result.partValues[p.id]=memory_.servoAngle[p.id];
+            }
             if(p.kind==PartKind::Capacitor){const auto& a=result.voltage.at({p.id,"1"});const auto& b=result.voltage.at({p.id,"2"});if(a&&b)memory_.capacitorVoltage[p.id]=*a-*b;}
             if(p.kind==PartKind::Inductor){const auto& i=result.branchCurrent.at(p.id);if(i)memory_.inductorCurrent[p.id]=*i;}
         }

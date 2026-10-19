@@ -474,7 +474,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
     for(const auto& j:junctions){const double current=volts.contains(j.a)&&volts.contains(j.k)?std::max(0.0,(volts[j.a]-volts[j.k]-j.vf)/j.resistance):0;result.ledCurrent[j.id]=current;if(current>j.limit+1e-6)result.errors.push_back("Überstrom: "+j.id+". Vorwiderstand / Beschaltung prüfen.");}
     for(const auto& p:parts_){
         std::string a,b;double resistance=0,offset=0;
-        if(p.kind==PartKind::ServoMotor){auto v=result.voltage.at({p.id,"VCC"}),g=result.voltage.at({p.id,"GND"});if(v&&g&&*v-*g>=4.5&&*v-*g<=6&&memory&&memory->servoPulse.contains(p.id))result.partValues[p.id]=std::clamp((memory->servoPulse.at(p.id)*1e6-544)*180/1856,0.,180.);}
+        if(p.kind==PartKind::ServoMotor&&memory&&memory->servoAngle.contains(p.id))result.partValues[p.id]=memory->servoAngle.at(p.id);
         if(p.kind==PartKind::DcMotor){a="+";b="-";double companion=memory?parameter(p,"inductance",1)*.001/dt:0,current=memory&&memory->motorCurrent.contains(p.id)?memory->motorCurrent.at(p.id):0,speed=memory&&memory->motorSpeed.contains(p.id)?memory->motorSpeed.at(p.id):0;resistance=p.value+companion;offset=.02*speed-companion*current;result.partValues[p.id]=speed*60/(2*3.141592653589793);}
         else if(p.kind==PartKind::Resistor){a="1";b="2";resistance=p.value;}
         else if(p.kind==PartKind::CurrentProbe){a="+";b="-";resistance=0.001;}

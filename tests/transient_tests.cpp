@@ -36,5 +36,43 @@ int main(){try{
     {Bench b;auto op=b.d.addPart(PartKind::OpAmp,0,0),in=b.d.addPart(PartKind::AnalogSource,0,0),feedback=b.d.addPart(PartKind::Resistor,0,0),r=b.d.addPart(PartKind::Resistor,0,0);b.d.part(in).value=1;b.d.part(feedback).value=b.d.part(r).value=10000;b.v(op,"V+");b.g(op,"V-");b.g(in,"GND");b.d.connect({in,"OUT"},{op,"IN+"});b.d.connect({op,"OUT"},{feedback,"1"});b.d.connect({feedback,"2"},{op,"IN-"});b.d.connect({r,"1"},{op,"IN-"});b.g(r,"2");auto s=b.d.solve(TransientSimulation::Boards{});check(std::abs(voltage(s,op,"OUT")-2)<.001,"op-amp closed-loop gain of two");b.d.part(in).value=3.3;s=b.d.solve(TransientSimulation::Boards{});check(voltage(s,op,"OUT")>4.93&&voltage(s,op,"OUT")<4.951,"op-amp rail saturation under load");}
     {Bench b;auto op=b.d.addPart(PartKind::OpAmp,0,0);b.g(op,"V-");auto s=b.d.solve(TransientSimulation::Boards{});check(!s.voltage.at({op,"OUT"}),"unpowered op-amp output is floating");}
     {Bench b(false);auto r=b.d.addPart(PartKind::Resistor,0,0),c=b.d.addPart(PartKind::Capacitor,0,0);b.d.part(r).value=1000;b.d.part(c).value=10;b.v(r,"1");b.d.connect({r,"2"},{c,"1"});b.g(c,"2");auto state=b.sim.advance(b.d,{},10000);check(std::abs(voltage(state,c,"1")-voltage(state,c,"2")-5*(1-std::exp(-1)))<.015,"floating source charges RC circuit without ground symbol");}
+    {
+        CircuitDocument d;d.part("board").model="arduino-uno";
+        Esp8266Board board;board.configure("arduino-uno");
+        const auto servo=d.addPart(PartKind::ServoMotor,0,0);
+        d.connect({"board","5V"},{servo,"VCC"});d.connect({"board","GND"},{servo,"GND"});d.connect({"board","D5"},{servo,"SIGNAL"});
+        TransientSimulation sim;TransientSimulation::Boards boards{{"board",&board}};
+        board.servoWrite(5,544);
+        auto state=sim.advance(d,boards,20000);healthy(state);
+        check(state.partValues.at(servo)>80,"servo starts moving from neutral instead of teleporting");
+        for(Microseconds time=40000;time<=1000000;time+=20000)state=sim.advance(d,boards,time);healthy(state);
+        check(state.partValues.at(servo)<.1,"servo reaches zero during one-second delay");
+        board.servoWrite(5,2400);
+        double previous=state.partValues.at(servo),previousSpeed=0;int intermediate=0;
+        for(Microseconds time=1010000;time<=2000000;time+=10000){
+            state=sim.advance(d,boards,time);healthy(state);
+            const double angle=state.partValues.at(servo),speed=(angle-previous)/.01;
+            check(angle>=previous-1e-8&&angle<=180,"servo travel is monotonic and bounded");
+            check(speed<=500.01,"servo shaft has a finite travel speed");
+            check(std::abs(speed-previousSpeed)<=40.1,"servo accelerates smoothly");
+            if(angle>5&&angle<175)++intermediate;
+            previous=angle;previousSpeed=speed;
+        }
+        check(intermediate>25,"servo exposes intermediate positions throughout its travel");
+        check(previous>179.9,"servo reaches 180 during one-second delay");
+        check(std::abs(sim.evaluate(d,boards).partValues.at(servo)-previous)<1e-8,"render evaluation preserves physical shaft position");
+        board.servoWrite(5,544);state=sim.advance(d,boards,2100000);
+        check(state.partValues.at(servo)>140&&state.partValues.at(servo)<179,"reverse command begins gradual return");
+        board.servoWrite(5,2400);state=sim.advance(d,boards,2110000);
+        const double stoppedAt=state.partValues.at(servo);
+        board.pinMode(5,PinMode::Input);state=sim.advance(d,boards,2200000);
+        const double held=state.partValues.at(servo);
+        state=sim.advance(d,boards,2300000);
+        check(std::abs(state.partValues.at(servo)-held)<1e-8,"servo stops driving when signal is disconnected");
+        check(std::isfinite(stoppedAt),"mid-travel reversal remains finite");
+        d.removeWire(d.wires().front().id);state=sim.advance(d,boards,2400000);
+        check(std::abs(state.partValues.at(servo)-held)<1e-8,"unpowered servo retains its physical shaft position");
+        check(std::abs(sim.evaluate(d,boards).partValues.at(servo)-held)<1e-8,"unpowered render evaluation does not reset the arm");
+    }
     std::cout<<checks<<" transient electrical checks passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

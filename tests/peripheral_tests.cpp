@@ -1,8 +1,10 @@
 #include "audiocodecdecoder.hpp"
+#include "codeeditor.hpp"
 #include "thinkercad/modules.hpp"
 #include "componentoptions.hpp"
 #include <QColorDialog>
 #include <QPainter>
+#include <QAction>
 #include <QImage>
 #include <QCheckBox>
 #include <stdexcept>
@@ -21,6 +23,7 @@
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QSlider>
 #include <QTabWidget>
 using namespace thinkercad;
 class PeripheralTests:public QObject {
@@ -133,6 +136,46 @@ void loop(){if(digitalRead(SW)==HIGH){digitalWrite(STATUS,HIGH);}else{digitalWri
         auto* input=window.findChild<QDoubleSpinBox*>("moduleParam_x");QVERIFY(input);canvas->mutate("Remove selected module",[&](auto& d){d.removePart(module);});
         input->setValue(12);QCoreApplication::processEvents();QVERIFY(!canvas->document().parts().empty());
         for(int repeat=0;repeat<20;++repeat){std::string analog;canvas->mutate("Analog source",[&](auto& d){analog=d.addPart(PartKind::AnalogSource,400,250);});canvas->selectPart(analog);auto* editor=window.findChild<QDoubleSpinBox*>("componentValue");editor->show();editor->setFocus();editor->findChild<QLineEdit*>()->setText("3.25");canvas->mutate("Delete with a pending edit",[&](auto& d){d.removePart(analog);});QCoreApplication::processEvents();canvas->history()->undo();QCoreApplication::processEvents();canvas->history()->redo();QCoreApplication::processEvents();}
+    }
+    void directJoystickAndMomentaryControls(){
+        MainWindow window;window.show();ComponentDesign::set("realistic");auto* canvas=window.canvas();std::string joystick,button;
+        canvas->mutate("Direct controls",[&](auto& d){joystick=d.addPart(PartKind::Module,400,0);d.part(joystick).model="joystick";button=d.addPart(PartKind::Module,620,0);d.part(button).model="arcade-button";});
+        canvas->fitCircuit();canvas->setEditingEnabled(false);
+        auto point=[&](const std::string& id,QPointF mm){const auto& part=canvas->document().part(id);return canvas->mapFromScene(QPointF(part.x,part.y)+mm*6);};
+        const auto center=point(joystick,{13,14}),right=point(joystick,{18,14});
+        QTest::mousePress(canvas->viewport(),Qt::LeftButton,Qt::NoModifier,center);
+        QTest::mouseMove(canvas->viewport(),right,30);
+        QVERIFY(parameter(canvas->document().part(joystick),"x",50)>95);
+        QVERIFY(std::abs(parameter(canvas->document().part(joystick),"y",50)-50)<3);
+        QTest::mouseRelease(canvas->viewport(),Qt::LeftButton,Qt::NoModifier,right);
+        QCOMPARE(parameter(canvas->document().part(joystick),"x",0),50.);QCOMPARE(parameter(canvas->document().part(joystick),"y",0),50.);
+        QTest::mousePress(canvas->viewport(),Qt::RightButton,Qt::NoModifier,center);QCOMPARE(parameter(canvas->document().part(joystick),"pressed",0),1.);
+        QTest::mouseRelease(canvas->viewport(),Qt::RightButton,Qt::NoModifier,center);QCOMPARE(parameter(canvas->document().part(joystick),"pressed",1),0.);
+        const auto buttonCenter=point(button,{15,15});QTest::mousePress(canvas->viewport(),Qt::LeftButton,Qt::NoModifier,buttonCenter);QCOMPARE(parameter(canvas->document().part(button),"pressed",0),1.);
+        QTest::mouseRelease(canvas->viewport(),Qt::LeftButton,Qt::NoModifier,buttonCenter);QCOMPARE(parameter(canvas->document().part(button),"pressed",1),0.);
+        shot(window,"joystick-direct-controls");canvas->setEditingEnabled(true);
+    }
+    void liveSensorSlidersSurviveDeletion(){
+        MainWindow window;window.show();auto* canvas=window.canvas();std::string sensor;
+        canvas->mutate("Light sensor",[&](auto& d){sensor=d.addPart(PartKind::Photoresistor,400,0);});
+        canvas->showRuntimeControls(sensor);auto* slider=window.findChild<QSlider*>("live_value");QVERIFY(slider);slider->setValue(750);QVERIFY(canvas->document().part(sensor).value>0);
+        QPointer<QSlider> pending=slider;canvas->mutate("Remove live sensor",[&](auto& d){d.removePart(sensor);});if(pending)pending->setValue(250);QCoreApplication::sendPostedEvents(nullptr,QEvent::DeferredDelete);QVERIFY(pending.isNull());
+    }
+    void servoVerbatimEndpointSweep_data(){QTest::addColumn<bool>("emulation");QTest::addColumn<bool>("realistic");for(bool emulation:{false,true})for(bool realistic:{false,true})QTest::newRow(qPrintable(QString(emulation?"emulation":"simulation")+(realistic?"-realistic":"-blocks")))<<emulation<<realistic;}
+    void servoVerbatimEndpointSweep(){
+        QFETCH(bool,emulation);QFETCH(bool,realistic);MainWindow window;window.show();QVERIFY(window.loadExample("servo_sweep"));const auto servo=find(window.circuit(),PartKind::ServoMotor);
+        window.canvas()->mutate("Exact D5 servo wiring",[&](auto& d){d.clearWires();d.connect({servo,"VCC"},{"board","5V"});d.connect({servo,"GND"},{"board","GND"});d.connect({servo,"SIGNAL"},{"board","D5"});});
+        auto* editor=window.findChild<CodeEditor*>();QVERIFY(editor);editor->setPlainText("#include <Servo.h>\nServo myservo;\nvoid setup(){myservo.attach(5);}\nvoid loop(){myservo.write(0);delay(1000);myservo.write(180);delay(1000);}\n");editor->document()->setModified(true);
+        ComponentDesign::set(realistic?"realistic":"blocks");window.canvas()->rebuild();QVERIFY(window.setExecutionMode(emulation?ExecutionMode::Emulation:ExecutionMode::Simulation));window.startSimulation();
+        auto angle=[&]{auto it=window.circuitState().partValues.find(servo);return it==window.circuitState().partValues.end()?-999.:it->second;};
+        QTRY_VERIFY_WITH_TIMEOUT((angle()>=0&&angle()<2)||!window.simulationActive(),15000);QVERIFY2(window.simulationActive(),qPrintable(window.findChild<QPlainTextEdit*>("consoleOutput")->toPlainText()));
+        QVERIFY(angle()<2);int intermediate=0;QTRY_VERIFY_WITH_TIMEOUT(([&]{if(angle()>5&&angle()<175)++intermediate;return angle()>178||!window.simulationActive();})(),6000);QVERIFY2(intermediate>=3,"The running sketch must show intermediate servo positions, not snap between endpoints");QVERIFY2(window.simulationActive(),qPrintable(window.findChild<QPlainTextEdit*>("consoleOutput")->toPlainText()));QVERIFY(angle()>178);
+        QTRY_VERIFY_WITH_TIMEOUT(angle()<2||!window.simulationActive(),6000);QVERIFY2(window.simulationActive(),qPrintable(window.findChild<QPlainTextEdit*>("consoleOutput")->toPlainText()));QVERIFY(angle()<2);window.stopSimulation();
+    }
+    void servoEndpointsAreVisuallyDifferent(){
+        CircuitPart servo;servo.id="servo";servo.kind=PartKind::ServoMotor;ComponentDesign::set("realistic");
+        auto image=[&](double angle){QImage result(240,240,QImage::Format_ARGB32);result.fill(Qt::white);QPainter painter(&result);painter.translate(40,40);CircuitState state;state.partValues[servo.id]=angle;ComponentDesign::paint(painter,servo,state,{},1,false);return result;};
+        auto zero=image(0),end=image(180);int changed=0;for(int y=0;y<zero.height();++y)for(int x=0;x<zero.width();++x)if(zero.pixel(x,y)!=end.pixel(x,y))++changed;QVERIFY2(changed>200,"Servo endpoints must have visibly different arm positions");
     }
     void codecMp3DecodesToRealPcm(){
         QFile fixture(QFINDTESTDATA("fixtures/vs1053-tone.mp3"));QVERIFY(fixture.open(QIODevice::ReadOnly));auto encoded=fixture.readAll();AudioCodecDecoder decoder;std::shared_ptr<const std::vector<float>> pcm;unsigned rate=0,callbacks=0;std::size_t delivered=0;QString error;

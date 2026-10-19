@@ -56,7 +56,7 @@ struct CircuitState {
 struct UltrasonicState {bool high=false;Microseconds trigger=0,rise=0,fall=0,ready=0;};
 struct PeripheralSignal {std::string pin;double voltage=0,frequency=0,amplitude=0;int waveform=0;std::string input;double gain=1,resistance=50;std::shared_ptr<const std::vector<float>> pcm;Microseconds pcmStart=0;unsigned sampleRate=48000,channels=2,channel=0;double phase=0;};
 struct AnalogDeviceState {std::array<double,8> filter{};std::vector<std::array<double,2>> delay;std::size_t cursor=0;double accumulator=0,outL=0,outR=0;Microseconds last=0;};
-struct ReactiveState {std::map<std::string,AnalogDeviceState> analog;std::map<std::string,std::vector<PeripheralSignal>> peripheralSignals;std::map<std::string,std::array<std::uint64_t,16>> electronics;std::map<std::string,double> capacitorVoltage,inductorCurrent,motorCurrent,motorSpeed,motorAngle,servoRise,servoPulse;std::map<std::string,bool> servoLevel;std::map<std::string,UltrasonicState> ultrasonic;};
+struct ReactiveState {std::map<std::string,AnalogDeviceState> analog;std::map<std::string,std::vector<PeripheralSignal>> peripheralSignals;std::map<std::string,std::array<std::uint64_t,16>> electronics;std::map<std::string,double> capacitorVoltage,inductorCurrent,motorCurrent,motorSpeed,motorAngle,servoRise,servoPulse,servoAngle,servoVelocity;std::map<std::string,bool> servoLevel;std::map<std::string,UltrasonicState> ultrasonic;};
 class TransientSimulation;
 class CircuitDocument {
 public:

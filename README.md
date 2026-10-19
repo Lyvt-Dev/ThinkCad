@@ -10,6 +10,15 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.3.4 — Bedienung und Stabilität
+
+Direkt bedienbarer Joystick, Regler, Taster und Sensorschieberegler statt bloßer
+Hinweistexte. Überarbeitete flache Bauteilzeichnungen und weich fahrende Servos.
+Abstürze beim Verdrahten des ATtiny85 und durch verspätete Eingaben gelöschter
+Bauteile sind behoben.
+
+[Release-Notes 1.3.4](docs/RELEASE_NOTES_1.3.4.md)
+
 ## Bauteil- und Audioerweiterung in 1.3.3
 
 Neue Elektronik- und Audiomodule, konfigurierbare Breadboards, Bauteilfarben und

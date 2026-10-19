@@ -1,16 +1,18 @@
 #pragma once
 #include "thinkercad/electronics.hpp"
+#include "moduleillustrations.hpp"
 #include <QPainter>
 #include <QPainterPath>
 namespace ElectronicsArt {
 inline bool paint(QPainter& p,const thinkercad::CircuitPart& part,const thinkercad::CircuitState& state,bool selected){
-    using namespace thinkercad;if(part.kind!=PartKind::Module)return false;const auto& d=ModuleRegistry::get(part.model);if(d.bus!="electrical"&&d.implementation!="ws2812")return false;
+    using namespace thinkercad;if(part.kind!=PartKind::Module)return false;const auto& d=ModuleRegistry::get(part.model);
     p.save();p.scale(6,6);p.setRenderHint(QPainter::Antialiasing);auto box=[&](QRectF r,QColor color,double radius=.3){p.setPen(QPen(color.darker(125),.12));p.setBrush(color);p.drawRoundedRect(r,radius,radius);};
     auto text=[&](QRectF r,QString s,QColor color=Qt::white,double size=1.3){p.setPen(color);QFont font("Sans Serif");font.setPointSizeF(size);p.setFont(font);p.drawText(r,Qt::AlignCenter,s);};
     const auto id=part.model;const QColor plastic("#303636"),metal("#a8afad"),pcb("#3f7161");QRectF body(0,0,d.width,d.height);
-    const bool chip=d.implementation=="ota"||id=="as3340"||id=="cem3340"||id=="xr2206"||id=="icl8038"||id=="sn76489"||id=="ay-3-8910"||id=="ym2149f"||id=="6n138"||id=="6n137"||id=="tc7660"||id=="max1044"||id=="icl7660"||d.implementation=="audio-opamp"||id.starts_with("74hc")||id=="cd74hc4067"||id.starts_with("ne55")||(id.starts_with("lm3")&&id!="lm317"&&id!="lm337")||id=="lm741"||id=="4n35";
+    const bool chip=id=="mcp3008"||id=="mcp4822"||id=="mcp4922"||id=="cd4051b"||id=="cd4052b"||d.implementation=="ota"||id=="as3340"||id=="cem3340"||id=="xr2206"||id=="icl8038"||id=="sn76489"||id=="ay-3-8910"||id=="ym2149f"||id=="6n138"||id=="6n137"||id=="tc7660"||id=="max1044"||id=="icl7660"||d.implementation=="audio-opamp"||id.starts_with("74hc")||id=="cd74hc4067"||id.starts_with("ne55")||(id.starts_with("lm3")&&id!="lm317"&&id!="lm337")||id=="lm741"||id=="4n35";
     auto current=[&](std::string channel){auto it=state.ledCurrent.find(part.id+":"+channel);return it==state.ledCurrent.end()?0.:it->second;};const auto led=QColor(QString::fromStdString(part.color));
-    if(d.implementation=="ws2812"){
+    if(ModuleIllustrations::paint(p,part,state)){}
+    else if(d.implementation=="ws2812"){
         const int count=neoPixelCount(part);double width=id=="neopixel-ring"?44.5:id=="neopixel-matrix"?8*parameter(part,"columns",8):id=="neopixel-single"?5:id=="neopixel-strip"?16.6666667*count:5*count;double height=id=="neopixel-ring"?44.5:id=="neopixel-matrix"?8*parameter(part,"rows",8):d.height;
         if(id=="neopixel-ring"){p.setPen(QPen(pcb,7));p.setBrush(Qt::NoBrush);p.drawEllipse(QRectF(3.5,3.5,37.5,37.5));}else box({0,0,width,height},pcb,.3);
         const auto found=state.pixels.find(part.id);for(int i=0;i<count;++i){QPointF center;if(id=="neopixel-ring"){double angle=i*6.283185307/count;center={22.25+18.75*std::sin(angle),22.25-18.75*std::cos(angle)};}else if(id=="neopixel-matrix"){int columns=int(parameter(part,"columns",8)),row=i/columns,col=i%columns;if(row%2)col=columns-1-col;center={4.+col*8,4.+row*8};}else center={(i+.5)*width/count,height/2};box({center.x()-2.5,center.y()-2.5,5,5},QColor("#e5e5d9"),.15);std::uint32_t value=found!=state.pixels.end()&&i<int(found->second.size())?found->second[i]:0;p.setPen(Qt::NoPen);p.setBrush(value?QColor::fromRgb(value):QColor("#747a6d"));p.drawEllipse(center,1.6,1.6);}
