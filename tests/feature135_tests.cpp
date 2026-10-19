@@ -6,6 +6,7 @@
 #include "diagnosticspanel.hpp"
 #include <QSoundEffect>
 #include <QFile>
+#include <QJsonObject>
 #include <QDialog>
 #include <QPushButton>
 #include <QLabel>
@@ -112,6 +113,12 @@ class Feature135Tests : public QObject {
         for (int i = 0; i < 100; ++i)
             sound.relayStates({{"relay", bool(i % 2)}});
         QVERIFY(sound.findChildren<QSoundEffect *>().empty());
+        QSettings().setValue("relayClickEnabled", true);
+        sound.relayStates({{"relay", true}}); // Master mute still prevents allocation.
+        QVERIFY(sound.findChildren<QSoundEffect *>().empty());
+        sound.setEnabled(true);
+        sound.relayStates({});
+        QVERIFY(sound.findChildren<QSoundEffect *>().empty());
         sound.stop();
     }
     void assistantUsesActualModelAndExplainsLimits() {
@@ -127,6 +134,21 @@ class Feature135Tests : public QObject {
         QVERIFY(explanation->text().contains("chemical gas analysis is not modeled"));
         panel.offerHint(DiagnosticsPanel::Context::ShareUnencrypted);
         QVERIFY(explanation->text().contains("not confidential"));
+    }
+    void libraryReferencesSurviveOpenSaveAndReshare() {
+        auto project = ExampleCatalog::create("share_roundtrip");
+        project.libraryReferences = QJsonArray{QJsonObject{{"name", "LocalExample"}, {"version", "2.1"}}};
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto first = directory.filePath("first.thinkcad"),
+                   second = directory.filePath("saved.thinkcad");
+        ProjectIO::save(first, project);
+        MainWindow window;
+        QVERIFY(window.openPath(first));
+        QVERIFY(window.saveProjectTo(second));
+        const auto saved = ProjectIO::load(second);
+        QCOMPARE(saved.libraryReferences, project.libraryReferences);
+        QCOMPARE(ProjectShare::decode(ProjectShare::encode(saved)).libraries, project.libraryReferences);
     }
     void examplesRoundTrip() {
         for (const auto &entry : feature135Examples()) {

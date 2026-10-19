@@ -57,16 +57,19 @@ static void initializeAudioResources(){Q_INIT_RESOURCE(thinkcad_audio);}
 SoundOutput::SoundOutput(QObject* parent):QObject(parent){
     initializeAudioResources();
     enabled_=QSettings().value("soundEnabled",true).toBool();
-    if(enabled_){relay_=new QSoundEffect(this);relay_->setVolume(.18);relay_->setSource(QUrl("qrc:/audio/relay-click.wav"));}
     pumpTimer_.setInterval(10);pumpTimer_.setTimerType(Qt::PreciseTimer);
     connect(&pumpTimer_,&QTimer::timeout,this,&SoundOutput::pump);
 }
 SoundOutput::~SoundOutput(){stop();}
-void SoundOutput::setEnabled(bool enabled){enabled_=enabled;if(enabled&&!relay_){relay_=new QSoundEffect(this);relay_->setVolume(.18);relay_->setSource(QUrl("qrc:/audio/relay-click.wav"));}QSettings().setValue("soundEnabled",enabled);if(!enabled)stop();}
+void SoundOutput::setEnabled(bool enabled){enabled_=enabled;QSettings().setValue("soundEnabled",enabled);if(!enabled)stop();}
 void SoundOutput::relayStates(const std::map<std::string,bool>& states){
+    const bool audible=enabled_&&QSettings().value("relayClickEnabled",true).toBool();
+    // Load only for a circuit that actually contains a relay, without opening audio devices at startup.
+    if(audible&&!states.empty()&&!relay_){relay_=new QSoundEffect(this);relay_->setVolume(.18);relay_->setSource(QUrl("qrc:/audio/relay-click.wav"));}
+    if(!audible&&relay_)relay_->stop();
     bool changed=false;for(const auto& [id,on]:states){auto old=relayStates_.find(id);if(old!=relayStates_.end()&&old->second!=on)changed=true;}
     relayStates_=states;
-    if(changed&&enabled_&&QSettings().value("relayClickEnabled",true).toBool()&&relay_->status()==QSoundEffect::Ready)relay_->play();
+    if(changed&&audible&&relay_&&relay_->status()==QSoundEffect::Ready)relay_->play();
 }
 // reset discards queued PCM immediately; stop can drain it and delay note endings.
 void SoundOutput::stop(){if(relay_)relay_->stop();pumpTimer_.stop();device_=nullptr;pending_.clear();if(sink_)sink_->reset();stream_.setSignals({});stream_.clearPcm();}

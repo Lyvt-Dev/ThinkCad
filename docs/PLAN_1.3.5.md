@@ -43,7 +43,8 @@ werden lokal dekodiert, nicht gespeichert, übertragen oder als Verlauf behalten
 
 ## Persistenz und Migration
 
-Projektformat bleibt **8**. Neue Bauteile sind normale Module mit stabilen Modell-IDs
+Projektformat bleibt **8**; `libraryReferences` ist optionale, von älteren Lesern
+ignorierbare Metadaten für Namen/Versionen ohne lokale Pfade. Neue Bauteile sind normale Module mit stabilen Modell-IDs
 und Parametern; Board-Sketches, Dateien, Notizen, Kabelknicke und eingebettete
 Modelldefinitionen verwenden `ProjectIO`. Alte Projekte bleiben lesbar.
 Keine Migration laufender Gerätezustände: Simulation startet wie bisher neu.

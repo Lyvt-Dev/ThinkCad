@@ -253,10 +253,11 @@ void observeActuators(const CircuitDocument &doc, const CircuitState &state, Dev
                     mask |= 8;
             }
             const auto it = std::find(std::begin(sequence), std::end(sequence), mask);
-            if (it == std::end(sequence)) {
-                r[7] = 0;
+            // Sequential GPIO writes can briefly produce a three-coil mask. Keep the last valid
+            // alignment so the next adjacent phase completes the commanded step without losing motion.
+            r[2] = mask;
+            if (it == std::end(sequence))
                 continue;
-            }
             const int phase = int(it - std::begin(sequence));
             r[6] = 1;
             r[2] = mask;

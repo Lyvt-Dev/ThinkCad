@@ -20,6 +20,7 @@ static void initializeLanguageResources(){Q_INIT_RESOURCE(thinkcad_translations)
 namespace {
 const QMap<QString,QString>& translations(){static const QMap<QString,QString> values{
     // ThinkCad 1.3.5
+    {"Ungültige Bibliotheksverweise.","Invalid library references"},
     {"Sketch-Ziel (Schritte)","Sketch target (steps)"},
     {"Der Schrittmotor ist verbunden, aber der Treiber hat keine gültige Versorgung.","The stepper is connected, but its driver does not have a valid power supply."},
     {"Prüfe GND, VMOT (8–35 V) und VDD (3–5,5 V) des A4988 im Pin-Inspektor.","Check GND, VMOT (8–35 V) and VDD (3–5.5 V) on the A4988 in the pin inspector."},

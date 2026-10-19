@@ -21,7 +21,7 @@ Die technische Version bleibt 1.3.5 für verlässliche Update-Vergleiche.
   mit Vorschau und Bestätigung. Keine Uploads oder automatische Bibliotheksinstallation.
 - Bauteilsuche mit Strg+P, sofortigem Suchfokus, Tastaturbedienung, zuletzt/häufig
   verwendeten Bauteilen und rückgängig machbarer Platzierung.
-- Freundliche kurze kontextsensitive Quack-Hinweise; neuer Skin **Nyra Quack**.
+- Freundliche kurze kontextsensitive Quack-Hinweise; neue Skins **Nyra** und **Nyra Quack**.
   Aus/Nur Fehler/Normal/Ausführlich bleiben frei wählbar, ohne Überlagerungen.
 - Zehn vollständige verdrahtete Beispiele, aktualisierte Sprachkataloge und
   Modell-/Codec-/GUI-/Compiler-Integrationstests.
@@ -55,7 +55,7 @@ The technical version remains 1.3.5 for reliable update comparisons.
   No uploads, accounts, automatic sketch execution or library installation.
 - Ctrl+P component finder with immediate focus, keyboard selection, recent/frequent
   entries and undoable insertion through the existing palette.
-- Concise contextual assistant hints and **Nyra Quack** skin; all four assistant modes
+- Concise contextual assistant hints and **Nyra** / **Nyra Quack** skins; all four assistant modes
   remain available, without covering the workspace.
 - Ten fully wired examples and additional model, codec, UI and compiler integration tests.
 

@@ -2,6 +2,7 @@
 #include "thinkercad/circuit.hpp"
 #include <QMap>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QString>
 #include <QSet>
 struct SketchProject {
@@ -17,7 +18,7 @@ struct SketchProject {
     QString combinedSource() const;
     QMap<QString,QString> auxiliaryFiles() const;
 };
-struct SavedProject {thinkercad::CircuitDocument circuit;SketchProject sketch;QMap<QString,SketchProject> boardSketches;QMap<QString,QByteArray> bundledLibraries;thinkercad::ExecutionMode mode=thinkercad::ExecutionMode::Simulation;};
+struct SavedProject {thinkercad::CircuitDocument circuit;SketchProject sketch;QMap<QString,SketchProject> boardSketches;QMap<QString,QByteArray> bundledLibraries;thinkercad::ExecutionMode mode=thinkercad::ExecutionMode::Simulation;QJsonArray libraryReferences;};
 class ProjectIO {
 public:
     static QMap<QString,QByteArray> bundleLibraries(const QStringList& directories);

@@ -16,6 +16,15 @@
 #include <algorithm>
 #include <QCryptographicHash>
 namespace {
+QJsonArray libraryReferences(const QJsonValue& value){
+    if(value.isUndefined())return {};
+    if(!value.isArray()||value.toArray().size()>256)throw std::runtime_error("Invalid library references");
+    for(const auto& entry:value.toArray()){
+        const auto object=entry.toObject();const auto name=object["name"].toString(),version=object["version"].toString();
+        if(!entry.isObject()||!object["name"].isString()||!object["version"].isString()||name.isEmpty()||name.size()>128||version.size()>64||
+            std::any_of(name.begin(),name.end(),[](QChar c){return c.unicode()<32;})||std::any_of(version.begin(),version.end(),[](QChar c){return c.unicode()<32;}))throw std::runtime_error("Invalid library references");
+    }return value.toArray();
+}
 QString read(const QString& path){QFile f(path);if(!f.open(QIODevice::ReadOnly)||f.size()>2*1024*1024)throw std::runtime_error("Datei nicht lesbar oder zu groß.");return QString::fromUtf8(f.readAll());}
 QString maskCpp(const QString& source){
     auto mask=source;auto blank=[&](int start,int end){for(int k=start;k<end;++k)if(mask[k]!='\n')mask[k]=' ';};
@@ -113,7 +122,9 @@ QByteArray ProjectIO::serialize(const SavedProject& p){
         if(it->language!="arduino"&&it->language!="micropython")throw std::runtime_error("Invalid board sketch language");sketches[it.key()]=QJsonObject{{"visual",it->visual},{"language",it->language},{"name",it->name},{"files",boardFiles},{"breakpoints",breakpointData(*it)}};
     }
     QJsonObject bundled;for(auto it=p.bundledLibraries.cbegin();it!=p.bundledLibraries.cend();++it)bundled[it.key()]=QJsonObject{{"data",QString::fromLatin1(it.value().toBase64())},{"sha256",QString::fromLatin1(QCryptographicHash::hash(it.value(),QCryptographicHash::Sha256).toHex())}};
-    const auto data=QJsonDocument(QJsonObject{{"breakpoints",breakpointData(p.sketch)},{"libraries",bundled},{"boardSketches",sketches},{"format","ThinkCad"},{"version",8},{"physicalLayout",2},{"visual",p.sketch.visual},{"language",p.sketch.language},{"executionMode",QString::fromLatin1(thinkercad::executionModeName(p.mode))},{"componentModels",ModulePackages::usedDefinitions(p.circuit)},{"name",p.sketch.name},{"activeBoard",QString::fromStdString(p.circuit.boardId())},{"parts",parts},{"wires",wires},{"files",files}}).toJson();
+    auto root=QJsonObject{{"breakpoints",breakpointData(p.sketch)},{"libraries",bundled},{"boardSketches",sketches},{"format","ThinkCad"},{"version",8},{"physicalLayout",2},{"visual",p.sketch.visual},{"language",p.sketch.language},{"executionMode",QString::fromLatin1(thinkercad::executionModeName(p.mode))},{"componentModels",ModulePackages::usedDefinitions(p.circuit)},{"name",p.sketch.name},{"activeBoard",QString::fromStdString(p.circuit.boardId())},{"parts",parts},{"wires",wires},{"files",files}};
+    if(!p.libraryReferences.isEmpty())root["libraryReferences"]=libraryReferences(p.libraryReferences);
+    const auto data=QJsonDocument(root).toJson();
     if(data.size()>32*1024*1024)throw std::runtime_error("Projekt ist größer als 32 MiB.");return data;
 }
 void ProjectIO::save(const QString& path,const SavedProject& p){const auto data=serialize(p);QSaveFile file(path);if(!file.open(QIODevice::WriteOnly)||file.write(data)!=data.size()||!file.commit())throw std::runtime_error("Projekt konnte nicht gespeichert werden.");
@@ -125,7 +136,7 @@ SavedProject ProjectIO::deserialize(const QByteArray& data,bool retainEmbeddedMo
     if(data.size()>32*1024*1024)throw std::runtime_error("Project exceeds 32 MiB");QJsonParseError error;const auto json=QJsonDocument::fromJson(data,&error);const auto o=json.object();if(error.error!=QJsonParseError::NoError||(o["format"].toString()!="ThinkCad"&&o["format"].toString()!="ThinkerCad")||(o["version"].toInt()!=1&&o["version"].toInt()!=2&&o["version"].toInt()!=3&&o["version"].toInt()!=4&&o["version"].toInt()!=5&&o["version"].toInt()!=6&&o["version"].toInt()!=7&&o["version"].toInt()!=8)||!o["parts"].isArray()||!o["wires"].isArray()||!o["files"].isArray())throw std::runtime_error("Ungültiges ThinkCad-Projektformat.");
     if((o.contains("physicalLayout")&&(!o["physicalLayout"].isDouble()||(o["physicalLayout"].toDouble()!=1&&o["physicalLayout"].toDouble()!=2)))||(o["version"].toInt()>=7&&o["physicalLayout"].toInt()!=2))throw std::runtime_error("Unsupported physical layout revision");
     QStringList installed;bool accepted=false;struct Rollback{QStringList& ids;bool& accepted;~Rollback(){if(!accepted)for(const auto& id:ids)thinkercad::ModuleRegistry::removeLocal(id.toStdString());}} rollback{installed,accepted};
-    SavedProject p;
+    SavedProject p;p.libraryReferences=libraryReferences(o["libraryReferences"]);
     if(o["version"].toInt()>=4){const auto mode=o["executionMode"].toString("simulation");if((o.contains("executionMode")&&!o["executionMode"].isString())||(mode!="simulation"&&mode!="emulation"))throw std::runtime_error("Invalid project execution mode");p.mode=mode=="emulation"?thinkercad::ExecutionMode::Emulation:thinkercad::ExecutionMode::Simulation;if(o.contains("componentModels")){if(!o["componentModels"].isArray())throw std::runtime_error("Invalid embedded component models");installed=ModulePackages::installEmbedded(o["componentModels"].toArray());}}
     p.circuit.removePart("board");p.sketch.name=o["name"].toString("sketch");
     for(const auto& entry:o["parts"].toArray()){auto v=entry.toObject();if(!v["x"].isDouble()||!v["y"].isDouble()||!v["value"].isDouble()||!v["kind"].isDouble())throw std::runtime_error("Invalid component properties");int kind=v["kind"].toInt(-1);if(o["version"].toInt()==4&&kind==59)kind=static_cast<int>(thinkercad::PartKind::Module);thinkercad::CircuitPart part{v["id"].toString().toStdString(),static_cast<thinkercad::PartKind>(kind),v["x"].toDouble(),v["y"].toDouble(),v["value"].toDouble(),v["state"].toBool(),v["color"].toString("#fb586b").toStdString(),v["model"].toString().toStdString()};if(v.contains("rotation")&&(!v["rotation"].isDouble()||v["rotation"].toDouble()!=v["rotation"].toInt(-1)))throw std::runtime_error("Invalid component rotation");part.rotation=v["rotation"].toInt();part.netName=v["netName"].toString().toStdString();if(v.contains("parameters")){if(!v["parameters"].isObject())throw std::runtime_error("Invalid component parameters");const auto params=v["parameters"].toObject();for(auto it=params.begin();it!=params.end();++it){if(!it.value().isDouble())throw std::runtime_error("Invalid parameter value");part.parameters[it.key().toStdString()]=it.value().toDouble();}}p.circuit.insertPart(part);}

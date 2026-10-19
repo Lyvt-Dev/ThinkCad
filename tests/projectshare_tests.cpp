@@ -47,6 +47,10 @@ class ProjectShareTests : public QObject {
         QCOMPARE(loaded.sketch.breakpoints, original.sketch.breakpoints);
         QCOMPARE(loaded.boardSketches.size(), 1);
         QVERIFY(loaded.bundledLibraries.isEmpty());
+        QCOMPARE(loaded.libraryReferences, libraries);
+        const auto saved = ProjectIO::deserialize(ProjectIO::serialize(loaded));
+        QCOMPARE(saved.libraryReferences, libraries);
+        QCOMPARE(ProjectShare::decode(ProjectShare::encode(saved)).libraries, libraries);
         QVERIFY(!decoded.project.contains("must never be embedded"));
     }
     void encryptedRoundTripAndWrongPassword() {
@@ -65,6 +69,14 @@ class ProjectShareTests : public QObject {
                                                                          QByteArray::OmitTrailingEquals));
         QVERIFY_EXCEPTION_THROWN(ProjectShare::decode(tampered, "correct horse battery staple"),
                                  std::runtime_error);
+    }
+    void rejectsMalformedPersistedLibraryReferences() {
+        auto source = project();
+        source.libraryReferences = QJsonArray{QJsonObject{{"name", ""}, {"version", "1"}}};
+        QVERIFY_EXCEPTION_THROWN(ProjectIO::serialize(source), std::runtime_error);
+        auto data = QJsonDocument::fromJson(ProjectIO::serialize(project())).object();
+        data["libraryReferences"] = "invalid";
+        QVERIFY_EXCEPTION_THROWN(ProjectIO::deserialize(QJsonDocument(data).toJson()), std::runtime_error);
     }
     void rejectsCorruptionAndOversizedOutput() {
         QVERIFY_EXCEPTION_THROWN(ProjectShare::decode("TC2:invalid"), std::runtime_error);

@@ -153,6 +153,18 @@ int main() {
             }
             check(state.partValues.at(m + "/steps") == 4,
                   "ULN2003 half-step sequence rotates 5/6-wire motor");
+            // Real Stepper sketches write each GPIO separately, in constructor pin order.
+            for (int i = 0; i < 4; ++i)
+                board.digitalWrite(i + 2, (3 >> i) & 1);
+            engine.reset();
+            state = engine.evaluate(unipolar, {{"board", &board}});
+            for (int mask : {6, 12, 9, 3})
+                for (int i : {0, 2, 1, 3}) {
+                    board.digitalWrite(i + 2, (mask >> i) & 1);
+                    state = engine.evaluate(unipolar, {{"board", &board}});
+                }
+            check(state.partValues.at(m + "/steps") == 4,
+                  "Sequential GPIO writes must not lose full steps at invalid intermediate coil masks");
         }
         CircuitDocument endstop;
         endstop.part("board").model = "arduino-uno";

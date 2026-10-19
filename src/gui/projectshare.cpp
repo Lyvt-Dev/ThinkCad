@@ -61,11 +61,20 @@ QByteArray randomBytes(int count) {
 }
 } // namespace
 QString ProjectShare::encode(SavedProject project, const QJsonArray &libraries, QByteArray password) {
+    QJsonArray references = project.libraryReferences;
+    for (const auto &value : libraries) {
+        const auto name = value.toObject()["name"].toString();
+        for (qsizetype i = references.size(); i > 0; --i)
+            if (references[i - 1].toObject()["name"].toString() == name)
+                references.removeAt(i - 1);
+        references.append(value);
+    }
+    project.libraryReferences = references;
     project.bundledLibraries.clear(); // References only: no silent code/license disclosure.
     const auto projectJson = QJsonDocument::fromJson(ProjectIO::serialize(project)).object();
     const auto plain =
         QJsonDocument(
-            QJsonObject{{"project", projectJson}, {"libraries", libraries}, {"format", "ThinkCad-Share-1"}})
+            QJsonObject{{"project", projectJson}, {"libraries", references}, {"format", "ThinkCad-Share-1"}})
             .toJson(QJsonDocument::Compact);
     if (plain.size() > MaximumProjectBytes)
         fail("Projekt ist zu groß für einen Share-Code.");
@@ -151,13 +160,14 @@ DecodedShare ProjectShare::decode(const QString &code, QByteArray password) {
             std::any_of(version.begin(), version.end(), [](QChar c) { return c.unicode() < 32; }))
             fail("Ungültige Share-Code-Metadaten.");
     }
-    const auto project = object["project"].toObject();
+    auto project = object["project"].toObject();
     if (project["format"].toString() != "ThinkCad" || project["version"].toInt() < 1 ||
         project["version"].toInt() > 8 || !project["parts"].isArray() || !project["wires"].isArray() ||
         !project["files"].isArray() || project["parts"].toArray().size() > 10000 ||
         project["wires"].toArray().size() > 50000 ||
         (!project["libraries"].isUndefined() && !project["libraries"].toObject().isEmpty()))
         fail("Projektformat oder Projektinhalt wird nicht unterstützt.");
+    project["libraryReferences"] = object["libraries"].toArray();
     return {QJsonDocument(project).toJson(QJsonDocument::Compact), object["libraries"].toArray(), locked};
 }
 bool ProjectShare::encrypted(const QString &code) {

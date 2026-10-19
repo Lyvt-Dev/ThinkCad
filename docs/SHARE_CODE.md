@@ -45,7 +45,8 @@ library download is triggered by import.
   name, board profiles, component count, project format and library requirements.
   Editing the code/password invalidates approval. Only explicit confirmation imports.
 - Import produces a new unsaved project through normal save guards. Existing project
-  files are never selected as the import destination. References do not install libraries.
+  files are never selected as the import destination. References do not install libraries. They remain optional `libraryReferences`
+  project metadata when saving and sharing again; no installation paths are retained.
 
 ## Dependencies / notices
 

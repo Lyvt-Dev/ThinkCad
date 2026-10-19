@@ -4826,5 +4826,9 @@
   "Sketch target (steps)": [
     "Obiettivo dello sketch (passi)",
     "Destino do sketch (passos)"
+  ],
+  "Invalid library references": [
+    "Riferimenti alle librerie non validi.",
+    "Referências de bibliotecas inválidas."
   ]
 }

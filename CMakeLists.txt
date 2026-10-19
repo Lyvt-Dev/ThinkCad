@@ -242,6 +242,11 @@ if(THINKERCAD_GUI)
     target_link_libraries(peripheral_tests PRIVATE thinkercad_desktop Qt6::Test)
     add_test(NAME wireless_peripherals COMMAND peripheral_tests)
     set_tests_properties(wireless_peripherals PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 150)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT WIN32)
+      # Six servo sweeps integrate at 100 us; unoptimized Linux builds exceed the aggregate 150 s budget.
+      # Per-case functional assertions remain unchanged; release builds retain the 150 s limit.
+      set_tests_properties(wireless_peripherals PROPERTIES TIMEOUT 300)
+    endif()
     qt_add_executable(workflow_tests tests/workflow_tests.cpp)
     qt_add_resources(workflow_tests review_branding PREFIX "/brand" BASE assets FILES assets/logo.png)
     target_link_libraries(workflow_tests PRIVATE thinkercad_desktop Qt6::Test)

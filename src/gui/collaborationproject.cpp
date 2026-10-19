@@ -8,7 +8,7 @@ QJsonObject CollaborationProject::encode(const SavedProject& project){
     // sketch duplicates the active board in disk projects; synchronize board
     // sketches once to avoid conflicting edits to that redundant copy.
     if(object["boardSketches"].toObject().isEmpty())object["unassignedSketch"]=QJsonObject{{"visual",object["visual"]},{"language",object["language"]},{"name",object["name"]},{"files",object["files"]},{"breakpoints",object["breakpoints"]}};
-    for(const auto* key:{"activeBoard","name","files","breakpoints","libraries","language","visual"})object.remove(key);
+    for(const auto* key:{"activeBoard","name","files","breakpoints","libraries","libraryReferences","language","visual"})object.remove(key);
     return object;
 }
 SavedProject CollaborationProject::decode(const QJsonObject& document){

@@ -179,6 +179,7 @@ private:
     QMap<QString,QByteArray> projectBundle_;
     std::unique_ptr<QTemporaryDir> bundledDirectory_;
     QStringList projectLibraries_;
+    QJsonArray projectLibraryReferences_;
     void loadBundle(const SavedProject& project);
     SavedProject snapshot();
     bool inputDirty_=false;

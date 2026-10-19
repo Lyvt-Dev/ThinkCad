@@ -7240,5 +7240,11 @@
     "Ціль скетча (кроки)",
     "Objetivo del sketch (pasos)",
     "Cible du sketch (pas)"
+  ],
+  "Invalid library references": [
+    "Недопустимые ссылки на библиотеки.",
+    "Некоректні посилання на бібліотеки.",
+    "Referencias de bibliotecas no válidas.",
+    "Références de bibliothèques non valides."
   ]
 }
