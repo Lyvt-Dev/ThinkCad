@@ -115,6 +115,11 @@ int main() {
             d.connect({sensor, "VCC"}, {"board", "3V3"});
             d.connect({sensor, "GND"}, {"board", "GND"});
             check(!has("supply"), "valid device supply accepted");
+            auto lcd = d.addPart(PartKind::I2cCharacterLcd, 0, 0);
+            d.connect({lcd, "VCC"}, {"board", "3V3"});
+            d.connect({lcd, "GND"}, {"board", "GND"});
+            check(!has("supply"), "3.3 V LCD agrees with the device supply model");
+            d.removePart(lcd);
             auto other = d.addPart(PartKind::Module, 0, 0);
             d.part(other).model = "bme280";
             for (auto id : {sensor, other}) {

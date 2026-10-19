@@ -116,7 +116,7 @@ DiagnosticEngine::analyze(const CircuitDocument &doc, const NetTopology &net, co
         const std::string power = def ? def->power : "VCC", ground = def ? def->ground : "GND";
         if (has(power) && has(ground)) {
             auto v = voltage({p.id, power}), g = voltage({p.id, ground});
-            const auto min = def ? def->minVoltage : p.kind == PartKind::Oled ? 3. : 4.5;
+            const auto min = def ? def->minVoltage : p.kind == PartKind::Oled ? 3. : 2.7;
             const auto max = def ? def->maxVoltage : p.kind == PartKind::Oled ? 3.6 : 5.5;
             if (!v || !g || *v - *g < min || *v - *g > max)
                 add("supply", Severity::Warning, {p.id, power},
