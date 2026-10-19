@@ -4082,5 +4082,53 @@
   "Last successful update": [
     "Ultimo aggiornamento riuscito",
     "Última atualização bem-sucedida"
+  ],
+  "Contacts (excluding power rails)": [
+    "Contatti (escluse le linee di alimentazione)",
+    "Contatos (sem barramentos de alimentação)"
+  ],
+  "Power rails": [
+    "Linee di alimentazione",
+    "Barramentos de alimentação"
+  ],
+  "Measurement mode": [
+    "Modalità di misura",
+    "Modo de medição"
+  ],
+  "Change measurement mode": [
+    "Cambia modalità di misura",
+    "Alterar modo de medição"
+  ],
+  "Choose color…": [
+    "Scegli colore…",
+    "Escolher cor…"
+  ],
+  "Component color": [
+    "Colore del componente",
+    "Cor do componente"
+  ],
+  "Change component color": [
+    "Cambia colore del componente",
+    "Alterar cor do componente"
+  ],
+  "Configure breadboard": [
+    "Configura breadboard",
+    "Configurar protoboard"
+  ],
+  "columns": [
+    "colonne",
+    "colunas"
+  ],
+  "DC voltage · V": [
+    "Tensione continua · V",
+    "Tensão contínua · V"
+  ],
+  "DC current · A": [
+    "Corrente continua · A",
+    "Corrente contínua · A"
+  ],
+  "Resistance · Ω (unpowered circuit)": [
+    "Resistenza · Ω (circuito non alimentato)",
+    "Resistência · Ω (circuito sem alimentação)"
   ]
 }

@@ -6124,5 +6124,77 @@
     "Попереднє успішне оновленняThe type of update",
     "Última actualización exitosa",
     "Dernière mise à jour réussie"
+  ],
+  "Contacts (excluding power rails)": [
+    "Контакты (без шин питания)",
+    "Контакти (без шин живлення)",
+    "Contactos (sin rieles de alimentación)",
+    "Contacts (hors rails d’alimentation)"
+  ],
+  "Power rails": [
+    "Шины питания",
+    "Шини живлення",
+    "Rieles de alimentación",
+    "Rails d’alimentation"
+  ],
+  "Measurement mode": [
+    "Режим измерения",
+    "Режим вимірювання",
+    "Modo de medición",
+    "Mode de mesure"
+  ],
+  "Change measurement mode": [
+    "Изменить режим измерения",
+    "Змінити режим вимірювання",
+    "Cambiar modo de medición",
+    "Changer le mode de mesure"
+  ],
+  "Choose color…": [
+    "Выбрать цвет…",
+    "Вибрати колір…",
+    "Elegir color…",
+    "Choisir une couleur…"
+  ],
+  "Component color": [
+    "Цвет компонента",
+    "Колір компонента",
+    "Color del componente",
+    "Couleur du composant"
+  ],
+  "Change component color": [
+    "Изменить цвет компонента",
+    "Змінити колір компонента",
+    "Cambiar color del componente",
+    "Changer la couleur du composant"
+  ],
+  "Configure breadboard": [
+    "Настроить макетную плату",
+    "Налаштувати макетну плату",
+    "Configurar placa de pruebas",
+    "Configurer la plaque d’essai"
+  ],
+  "columns": [
+    "столбцы",
+    "стовпці",
+    "columnas",
+    "colonnes"
+  ],
+  "DC voltage · V": [
+    "Постоянное напряжение · V",
+    "Постійна напруга · V",
+    "Tensión continua · V",
+    "Tension continue · V"
+  ],
+  "DC current · A": [
+    "Постоянный ток · A",
+    "Постійний струм · A",
+    "Corriente continua · A",
+    "Courant continu · A"
+  ],
+  "Resistance · Ω (unpowered circuit)": [
+    "Сопротивление · Ω (цепь обесточена)",
+    "Опір · Ω (коло без живлення)",
+    "Resistencia · Ω (circuito sin alimentación)",
+    "Résistance · Ω (circuit hors tension)"
   ]
 }
