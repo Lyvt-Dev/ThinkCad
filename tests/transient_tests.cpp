@@ -74,5 +74,12 @@ int main(){try{
         check(std::abs(state.partValues.at(servo)-held)<1e-8,"unpowered servo retains its physical shaft position");
         check(std::abs(sim.evaluate(d,boards).partValues.at(servo)-held)<1e-8,"unpowered render evaluation does not reset the arm");
     }
+    {
+        CircuitDocument d;d.part("board").model="esp32-s3";Esp8266Board board;board.configure("esp32-s3");
+        const auto servo=d.addPart(PartKind::ServoMotor,0,0);d.connect({"board","5V"},{servo,"VCC"});d.connect({"board","GND"},{servo,"GND"});d.connect({"board","GPIO5"},{servo,"SIGNAL"});
+        board.servoWrite(5,2400);TransientSimulation sim;CircuitState state;
+        for(Microseconds time=20000;time<=1000000;time+=20000){state=sim.advance(d,{{"board",&board}},time);healthy(state);}
+        check(state.partValues.at(servo)>179,"ESP32-S3 5 V header powers a working servo");
+    }
     std::cout<<checks<<" transient electrical checks passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

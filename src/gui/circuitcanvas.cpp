@@ -1,3 +1,4 @@
+#include "boardpins.hpp"
 #include "runtimecontrols.hpp"
 #include "physicalparts.hpp"
 #include "breadboardlayout.hpp"
@@ -45,12 +46,12 @@ QPainterPath wirePath(QPointF a,QPointF b) {QPainterPath p(a);p.lineTo(b);return
 QString partName(PartKind kind){return Language::text(QString::fromStdString(componentSpec(kind).label));}
 bool switchable(PartKind kind){return kind==PartKind::InfraredRemote||kind==PartKind::NfcTestCard||kind==PartKind::ToggleSwitch||kind==PartKind::Button||kind==PartKind::SlideSwitch||kind==PartKind::TiltSwitch||kind==PartKind::ReedSwitch;}
 double blockBoardScale(const CircuitPart& part){return part.kind==PartKind::Esp8266&&BoardProfile::get(part.model).arduino()?1.25:1.0;}
-QRectF blockBounds(const CircuitPart& part){if(part.kind==PartKind::Breadboard30)return breadboardBody(part).adjusted(-3,-3,3,3);if(part.kind>=PartKind::Keypad)return ComponentDesign::bounds(part);const double scale=blockBoardScale(part);if(poweredBoard(part))return {0,0,503,330};if(part.kind==PartKind::Note)return noteBounds(part);return part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd?QRectF(-10,-10,250,160):part.kind==PartKind::Junction?QRectF(-12,-12,24,24):part.kind==PartKind::NetLabel?QRectF(-8,-26,150,42):part.kind==PartKind::Esp8266?QRectF(-10*scale,-10*scale,230*scale,scale*std::max(370,202+static_cast<int>((CircuitDocument::pins(part).size()+1)/2-1)*24)):part.kind==PartKind::Oled?QRectF(-10,-10,310,224):part.kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*20));}
+QRectF blockBounds(const CircuitPart& part){if(part.kind==PartKind::Breadboard30)return breadboardBody(part).adjusted(-3,-3,3,3);if(part.kind>=PartKind::Keypad)return ComponentDesign::bounds(part);const double scale=blockBoardScale(part);if(poweredBoard(part))return {0,0,503,330};if(part.kind==PartKind::Note)return noteBounds(part);return part.kind==PartKind::CharacterLcd||part.kind==PartKind::I2cCharacterLcd?QRectF(-10,-10,250,160):part.kind==PartKind::Junction?QRectF(-12,-12,24,24):part.kind==PartKind::NetLabel?QRectF(-8,-26,150,42):part.kind==PartKind::Esp8266?QRectF(-10*scale,-10*scale,230*scale,scale*std::max(370,202+static_cast<int>((BoardPins::legacy(part).size()+1)/2-1)*24)):part.kind==PartKind::Oled?QRectF(-10,-10,310,224):part.kind==PartKind::Breadboard30?QRectF(0,0,570,260):QRectF(-10,-10,170,std::max(120,64+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*20));}
 QPointF localPin(const CircuitPart& part,const std::string& pin) {if(part.kind==PartKind::Breadboard30)return breadboardPin(part,pin);if(ComponentDesign::realistic()||part.kind>=PartKind::Keypad)return ComponentDesign::pinPosition(part,pin);const auto kind=part.kind;if(poweredBoard(part))return railBoardPin(pin);
     if(kind==PartKind::CharacterLcd||kind==PartKind::I2cCharacterLcd){const auto names=CircuitDocument::pins(part);const auto i=std::find(names.begin(),names.end(),pin)-names.begin();return {10.+i*(kind==PartKind::CharacterLcd?14.:60.),140};}
     if(kind==PartKind::Junction||kind==PartKind::NetLabel)return {0,0};
     const auto names=CircuitDocument::pins(part);const int index=static_cast<int>(std::find(names.begin(),names.end(),pin)-names.begin());
-    if(kind==PartKind::Esp8266){const int half=(names.size()+1)/2;return (index<half?QPointF(0,142+index*24):QPointF(210,142+(index-half)*24))*blockBoardScale(part);}
+    if(kind==PartKind::Esp8266){const auto base=BoardPins::legacy(part);const int half=(base.size()+1)/2;auto it=std::find(base.begin(),base.end(),pin);if(it!=base.end()){int n=int(it-base.begin());return (n<half?QPointF(0,142+n*24):QPointF(210,142+(n-half)*24))*blockBoardScale(part);}const auto added=BoardProfile::get(part.model).additionalPowerPins();int n=int(std::find(added.begin(),added.end(),pin)-added.begin());return QPointF(n%2?210:0,142+(half+n/2)*24)*blockBoardScale(part);}
     if(kind==PartKind::Oled)return {47.0+index*66,200};
     if(kind==PartKind::Breadboard30){const int column=std::stoi(pin.substr(1))-1,row=pin[0]-'a';return {20.0+column*18,40.0+row*18+(row>=5?25:0)};}
     if(names.size()>2){const int half=(names.size()+1)/2;return {index<half?0.0:150.0,44.0+(index%half)*20};}
@@ -117,6 +118,9 @@ public:
         if(endpoint_.pin=="A"&&(part.kind==PartKind::Led||part.kind==PartKind::Diode))description=Language::text("Anode (+)");
         else if(endpoint_.pin=="K")description=Language::text("Kathode (−)");
         else if(endpoint_.pin=="GND"||endpoint_.pin=="GND2"||endpoint_.pin=="GND3")description=Language::text("Masse / Bezugspotential (0 V)");
+        else if(endpoint_.pin=="VIN"&&part.kind==PartKind::Esp8266)description=BoardProfile::get(part.model).arduino()?Language::text("Rohspannungseingang VIN (getrennt von 5 V)"):Language::text("VIN / USB-Versorgung (5 V im USB-Modell)");
+        else if(endpoint_.pin=="VBUS")description=Language::text("USB-Versorgung (5 V)");
+        else if(endpoint_.pin=="VSYS")description=Language::text("Systemversorgung (USB über Schottky-Diode)");
         else if(endpoint_.pin=="SDA")description=Language::text("I²C-Datenleitung");
         else if(endpoint_.pin=="SCL")description=Language::text("I²C-Taktleitung");
         else if(endpoint_.pin=="VCC"||endpoint_.pin=="3V3"||endpoint_.pin=="3V3_2"||endpoint_.pin=="5V")description=Language::text("Versorgungsspannung");

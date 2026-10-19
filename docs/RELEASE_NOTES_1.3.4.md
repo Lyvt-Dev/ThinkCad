@@ -14,6 +14,14 @@
 - Arcade-Taster, Drum-Pads und Drucksensoren reagieren auf Drücken und Loslassen. Das Freigeben beim Fokusverlust verhindert hängende Eingaben.
 - Sensoren und Signalquellen erhalten frei verschiebbare Live-Schieberegler statt des Hinweises, den Wert anderweitig zu verändern.
 
+## Versorgungsanschlüsse
+
+VIN für Uno/Nano und NodeMCU, 5V für ESP32-Varianten und STM32 Blue Pill,
+sowie VBUS/VSYS für Pico. Neue Anschlüsse sind verdrahtbar, sichtbar beschriftet
+und haben passende Spannungsgrenzen. Uno/Nano-VIN bleibt ein separater Eingang;
+Pico-VSYS erhält USB-Strom über eine Schottky-Diode. Alte Kontaktkoordinaten
+bleiben stabil. [Modellverhalten und Boardübersicht](BOARD_POWER.de.md).
+
 ## Bauteilzeichnungen
 
 Erkennbare flache Darstellungen für Joystick mit Gimbal und beweglichem Knopf,

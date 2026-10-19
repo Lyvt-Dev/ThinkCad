@@ -35,6 +35,17 @@ BoardProfile BoardProfile::get(const std::string& id){
     }
     throw std::invalid_argument("Unknown board profile");
 }
+std::vector<std::string> BoardProfile::additionalPowerPins()const{
+    if(id=="attiny85"||id=="microbit")return {};
+    if(id=="esp8266"||arduino())return {"VIN"};
+    if(id=="rp2040")return {"VBUS","VSYS"};
+    return {"5V"};
+}
+std::string BoardProfile::usbPowerPin()const{
+    if(id=="attiny85"||id=="microbit")return {};
+    if(id=="esp8266")return "VIN";
+    return id=="rp2040"?"VBUS":"5V";
+}
 bool BoardProfile::supportsPwm(int number)const{
     if(std::find(gpio.begin(),gpio.end(),number)==gpio.end()||std::find(inputOnly.begin(),inputOnly.end(),number)!=inputOnly.end())return false;
     if(id=="attiny85")return number==0||number==1||number==4;

@@ -1,3 +1,4 @@
+#include "boardpins.hpp"
 #include "electronicsart.hpp"
 #include "breadboardlayout.hpp"
 #include "physicalparts.hpp"
@@ -74,14 +75,14 @@ QPointF boardPin(const CircuitPart& part,const std::string& pin){
     if(profile.id=="arduino-uno"){
         // Arduino UNO-TH Rev3e reference CAD, viewed from the component side.
         QPointF mm;
-        if(pin=="5V")mm={38.1,50.8};else if(pin=="3V3")mm={35.56,50.8};
+        if(pin=="VIN")mm={45.72,50.8};else if(pin=="5V")mm={38.1,50.8};else if(pin=="3V3")mm={35.56,50.8};
         else if(pin=="GND")mm={40.64,50.8};else if(pin=="GND2")mm={43.18,50.8};else if(pin=="GND3")mm={26.416,2.54};
         else if(pin=="SDA")mm={21.336,2.54};else if(pin=="SCL")mm={18.796,2.54};
         else{const int number=profile.pinNumber(pin);mm=number<14?QPointF(63.5-number*2.54-(number>=8?1.524:0),2.54):QPointF(50.8+(number-14)*2.54,50.8);}
         return physicalTransform(part).inverted().map(mm*6);
     }
     if(profile.id=="arduino-nano"){
-        if(pin=="3V3")return {8,24+nanoPitch};if(pin=="5V")return {8,24+11*nanoPitch};if(pin=="GND")return {8,24+13*nanoPitch};if(pin=="GND2")return {92.6666667,24+11*nanoPitch};
+        if(pin=="VIN")return {8,24+14*nanoPitch};if(pin=="3V3")return {8,24+nanoPitch};if(pin=="5V")return {8,24+11*nanoPitch};if(pin=="GND")return {8,24+13*nanoPitch};if(pin=="GND2")return {92.6666667,24+11*nanoPitch};
         const int number=profile.pinNumber(pin);
         if(number==13)return {8,24};if(number>=14)return {8,24+(number-11)*nanoPitch};
         return {92.6666667,24+(number<2?13+number:12-number)*nanoPitch};
@@ -91,7 +92,8 @@ QPointF boardPin(const CircuitPart& part,const std::string& pin){
         const std::vector<int> left=s3?std::vector<int>{-1,-1,-1,4,5,6,7,15,16,17,18,8,3,46,9,10,11,12,13,14,-1,-1}:std::vector<int>{-1,-1,36,39,34,35,32,33,25,26,27,14,12,-1,13,-1,-1,-1,-1};
         const std::vector<int> right=s3?std::vector<int>{-1,43,44,1,2,42,41,40,39,38,37,36,35,0,45,48,47,21,20,19,-1,-1}:std::vector<int>{-1,23,22,1,3,21,-1,19,18,5,17,16,4,0,2,15,-1,-1,-1};
         QPointF mm;
-        if(pin=="3V3"||pin=="3V3_2")mm={1.27,top+(pin=="3V3_2"&&s3?2.54:0)};
+        if(pin=="5V")mm={1.27,top+(s3?20:18)*2.54};
+        else if(pin=="3V3"||pin=="3V3_2")mm={1.27,top+(pin=="3V3_2"&&s3?2.54:0)};
         else if(pin=="GND")mm={1.27,top+(s3?21:13)*2.54};
         else if(pin=="GND2")mm={s3?24.13:26.67,top};
         else{const int gpio=pin=="A0"?profile.defaultAdc:profile.pinNumber(pin);auto l=std::find(left.begin(),left.end(),gpio),r=std::find(right.begin(),right.end(),gpio);if(l!=left.end())mm={1.27,top+double(l-left.begin())*2.54};else if(r!=right.end())mm={s3?24.13:26.67,top+double(r-right.begin())*2.54};else throw std::invalid_argument("GPIO has no modeled header position");}
@@ -101,13 +103,21 @@ QPointF boardPin(const CircuitPart& part,const std::string& pin){
     const double right=8+std::round(134*transform.m11()/15.24)*15.24/transform.m11();
     if(profile.id=="esp8266"){
         const double top=(artBounds(part).height()-24-14*pitch)/2;
-        if(pin=="A0")return {8,top};if(pin=="GND")return {8,top+9*pitch};if(pin=="3V3")return {8,top+10*pitch};
+        if(pin=="VIN")return {8,top+14*pitch};if(pin=="A0")return {8,top};if(pin=="GND")return {8,top+9*pitch};if(pin=="3V3")return {8,top+10*pitch};
         if(pin=="3V3_2")return {right,top+5*pitch};if(pin=="GND2")return {right,top+6*pitch};
         const auto number=profile.pinNumber(pin);const std::array<int,11> gpio{16,5,4,0,2,14,12,13,15,3,1};
         const auto found=std::find(gpio.begin(),gpio.end(),number);const int i=static_cast<int>(found-gpio.begin());return {right,top+(i<5?i:i+2)*pitch};
     }
-    const auto names=CircuitDocument::pins(part);const int i=static_cast<int>(std::find(names.begin(),names.end(),pin)-names.begin());
+    const auto names=BoardPins::legacy(part);const int i=static_cast<int>(std::find(names.begin(),names.end(),pin)-names.begin());
     const int half=static_cast<int>((names.size()+1)/2);const double top=(artBounds(part).height()-24-(half-1)*pitch)/2;
+    if(i==int(names.size())){
+        if(profile.id=="rp2040")return transform.inverted().map(QPointF(19.05,pin=="VBUS"?1.37:3.91)*6);
+        // Generic board profiles retain their previous GPIO coordinates. Use
+        // a spare header row where available, otherwise a separate power pad.
+        const double height=artBounds(part).height()-24;
+        for(int row:{-1,half}){const double y=top+row*pitch;if(y>1&&y<height-1)return {8,y};}
+        return {75,height-15};
+    }
     return {i<half?8.:right,top+(i%half)*pitch};
 }
 void board(QPainter& p,const CircuitPart& part,const CircuitState& state){
@@ -183,7 +193,7 @@ QRectF artBounds(const CircuitPart& part){if(poweredBoard(part))return {-6,-6,51
     if(part.kind==PartKind::Junction)return {-12,-12,24,24};if(part.kind==PartKind::NetLabel)return {-8,-26,150,42};
     if(part.kind==PartKind::Esp8266){const auto profile=BoardProfile::get(part.model);
         if(profile.id=="arduino-uno")return {-14,-12,328,250};if(profile.id=="arduino-nano")return {-12,-12,124,310};
-        return {-12,-12,174,static_cast<double>(std::max(330,70+static_cast<int>((CircuitDocument::pins(part).size()+1)/2)*16))};
+        return {-12,-12,174,static_cast<double>(std::max(330,70+static_cast<int>((BoardPins::legacy(part).size()+1)/2)*16))};
     }
     if(part.kind==PartKind::Breadboard30)return {-12,-12,594,284};
     if(part.kind==PartKind::Oled)return {-12,-12,316,CircuitDocument::displayHeight(part)==32?160.0:228.0};

@@ -89,7 +89,7 @@ void CircuitDocument::setActiveBoard(const std::string& id){
     activeBoard_=id;
 }
 std::vector<std::string> CircuitDocument::pins(PartKind k) {
-    if(k==PartKind::Esp8266)return {"3V3","GND","GPIO16","GPIO5","GPIO4","GPIO0","GPIO2","A0","GND2","GPIO14","GPIO12","GPIO13","GPIO15","GPIO3","GPIO1","3V3_2"};
+    if(k==PartKind::Esp8266)return {"3V3","GND","GPIO16","GPIO5","GPIO4","GPIO0","GPIO2","A0","GND2","GPIO14","GPIO12","GPIO13","GPIO15","GPIO3","GPIO1","3V3_2","VIN"};
     if(k==PartKind::NpnTransistor||k==PartKind::PnpTransistor)return {"C","B","E"};
     if(k==PartKind::NMosfet||k==PartKind::PMosfet)return {"D","G","S"};
     if(k==PartKind::InfraredLed)return {"A","K"};
@@ -136,8 +136,8 @@ std::vector<std::string> CircuitDocument::pins(const CircuitPart& part){
 
     if(part.kind!=PartKind::Esp8266||part.model.empty()||part.model=="esp8266")return pins(part.kind);
     const auto profile=BoardProfile::get(part.model);
-    if(profile.arduino()){std::vector<std::string> names{"5V","3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.push_back("GND2");if(profile.id=="arduino-uno")names.insert(names.end(),{"GND3","SDA","SCL"});return names;}
-    std::vector<std::string> names{"3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.insert(names.end(),{"A0","GND2","3V3_2"});return names;
+    if(profile.arduino()){std::vector<std::string> names{"5V","3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.push_back("GND2");if(profile.id=="arduino-uno")names.insert(names.end(),{"GND3","SDA","SCL"});names.push_back("VIN");return names;}
+    std::vector<std::string> names{"3V3","GND"};for(int gpio:profile.gpio)names.push_back(profile.pinName(gpio));names.insert(names.end(),{"A0","GND2","3V3_2"});const auto power=profile.additionalPowerPins();names.insert(names.end(),power.begin(),power.end());return names;
 }
 CircuitPart& CircuitDocument::part(const std::string& id) {for(auto& p:parts_)if(p.id==id)return p;throw std::out_of_range("Unknown component: "+id);}
 const CircuitPart& CircuitDocument::part(const std::string& id) const {for(const auto& p:parts_)if(p.id==id)return p;throw std::out_of_range("Unknown component: "+id);}
@@ -225,7 +225,8 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         const auto profile=BoardProfile::get(p.model);
         for(const auto& pin:pins(p))result.logicVoltage[{p.id,pin}]=profile.voltage;
         driver(nodes.node({p.id,"GND"}),0);if(profile.id=="attiny85")continue;driver(nodes.node({p.id,"3V3"}),3.3);
-        if(profile.arduino())driver(nodes.node({p.id,"5V"}),5);
+        const auto usb=profile.usbPowerPin();if(!usb.empty())driver(nodes.node({p.id,usb}),5);
+        if(profile.id=="rp2040")resistors.push_back({nodes.node({p.id,"VSYS"}),nodes.node({p.id,"GND"}),100000});
     }
     for(const auto& [id,source]:boards){if(!source)continue;const auto& board=*source;
     for(const auto& [ep,index]:nodes.endpoints())if(ep.part==id&&board.profile().pinNumber(ep.pin)>=0) {
@@ -283,6 +284,8 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         }
         if(p.kind==PartKind::SevenSegment)for(const auto& channel:std::vector<std::string>{"a","b","c","d","e","f","g","dp"})junctions.push_back({p.id+":"+channel,nodes.node({p.id,channel}),nodes.node({p.id,"COM"}),2,10,0.02});
     }
+    for(const auto& p:parts_)if(p.kind==PartKind::Esp8266&&BoardProfile::get(p.model).id=="rp2040")
+        junctions.push_back({p.id+":USB-power",nodes.node({p.id,"VBUS"}),nodes.node({p.id,"VSYS"}),.3,.1,1});
     std::map<std::string,bool> conducting;std::map<int,std::string> logicOwners;std::map<int,double> volts=fixed;std::set<std::string> poweredSensors;
     std::vector<Branch> resolvedBranches;
     std::map<std::string,std::vector<ElectricalBranch>> electronicDrive;
@@ -506,7 +509,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         if(std::abs(current)>(source->profile().arduino()?0.04:0.012)+1e-6)
             result.errors.push_back("GPIO-Überstrom: "+id+"."+source->profile().pinName(gpio)+". Last benötigt Vorwiderstand oder Treiber / Verstärker.");
     }
-    for(const auto& [id,source]:boards){if(!source)continue;const auto& board=*source;for(const auto& ep:result.voltage)if(ep.first.part==id&&ep.second){const double limit=ep.first.pin=="A0"?board.profile().adcMax:board.profile().voltage+0.3;if(*ep.second>limit+1e-6||*ep.second<-0.3)result.errors.push_back("Überspannung am Boardpin "+id+"."+ep.first.pin);}
+    for(const auto& [id,source]:boards){if(!source)continue;const auto& board=*source;for(const auto& ep:result.voltage)if(ep.first.part==id&&ep.second){const auto& name=ep.first.pin;const double limit=name=="VIN"?(board.profile().arduino()?20.:12.):name=="5V"||name=="VBUS"||name=="VSYS"?5.5:name=="A0"?board.profile().adcMax:board.profile().voltage+0.3;if(*ep.second>limit+1e-6||*ep.second<-0.3)result.errors.push_back("Überspannung am Boardpin "+id+"."+ep.first.pin);}
 
     }
     return result;

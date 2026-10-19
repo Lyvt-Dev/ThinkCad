@@ -42,6 +42,8 @@ struct BoardProfile {
     double voltage=3.3; int builtinLed=2;
     bool arduino()const{return id=="arduino-uno"||id=="arduino-nano"||id=="attiny85";}
     bool supportsPwm(int gpio)const;
+    std::vector<std::string> additionalPowerPins()const;
+    std::string usbPowerPin()const;
     std::array<int,4> spiPins()const;
     std::string pinName(int gpio)const;
     int pinNumber(const std::string& name)const;

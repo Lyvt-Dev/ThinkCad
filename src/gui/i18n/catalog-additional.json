@@ -4130,5 +4130,21 @@
   "Resistance · Ω (unpowered circuit)": [
     "Resistenza · Ω (circuito non alimentato)",
     "Resistência · Ω (circuito sem alimentação)"
+  ],
+  "Raw VIN input (separate from 5 V)": [
+    "Ingresso VIN non regolato (separato da 5 V)",
+    "Entrada VIN não regulada (separada de 5 V)"
+  ],
+  "VIN / USB supply (5 V in the USB model)": [
+    "VIN / alimentazione USB (5 V nel modello USB)",
+    "VIN / alimentação USB (5 V no modelo USB)"
+  ],
+  "USB power (5 V)": [
+    "Alimentazione USB (5 V)",
+    "Alimentação USB (5 V)"
+  ],
+  "System power (USB through a Schottky diode)": [
+    "Alimentazione di sistema (USB tramite diodo Schottky)",
+    "Alimentação do sistema (USB através de diodo Schottky)"
   ]
 }

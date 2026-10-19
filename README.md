@@ -15,7 +15,8 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 Direkt bedienbarer Joystick, Regler, Taster und Sensorschieberegler statt bloßer
 Hinweistexte. Überarbeitete flache Bauteilzeichnungen und weich fahrende Servos.
 Abstürze beim Verdrahten des ATtiny85 und durch verspätete Eingaben gelöschter
-Bauteile sind behoben.
+Bauteile sind behoben. Fehlende VIN-/5V-Anschlüsse sowie Pico-VBUS/VSYS sind
+[boardspezifisch ergänzt](docs/BOARD_POWER.de.md).
 
 [Release-Notes 1.3.4](docs/RELEASE_NOTES_1.3.4.md)
 

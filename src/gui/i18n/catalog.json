@@ -6196,5 +6196,29 @@
     "Опір · Ω (коло без живлення)",
     "Resistencia · Ω (circuito sin alimentación)",
     "Résistance · Ω (circuit hors tension)"
+  ],
+  "Raw VIN input (separate from 5 V)": [
+    "Вход нерегулируемого питания VIN (отдельно от 5 В)",
+    "Вхід нерегульованого живлення VIN (окремо від 5 В)",
+    "Entrada VIN sin regular (separada de 5 V)",
+    "Entrée VIN non régulée (séparée du 5 V)"
+  ],
+  "VIN / USB supply (5 V in the USB model)": [
+    "VIN / питание от USB (5 В в модели USB)",
+    "VIN / живлення від USB (5 В у моделі USB)",
+    "VIN / alimentación USB (5 V en el modelo USB)",
+    "VIN / alimentation USB (5 V dans le modèle USB)"
+  ],
+  "USB power (5 V)": [
+    "Питание от USB (5 В)",
+    "Живлення від USB (5 В)",
+    "Alimentación USB (5 V)",
+    "Alimentation USB (5 V)"
+  ],
+  "System power (USB through a Schottky diode)": [
+    "Системное питание (USB через диод Шоттки)",
+    "Живлення системи (USB через діод Шотткі)",
+    "Alimentación del sistema (USB mediante diodo Schottky)",
+    "Alimentation du système (USB via une diode Schottky)"
   ]
 }

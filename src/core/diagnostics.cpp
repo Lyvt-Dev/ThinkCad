@@ -26,8 +26,9 @@ DiagnosticEngine::analyze(const CircuitDocument &doc, const NetTopology &net, co
         // ideal 3V3/5V rails. Diagnose only terminals actually in the netlist.
         if (net.contains({id, "3V3"}))
             drivers[net.node({id, "3V3"})].push_back({{id, "3V3"}, 3.3});
-        if (board->profile().arduino() && net.contains({id, "5V"}))
-            drivers[net.node({id, "5V"})].push_back({{id, "5V"}, 5});
+        const auto usb=board->profile().usbPowerPin();
+        if (!usb.empty() && net.contains({id, usb}))
+            drivers[net.node({id, usb})].push_back({{id, usb}, 5});
         for (int gpio : board->profile().gpio) {
             Endpoint ep{id, board->profile().pinName(gpio)};
             const auto &pin = board->pin(gpio);
