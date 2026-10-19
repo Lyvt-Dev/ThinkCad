@@ -40,7 +40,7 @@ public:
 struct BoardProfile {
     std::string id,label;std::vector<int> gpio,adc,inputOnly;double adcMax=1;int adcBits=10,defaultAdc=17,sda=4,scl=5;
     double voltage=3.3; int builtinLed=2;
-    bool arduino()const{return id=="arduino-uno"||id=="arduino-nano";}
+    bool arduino()const{return id=="arduino-uno"||id=="arduino-nano"||id=="attiny85";}
     bool supportsPwm(int gpio)const;
     std::array<int,4> spiPins()const;
     std::string pinName(int gpio)const;

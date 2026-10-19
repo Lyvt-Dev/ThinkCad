@@ -18,7 +18,7 @@ struct ModuleDefinition {
     std::map<std::string,double> pullups;
     double idleCurrent=.001;
     double width=18,height=24,minVoltage=3,maxVoltage=3.6;
-    int address=0,spiMode=0;
+    int address=0,spiMode=0,addressCount=2;
     unsigned maxClock=400000;
     std::map<unsigned,unsigned> registers;
     std::vector<unsigned> readOnly;

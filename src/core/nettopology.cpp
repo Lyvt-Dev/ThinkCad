@@ -12,6 +12,7 @@ NetTopology::NetTopology(const CircuitDocument &doc) {
     for (const auto &part : doc.parts())
         if (part.kind == PartKind::Esp8266) {
             const auto profile = BoardProfile::get(part.model);
+            if (profile.id == "attiny85") continue;
             if (!profile.arduino() && profile.id != "esp8266")
                 join({part.id, "A0"}, {part.id, profile.pinName(profile.defaultAdc)});
             join({part.id, "GND"}, {part.id, "GND2"});
@@ -62,12 +63,12 @@ NetTopology::NetTopology(const CircuitDocument &doc) {
         }
         if (p.kind == PartKind::SlideSwitch)
             join({p.id, "C"}, {p.id, p.pressed ? "2" : "1"});
-        if (p.kind == PartKind::Breadboard30 && p.model == "power-rails")
+        if (p.kind == PartKind::Breadboard30 && breadboardRails(p))
             for (const auto &rail : {"T+", "T-", "B+", "B-"})
-                for (int n = 2; n <= 25; ++n)
+                for (int n = 2; n <= breadboardRailContacts(p); ++n)
                     join({p.id, std::string(rail) + "1"}, {p.id, std::string(rail) + std::to_string(n)});
         if (p.kind == PartKind::Breadboard30)
-            for (int n = 1; n <= 30; ++n)
+            for (int n = 1; n <= breadboardColumns(p); ++n)
                 for (char start : {'a', 'f'})
                     for (int j = 1; j < 5; ++j)
                         join({p.id, std::string(1, start) + std::to_string(n)},

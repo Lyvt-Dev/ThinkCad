@@ -1,3 +1,10 @@
+#include "audiocodecdecoder.hpp"
+#include "thinkercad/modules.hpp"
+#include "componentoptions.hpp"
+#include <QColorDialog>
+#include <QPainter>
+#include <QImage>
+#include <QCheckBox>
 #include <stdexcept>
 #include "peripheralhub.hpp"
 #include "examples.hpp"
@@ -62,6 +69,68 @@ void loop(){delay(20);}
         auto* serial=window.findChild<SerialTools*>();QTRY_VERIFY_WITH_TIMEOUT(serial->monitorText().contains("Wire ready")||!window.simulationActive(),15000);
         QVERIFY2(serial->monitorText().contains("Wire ready"),qPrintable(window.findChild<QPlainTextEdit*>("consoleOutput")->toPlainText()));
         QVERIFY2(serial->monitorText().remove('\r').contains("0\n2\n8"),qPrintable(serial->monitorText()));const auto& frame=window.displayFrame(find(window.circuit(),PartKind::I2cCharacterLcd));QVERIFY(frame.pixel(0,0)&&frame.pixel(4,6)&&!frame.pixel(1,0));window.stopSimulation();
+    }
+    void i2cLcdSupplyAndWiringChecks(){
+        auto project=ExampleCatalog::create("lcd_i2c");auto& doc=project.circuit;Esp8266Board board;board.configure("arduino-uno");I2cDevices bus;
+        const auto lcd=find(doc,PartKind::I2cCharacterLcd);
+        std::vector<std::string> wires;for(const auto& w:doc.wires())if(w.a==Endpoint{lcd,"VCC"}||w.b==Endpoint{lcd,"VCC"})wires.push_back(w.id);for(const auto& id:wires)doc.removeWire(id);
+        const auto supply=doc.addPart(PartKind::PowerSupply,0,500);doc.connect({supply,"-"},{"board","GND"});doc.connect({supply,"+"},{lcd,"VCC"});
+        auto transfer=[&](int sda=18,int scl=19,int address=0x27){return bus.transfer(doc,doc.solve(board),"board",sda,scl,address,{}).status;};
+        for(double volts:{2.7,3.3,5.0}){doc.part(supply).value=volts;QCOMPARE(transfer(),0);}
+        for(double volts:{2.6,5.6}){doc.part(supply).value=volts;QCOMPARE(transfer(),2);}
+        doc.part(supply).value=3.3;QCOMPARE(transfer(19,18),2);QCOMPARE(transfer(18,19,0x26),2);
+        doc.removePart(supply);QCOMPARE(transfer(),2);
+    }
+    void liquidCrystalI2cCustomPins20x4_data(){QTest::addColumn<bool>("emulation");QTest::newRow("simulation")<<false;QTest::newRow("emulation")<<true;}
+    void liquidCrystalI2cCustomPins20x4(){
+        QFETCH(bool,emulation);MainWindow window;window.show();QVERIFY(window.loadExample("lcd_i2c"));
+        const auto lcd=find(window.circuit(),PartKind::I2cCharacterLcd);
+        window.canvas()->mutate("custom S3 LCD",[&](auto& doc){
+            doc.part("board").model="esp32-s3";doc.part(lcd).model="lcd-20x4";
+            std::vector<std::string> wires;for(const auto& w:doc.wires())wires.push_back(w.id);for(const auto& id:wires)doc.removeWire(id);
+            doc.connect({"board","GND"},{lcd,"GND"});doc.connect({"board","3V3"},{lcd,"VCC"});
+            doc.connect({"board","GPIO8"},{lcd,"SDA"});doc.connect({"board","GPIO9"},{lcd,"SCL"});
+        });
+        auto* editor=qobject_cast<QPlainTextEdit*>(window.findChild<QTabWidget*>("codeTabs")->currentWidget());QVERIFY(editor);
+        editor->setPlainText(R"sketch(
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+const uint8_t LCD_ADDRESS=0x27;
+const int SW=19;
+const int STATUS=20;
+LiquidCrystal_I2C lcd(LCD_ADDRESS,20,4);
+void setup(){pinMode(SW,INPUT_PULLUP);pinMode(STATUS,OUTPUT);Wire.begin(8,9);lcd.init();lcd.begin(20,4);lcd.backlight();lcd.setCursor(0,0);lcd.print("Hello World");}
+void loop(){if(digitalRead(SW)==HIGH){digitalWrite(STATUS,HIGH);}else{digitalWrite(STATUS,LOW);}delay(100);}
+)sketch");editor->document()->setModified(true);QVERIFY(window.setExecutionMode(emulation?ExecutionMode::Emulation:ExecutionMode::Simulation));window.startSimulation();
+        QTRY_VERIFY_WITH_TIMEOUT(window.displayFrame(lcd).pixel(0,0)||!window.simulationActive(),15000);
+        QVERIFY2(window.simulationActive(),qPrintable(window.findChild<QPlainTextEdit*>("consoleOutput")->toPlainText()));
+        QVERIFY(window.displayFrame(lcd).pixel(0,0));QVERIFY(window.displayFrame(lcd).pixel(64,0));QTRY_VERIFY_WITH_TIMEOUT(window.simulationTime()>300000,5000);QVERIFY(window.displayFrame(lcd).pixel(0,0));QCOMPARE(window.circuitState().level({"board","GPIO20"}),Level::High);shot(window,emulation?"lcd-s3-3v3-emulation":"lcd-s3-3v3-simulation");window.stopSimulation();
+    }
+    void expandedComponentArtworkGallery(){
+        const auto root=qEnvironmentVariable("THINKCAD_REVIEW_DIR");if(root.isEmpty())QSKIP("Set THINKCAD_REVIEW_DIR to export the component review gallery");
+        QDir().mkpath(root);ComponentDesign::set("realistic");int index=0,page=0;QImage image;
+        for(const auto& [id,model]:ModuleRegistry::definitions()){
+            if(index%12==0){if(!image.isNull())QVERIFY(image.save(root+QString("/component-gallery-%1.png").arg(page++,2,10,QChar('0'))));image=QImage(1800,1200,QImage::Format_ARGB32_Premultiplied);image.fill(QColor("#f0f1ee"));}
+            CircuitPart part;part.id="preview";part.kind=PartKind::Module;part.model=id;part.color="#dd3e46";
+            QPainter painter(&image);int card=index%12;QRectF area((card%4)*450,(card/4)*400,450,400);
+            painter.setPen(QColor("#263632"));painter.setFont(QFont("Sans Serif",12));painter.drawText(area.adjusted(12,10,-12,-345),Qt::AlignCenter|Qt::TextWordWrap,QString::fromStdString(model.label));
+            const auto bounds=ComponentDesign::bounds(part);double scale=std::min(1.,std::min(400./bounds.width(),290./bounds.height()));
+            painter.translate(area.center().x()-bounds.center().x()*scale,area.top()+220-bounds.center().y()*scale);painter.scale(scale,scale);
+            ComponentDesign::paint(painter,part,{}, {},1,false);painter.setPen(QPen(QColor("#8b9691"),1));painter.setBrush(QColor("#d2d7d3"));for(const auto& pin:CircuitDocument::pins(part))painter.drawEllipse(ComponentDesign::pinPosition(part,pin),2,2);
+            painter.end();++index;
+        }
+        if(!image.isNull())QVERIFY(image.save(root+QString("/component-gallery-%1.png").arg(page,2,10,QChar('0'))));QVERIFY(index>80);
+    }
+    void codecMp3DecodesToRealPcm(){
+        QFile fixture(QFINDTESTDATA("fixtures/vs1053-tone.mp3"));QVERIFY(fixture.open(QIODevice::ReadOnly));auto encoded=fixture.readAll();AudioCodecDecoder decoder;std::shared_ptr<const std::vector<float>> pcm;unsigned rate=0,callbacks=0;std::size_t delivered=0;QString error;
+        decoder.notice=[&](const auto& text){error=text;};decoder.decoded=[&](const auto& id,auto data,unsigned hz,std::uint64_t generation){QCOMPARE(id,std::string("codec"));QCOMPARE(generation,std::uint64_t(42));++callbacks;delivered+=data->size();pcm=std::move(data);rate=hz;};decoder.append("codec",{encoded.begin(),encoded.end()},42);
+        QTRY_VERIFY_WITH_TIMEOUT(pcm||!error.isEmpty(),10000);QVERIFY2(pcm,qPrintable(error));QVERIFY(rate>0);QVERIFY(pcm->size()>4000);std::vector<int> crossings;bool armed=false;for(std::size_t i=(pcm->size()/4)&~std::size_t(1);i<pcm->size()*3/4;i+=2){if((*pcm)[i]<-.002)armed=true;if(armed&&(*pcm)[i]>.002){crossings.push_back(int(i/2));armed=false;}}QVERIFY(crossings.size()>10);double frequency=double(crossings.size()-1)*rate/(crossings.back()-crossings.front());QVERIFY(std::abs(frequency-440)<10);auto first=pcm->size();decoder.append("codec",{encoded.begin(),encoded.end()},42);QTRY_VERIFY_WITH_TIMEOUT(callbacks==2||!error.isEmpty(),10000);QVERIFY2(callbacks==2,qPrintable(error));QVERIFY(delivered>first*1.7);QVERIFY(delivered<first*2.5);
+    }
+    void newComponentPropertiesAndFootprints(){
+        MainWindow window;window.show();QVERIFY(window.loadExample("lcd_i2c"));std::string led,bread;window.canvas()->mutate("parts",[&](auto& d){led=d.addPart(PartKind::Led,600,400);bread=d.addPart(PartKind::Breadboard30,500,300);});
+        auto* inspector=window.findChild<QDockWidget*>("inspectorDock");inspector->show();inspector->raise();window.canvas()->selectPart(led);auto* options=window.findChild<QWidget*>("componentOptions");QVERIFY(inspector->isAncestorOf(options));auto* color=options->findChild<QPushButton*>("componentColor");QVERIFY(color);QTimer::singleShot(0,[]{auto* dialog=qobject_cast<QColorDialog*>(QApplication::activeModalWidget());QVERIFY(dialog);dialog->setCurrentColor(QColor("#287ec8"));dialog->accept();});color->click();QCOMPARE(window.circuit().part(led).color,std::string("#287ec8"));
+        window.canvas()->selectPart(bread);auto* count=options->findChild<QComboBox*>("breadboardContacts");auto* rails=options->findChild<QCheckBox*>("breadboardPowerRails");count->setCurrentIndex(count->findData(63));rails->setChecked(true);QCOMPARE(CircuitDocument::pins(window.circuit().part(bread)).size(),std::size_t(830));window.canvas()->history()->undo();QVERIFY(!breadboardRails(window.circuit().part(bread)));window.canvas()->history()->redo();QVERIFY(breadboardRails(window.circuit().part(bread)));window.canvas()->mutate("Arrange review",[&](auto& d){for(const auto& p:d.parts()){auto& part=d.part(p.id);if(p.kind==PartKind::Esp8266){part.x=-400;part.y=0;}if(p.kind==PartKind::I2cCharacterLcd){part.x=200;part.y=0;}}d.part(bread).x=-300;d.part(bread).y=420;d.part(led).x=-380;d.part(led).y=420;});window.canvas()->selectPart(bread);ComponentDesign::set("realistic");window.canvas()->rebuild();shot(window,"new-breadboard-led-properties");
+        for(const auto& [id,definition]:ModuleRegistry::definitions()){CircuitPart part{"sample",PartKind::Module,0,0,0,false,"#287ec8",id};const auto bounds=ComponentDesign::bounds(part);for(const auto& pin:CircuitDocument::pins(part))QVERIFY2(bounds.contains(ComponentDesign::pinPosition(part,pin)),(id+"."+pin).c_str());}
     }
     void serialStreamSketchParsesMonitorInput(){
         MainWindow window;window.show();QVERIFY(window.loadExample("lcd_i2c"));

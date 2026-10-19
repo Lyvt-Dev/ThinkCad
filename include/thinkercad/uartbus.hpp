@@ -7,11 +7,13 @@ public:
     enum class Parity {None,Even,Odd};
     struct Config {unsigned baud=115200;int rx=-1,tx=-1,dataBits=8,stopBits=1;Parity parity=Parity::None;};
     struct Errors {unsigned framing=0,overrun=0,collision=0;};
+    std::function<void(const std::string&,int,unsigned,const std::vector<std::uint8_t>&,Microseconds)> transmitted;
+    static bool wirePath(const CircuitDocument&,const std::map<std::string,const Esp8266Board*>&,const std::string& board,int tx,const Endpoint& receiver);
     void reset(){ports_.clear();}
     void begin(const CircuitDocument&,const std::string& board,int port,const Config&);
     void end(const std::string& board,int port);
     void write(const CircuitDocument&,const CircuitState&,const std::string& board,int port,
-               const std::vector<std::uint8_t>& bytes,Microseconds now,bool emulation);
+               const std::vector<std::uint8_t>& bytes,Microseconds now,bool emulation,const std::map<std::string,const Esp8266Board*>& boards={});
     unsigned available(const std::string& board,int port,Microseconds now);
     int read(const std::string& board,int port,Microseconds now,bool peek=false);
     Errors errors(const std::string& board,int port)const;

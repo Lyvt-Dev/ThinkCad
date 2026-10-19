@@ -1,6 +1,7 @@
 #include "thinkercad/circuit.hpp"
 #include "thinkercad/nettopology.hpp"
 #include "thinkercad/modules.hpp"
+#include "thinkercad/electronics.hpp"
 #include <algorithm>
 #include <cmath>
 #include <numeric>
@@ -9,7 +10,7 @@
 namespace thinkercad {
 const std::vector<ComponentSpec>& componentCatalog(){static const std::vector<ComponentSpec> types{
 {PartKind::Esp8266,"Mikrocontroller","",0,0,1e9,false},{PartKind::Oled,"OLED SSD1306","",60,60,61,false},{PartKind::Led,"LED","",220,0,1e9,false},{PartKind::Resistor,"Widerstand"," Ω",220,1,1e9,true},{PartKind::Button,"Taster","",220,0,1e9,false},{PartKind::AnalogSource,"Analogquelle"," V",0.5,0,3.3,true},
-{PartKind::Potentiometer,"Potentiometer 10 kΩ"," %",50,0,100,true},{PartKind::Photoresistor,"Fotowiderstand"," lx",100,0,100000,true},{PartKind::Thermistor,"NTC 10k B3950"," °C",25,-40,125,true},{PartKind::SlideSwitch,"Schiebeschalter SPDT","",0,0,1,false},{PartKind::TiltSwitch,"Neigungsschalter","",0,0,1,false},{PartKind::ReedSwitch,"Reedkontakt","",0,0,1,false},{PartKind::Diode,"Siliziumdiode","",0,0,1,false},{PartKind::Battery3V,"3-V-Batterie (ideal)","",3,3,3,false},{PartKind::Battery9V,"9-V-Batterie (ideal)","",9,9,9,false},{PartKind::PowerSupply,"Gleichspannungsquelle"," V",5,0,12,true},{PartKind::RGBLed,"RGB-LED (Kathode)","",0,0,1,false},{PartKind::SevenSegment,"7-Segment (Kathode)","",0,0,1,false},{PartKind::Voltmeter,"Voltmeter (ideal)","",0,0,1,false},{PartKind::Breadboard30,"Breadboard 300 Kontakte","",0,0,1,false},
+{PartKind::Potentiometer,"Potentiometer 10 kΩ"," %",50,0,100,true},{PartKind::Photoresistor,"Fotowiderstand"," lx",100,0,100000,true},{PartKind::Thermistor,"NTC 10k B3950"," °C",25,-40,125,true},{PartKind::SlideSwitch,"Schiebeschalter SPDT","",0,0,1,false},{PartKind::TiltSwitch,"Neigungsschalter","",0,0,1,false},{PartKind::ReedSwitch,"Reedkontakt","",0,0,1,false},{PartKind::Diode,"Siliziumdiode","",0,0,1,false},{PartKind::Battery3V,"3-V-Batterie (ideal)","",3,3,3,false},{PartKind::Battery9V,"9-V-Batterie (ideal)","",9,9,9,false},{PartKind::PowerSupply,"Gleichspannungsquelle"," V",5,0,60,true},{PartKind::RGBLed,"RGB-LED (Kathode)","",0,0,1,false},{PartKind::SevenSegment,"7-Segment (Kathode)","",0,0,1,false},{PartKind::Voltmeter,"Voltmeter (ideal)","",0,0,1,false},{PartKind::Breadboard30,"Breadboard","",0,0,1,false},
 {PartKind::PiezoBuzzer,"Piezo-Summer (passiv)","",0,0,1,false},
 {PartKind::Speaker,"Mini-Lautsprecher 8 Ω","",8,8,8,false},
 {PartKind::TemperatureSensor,"Temperatursensor TMP36"," °C",25,-40,125,true},
@@ -127,9 +128,11 @@ std::vector<std::string> CircuitDocument::pins(PartKind k) {
     return {"1","2"};
 }
 std::vector<std::string> CircuitDocument::pins(const CircuitPart& part){
-    if(part.kind==PartKind::Module)return ModuleRegistry::get(part.model.empty()?"bme280":part.model).pins;
+    if(part.kind==PartKind::DcMotor&&part.model=="with-encoder")return {"+","-","VCC","GND","A","B"};
+    if(part.kind==PartKind::Esp8266&&part.model=="attiny85")return {"PB5","PB3","PB4","GND","PB0","PB1","PB2","VCC"};
+    if(part.kind==PartKind::Module){if(part.model=="led-matrix"){std::vector<std::string> pins;for(int r=1;r<=int(parameter(part,"rows",8));++r)pins.push_back("R"+std::to_string(r));for(int c=1;c<=int(parameter(part,"columns",8));++c)pins.push_back("C"+std::to_string(c));return pins;}return ModuleRegistry::get(part.model.empty()?"bme280":part.model).pins;}
     if(part.kind==PartKind::Keypad)return {"R1","R2","R3","R4","C1","C2","C3","C4"};
-    if(part.kind==PartKind::Breadboard30&&part.model=="power-rails"){auto result=pins(part.kind);for(const auto& rail:{"T+","T-","B+","B-"})for(int n=1;n<=25;++n)result.push_back(std::string(rail)+std::to_string(n));return result;}
+    if(part.kind==PartKind::Breadboard30){std::vector<std::string> result;for(char row='a';row<='j';++row)for(int n=1;n<=breadboardColumns(part);++n)result.push_back(std::string(1,row)+std::to_string(n));if(breadboardRails(part))for(const auto& rail:{"T+","T-","B+","B-"})for(int n=1;n<=breadboardRailContacts(part);++n)result.push_back(std::string(rail)+std::to_string(n));return result;}
 
     if(part.kind!=PartKind::Esp8266||part.model.empty()||part.model=="esp8266")return pins(part.kind);
     const auto profile=BoardProfile::get(part.model);
@@ -185,18 +188,20 @@ void CircuitDocument::validate() const {
         if(p.parameters.size()>(p.kind==PartKind::Module?32u:16u))throw std::invalid_argument("Too many component parameters");
         for(const auto& [key,value]:p.parameters){
             if(!std::isfinite(value))throw std::invalid_argument("Non-finite component parameter");
-            bool valid=(p.kind==PartKind::Keypad||p.kind==PartKind::Keyboard)&&key=="keys"&&value>=0&&value<=(p.kind==PartKind::Keypad?65535.:33554431.)&&std::floor(value)==value;
+            bool valid=p.kind==PartKind::Breadboard30&&((key=="columns"&&(value==17||value==30||value==63))||(key=="rails"&&(value==0||value==1)));
+            valid|=(p.kind==PartKind::Keypad||p.kind==PartKind::Keyboard)&&key=="keys"&&value>=0&&value<=(p.kind==PartKind::Keypad?65535.:33554431.)&&std::floor(value)==value;
             valid|=p.kind==PartKind::RotaryEncoder&&((key=="phase"&&value>=0&&value<=3&&std::floor(value)==value)||(key=="switch"&&(value==0||value==1)));
             valid|=p.kind==PartKind::Note&&(key=="noteWidth"||key=="noteHeight")&&value>=32&&value<=4096;
             valid|=p.kind==PartKind::FunctionGenerator&&((key=="amplitude"&&value>=0&&value<=25)||(key=="offset"&&std::abs(value)<=25)||(key=="duty"&&value>=0.01&&value<=0.99)||(key=="waveform"&&value>=0&&value<=3&&std::floor(value)==value));
             valid|=p.kind==PartKind::Inductor&&key=="resistance"&&value>=0.001&&value<=100000;
             valid|=(p.kind==PartKind::NMosfet||p.kind==PartKind::PMosfet)&&key=="k"&&value>=0.00001&&value<=10;
+            valid|=p.kind==PartKind::Voltmeter&&key=="mode"&&value>=0&&value<=2&&value==std::floor(value);
             valid|=p.kind==PartKind::Resistor&&key=="powerRating"&&value>=.01&&value<=1000;
             valid|=p.kind==PartKind::DcMotor&&((key=="loadTorque"&&value>=0&&value<=1)||(key=="inertia"&&value>=1e-7&&value<=1)||(key=="inductance"&&value>=.001&&value<=1000));
             valid|=p.kind>=PartKind::InfraredLed&&p.kind<=PartKind::RadioTransceiver&&key=="channel"&&value>=0&&value<=15&&std::floor(value)==value;
             valid|=p.kind==PartKind::InfraredRemote&&key=="address"&&value>=0&&value<=65535&&std::floor(value)==value;
             valid|=p.kind==PartKind::NfcTestCard&&((key=="uidLength"&&(value==4||value==7))||(key.size()==4&&key.substr(0,3)=="uid"&&key[3]>='0'&&key[3]<='6'&&value>=0&&value<=255&&std::floor(value)==value));
-            if(p.kind==PartKind::Module){const auto& model=ModuleRegistry::get(p.model);for(const auto& field:model.parameters)if(field.name==key&&value>=field.min&&value<=field.max)valid=true;valid|=key=="address"&&model.bus=="i2c"&&value>=(model.builtin?model.address:8)&&value<=(model.builtin?model.address+1:119)&&std::floor(value)==value;}
+            if(p.kind==PartKind::Module){const auto& model=ModuleRegistry::get(p.model);for(const auto& field:model.parameters)if(field.name==key&&value>=field.min&&value<=field.max&&(field.unit!="count"||value==std::floor(value)))valid=true;valid|=key=="address"&&model.bus=="i2c"&&value>=(model.builtin?model.address:8)&&value<=(model.builtin?model.address+model.addressCount-1:119)&&std::floor(value)==value;}
             if(!valid)throw std::invalid_argument("Invalid component parameter: "+key);
         }
     }
@@ -219,7 +224,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
     for(const auto& p:parts_)if(p.kind==PartKind::Esp8266){
         const auto profile=BoardProfile::get(p.model);
         for(const auto& pin:pins(p))result.logicVoltage[{p.id,pin}]=profile.voltage;
-        driver(nodes.node({p.id,"GND"}),0);driver(nodes.node({p.id,"3V3"}),3.3);
+        driver(nodes.node({p.id,"GND"}),0);if(profile.id=="attiny85")continue;driver(nodes.node({p.id,"3V3"}),3.3);
         if(profile.arduino())driver(nodes.node({p.id,"5V"}),5);
     }
     for(const auto& [id,source]:boards){if(!source)continue;const auto& board=*source;
@@ -231,14 +236,15 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
             else if(pin.pwm)voltage=pin.duty*board.profile().voltage;
             driver(n,voltage);
         }
-        else if(pin.mode==PinMode::InputPullup)resistors.push_back({n,nodes.node({id,board.profile().arduino()?"5V":"3V3"}),47000});
+        else if(pin.mode==PinMode::InputPullup)resistors.push_back({n,nodes.node({id,board.profile().id=="attiny85"?"VCC":board.profile().arduino()?"5V":"3V3"}),47000});
         if(pin.external==Level::High)driver(n,board.profile().voltage);
         if(pin.external==Level::Low)driver(n,0);
         if(pin.external==Level::Contention)result.errors.push_back("GPIO input has conflicting external drivers");
     }
     }
     for(const auto& p:parts_) {
-        if(p.kind==PartKind::Module){const auto& model=ModuleRegistry::get(p.model);if(model.idleCurrent>0)resistors.push_back({nodes.node({p.id,model.power}),nodes.node({p.id,model.ground}),3.3/model.idleCurrent});for(const auto& [pin,resistance]:model.pullups)resistors.push_back({nodes.node({p.id,pin}),nodes.node({p.id,model.power}),resistance});}
+        if(p.kind==PartKind::Module){const auto& model=ModuleRegistry::get(p.model);if(model.idleCurrent>0&&!model.power.empty())resistors.push_back({nodes.node({p.id,model.power}),nodes.node({p.id,model.ground}),3.3/model.idleCurrent});for(const auto& [pin,resistance]:model.pullups)resistors.push_back({nodes.node({p.id,pin}),nodes.node({p.id,model.power}),resistance});}
+        if(p.kind==PartKind::DcMotor&&p.model=="with-encoder")resistors.push_back({nodes.node({p.id,"VCC"}),nodes.node({p.id,"GND"}),3300});
         if(p.kind==PartKind::ServoMotor)resistors.push_back({nodes.node({p.id,"VCC"}),nodes.node({p.id,"GND"}),1000});
         if(p.kind==PartKind::DcMotor){double companion=memory?parameter(p,"inductance",1)*.001/dt:0,current=memory&&memory->motorCurrent.contains(p.id)?memory->motorCurrent.at(p.id):0,speed=memory&&memory->motorSpeed.contains(p.id)?memory->motorSpeed.at(p.id):0;resistors.push_back({nodes.node({p.id,"+"}),nodes.node({p.id,"-"}),p.value+companion,.02*speed-companion*current});}
         if(p.kind==PartKind::Capacitor&&memory){
@@ -248,6 +254,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         if(p.kind==PartKind::Inductor){const double r=parameter(p,"resistance",0.1);const double companion=memory?p.value*0.001/dt:0;const auto old=memory?memory->inductorCurrent.find(p.id):std::map<std::string,double>::const_iterator{};
             resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),r+companion,memory&&old!=memory->inductorCurrent.end()?-companion*old->second:0});
         }
+        if(p.kind==PartKind::Voltmeter&&p.model=="multimeter"){int mode=int(parameter(p,"mode",0));if(mode==1)resistors.push_back({nodes.node({p.id,"+"}),nodes.node({p.id,"-"}),.01});if(mode==2)resistors.push_back({nodes.node({p.id,"+"}),nodes.node({p.id,"-"}),1000,1});}
         if(p.kind==PartKind::CurrentProbe)resistors.push_back({nodes.node({p.id,"+"}),nodes.node({p.id,"-"}),0.001});
         if(p.kind==PartKind::FunctionGenerator&&grounds.contains(nodes.node({p.id,"GND"}))){
             const double amplitude=parameter(p,"amplitude",2.5),offset=parameter(p,"offset",2.5),duty=parameter(p,"duty",0.5);
@@ -258,7 +265,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         if(p.kind==PartKind::Speaker||p.kind==PartKind::PiezoBuzzer)
             resistors.push_back({nodes.node({p.id,"+"}),nodes.node({p.id,"-"}),p.kind==PartKind::Speaker?8.0:1e6});
         if(p.kind==PartKind::Oled||p.kind==PartKind::I2cCharacterLcd||p.kind==PartKind::NfcReader){resistors.push_back({nodes.node({p.id,"SDA"}),nodes.node({p.id,"VCC"}),4700});resistors.push_back({nodes.node({p.id,"SCL"}),nodes.node({p.id,"VCC"}),4700});}
-        if(p.kind==PartKind::Potentiometer){resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"W"}),std::max(0.01,100*p.value)});resistors.push_back({nodes.node({p.id,"W"}),nodes.node({p.id,"2"}),std::max(0.01,100*(100-p.value))});}
+        if(p.kind==PartKind::Potentiometer){const double position=p.model=="slide-100-detent"&&std::abs(p.value-50)<1.5?50:p.value;resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"W"}),std::max(0.01,100*position)});resistors.push_back({nodes.node({p.id,"W"}),nodes.node({p.id,"2"}),std::max(0.01,100*(100-position))});}
         if(p.kind==PartKind::Photoresistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),std::clamp(10000*std::pow(10/std::max(0.01,p.value),0.7),10.0,1e7)});
         if(p.kind==PartKind::Thermistor)resistors.push_back({nodes.node({p.id,"1"}),nodes.node({p.id,"2"}),10000*std::exp(3950*(1/(p.value+273.15)-1/298.15))});
         if(p.kind==PartKind::BatteryAA||p.kind==PartKind::Battery3V||p.kind==PartKind::Battery9V||p.kind==PartKind::PowerSupply)sources.push_back({nodes.node({p.id,"+"}),nodes.node({p.id,"-"}),p.value});
@@ -269,26 +276,45 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
     struct Junction{std::string id;int a,k;double vf,resistance,limit;};std::vector<Junction> junctions;
     for(const auto& p:parts_){if(p.kind==PartKind::Led||p.kind==PartKind::Diode||p.kind==PartKind::InfraredLed)junctions.push_back({p.id,nodes.node({p.id,"A"}),nodes.node({p.id,"K"}),p.kind==PartKind::Diode?0.7:p.kind==PartKind::InfraredLed?1.2:2.0,p.kind==PartKind::Diode?1.0:10.0,p.kind==PartKind::Diode?1.0:p.kind==PartKind::InfraredLed?.05:0.02});
         if(p.kind==PartKind::RGBLed)for(const auto& channel:std::vector<std::pair<std::string,double>>{{"R",2},{"G",2.2},{"B",3}})junctions.push_back({p.id+":"+channel.first,nodes.node({p.id,channel.first}),nodes.node({p.id,"K"}),channel.second,10,0.02});
+        if(p.kind==PartKind::Module){
+            if(p.model=="led-bar10")for(int i=1;i<=10;++i)junctions.push_back({p.id+":"+std::to_string(i),nodes.node({p.id,"A"+std::to_string(i)}),nodes.node({p.id,"K"+std::to_string(i)}),2,10,.02});
+            if(p.model=="led-matrix")for(int r=1;r<=int(parameter(p,"rows",8));++r)for(int c=1;c<=int(parameter(p,"columns",8));++c)junctions.push_back({p.id+":"+std::to_string(r)+":"+std::to_string(c),nodes.node({p.id,"R"+std::to_string(r)}),nodes.node({p.id,"C"+std::to_string(c)}),2,10,.02});
+            if(p.model=="clock-display")for(int i=1;i<=4;++i)for(const auto& channel:std::vector<std::string>{"a","b","c","d","e","f","g","dp"})junctions.push_back({p.id+":"+std::to_string(i)+":"+channel,nodes.node({p.id,channel}),nodes.node({p.id,"COM"+std::to_string(i)}),2,10,.02});
+        }
         if(p.kind==PartKind::SevenSegment)for(const auto& channel:std::vector<std::string>{"a","b","c","d","e","f","g","dp"})junctions.push_back({p.id+":"+channel,nodes.node({p.id,channel}),nodes.node({p.id,"COM"}),2,10,0.02});
     }
     std::map<std::string,bool> conducting;std::map<int,std::string> logicOwners;std::map<int,double> volts=fixed;std::set<std::string> poweredSensors;
+    std::vector<Branch> resolvedBranches;
+    std::map<std::string,std::vector<ElectricalBranch>> electronicDrive;
     std::map<std::string,std::array<int,4>> bridgeDrive;
     std::map<std::pair<int,int>,double> sourceCurrents;
-    const bool nonlinear=std::any_of(parts_.begin(),parts_.end(),[](const auto& p){return p.kind==PartKind::NpnTransistor||p.kind==PartKind::PnpTransistor||p.kind==PartKind::NMosfet||p.kind==PartKind::PMosfet||p.kind==PartKind::OpAmp;});
+    const bool nonlinear=std::any_of(parts_.begin(),parts_.end(),[](const auto& p){return p.kind==PartKind::NpnTransistor||p.kind==PartKind::PnpTransistor||p.kind==PartKind::NMosfet||p.kind==PartKind::PMosfet||p.kind==PartKind::OpAmp||(p.kind==PartKind::Module&&(ModuleRegistry::get(p.model).implementation=="audio-opamp"||ModuleRegistry::get(p.model).implementation=="ota"));});
     for(int iteration=0;iteration<(nonlinear?400:124);++iteration) {
-        auto branches=resistors;std::set<std::string> activeAmps,activeUltrasonic;
-        for(const auto& p:parts_)if(p.kind==PartKind::Module&&p.model=="hcsr04"){
+        auto branches=resistors;std::set<std::string> activeAmps,activeUltrasonic,activeMotorEncoders;
+        for(const auto& p:parts_)if(p.kind==PartKind::Module)for(const auto& branch:electronicDrive[p.id])branches.push_back({nodes.node({p.id,branch.a}),nodes.node({p.id,branch.b}),branch.resistance,branch.offset});
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&(p.model=="hcsr04"||p.model=="ping3")){
             const int power=nodes.node({p.id,"VCC"}),ground=nodes.node({p.id,"GND"});if(!volts.contains(power)||!volts.contains(ground)||volts.at(power)-volts.at(ground)<4.5||volts.at(power)-volts.at(ground)>5.5)continue;
             bool high=false;if(memory){const auto it=memory->ultrasonic.find(p.id);if(it!=memory->ultrasonic.end()){const auto at=Microseconds(std::llround(time*1e6));high=it->second.rise&&at>=it->second.rise&&at<it->second.fall;}}
-            branches.push_back({nodes.node({p.id,"ECHO"}),ground,50,high?volts.at(power)-volts.at(ground):0});activeUltrasonic.insert(p.id);
+            activeUltrasonic.insert(p.id);bool hostOutput=false;if(p.model=="ping3")for(const auto& [id,board]:boards)if(board)for(int gpio:board->profile().gpio)if(board->pin(gpio).mode==PinMode::Output&&connected({p.id,"SIG"},{id,board->profile().pinName(gpio)}))hostOutput=true;
+            if(!hostOutput)branches.push_back({nodes.node({p.id,p.model=="ping3"?"SIG":"ECHO"}),ground,50,high?volts.at(power)-volts.at(ground):0});
         }
         for(const auto& p:parts_)if(p.kind==PartKind::Module&&p.model=="l298n"){
             const auto& drive=bridgeDrive[p.id];for(int i=0;i<4;++i)if(drive[i])branches.push_back({nodes.node({p.id,"OUT"+std::to_string(i+1)}),nodes.node({p.id,drive[i]==2?"VS":"GND"}),.3,drive[i]==2?-1.:1.});
+        }
+        for(const auto& p:parts_)if(p.kind==PartKind::DcMotor&&p.model=="with-encoder"){
+            int v=nodes.node({p.id,"VCC"}),g=nodes.node({p.id,"GND"});if(volts.contains(v)&&volts.contains(g)&&volts[v]-volts[g]>=2.5&&volts[v]-volts[g]<=5.5){activeMotorEncoders.insert(p.id);double angle=memory&&memory->motorAngle.contains(p.id)?memory->motorAngle.at(p.id):0;long phase=long(std::floor(angle/(2*3.141592653589793)*80));int quadrature=int((phase%4+4)%4);if(quadrature==0||quadrature==3)branches.push_back({nodes.node({p.id,"A"}),g,20});if(quadrature==0||quadrature==1)branches.push_back({nodes.node({p.id,"B"}),g,20});}
         }
         for(const auto& j:junctions)if(conducting[j.id])branches.push_back({j.a,j.k,j.resistance,j.vf});
         for(const auto& p:parts_)if(p.kind==PartKind::NpnTransistor||p.kind==PartKind::PnpTransistor||p.kind==PartKind::NMosfet||p.kind==PartKind::PMosfet){
             const auto terminals=pins(p);for(int i=0;i<2;++i)branches.push_back({nodes.node({p.id,terminals[i]}),nodes.node({p.id,terminals[2]}),1e12});
         }else if(p.kind==PartKind::OpAmp){const int hi=nodes.node({p.id,"V+"}),lo=nodes.node({p.id,"V-"});if(volts.contains(hi)&&volts.contains(lo)&&volts.at(hi)-volts.at(lo)>.1){branches.push_back({nodes.node({p.id,"OUT"}),lo,50});activeAmps.insert(p.id);}}
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&ModuleRegistry::get(p.model).implementation=="audio-opamp"){
+            const int hi=nodes.node({p.id,"V+"}),lo=nodes.node({p.id,"V-"});if(volts.contains(hi)&&volts.contains(lo)&&volts.at(hi)-volts.at(lo)>3)for(int i=1;i<=(p.model=="tl074"?4:p.model=="lm741"?1:2);++i){auto n=p.model=="lm741"?std::string{}:std::to_string(i);branches.push_back({nodes.node({p.id,"OUT"+n}),lo,50});activeAmps.insert(p.id+n);}
+        }
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&ModuleRegistry::get(p.model).implementation=="ota"){
+            int hi=nodes.node({p.id,"V+"}),lo=nodes.node({p.id,"V-"});if(volts.contains(hi)&&volts.contains(lo)&&volts.at(hi)-volts.at(lo)>3){activeAmps.insert(p.id+":ota");for(int i=1;i<=2;++i){auto n=std::to_string(i);branches.push_back({nodes.node({p.id,"IABC"+n}),lo,1000,1.2});branches.push_back({nodes.node({p.id,"OUT"+n}),lo,1e9});branches.push_back({nodes.node({p.id,"BUF_OUT"+n}),lo,1e9});}}
+        }
+        resolvedBranches=branches;
         // Resolve ideal-source constraints first, rejecting contradictory loops
         // and retaining only independent constraints for modified nodal analysis.
         auto reference=fixed;std::vector<VoltageSource> activeSources;
@@ -375,6 +401,17 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
                 });
             }
         }
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&ModuleRegistry::get(p.model).implementation=="audio-opamp"){
+            const int hi=nodes.node({p.id,"V+"}),lo=nodes.node({p.id,"V-"});for(int i=1;i<=(p.model=="tl074"?4:p.model=="lm741"?1:2);++i){auto n=p.model=="lm741"?std::string{}:std::to_string(i);if(!activeAmps.contains(p.id+n))continue;
+                stamp({nodes.node({p.id,"OUT"+n}),nodes.node({p.id,"IN+"+n}),nodes.node({p.id,"IN-"+n}),lo,hi},[](const auto& v){double target=std::clamp(100000*(v[1]-v[2]),v[3]+1.,v[4]-1.);double extra=(v[0]-target)/50-(v[0]-v[3])/50;return std::vector<double>{extra,0,0,-extra,0};});
+            }
+        }
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&ModuleRegistry::get(p.model).implementation=="ota"&&activeAmps.contains(p.id+":ota")){
+            int lo=nodes.node({p.id,"V-"}),hi=nodes.node({p.id,"V+"});for(int i=1;i<=2;++i){auto n=std::to_string(i);
+                stamp({nodes.node({p.id,"OUT"+n}),nodes.node({p.id,"IN+"+n}),nodes.node({p.id,"IN-"+n}),nodes.node({p.id,"IABC"+n}),lo,hi},[](const auto& v){double bias=std::clamp((v[3]-v[4]-1.2)/1000,0.,.002);double current=-bias*std::tanh((v[1]-v[2])/.052);current+=std::max(0.,v[0]-v[5]+1)/100-std::max(0.,v[4]+.1-v[0])/100;return std::vector<double>{current,0,0,0,-current,0};});
+                stamp({nodes.node({p.id,"BUF_OUT"+n}),nodes.node({p.id,"BUF_IN"+n}),lo,hi},[](const auto& v){double target=std::clamp(v[1]-1.2,v[2]+.1,v[3]-1.5),current=(v[0]-target)/100;return std::vector<double>{current,0,-current,0};});
+            }
+        }
         const auto previous=volts;const auto solved=linearSolve(std::move(matrix),std::move(rhs));volts=reference;bool changed=false;
         double alpha=1,residualSquared=0;
         if(nonlinear){
@@ -415,8 +452,20 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
             }
             if(next!=bridgeDrive[p.id]){bridgeDrive[p.id]=next;changed=true;}
         }
-        for(const auto& p:parts_)if(p.kind==PartKind::Module&&p.model=="hcsr04"){const int v=nodes.node({p.id,"VCC"}),g=nodes.node({p.id,"GND"});const bool powered=volts.contains(v)&&volts.contains(g)&&volts.at(v)-volts.at(g)>=4.5&&volts.at(v)-volts.at(g)<=5.5;if(powered!=activeUltrasonic.contains(p.id))changed=true;}
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&(p.model=="hcsr04"||p.model=="ping3")){const int v=nodes.node({p.id,"VCC"}),g=nodes.node({p.id,"GND"});const bool powered=volts.contains(v)&&volts.contains(g)&&volts.at(v)-volts.at(g)>=4.5&&volts.at(v)-volts.at(g)<=5.5;if(powered!=activeUltrasonic.contains(p.id))changed=true;}
         for(const auto& p:parts_)if(p.kind==PartKind::OpAmp){const int hi=nodes.node({p.id,"V+"}),lo=nodes.node({p.id,"V-"});const bool powered=volts.contains(hi)&&volts.contains(lo)&&volts.at(hi)-volts.at(lo)>.1;if(powered!=activeAmps.contains(p.id))changed=true;}
+        for(const auto& p:parts_)if(p.kind==PartKind::Module){
+            const auto& model=ModuleRegistry::get(p.model);std::vector<ElectricalBranch> next;
+            if(model.bus=="electrical")next=electronicBranches(p,[&](const std::string& pin)->std::optional<double>{auto n=nodes.node({p.id,pin});return volts.contains(n)?std::optional<double>(volts.at(n)):std::nullopt;},memory?&memory->electronics:nullptr,time,memory?&memory->analog:nullptr);
+            if(memory&&memory->peripheralSignals.contains(p.id)&&!model.power.empty()){int v=nodes.node({p.id,model.power}),g=nodes.node({p.id,model.ground});if(volts.contains(v)&&volts.contains(g)&&volts[v]-volts[g]>=model.minVoltage&&volts[v]-volts[g]<=model.maxVoltage)for(const auto& output:memory->peripheralSignals.at(p.id)){
+                double phase=time*output.frequency+output.phase;phase-=std::floor(phase);double wave=output.waveform==1?std::sin(6.283185307179586*phase):output.waveform==2?1-4*std::abs(phase-.5):output.waveform==3?(phase<.5?1:-1):0;
+                if(output.pcm&&output.sampleRate&&output.channels){double index=(time*1e6-double(output.pcmStart))*output.sampleRate/1000000.;if(index>=0){std::size_t at=std::size_t(index)*output.channels+output.channel;if(at<output.pcm->size())wave=(*output.pcm)[at];}else wave=0;}
+                double input=output.input.empty()?0:(volts.contains(nodes.node({p.id,output.input}))?volts.at(nodes.node({p.id,output.input}))-volts[g]:0);next.push_back({output.pin,model.ground,output.resistance,output.voltage+output.amplitude*wave+input*output.gain});
+            }}
+            if(next!=electronicDrive[p.id]){electronicDrive[p.id]=std::move(next);changed=true;}
+        }
+        for(const auto& p:parts_)if(p.kind==PartKind::Module&&(ModuleRegistry::get(p.model).implementation=="audio-opamp"||ModuleRegistry::get(p.model).implementation=="ota")){int hi=nodes.node({p.id,"V+"}),lo=nodes.node({p.id,"V-"});bool powered=volts.contains(hi)&&volts.contains(lo)&&volts[hi]-volts[lo]>3;if(powered!=activeAmps.contains(p.id+(ModuleRegistry::get(p.model).implementation=="ota"?":ota":p.model=="lm741"?"":"1")))changed=true;}
+        for(const auto& p:parts_)if(p.kind==PartKind::DcMotor&&p.model=="with-encoder"){auto v=nodes.node({p.id,"VCC"}),g=nodes.node({p.id,"GND"});bool powered=volts.contains(v)&&volts.contains(g)&&volts[v]-volts[g]>=2.5&&volts[v]-volts[g]<=5.5;if(powered!=activeMotorEncoders.contains(p.id))changed=true;}
         if(!changed)break;
         if(iteration==(nonlinear?399:123))result.errors.push_back("Electrical network did not converge; check bias, feedback and supply rails.");
     }
@@ -441,11 +490,15 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         if(p.kind==PartKind::Resistor&&result.branchCurrent.contains(p.id)&&result.branchCurrent.at(p.id)){double current=*result.branchCurrent.at(p.id),power=current*current*p.value,rating=parameter(p,"powerRating",.25);if(power>rating)result.warnings.push_back({p.id,"Resistor dissipates "+std::to_string(power)+" W; rating "+std::to_string(rating)+" W."});}
         if(p.kind>=PartKind::AndGate&&p.kind<=PartKind::NotGate){auto v=result.voltage.at({p.id,"VCC"}),g=result.voltage.at({p.id,"GND"});if(v&&g&&*v-*g>=1.8&&!result.voltage.at({p.id,"Y"}))result.warnings.push_back({p.id,"Logic output is floating: check input voltages and supply (1.8..5.5 V)."});}
     }
+    for(const auto& p:parts_)if(p.kind==PartKind::Esp8266&&p.model=="attiny85"){auto v=result.voltage.at({p.id,"VCC"});if(!v||*v<4.5||*v>5.5)result.errors.push_back("ATtiny85: connect VCC to the modeled 5 V supply and GND to ground.");}
+    if(memory)for(const auto& [id,outputs]:memory->peripheralSignals)for(const auto& output:outputs)if(output.frequency>20000)result.warnings.push_back({id,"DDS tuning is modeled, but this output exceeds the 20 kHz transient/audio validation bandwidth."});
+    for(const auto& p:parts_)if(p.kind==PartKind::Capacitor&&p.model=="polarized"){auto a=result.voltage.at({p.id,"1"}),b=result.voltage.at({p.id,"2"});if(a&&b&&*a-*b<-.3)result.errors.push_back(p.id+": polarized capacitor is reverse biased (pin 1 is positive).");}
+    for(const auto& p:parts_)if(p.kind==PartKind::Voltmeter&&p.model=="multimeter"){auto a=result.voltage.at({p.id,"+"}),b=result.voltage.at({p.id,"-"});int mode=int(parameter(p,"mode",0));if(a&&b){double v=*a-*b;if(mode==1)result.partValues[p.id]=v/.01;else if(mode==2){if(v>=0&&v<.999999)result.partValues[p.id]=1000*v/(1-v);else result.warnings.push_back({p.id,"Ohmmeter: open circuit or energized network; disconnect external power for resistance measurements."});}else result.partValues[p.id]=v;}}
     // Check every output load, including motor and reactive companion branches.
     for(const auto& [id,source]:boards)if(source)for(int gpio:source->profile().gpio){
         const auto& pin=source->pin(gpio);if(pin.mode!=PinMode::Output)continue;
         const int n=nodes.node({id,source->profile().pinName(gpio)});double current=0;
-        for(const auto& branch:resistors)if(branch.a!=branch.b&&volts.contains(branch.a)&&volts.contains(branch.b)){
+        for(const auto& branch:resolvedBranches)if(branch.a!=branch.b&&volts.contains(branch.a)&&volts.contains(branch.b)){
             const double flow=(volts.at(branch.a)-volts.at(branch.b)-branch.offset)/branch.resistance;
             if(branch.a==n)current+=flow;
             if(branch.b==n)current-=flow;

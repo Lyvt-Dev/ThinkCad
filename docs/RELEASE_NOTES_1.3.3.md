@@ -31,7 +31,7 @@ Ein benutzereigenes x86_64-AppImage kann direkt aktualisiert werden: verifiziert
 - Nach erfolgreichem Neustart zeigen die Einstellungen Version, Installationsdatum und Installationspfad des letzten Updates. Eine Zeitschätzung wird nur angeboten, wenn eine tatsächlich gemessene vorherige Installationsdauer vorliegt; beim ersten Update bleibt sie unbekannt.
 - Deutsch/Englisch sind redaktionell ergänzt; die sechs weiteren Sprachkataloge verwenden lokal erzeugte, auf Platzhalter und kritische Texte geprüfte Übersetzungen. Native Windows-Helfertexte stehen auf Deutsch/Englisch zur Verfügung.
 - Das Update übernimmt keine Kontrolle über Projekte außerhalb des Programmverzeichnisses, lokale Bibliotheksordner, Skriptverzeichnisse oder Wiederherstellungspunkte. Diese werden nicht gelöscht oder migriert.
-- Kein Login, keine Cloudpflicht, kein Electron, keine neue Laufzeitabhängigkeit. Keine zusätzlichen Elektronikfunktionen in diesem Update.
+- Kein Login, keine Cloudpflicht, kein Electron, keine neue Laufzeitabhängigkeit. Die Bauteil- und Audioerweiterung ist unten beschrieben.
 - Der neue Updater ist **ab installierter Version 1.3.3** aktiv. Der erste Download von 1.3.2 auf 1.3.3 erfolgt zwangsläufig noch mit dem alten Updater.
 
 ## Projektformat
@@ -39,3 +39,22 @@ Ein benutzereigenes x86_64-AppImage kann direkt aktualisiert werden: verifiziert
 Unverändert **8**, weiterhin Lesen der Formate 1–8. Keine Projektformatmigration erforderlich.
 
 [Technischer Ablauf und Modellgrenzen](UPDATER.md)
+
+## Bauteile, Audio und LCD
+
+- Erweiterter Bauteilkatalog: Digital-ICs, Multiplexer, Sensoren, Bedienelemente,
+  Mikrocontrollerprofile, Anschlüsse, Versorgungen sowie Synthesizer-/Audiomodule.
+- MCP4725, MCP4822/MCP4922 und AD9833/AD9850 mit digitalen Kommandos und
+  modellierten analogen Ausgängen; passiver R-2R-DAC mit Ausgangsimpedanz.
+- I²S-PCM-Pfade, VS1053-MIDI und gepufferte MP3-Dekodierung über Qt Multimedia;
+  Synthesizer, Filter, Verstärker und modellierte Effekte.
+- Ein Breadboard mit 170/300/630 Steckkontakten und optionalen Stromschienen;
+  LED-/Tasterfarben, kompaktere LED-Geometrie und überarbeitete flache Bauteilansichten.
+- LiquidCrystal_I2C am ESP32-S3: 20×4-LCD mit 3,3 V sowie SDA GPIO8/SCL GPIO9
+  wird korrekt erkannt; Versorgung, Adresse und Verdrahtung bleiben geprüft.
+
+**Modellgrenzen:** Erweiterte Audio-ICs sind Verhaltensmodelle, keine vollständige
+Chip-/Firmwareemulation. FV-1 führt keinen SpinASM-Code aus; VS1053 verwendet eigene
+MIDI-Klangfarben statt des Original-ROMs. MHz-DDS-Einstellungen garantieren keine
+MHz-genaue Transientensimulation. Details und lokale Prüfergebnisse stehen im
+[Audio- und Bauteilhandbuch](AUDIO_COMPONENTS.de.md).

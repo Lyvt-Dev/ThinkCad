@@ -1,6 +1,8 @@
 #pragma once
 #include "simulation.hpp"
 #include <optional>
+#include <array>
+#include <memory>
 #include <set>
 #include <tuple>
 namespace thinkercad {
@@ -27,6 +29,11 @@ struct CircuitPart {
     std::string netName;
 };
 double parameter(const CircuitPart& part,const std::string& name,double fallback);
+inline int neoPixelCount(const CircuitPart& p){if(p.model=="neopixel-matrix")return int(parameter(p,"rows",8))*int(parameter(p,"columns",8));return int(parameter(p,"pixels",p.model=="neopixel-single"?1:p.model=="neopixel-ring"?16:p.model=="neopixel-strip"?8:8));}
+inline int breadboardColumns(const CircuitPart& p){return int(parameter(p,"columns",30));}
+inline bool breadboardRails(const CircuitPart& p){return parameter(p,"rails",p.model=="power-rails"?1:0)!=0;}
+inline int breadboardRailContacts(const CircuitPart& p){return breadboardColumns(p)==63?50:breadboardColumns(p)==17?15:25;}
+
 struct WirePoint { double x=0,y=0; };
 struct CircuitWire { std::string id; Endpoint a,b; std::string color="#0d9488"; std::vector<WirePoint> points; bool direct=false; };
 struct SoundSignal {
@@ -47,7 +54,9 @@ struct CircuitState {
 };
 // Serializable, GUI-independent circuit document. Wires join nodes electrically.
 struct UltrasonicState {bool high=false;Microseconds trigger=0,rise=0,fall=0,ready=0;};
-struct ReactiveState {std::map<std::string,double> capacitorVoltage,inductorCurrent,motorCurrent,motorSpeed,servoRise,servoPulse;std::map<std::string,bool> servoLevel;std::map<std::string,UltrasonicState> ultrasonic;};
+struct PeripheralSignal {std::string pin;double voltage=0,frequency=0,amplitude=0;int waveform=0;std::string input;double gain=1,resistance=50;std::shared_ptr<const std::vector<float>> pcm;Microseconds pcmStart=0;unsigned sampleRate=48000,channels=2,channel=0;double phase=0;};
+struct AnalogDeviceState {std::array<double,8> filter{};std::vector<std::array<double,2>> delay;std::size_t cursor=0;double accumulator=0,outL=0,outR=0;Microseconds last=0;};
+struct ReactiveState {std::map<std::string,AnalogDeviceState> analog;std::map<std::string,std::vector<PeripheralSignal>> peripheralSignals;std::map<std::string,std::array<std::uint64_t,16>> electronics;std::map<std::string,double> capacitorVoltage,inductorCurrent,motorCurrent,motorSpeed,motorAngle,servoRise,servoPulse;std::map<std::string,bool> servoLevel;std::map<std::string,UltrasonicState> ultrasonic;};
 class TransientSimulation;
 class CircuitDocument {
 public:
@@ -89,6 +98,7 @@ class TransientSimulation {
 public:
     using Boards=std::map<std::string,const Esp8266Board*>;
     void reset();
+    void setPeripheralSignals(std::string id,std::vector<PeripheralSignal> outputs){memory_.peripheralSignals[std::move(id)]=std::move(outputs);}
     Microseconds now()const{return now_;}
     void setMaximumStep(Microseconds step);
     void setDigitalSampling(bool enabled){digitalSampling_=enabled;}

@@ -10,6 +10,12 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Bauteil- und Audioerweiterung in 1.3.3
+
+Neue Elektronik- und Audiomodule, konfigurierbare Breadboards, Bauteilfarben und
+LiquidCrystal_I2C-Korrekturen für ESP32-S3 bei 3,3 V.
+[Release-Notes](docs/RELEASE_NOTES_1.3.3.md) · [Anschluss und Modellgrenzen](docs/AUDIO_COMPONENTS.de.md)
+
 ## Neu in 1.3.3 — Transparente Updates
 
 Nativer Update-Dialog mit Release-Notes, echtem Downloadfortschritt, Pause/Fortsetzung und sichtbarer SHA-256-/Sigstore-Prüfung. Windows erhält einen separaten Installationshelfer mit Sicherung, echtem Installer-Fortschritt und Wiederherstellung. Das AppImage nutzt atomaren Austausch mit Sicherung; Distributionspakete bleiben bei der Paketverwaltung.

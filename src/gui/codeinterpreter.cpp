@@ -57,10 +57,11 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
     }
     if(emulation)args<<"-DTHINKERCAD_EMULATION=1";
     if(boardModel=="arduino-uno")args<<"-DTHINKERCAD_ARDUINO_UNO=1";else if(boardModel=="arduino-nano")args<<"-DTHINKERCAD_ARDUINO_NANO=1";else if(boardModel=="esp32")args<<"-DTHINKERCAD_ESP32=1";else if(boardModel=="esp32-s3")args<<"-DTHINKERCAD_ESP32_S3=1";
-    if(QStringList{"rp2040","stm32f103","esp32-c3","esp32-s2","esp32-c6"}.contains(boardModel)){
+    if(QStringList{"rp2040","stm32f103","esp32-c3","esp32-s2","esp32-c6","microbit","attiny85"}.contains(boardModel)){
         const auto board=thinkercad::BoardProfile::get(boardModel.toStdString());auto mask=[](const std::vector<int>& pins){quint64 value=0;for(int pin:pins)value|=quint64(1)<<pin;return QString::number(value)+"ull";};
         args<<"-DTHINKERCAD_GENERIC_BOARD=1"<<"-DTHINKERCAD_BOARD_GPIO_MASK="+mask(board.gpio)<<"-DTHINKERCAD_BOARD_INPUT_MASK="+mask(board.inputOnly)<<"-DTHINKERCAD_BOARD_ADC_MASK="+mask(board.adc)<<"-DTHINKERCAD_BOARD_ADC="+QString::number(board.defaultAdc)<<"-DTHINKERCAD_BOARD_LED="+QString::number(board.builtinLed)<<"-DTHINKERCAD_BOARD_SDA="+QString::number(board.sda)<<"-DTHINKERCAD_BOARD_SCL="+QString::number(board.scl);
         const auto spi=board.spiPins();const char* names[]={"SCK","MISO","MOSI","CS"};for(int i=0;i<4;++i)args<<"-DTHINKERCAD_BOARD_SPI_"+QString::fromLatin1(names[i])+"="+QString::number(spi[i]);
+        if(boardModel=="attiny85")args<<"-DTHINKERCAD_ATTINY85=1";
         if(boardModel=="stm32f103")args<<"-DTHINKERCAD_STM32F103=1";if(boardModel=="rp2040")args<<"-DTHINKERCAD_RP2040=1";
     }
     args << "-I"+temp_->path() << "-I"+temp_->filePath("src") << "-I"+temp_->filePath("include");
@@ -82,7 +83,7 @@ void CodeInterpreter::start(const QString& sketch,const QString& compiler,const 
         if(libraries_.size()>=500){emit log("Zu viele registrierte Bibliotheken.");return;}
         const auto root=QFileInfo::exists(lib+"/src")?lib+"/src":lib;args<<"-I"+root<<"-I"+lib;
         QFile metadata(lib+"/library.properties");QString name;if(metadata.open(QIODevice::ReadOnly)){auto match=QRegularExpression("(?:^|\\n)name\\s*=\\s*([^\\r\\n]+)").match(QString::fromUtf8(metadata.readAll()));name=match.captured(1).trimmed();}
-        const bool builtin=QStringList{"Encoder","Keypad","MIDI Library","Adafruit GFX Library","Adafruit SSD1306","Adafruit BusIO","LiquidCrystal","LiquidCrystal I2C","LiquidCrystal_I2C","Servo","IRremote","Adafruit PN532","RF24","rc-switch","Adafruit BME280 Library","Adafruit MPU6050","Adafruit Unified Sensor","MFRC522","DallasTemperature","Adafruit NeoPixel","DHT sensor library","OneWire"}.contains(name,Qt::CaseInsensitive);
+        const bool builtin=QStringList{"Adafruit MCP4725","Adafruit MPR121","Encoder","Keypad","MIDI Library","Adafruit GFX Library","Adafruit SSD1306","Adafruit BusIO","LiquidCrystal","LiquidCrystal I2C","LiquidCrystal_I2C","Servo","IRremote","Adafruit PN532","RF24","rc-switch","Adafruit BME280 Library","Adafruit MPU6050","Adafruit Unified Sensor","MFRC522","DallasTemperature","Adafruit NeoPixel","DHT sensor library","OneWire"}.contains(name,Qt::CaseInsensitive);
         LibraryUnit unit{QDir::fromNativeSeparators(QFileInfo(root).absoluteFilePath()),QDir::fromNativeSeparators(QFileInfo(lib).absoluteFilePath()),{},builtin};
         if(!builtin){const auto flags=root.endsWith("/src")?QDirIterator::Subdirectories:QDirIterator::NoIteratorFlags;QDirIterator files(root,{"*.cpp","*.cc","*.cxx"},QDir::Files,flags);while(files.hasNext()){unit.sources<<files.next();if(unit.sources.size()>200){emit log("Bibliothek enthält zu viele Quelldateien.");return;}}
             if(root==lib&&QDir(lib+"/utility").exists()){args<<"-I"+lib+"/utility";QDirIterator files(lib+"/utility",{"*.cpp","*.cc","*.cxx"},QDir::Files,QDirIterator::Subdirectories);while(files.hasNext()){unit.sources<<files.next();if(unit.sources.size()>200){emit log("Bibliothek enthält zu viele Quelldateien.");return;}}}}

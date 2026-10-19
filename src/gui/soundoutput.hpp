@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <memory>
 #include <mutex>
+#include <deque>
 class QAudioSink;
 // Pull-based PCM source, also usable without an audio device in tests.
 class SoundStream final:public QIODevice {
@@ -13,6 +14,8 @@ public:
     explicit SoundStream(QObject* parent=nullptr);
     void configure(QAudioFormat format);
     void setSignals(const std::vector<thinkercad::SoundSignal>& tones);
+    void appendPcm(const std::vector<float>& samples);
+    void clearPcm();
     bool isSequential()const override{return true;}
     bool reset()override{return true;}
     qint64 bytesAvailable()const override;
@@ -24,6 +27,7 @@ private:
     mutable std::mutex mutex_;
     QAudioFormat format_;
     std::vector<Voice> voices_;
+    std::deque<float> pcm_;bool pcmMode_=false;double pcmPhase_=0,dc_=0;
 };
 class SoundOutput final:public QObject {
     Q_OBJECT
@@ -31,6 +35,7 @@ public:
     explicit SoundOutput(QObject* parent=nullptr);
     ~SoundOutput()override;
     void setSignals(const std::vector<thinkercad::SoundSignal>& tones);
+    void appendPcm(const std::vector<float>& samples);
     void prepare();
     void setEnabled(bool enabled);
     void stop();

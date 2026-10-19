@@ -11,7 +11,7 @@ SoundStream::SoundStream(QObject* parent):QIODevice(parent){
     format_.setSampleRate(48000);format_.setChannelCount(1);format_.setSampleFormat(QAudioFormat::Int16);
     open(QIODevice::ReadOnly|QIODevice::Unbuffered);
 }
-void SoundStream::configure(QAudioFormat format){std::lock_guard lock(mutex_);format_=format;voices_.clear();}
+void SoundStream::configure(QAudioFormat format){std::lock_guard lock(mutex_);format_=format;voices_.clear();pcm_.clear();pcmPhase_=dc_=0;pcmMode_=false;}
 void SoundStream::setSignals(const std::vector<thinkercad::SoundSignal>& tones){
     std::unique_lock lock(mutex_);std::vector<Voice> next;
     for(const auto& signal:tones){
@@ -19,9 +19,11 @@ void SoundStream::setSignals(const std::vector<thinkercad::SoundSignal>& tones){
         const auto old=std::find_if(voices_.begin(),voices_.end(),[&](const auto& v){return v.signal.id==signal.id;});
         next.push_back({signal,old==voices_.end()?0:old->phase});
     }
-    voices_=std::move(next);
+    pcmMode_=false;pcm_.clear();voices_=std::move(next);
     lock.unlock();emit readyRead();
 }
+void SoundStream::clearPcm(){std::lock_guard lock(mutex_);pcm_.clear();pcmMode_=false;pcmPhase_=dc_=0;}
+void SoundStream::appendPcm(const std::vector<float>& samples){{std::lock_guard lock(mutex_);pcmMode_=true;voices_.clear();for(float value:samples)pcm_.push_back(std::isfinite(value)?std::clamp(value,-1.f,1.f):0);while(pcm_.size()>12000)pcm_.pop_front();}emit readyRead();}
 qint64 SoundStream::bytesAvailable()const{std::lock_guard lock(mutex_);return format_.bytesForDuration(100000)+QIODevice::bytesAvailable();}
 qint64 SoundStream::readData(char* data,qint64 maxSize){
     std::lock_guard lock(mutex_);const int stride=format_.bytesPerFrame();if(stride<=0)return 0;
@@ -35,6 +37,7 @@ qint64 SoundStream::readData(char* data,qint64 maxSize){
             sample+=wave*(4/3.141592653589793)*voice.signal.amplitude*0.2;
             voice.phase=std::fmod(voice.phase+voice.signal.frequency/format_.sampleRate(),1.0);
         }
+        if(pcmMode_){sample=pcm_.empty()?0:pcm_.front();dc_+=.001*(sample-dc_);sample-=dc_;pcmPhase_+=48000./format_.sampleRate();while(pcmPhase_>=1){if(!pcm_.empty())pcm_.pop_front();pcmPhase_-=1;}}
         sample=std::clamp(sample,-0.9,0.9);
         for(int channel=0;channel<format_.channelCount();++channel){
             char* target=data+i*stride+channel*format_.bytesPerSample();
@@ -57,7 +60,7 @@ SoundOutput::SoundOutput(QObject* parent):QObject(parent){
 SoundOutput::~SoundOutput(){stop();}
 void SoundOutput::setEnabled(bool enabled){enabled_=enabled;QSettings().setValue("soundEnabled",enabled);if(!enabled)stop();}
 // reset discards queued PCM immediately; stop can drain it and delay note endings.
-void SoundOutput::stop(){pumpTimer_.stop();device_=nullptr;pending_.clear();if(sink_)sink_->reset();stream_.setSignals({});}
+void SoundOutput::stop(){pumpTimer_.stop();device_=nullptr;pending_.clear();if(sink_)sink_->reset();stream_.setSignals({});stream_.clearPcm();}
 void SoundOutput::pump(){
     if(!sink_||!device_)return;
     if(pending_.isEmpty()){
@@ -93,3 +96,5 @@ void SoundOutput::setSignals(const std::vector<thinkercad::SoundSignal>& tones){
     prepare();if(!sink_)return;
     stream_.setSignals(tones);
 }
+
+void SoundOutput::appendPcm(const std::vector<float>& samples){if(!enabled_){stop();return;}prepare();if(sink_)stream_.appendPcm(samples);}

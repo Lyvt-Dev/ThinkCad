@@ -1,0 +1,4 @@
+#pragma once
+#include "I2S.h"
+// ESP32 Arduino's standard stereo PCM configuration.
+constexpr int I2S_MODE_STD=0,I2S_DATA_BIT_WIDTH_16BIT=16,I2S_DATA_BIT_WIDTH_24BIT=24,I2S_DATA_BIT_WIDTH_32BIT=32,I2S_SLOT_MODE_MONO=1,I2S_SLOT_MODE_STEREO=2;

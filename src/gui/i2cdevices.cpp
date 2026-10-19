@@ -17,7 +17,7 @@ I2cDevices::Reply I2cDevices::transfer(const CircuitDocument& doc,const CircuitS
         const auto power=module?definition->power:std::string("VCC"),ground=module?definition->ground:std::string("GND");const auto v=state.voltage.find({part.id,power}),g=state.voltage.find({part.id,ground});
         if(v==state.voltage.end()||g==state.voltage.end()||!v->second||!g->second)continue;
         const double supply=*v->second-*g->second;
-        if(supply<(module?definition->minVoltage:part.kind==PartKind::Oled?3.:4.5)||supply>(module?definition->maxVoltage:5.5))continue;
+        if(supply<(module?definition->minVoltage:part.kind==PartKind::Oled?3.:2.7)||supply>(module?definition->maxVoltage:5.5))continue;
         if(!doc.connected({part.id,ground},{board,"GND"})||!doc.connected({part.id,"SDA"},{board,profile.pinName(sda)})||!doc.connected({part.id,"SCL"},{board,profile.pinName(scl)}))continue;
         matches.push_back(&part);
     }

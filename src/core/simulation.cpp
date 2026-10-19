@@ -20,6 +20,8 @@ BoardProfile BoardProfile::get(const std::string& id){
     if(id=="esp32")return {"esp32","ESP32 DevKit",{0,1,2,3,4,5,12,13,14,15,16,17,18,19,21,22,23,25,26,27,32,33,34,35,36,39},{0,2,4,12,13,14,15,25,26,27,32,33,34,35,36,39},{34,35,36,39},3.3,12,36,21,22};
     if(id=="esp32-s3"){std::vector<int> gpio,adc;for(int i=0;i<=21;++i)gpio.push_back(i);for(int i=35;i<=48;++i)gpio.push_back(i);for(int i=1;i<=20;++i)adc.push_back(i);return {"esp32-s3","ESP32-S3",gpio,adc,{46},3.3,12,1,8,9};}
     auto range=[](int first,int last){std::vector<int> result;for(int i=first;i<=last;++i)result.push_back(i);return result;};
+    if(id=="microbit")return {id,"BBC micro:bit v2",{0,1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,19,20},{0,1,2,3,4,10},{},3.3,10,0,20,19,3.3,13};
+    if(id=="attiny85")return {id,"ATtiny85 · DIP-8 · 5 V",{0,1,2,3,4,5},{2,3,4,5},{5},5,10,5,0,2,5,1};
     if(id=="rp2040"){auto gpio=range(0,22);gpio.insert(gpio.end(),{25,26,27,28});return {id,"Raspberry Pi Pico / RP2040",gpio,{26,27,28},{},3.3,12,26,0,1,3.3,25};}
     if(id=="stm32f103"){auto pins=range(0,31);pins.insert(pins.end(),{45,46,47});return {id,"STM32F103 · Blue Pill",pins,{0,1,2,3,4,5,6,7,16,17},{},3.3,12,0,23,22,3.3,45};}
     if(id=="esp32-c3")return {id,"ESP32-C3",{0,1,2,3,4,5,6,7,8,9,10,18,19,20,21},{0,1,2,3,4},{},3.3,12,0,8,9,3.3,8};
@@ -35,13 +37,16 @@ BoardProfile BoardProfile::get(const std::string& id){
 }
 bool BoardProfile::supportsPwm(int number)const{
     if(std::find(gpio.begin(),gpio.end(),number)==gpio.end()||std::find(inputOnly.begin(),inputOnly.end(),number)!=inputOnly.end())return false;
+    if(id=="attiny85")return number==0||number==1||number==4;
     return !arduino()||number==3||number==5||number==6||number==9||number==10||number==11;
 }
-std::vector<std::string> BoardProfile::catalog(){return {"esp8266","esp32","esp32-s3","esp32-c3","esp32-s2","esp32-c6","rp2040","stm32f103","arduino-nano","arduino-uno"};}
+std::vector<std::string> BoardProfile::catalog(){return {"esp8266","esp32","esp32-s3","esp32-c3","esp32-s2","esp32-c6","rp2040","stm32f103","microbit","attiny85","arduino-nano","arduino-uno"};}
 std::array<int,4> BoardProfile::spiPins()const{
+    if(id=="attiny85")return {2,1,0,3};if(id=="microbit")return {13,14,15,16};
     if(arduino())return {13,12,11,10};if(id=="rp2040")return {18,16,19,17};if(id=="stm32f103")return {5,6,7,4};if(id=="esp32-c3")return {4,5,6,7};if(id=="esp32-c6")return {19,20,21,18};if(id=="esp32-s2"||id=="esp32-s3")return {12,13,11,10};if(id=="esp32")return {18,19,23,5};return {14,12,13,15};
 }
 std::string BoardProfile::pinName(int gpio)const{
+    if(id=="attiny85")return "PB"+std::to_string(gpio);if(id=="microbit")return "P"+std::to_string(gpio);
     if(id=="rp2040")return "GP"+std::to_string(gpio);
     if(id=="stm32f103")return "P"+std::string(1,char('A'+gpio/16))+std::to_string(gpio%16);
     return arduino()?(gpio<14?"D"+std::to_string(gpio):"A"+std::to_string(gpio-14)):"GPIO"+std::to_string(gpio);

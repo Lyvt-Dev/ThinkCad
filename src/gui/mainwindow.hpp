@@ -37,6 +37,7 @@ class DebugTools;
 class CollaborationTools;
 class SimulationInspector;
 class QMenu;
+class AudioCodecDecoder;
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
@@ -98,6 +99,7 @@ private:
         struct LcdBinding{std::string id;std::vector<int> pins;int address=-1;};
         std::map<int,LcdBinding> lcdBindings;
         int busSda=4,busScl=5,writes=0;
+        int i2sBclk=-1,i2sLrck=-1,i2sDout=-1,i2sDin=-1,i2sRate=48000,i2sBits=16,i2sChannels=2;
         bool busStarted=false,busHeld=false;
         std::string id;
     };
@@ -152,6 +154,8 @@ private:
     std::map<std::string,thinkercad::OledDisplay> displays_;
     Updater updater_;
     SoundOutput sound_;
+    std::unique_ptr<AudioCodecDecoder> audioCodec_;
+    double audioSampleAt_=0,audioTime_=0,audioLast_=0;
     CircuitCanvas* canvas_;
     QStackedWidget* workspace_;
     WelcomePage* startPage_;

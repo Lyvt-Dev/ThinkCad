@@ -20,7 +20,7 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 | Masse / Verbindungspunkt / Netzlabel | Gemeinsames 0-V-Potential, explizite Abzweigungen und case-sensitive benannte Netze |
 | Funktionsgenerator | Sinus, Rechteck, Dreieck, Sägezahn; 0,1–2000 Hz, Amplitude/Offset/Tastgrad |
 | Oszilloskop / Logikanalysator / Stromsonde | Live-Erfassung, Trigger, Cursor, RMS/Frequenz, CSV/PNG und UART/SPI/I²C-Decoder; endliche Sample-Auflösung |
-| LCD 16×2 / 20×4 | LiquidCrystal 4 Bit oder LiquidCrystal_I2C; 5-V-Versorgung und Verdrahtungsprüfung, Text/Custom-Glyphs; LiquidCrystal-API und roher PCF8574-/HD44780-I²C-Zugriff (übliche P0–P7-Belegung); paralleler Anschluss nur 4 Bit |
+| LCD 16×2 / 20×4 | LiquidCrystal 4 Bit oder LiquidCrystal_I2C; modellierte Versorgung 2,7–5,5 V (einschließlich ESP32 3V3) und Verdrahtungsprüfung, Text/Custom-Glyphs; LiquidCrystal-API und roher PCF8574-/HD44780-I²C-Zugriff (übliche P0–P7-Belegung); paralleler Anschluss nur 4 Bit |
 | AND/NAND/OR/NOR/XOR/XNOR/NOT | Versorgte generische Gatter, 1,8–5,5 V; keine Laufzeit-/Fan-out-/Gehäusemodelle |
 | Servo | Servo.h und gemessene 50-Hz-Pulse; 4,5–6-V-Versorgung, Winkelanzeige; keine mechanische Last-/Getriebesimulation |
 | IR-LED / 38-kHz-Empfänger / TV-Fernbedienung | Elektrische 1,2-V-IR-Diode mit Vorwiderstand; Arduino-IRremote-NEC-Adapter mit Adresse, Kommando, Repeat-Flag, decode/resume. Testfernbedienung während der Simulation mit der Maustaste gedrückt halten. Keine optische Ausbreitung oder Träger-/Pulsformsimulation |
@@ -51,14 +51,16 @@ identische Hardware- oder Tinkercad-Genauigkeit.
 | TMP36 | Einstellbar −40…125 °C, Ausgang 0,5 V + 0,01 V/°C, Versorgung 2,7…5,5 V. Ohne ausreichende Versorgung bleibt OUT unbeschaltet; verpolte Versorgung erzeugt einen Fehler. Idealer Ausgang, keine Einschwingzeit |
 | AA-Batterie | Ideale 1,5-V-Quelle mit gemeinsamer Board-Masse |
 | SPST-Ein-/Ausschalter | Rastender idealer Schließer; Ein Klick während der Simulation oder die Zustands-Checkbox öffnet/schließt den Kontakt |
-| Breadboard | 300 Kontakte; a–e und f–j jeweils pro Spalte verbunden; keine Stromschienen |
+| Breadboard | 170/300/630 Steckkontakte, optionale getrennte Stromschienen; a–e und f–j jeweils pro Spalte verbunden |
 
 Release 0.5.4 enthält 25 Typen; Version 1.0.0 enthält
 58 Typen einschließlich des Board-Typs. Varianten zählen nicht zusätzlich.
 RGB-LED und Siebensegmentanzeige brauchen pro Kanal einen externen Vorwiderstand.
 Der Arbeitsstand erweitert den Netzlöser um transiente und nichtlineare Modelle;
-die Tabelle beschreibt deren Grenzen. Relais, komplexe weitere ICs, SPI-Displays
-und beliebige I²C-Geräte sind noch nicht modelliert. Eine Bibliotheksinstallation
+die Tabelle beschreibt die bisherigen Modelle. Der unveröffentlichte Arbeitsstand
+ergänzt Relais, Digital-ICs und Audiobauteile; deren Status und Grenzen stehen im
+[Audio- und Bauteilhandbuch](AUDIO_COMPONENTS.de.md). Beliebige I²C-Geräte und
+SPI-Displays sind weiterhin nicht automatisch unterstützt. Eine Bibliotheksinstallation
 ergänzt keine fehlende Hardwarephysik. Die neuen Funk-/IR-/NFC-Modelle und ihre
 konkreten Anschlüsse stehen im [Modulhandbuch](WIRELESS_MODULES.de.md).
 
@@ -96,9 +98,9 @@ der Orientierung; die Anschlussnamen im Projekt bestimmen die elektrische Funkti
   folgen der Simulationszeit. Stoppen, Reset und elektrische Fehler stoppen den Ton.
 - Wiedergabe über das Standard-Audiogerät mit Qt Multimedia; Einstellungen →
   **Ton aktivieren** schaltet sie ab. Ohne Audiogerät läuft die Simulation weiter
-  und zeigt einen Hinweis in der Ausgabe. Beliebige Audiodateien, `analogWrite()`
-  und aus einzelnen `digitalWrite()`-Flanken rekonstruierte Audiosignale werden
-  derzeit nicht unterstützt.
+  und zeigt einen Hinweis in der Ausgabe. Der neue Audio-Arbeitsstand ergänzt
+  schaltungsbasierte PCM-Wiedergabe und gepufferte MP3-Dekodierung beim VS1053;
+  Grenzen und noch offene Prüfungen stehen im Audio- und Bauteilhandbuch.
 
 ## TMP36 anschließen
 

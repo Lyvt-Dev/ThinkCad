@@ -52,6 +52,14 @@ int main(int argc,char** argv){QCoreApplication app(argc,argv);try{
         QAudioFormat format;format.setSampleRate(44100);format.setChannelCount(2);format.setSampleFormat(sampleFormat);stream.configure(format);stream.setSignals({{"stereo",440,1}});const auto stereo=stream.read(100*format.bytesPerFrame());
         check(stereo.size()==100*format.bytesPerFrame(),"Preferred device sample format is supported");for(int i=0;i<100;++i)check(std::memcmp(stereo.constData()+i*format.bytesPerFrame(),stereo.constData()+i*format.bytesPerFrame()+format.bytesPerSample(),format.bytesPerSample())==0,"Mono mix duplicated across stereo channels");
     }
+    {
+        QAudioFormat format;format.setSampleRate(48000);format.setChannelCount(1);format.setSampleFormat(QAudioFormat::Int16);stream.configure(format);
+        std::vector<float> pcm(4800);for(int i=0;i<4800;++i)pcm[i]=float(.3*std::sin(i*6.283185307179586*440/48000));
+        stream.appendPcm(pcm);auto rendered=stream.read(9600);int crossings=0;bool armed=false;
+        for(int i=0;i<4800;++i){qint16 sample;std::memcpy(&sample,rendered.constData()+i*2,2);if(sample<-100)armed=true;if(armed&&sample>100){++crossings;armed=false;}}
+        check(crossings>=43&&crossings<=44,"Circuit PCM preserves 440 Hz playback frequency");
+        stream.clearPcm();auto silence=stream.read(9600);check(std::all_of(silence.begin(),silence.end(),[](char c){return c==0;}),"Clearing circuit audio removes buffered samples");
+    }
     std::cout<<checks<<" electrical audio and PCM checks passed\n";
     if(app.arguments().contains("--backend")){
         SoundOutput sound;QObject::connect(&sound,&SoundOutput::notice,[](const QString& message){std::cerr<<message.toStdString()<<"\n";});sound.setEnabled(true);sound.prepare();

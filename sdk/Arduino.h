@@ -32,7 +32,11 @@ constexpr auto constrain(Value value,Lower lower,Upper upper){
 constexpr int LOW = 0, HIGH = 1, INPUT = 0, OUTPUT = 1, INPUT_PULLUP = 2;
 #if defined(THINKERCAD_GENERIC_BOARD)
 constexpr int D0=0,D1=1,D2=2,D3=3,D4=4,D5=5,D6=6,D7=7,D8=8;
+#if defined(THINKERCAD_ATTINY85)
+constexpr int A0=5,A1=2,A2=4,A3=3;
+#else
 constexpr int A0=THINKERCAD_BOARD_ADC,A1=A0+1,A2=A0+2,A3=A0+3,A4=A0+4,A5=A0+5,A6=A0+6,A7=A0+7;
+#endif
 constexpr int LED_BUILTIN=THINKERCAD_BOARD_LED,SDA=THINKERCAD_BOARD_SDA,SCL=THINKERCAD_BOARD_SCL;
 #if defined(THINKERCAD_STM32F103)
 constexpr int PA0=0,PA1=1,PA2=2,PA3=3,PA4=4,PA5=5,PA6=6,PA7=7,PA8=8,PA9=9,PA10=10,PA11=11,PA12=12,PA13=13,PA14=14,PA15=15;
