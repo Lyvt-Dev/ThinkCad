@@ -61,7 +61,7 @@ jobs:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
           . .github/scripts/Invoke-Checked.ps1
-          Invoke-Checked cmake @('-S', '.', '-B', 'build', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_CXX_COMPILER=cl', "-DZLIB_ROOT=$env:ZLIB_ROOT", "-DZLIB_LIBRARY_RELEASE=$env:ZLIB_ROOT/lib/zs.lib", "-DTHINKERCAD_PUBLISHER_SHA256=$env:PUBLISHER_SHA256")
+          Invoke-Checked cmake @('-S', '.', '-B', 'build', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_CXX_COMPILER=cl', '-DCMAKE_C_COMPILER=cl', '-DCMAKE_RC_COMPILER=rc', "-DZLIB_ROOT=$env:ZLIB_ROOT", "-DZLIB_LIBRARY_RELEASE=$env:ZLIB_ROOT/lib/zs.lib", "-DTHINKERCAD_PUBLISHER_SHA256=$env:PUBLISHER_SHA256")
           $headers = @('-std=c++20', '-fsyntax-only', '-Isdk', '-Isdk/vendor/busio', '-Isdk/vendor/sensor', '-Isdk/vendor/bme280', '-Isdk/vendor/mpu6050', '-Isdk/vendor/mfrc522', '-Isdk/vendor/dallas', 'tests/vendor_sdk_headers.cpp')
           Invoke-Checked g++ $headers
           Invoke-Checked g++ ($headers + @('-DTHINKCAD_DEBUG_TRANSPORT=1'))
