@@ -12,6 +12,7 @@
 #include <algorithm>
 #include "verify_attestation.hpp"
 #include "update_transaction.hpp"
+#include "registry_copy.hpp"
 namespace fs = std::filesystem;
 namespace {
 bool german = PRIMARYLANGID(GetUserDefaultUILanguage()) == LANG_GERMAN;
@@ -177,18 +178,18 @@ void registry(bool restore, const std::wstring &snapshot) {
     const auto dst = restore ? path : snapshot.c_str();
     if (!restore)
         RegDeleteTreeW(HKEY_CURRENT_USER, snapshot.c_str());
-    if (RegOpenKeyExW(HKEY_CURRENT_USER, src, 0, KEY_READ | KEY_WOW64_64KEY, &source) != ERROR_SUCCESS)
-        return;
+    const auto opened = RegOpenKeyExW(HKEY_CURRENT_USER, src, 0, KEY_READ | KEY_WOW64_64KEY, &source);
+    if (opened == ERROR_FILE_NOT_FOUND) return;
+    thinkcad_update::registryCheck(opened, "Open uninstall registration");
     if (RegCreateKeyExW(HKEY_CURRENT_USER, dst, 0, nullptr, 0, KEY_WRITE | KEY_READ | KEY_WOW64_64KEY,
                         nullptr, &dest, nullptr) != ERROR_SUCCESS) {
         RegCloseKey(source);
         throw std::runtime_error("Cannot save uninstall registration");
     }
-    const auto result = RegCopyTreeW(source, nullptr, dest);
+    try { thinkcad_update::copyRegistryData(source, dest); }
+    catch (...) { RegCloseKey(source); RegCloseKey(dest); throw; }
     RegCloseKey(source);
     RegCloseKey(dest);
-    if (result != ERROR_SUCCESS)
-        throw std::runtime_error("Cannot copy uninstall registration");
 }
 } // namespace
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
@@ -232,6 +233,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
     const auto journal = cache / "transaction.journal";
     const auto regSnapshot = L"Software\\Lyvt-Dev\\ThinkCadUpdate\\UninstallBackup";
     HANDLE lock = INVALID_HANDLE_VALUE;
+    bool registrationSaved = false;
     try {
         if (!logFile)
             throw std::runtime_error("Cannot open local installation log");
@@ -239,6 +241,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
             if (fs::path(argv[2]) != journal)
                 throw std::runtime_error("Recovery journal is outside this update session");
             transaction = thinkcad_update::Transaction::load(journal);
+            registrationSaved = true;
             phase(L"Recovering interrupted update...");
             if (!transaction->committed) {
                 transaction->rollback();
@@ -309,6 +312,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
         transaction = thinkcad_update::Transaction::create(target, journal, token);
         transaction->save();
         registry(false, regSnapshot);
+        registrationSaved = true;
         runOnce(helper, journal, true);
         phase(L"Backing up the old installation and preserving local files...", 0);
         transaction->prepare([](auto bytes, auto total) {
@@ -389,12 +393,13 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
             if (transaction && !transaction->committed) {
                 phase(L"Restoring the previous installation...");
                 transaction->rollback();
-                registry(true, regSnapshot);
+                if (registrationSaved) registry(true, regSnapshot);
                 runOnce(helper, journal, false);
                 result += "\nPrevious installation restored. Failed files were retained separately.";
             }
         } catch (const std::exception &rollback) {
             try {
+                if (transaction) transaction->save();
                 runOnce(helper, journal, true);
             } catch (...) {
             }

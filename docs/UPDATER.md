@@ -77,3 +77,18 @@ inventing a machine-readable migration guarantee for releases without one.
 New auxiliary translations were generated locally using the pinned tools/models
 and attribution recorded in [the 1.3.1 architecture notes](development/1.3.1-architecture.md).
 No model or translation service is a runtime dependency.
+
+### Windows uninstall-registration recovery
+
+The helper copies registry **data**, including nested keys and typed/default values,
+without cloning ACLs. Backup/restore only requires normal HKCU data access. Errors
+include the Windows status code; access-denied errors are not silently treated as
+missing registrations. If recovery itself fails, its journal is saved again before
+registering the next recovery attempt. A failed backup does not restore its partial
+snapshot over the original registration.
+
+If an older helper reports `Cannot copy uninstall registration`, keep the cache,
+`transaction.journal` and any backup. Do not delete or edit the uninstall registry
+manually. The old helper cannot be repaired by downloading the same release again;
+a fixed helper/installer is needed. Registry errors alone do not establish antivirus
+interference or locked application files.
