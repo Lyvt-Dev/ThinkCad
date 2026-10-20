@@ -135,7 +135,7 @@ jobs:
           New-Item -ItemType Directory -Force $installDir | Out-Null
           [IO.File]::WriteAllText("$installDir/local-project.thinkcad", 'personal project must survive repair')
           $install = Start-Process -FilePath $installer -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$installDir") -Wait -PassThru
-          if (Get-ItemPropertyValue $runOnce -Name ThinkCadUpdateRecovery -ErrorAction SilentlyContinue) { throw 'Manual repair retained the old automatic recovery command.' }
+          if ((Get-Item $runOnce).GetValue('ThinkCadUpdateRecovery', $null)) { throw 'Manual repair retained the old automatic recovery command.' }
           if ((Get-ItemPropertyValue 'HKCU:\Software\Lyvt-Dev\ThinkCadUpdate' -Name SupersededRecovery) -ne $oldRecovery) { throw 'Manual repair did not archive the old recovery command.' }
           if ((Get-Content "$installDir/local-project.thinkcad" -Raw) -ne 'personal project must survive repair') { throw 'Manual repair changed a local project.' }
 
