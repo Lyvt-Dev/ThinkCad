@@ -2,12 +2,16 @@
 #include "theme.hpp"
 #include <QApplication>
 #include <QPalette>
+#include <QSettings>
 #include <QRegularExpression>
 #include <QMap>
 #include <QPlainTextEdit>
 #include <QTextDocument>
 #include <QSyntaxHighlighter>
 void Theme::apply(bool dark){
+    const bool halloween=QSettings().value("halloweenTheme",false).toBool();
+    dark=dark||halloween;
+    qApp->setProperty("halloweenTheme",halloween);
     Motion::install();
     qApp->setProperty("darkMode",dark);
     QPalette p;p.setColor(QPalette::Window,dark?QColor("#101722"):QColor("#f4f7fb"));p.setColor(QPalette::WindowText,dark?QColor("#e2e8f0"):QColor("#27364b"));p.setColor(QPalette::Base,dark?QColor("#17212f"):QColor("#ffffff"));p.setColor(QPalette::AlternateBase,dark?QColor("#111b29"):QColor("#f8fafc"));p.setColor(QPalette::Text,p.color(QPalette::WindowText));p.setColor(QPalette::Button,p.color(QPalette::Base));p.setColor(QPalette::ButtonText,p.color(QPalette::Text));p.setColor(QPalette::Highlight,QColor("#0d9488"));p.setColor(QPalette::HighlightedText,Qt::white);p.setColor(QPalette::Mid,dark?QColor("#475569"):QColor("#dbe4ef"));p.setColor(QPalette::PlaceholderText,dark?QColor("#aab7c9"):QColor("#64748b"));qApp->setPalette(p);
@@ -21,5 +25,34 @@ void Theme::apply(bool dark){
     style+="QToolButton#runButton {background:#0d9488;border-color:#0f766e;color:white;} QToolButton#runButton:hover {background:#0f766e;} QToolButton#runButton:pressed {background:#115e59;}";
     style+="QLabel#brandName,QLabel#startBrand {font-weight:600;font-size:17px;} QLabel#sectionTitle,QLabel#recentTitle,QLabel#welcomeTitle {font-weight:600;} QLabel#muted,QLabel#recentLocation,QLabel#startVersion {color:"+(dark?QString("#aab7c9"):QString("#64748b"))+";} QPushButton#componentCard,QPushButton#startExamples,QPushButton#homeNavigation,QPushButton#settingsNavigation,QPushButton#tutorialNavigation,QPushButton#resumeEditor {text-align:left;padding:6px;} QFrame#recentProjectCard {border-bottom:1px solid "+border+";} QPlainTextEdit {background:"+base+";color:"+text+";} QToolTip {background:#111;color:white;border:1px solid #555;}";
     style+="QMenu {background:#111111;color:white;border:1px solid #444;padding:4px;} QMenu::item {padding:6px 26px 6px 18px;color:white;} QMenu::item:selected {background:#303030;color:white;} QMenu::item:disabled {color:#9ca3af;} QMenu::separator {height:1px;background:#444;margin:4px;} QMenuBar::item:selected,QMenuBar::item:pressed,QTabBar::tab:hover {background:#111;color:white;}";
+    if(halloween){
+        // Use palette roles throughout, including the canvas and native dialogs.
+        p.setColor(QPalette::Window,QColor("#211629"));
+        p.setColor(QPalette::Base,QColor("#2b2034"));
+        p.setColor(QPalette::AlternateBase,QColor("#35263f"));
+        p.setColor(QPalette::Button,QColor("#392842"));
+        p.setColor(QPalette::WindowText,QColor("#fff1df"));
+        p.setColor(QPalette::Text,QColor("#fff1df"));
+        p.setColor(QPalette::ButtonText,QColor("#fff1df"));
+        p.setColor(QPalette::Highlight,QColor("#ffad42"));
+        p.setColor(QPalette::HighlightedText,QColor("#211629"));
+        p.setColor(QPalette::Mid,QColor("#655170"));
+        p.setColor(QPalette::PlaceholderText,QColor("#c8b6d0"));
+        for(auto role:{QPalette::WindowText,QPalette::Text,QPalette::ButtonText})
+            p.setColor(QPalette::Disabled,role,QColor("#a99bad"));
+        qApp->setPalette(p);
+        style.replace("#17212f","#2b2034").replace("#475569","#655170");
+        style.replace("#0d9488","#ffad42").replace("#0f766e","#ffc36e").replace("#115e59","#e9952e");
+        style.replace("#168a9e","#ffad42").replace("#164e49","#614023");
+        style.replace("#233247","#392842").replace("#24384b","#4b3454").replace("#52647d","#80618c");
+        style += "QToolButton#runButton {color:#211629;} QPlainTextEdit {background:#2b2034;color:#fff1df;}"
+                 "QMenu {background:#211629;border-color:#80618c;} QMenu::item:selected {background:#614023;}"
+                 "QMenuBar::item:selected,QMenuBar::item:pressed,QTabBar::tab:hover {background:#614023;color:#fff1df;}"
+                 "QTabBar::tab:selected {border-bottom:2px solid #ffad42;}"
+                 "QAbstractItemView {selection-background-color:#ffad42;selection-color:#211629;}"
+                 "QProgressBar {border:1px solid #80618c;text-align:center;} QProgressBar::chunk {background:#ffad42;}"
+                 "QPushButton:hover,QToolButton:hover {border:1px solid #ffad42;}"
+                 "QPushButton:focus,QComboBox:focus,QLineEdit:focus {border:2px solid #ffad42;}";
+    }
     qApp->setStyleSheet(style);for(auto* widget:qApp->allWidgets())if(auto* editor=qobject_cast<QPlainTextEdit*>(widget))for(auto* highlighter:editor->document()->findChildren<QSyntaxHighlighter*>())highlighter->rehighlight();
 }

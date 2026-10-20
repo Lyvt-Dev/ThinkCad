@@ -17,6 +17,7 @@ Zehn verdrahtete Beispiele, lokale passwortgeschützte Share-/QR-Codes,
 Bauteilsuche **Strg+P** und der Assistenten-Skin **Nyra Quack**.
 [Release Notes DE/EN](docs/RELEASE_NOTES_1.3.5.md) ·
 [Bedienung und Modellgrenzen](docs/FEATURES_1.3.5.md) ·
+[Optionales Halloween-Theme (nächster Release)](docs/HALLOWEEN_THEME.md) ·
 [Implementierungsplan](docs/PLAN_1.3.5.md) · [Share-Code](docs/SHARE_CODE.md)
 
 ## Neu in 1.3.4 — Bedienung und Stabilität

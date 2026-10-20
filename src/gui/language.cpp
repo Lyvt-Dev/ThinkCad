@@ -20,6 +20,8 @@ static void initializeLanguageResources(){Q_INIT_RESOURCE(thinkcad_translations)
 namespace {
 const QMap<QString,QString>& translations(){static const QMap<QString,QString> values{
     // ThinkCad 1.3.5
+    {"Halloween-Theme","Halloween theme"},
+    {"Orange Akzente auf dunklem Violett. Die normale Darstellung bleibt gespeichert.","Orange accents on dark purple. Your normal appearance remains saved."},
     {"Ungültige Bibliotheksverweise.","Invalid library references"},
     {"Sketch-Ziel (Schritte)","Sketch target (steps)"},
     {"Der Schrittmotor ist verbunden, aber der Treiber hat keine gültige Versorgung.","The stepper is connected, but its driver does not have a valid power supply."},

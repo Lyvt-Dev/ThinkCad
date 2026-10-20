@@ -5,6 +5,8 @@
 #include "language.hpp"
 #include "appimageupdate.hpp"
 #include "theme.hpp"
+#include "preferences.hpp"
+#include <QCheckBox>
 #include <QtTest>
 #include <QApplication>
 #include <QDockWidget>
@@ -42,6 +44,15 @@ class ExperienceTests:public QObject {
  void shot(QWidget& widget,const QString& name){auto path=qEnvironmentVariable("THINKCAD_REVIEW_DIR");if(path.isEmpty())return;QDir().mkpath(path);QCoreApplication::processEvents();if(qobject_cast<MainWindow*>(&widget))widget.resize(1400,950);QTest::qWait(60);if(auto* w=qobject_cast<MainWindow*>(&widget))w->canvas()->fitCircuit();QTest::qWait(50);QVERIFY(widget.grab().save(path+"/"+name+".png"));}
  static void drop(CircuitCanvas* canvas,PartKind kind,const QString& model={},QPoint point={160,160}){QMimeData data;data.setData("application/x-thinkcad-component",QJsonDocument(QJsonObject{{"kind",int(kind)},{"model",model}}).toJson());QDragEnterEvent enter(point,Qt::CopyAction,&data,Qt::LeftButton,Qt::NoModifier);QApplication::sendEvent(canvas->viewport(),&enter);QDropEvent event(point,Qt::CopyAction,&data,Qt::LeftButton,Qt::NoModifier);QApplication::sendEvent(canvas->viewport(),&event);}
 private slots:
+ void halloweenSettingsAndRestoration(){
+    QSettings settings;
+    auto change=[&](bool save){QTimer::singleShot(0,[]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());QVERIFY(dialog);auto* option=dialog->findChild<QCheckBox*>("preferencesHalloweenTheme");QVERIFY(option);option->setChecked(true);});QTimer::singleShot(40,[save]{auto* dialog=qobject_cast<QDialog*>(QApplication::activeModalWidget());QVERIFY(dialog);dialog->findChild<QDialogButtonBox*>()->button(save?QDialogButtonBox::Save:QDialogButtonBox::Cancel)->click();});return showPreferences(nullptr);};
+    QVERIFY(!change(false));QVERIFY(!settings.value("halloweenTheme",false).toBool());QCOMPARE(qApp->palette().color(QPalette::Base),QColor("#ffffff"));
+    QVERIFY(change(true));QVERIFY(settings.value("halloweenTheme").toBool());QVERIFY(!settings.value("darkMode").toBool());QCOMPARE(qApp->palette().color(QPalette::Base),QColor("#2b2034"));QCOMPARE(qApp->palette().color(QPalette::Highlight),QColor("#ffad42"));
+    Theme::apply(false);QCOMPARE(qApp->palette().color(QPalette::Base),QColor("#2b2034"));
+    MainWindow window;window.show();shot(window,"halloween-workspace");
+    settings.setValue("halloweenTheme",false);Theme::apply(false);QCOMPARE(qApp->palette().color(QPalette::Base),QColor("#ffffff"));Theme::apply(true);QCOMPARE(qApp->palette().color(QPalette::Base),QColor("#17212f"));
+ }
  void initTestCase(){QCoreApplication::setOrganizationName("ThinkCadExperienceTests");QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,temporary_.path());qputenv("THINKCAD_RECOVERY_DIR",temporary_.filePath("recovery").toUtf8());}
  void init(){QSettings().clear();Language::set("de");ComponentDesign::set("blocks");Theme::apply(false);}
  void dragPlacementDoesNotChangeTab(){MainWindow window;window.show();QTest::qWait(100);auto* parts=window.findChild<QDockWidget*>("partsDock");auto* properties=window.findChild<QDockWidget*>("inspectorDock");QVERIFY(parts&&properties);parts->raise();auto before=window.circuit().parts().size();auto* card=window.findChild<QPushButton*>("componentCard");QVERIFY(card);QTest::mouseClick(card,Qt::LeftButton);QCOMPARE(window.circuit().parts().size(),before);drop(window.canvas(),PartKind::Esp8266,"arduino-nano");QCOMPARE(window.circuit().parts().size(),before+1);QCOMPARE(window.circuit().parts().back().model,std::string("arduino-nano"));QVERIFY(parts->visibleRegion().boundingRect().height()>0);window.canvas()->selectPart(window.circuit().parts().back().id);QVERIFY(parts->visibleRegion().boundingRect().height()>0);window.canvas()->history()->undo();QCOMPARE(window.circuit().parts().size(),before);window.canvas()->history()->redo();QCOMPARE(window.circuit().parts().size(),before+1);window.startSimulation();QTest::qWait(50);drop(window.canvas(),PartKind::Led);QCOMPARE(window.circuit().parts().size(),before+1);window.stopSimulation();QVERIFY(window.loadExample("button_led"));shot(window,"v12-workspace");}
