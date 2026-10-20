@@ -10,6 +10,10 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.3.6
+
+Updater-Reparatur, neues Spinnenchip-Logo und optionales Halloween-Theme. Windows-Nutzer von 1.3.5 müssen den neuen Installer einmal manuell über die vorhandene Installation ausführen. [Versionshinweise](docs/RELEASE_NOTES_1.3.6.md).
+
 ## Neu in 1.3.5 — Halloween, Aktoren, TFT und lokales Teilen
 
 Schrittmotoren mit A4988/ULN2003, Relais, ILI9341/ST7735, BME680 und MH-Z19B.
@@ -17,7 +21,7 @@ Zehn verdrahtete Beispiele, lokale passwortgeschützte Share-/QR-Codes,
 Bauteilsuche **Strg+P** und der Assistenten-Skin **Nyra Quack**.
 [Release Notes DE/EN](docs/RELEASE_NOTES_1.3.5.md) ·
 [Bedienung und Modellgrenzen](docs/FEATURES_1.3.5.md) ·
-[Optionales Halloween-Theme (nächster Release)](docs/HALLOWEEN_THEME.md) ·
+[Optionales Halloween-Theme (1.3.6)](docs/HALLOWEEN_THEME.md) ·
 [Implementierungsplan](docs/PLAN_1.3.5.md) · [Share-Code](docs/SHARE_CODE.md)
 
 ## Neu in 1.3.4 — Bedienung und Stabilität

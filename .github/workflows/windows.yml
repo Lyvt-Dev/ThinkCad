@@ -128,7 +128,17 @@ jobs:
         run: |
           $installer = (Get-ChildItem out/installer/*.exe).FullName
           $installDir = Join-Path $env:RUNNER_TEMP 'ThinkCad-Installer-Smoke'
+          $runOnce = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\RunOnce'
+          New-Item $runOnce -Force | Out-Null
+          $oldRecovery = '"C:\ThinkCad old cache\ThinkCadUpdater-old.exe" --recover "C:\ThinkCad old cache\transaction.journal"'
+          Set-ItemProperty $runOnce -Name ThinkCadUpdateRecovery -Value $oldRecovery
+          New-Item -ItemType Directory -Force $installDir | Out-Null
+          [IO.File]::WriteAllText("$installDir/local-project.thinkcad", 'personal project must survive repair')
           $install = Start-Process -FilePath $installer -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$installDir") -Wait -PassThru
+          if (Get-ItemPropertyValue $runOnce -Name ThinkCadUpdateRecovery -ErrorAction SilentlyContinue) { throw 'Manual repair retained the old automatic recovery command.' }
+          if ((Get-ItemPropertyValue 'HKCU:\Software\Lyvt-Dev\ThinkCadUpdate' -Name SupersededRecovery) -ne $oldRecovery) { throw 'Manual repair did not archive the old recovery command.' }
+          if ((Get-Content "$installDir/local-project.thinkcad" -Raw) -ne 'personal project must survive repair') { throw 'Manual repair changed a local project.' }
+
           if ($install.ExitCode) { throw "Installer failed: $($install.ExitCode)" }
           $env:QT_QPA_PLATFORM = 'offscreen'
           $app = Start-Process -FilePath "$installDir/ThinkCad.exe" -ArgumentList '--smoke-test' -RedirectStandardOutput "$pwd/out/installer-smoke.stdout.txt" -RedirectStandardError "$pwd/out/installer-smoke.stderr.txt" -PassThru

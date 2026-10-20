@@ -1,5 +1,5 @@
 #ifndef Version
-  #define Version "1.3.5"
+  #define Version "1.3.6"
 #endif
 #ifndef StagingDir
   #define StagingDir "..\..\out\stage"
@@ -71,9 +71,31 @@ begin
     ReportUpdateProgress('files', Round(100.0 * CurProgress / MaxProgress));
 end;
 
+procedure RetireSupersededRecovery;
+var Recovery: String;
+begin
+  { A verified updater owns its recovery until commit. Only a successful manual
+    installation supersedes an interrupted transaction from an older helper. }
+  if ExpandConstant('{param:THINKCADPROGRESS|}') <> '' then Exit;
+  if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\RunOnce',
+                         'ThinkCadUpdateRecovery', Recovery) then begin
+    if Pos(' --recover "', Recovery) = 0 then Exit;
+    if RegWriteStringValue(HKCU, 'Software\Lyvt-Dev\ThinkCadUpdate',
+                           'SupersededRecovery', Recovery) then begin
+      if RegDeleteValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\RunOnce',
+                         'ThinkCadUpdateRecovery') then
+        Log('Archived and retired recovery superseded by successful manual installation')
+      else Log('Warning: could not retire old recovery command');
+    end else Log('Warning: could not archive old recovery command');
+  end;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssInstall then ReportUpdateProgress('files', 0);
   if CurStep = ssPostInstall then ReportUpdateProgress('configuration', 100);
-  if CurStep = ssDone then ReportUpdateProgress('complete', 100);
+  if CurStep = ssDone then begin
+    RetireSupersededRecovery;
+    ReportUpdateProgress('complete', 100);
+  end;
 end;
