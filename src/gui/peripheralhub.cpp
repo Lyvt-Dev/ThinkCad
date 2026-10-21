@@ -3,11 +3,13 @@
 #include <cmath>
 #include <QList>
 #include <set>
+#include <algorithm>
+#include <QString>
 using namespace thinkercad;
 namespace {
 bool supply(const CircuitState& s,const std::string& id,double low,double high){auto v=s.voltage.find({id,"VCC"}),g=s.voltage.find({id,"GND"});return v!=s.voltage.end()&&g!=s.voltage.end()&&v->second&&g->second&&*v->second-*g->second>=low-1e-6&&*v->second-*g->second<=high+1e-6;}
 bool near(const CircuitPart& a,const CircuitPart& b,double range){return parameter(a,"channel",0)==parameter(b,"channel",0)&&std::hypot(a.x-b.x,a.y-b.y)<=range;}
-QByteArray tagMemory(const CircuitPart& card){QByteArray memory(160,0);const int length=int(parameter(card,"uidLength",7));const int defaults[]={4,161,178,195,212,229,246};unsigned char uid[7]{};for(int i=0;i<length;++i)uid[i]=static_cast<unsigned char>(parameter(card,"uid"+std::to_string(i),defaults[i]));for(int i=0;i<3;++i)memory[i]=char(uid[i]);memory[3]=char(0x88^uid[0]^uid[1]^uid[2]);for(int i=3;i<7;++i)memory[i+1]=char(uid[i]);memory[8]=char(uid[3]^uid[4]^uid[5]^uid[6]);memory[9]=0x48;memory[12]=char(0xe1);memory[13]=0x10;memory[14]=0x12;auto text=card.model.empty()?QByteArray("ThinkCad NFC test card"):QByteArray::fromStdString(card.model);QByteArray record;record.append(char(0xd1));record.append(char(1));record.append(char(text.size()+3));record.append('T');record.append(char(2));record.append("en");record.append(text);QByteArray tlv;tlv.append(char(3));tlv.append(char(record.size()));tlv.append(record);tlv.append(char(0xfe));memory.replace(16,tlv.size(),tlv);return memory;}
+QByteArray tagMemory(const CircuitPart& card,const QByteArray* overrideText=nullptr){QByteArray memory(160,0);const int length=int(parameter(card,"uidLength",7));const int defaults[]={4,161,178,195,212,229,246};unsigned char uid[7]{};for(int i=0;i<length;++i)uid[i]=static_cast<unsigned char>(parameter(card,"uid"+std::to_string(i),defaults[i]));for(int i=0;i<3;++i)memory[i]=char(uid[i]);memory[3]=char(0x88^uid[0]^uid[1]^uid[2]);for(int i=3;i<7;++i)memory[i+1]=char(uid[i]);memory[8]=char(uid[3]^uid[4]^uid[5]^uid[6]);memory[9]=0x48;memory[12]=char(0xe1);memory[13]=0x10;memory[14]=0x12;auto text=overrideText?*overrideText:card.model.empty()?QByteArray("ThinkCad NFC test card"):QByteArray::fromStdString(card.model);QByteArray record;record.append(char(0xd1));record.append(char(1));record.append(char(text.size()+3));record.append('T');record.append(char(2));record.append("en");record.append(text);QByteArray tlv;tlv.append(char(3));tlv.append(char(record.size()));tlv.append(record);tlv.append(char(0xfe));memory.replace(16,tlv.size(),tlv);return memory;}
 }
 void PeripheralHub::infrared(const CircuitDocument& doc,const std::string& source,int address,int command,int flags){const auto& part=doc.part(source);for(auto& [key,d]:devices_)if(d.type=="IR_RX"&&near(part,doc.part(d.id),1400)){if(d.infrared.size()==8)d.infrared.pop_front();d.infrared.push_back({address,command,flags});}}
 void PeripheralHub::inputs(const CircuitDocument& doc){for(const auto& p:doc.parts())if(p.kind==PartKind::InfraredRemote){if(p.pressed&&!pressed_[p.id])infrared(doc,p.id,int(parameter(p,"address",0)),int(p.value));pressed_[p.id]=p.pressed;}}
@@ -16,19 +18,68 @@ bool PeripheralHub::handle(const std::string& boardId,Esp8266Board& board,const 
     auto number=[&](int index){bool ok=false;int n=index<fields.size()?fields[index].toInt(&ok):0;if(!ok)throw std::runtime_error("Invalid peripheral command: "+line.toStdString());return n;};
     const int token=number(1);auto key=std::make_pair(boardId,token);
 
-    auto ready=[&](const Device& d){auto kind=doc.part(d.id).kind;double min=kind==PartKind::RadioTransceiver?1.9:2.7,max=kind==PartKind::RadioTransceiver?3.6:5.5;if(kind==PartKind::InfraredLed)return true;if(!supply(state,d.id,min,max))return false;std::vector<std::string> names=d.type=="NFC"?std::vector<std::string>{"SDA","SCL","IRQ","RST"}:d.type=="RF"?std::vector<std::string>{"SCK","MISO","MOSI","CSN","CE"}:std::vector<std::string>{d.type=="IR_RX"?"OUT":"DATA"};for(std::size_t i=0;i<names.size();++i)if(!doc.connected({d.id,names[i]},{d.board,BoardProfile::get(doc.part(d.board).model).pinName(d.pins[i])}))return false;if(d.type=="NFC"){auto r=state.voltage.find({d.id,"RST"});auto v=state.voltage.find({d.id,"VCC"});auto g=state.voltage.find({d.id,"GND"});if(r==state.voltage.end()||!r->second||*r->second-*g->second<.7*(*v->second-*g->second))return false;}return true;};
+    auto ready=[&](const Device& d){if(std::none_of(doc.parts().begin(),doc.parts().end(),[&](const auto& p){return p.id==d.id;})||std::none_of(doc.parts().begin(),doc.parts().end(),[&](const auto& p){return p.id==d.board;}))return false;auto kind=doc.part(d.id).kind;if(d.type=="NFC"&&kind!=PartKind::NfcReader&&!(kind==PartKind::Module&&doc.part(d.id).model=="pn532-transmitter"))return false;if(doc.part(d.board).kind!=PartKind::Esp8266)return false;const auto profile=BoardProfile::get(doc.part(d.board).model);for(int pin:d.pins)if(std::find(profile.gpio.begin(),profile.gpio.end(),pin)==profile.gpio.end())return false;double min=kind==PartKind::RadioTransceiver?1.9:2.7,max=kind==PartKind::RadioTransceiver?3.6:5.5;if(kind==PartKind::InfraredLed)return true;if(!supply(state,d.id,min,max))return false;std::vector<std::string> names=d.type=="NFC"?std::vector<std::string>{"SDA","SCL","IRQ","RST"}:d.type=="RF"?std::vector<std::string>{"SCK","MISO","MOSI","CSN","CE"}:std::vector<std::string>{d.type=="IR_RX"?"OUT":"DATA"};for(std::size_t i=0;i<names.size();++i)if(!doc.connected({d.id,names[i]},{d.board,BoardProfile::get(doc.part(d.board).model).pinName(d.pins[i])}))return false;if(d.type=="NFC"){auto r=state.voltage.find({d.id,"RST"});auto v=state.voltage.find({d.id,"VCC"});auto g=state.voltage.find({d.id,"GND"});if(r==state.voltage.end()||!r->second||*r->second-*g->second<.7*(*v->second-*g->second))return false;}return true;};
+    // A lost supply, reset, disconnected bus or deleted owner ends target mode.
+    // Reapplying power cannot silently resurrect a reader's old selection.
+    std::erase_if(targets_,[&](const auto& entry){auto owner=devices_.find(entry.second.owner);return owner==devices_.end()||owner->second.id!=entry.first||!ready(owner->second);});
     if(op=="IR_RX_BEGIN"||op=="NFC_BEGIN"||op=="RF_BEGIN"||op=="ASK_TX_BEGIN"||op=="ASK_RX_BEGIN"){
         Device d;d.board=boardId;d.type=op=="IR_RX_BEGIN"?"IR_RX":op=="NFC_BEGIN"?"NFC":op=="RF_BEGIN"?"RF":op=="ASK_TX_BEGIN"?"ASK_TX":"ASK_RX";
         int count=d.type=="NFC"?4:d.type=="RF"?5:1;if(fields.size()!=count+2)throw std::runtime_error("Invalid peripheral pin count");std::set<int> unique;for(int i=0;i<count;++i){int pin=number(i+2);(void)board.pin(pin);unique.insert(pin);d.pins.push_back(pin);}if(int(unique.size())!=count)throw std::runtime_error("Peripheral pins must be distinct");
-        PartKind kind=d.type=="NFC"?PartKind::NfcReader:d.type=="RF"?PartKind::RadioTransceiver:d.type=="IR_RX"?PartKind::InfraredReceiver:d.type=="ASK_TX"?PartKind::RadioTransmitter:PartKind::RadioReceiver;std::vector<std::string> matches;for(const auto& p:doc.parts())if(p.kind==kind){d.id=p.id;if(ready(d))matches.push_back(p.id);}if(matches.size()!=1){answer(0);return true;}d.id=matches.front();d.channel=int(doc.part(d.id).value);d.listening=d.type=="ASK_RX";devices_[key]=d;answer(1);return true;
+        PartKind kind=d.type=="NFC"?PartKind::NfcReader:d.type=="RF"?PartKind::RadioTransceiver:d.type=="IR_RX"?PartKind::InfraredReceiver:d.type=="ASK_TX"?PartKind::RadioTransmitter:PartKind::RadioReceiver;std::vector<std::string> matches;for(const auto& p:doc.parts())if(p.kind==kind||(d.type=="NFC"&&p.kind==PartKind::Module&&p.model=="pn532-transmitter")){d.id=p.id;if(ready(d))matches.push_back(p.id);}if(matches.size()!=1){answer(0);return true;}d.id=matches.front();d.channel=int(doc.part(d.id).value);d.listening=d.type=="ASK_RX";if(d.type=="NFC")targets_.erase(d.id);devices_[key]=d;answer(1);return true;
     }
     if(op=="IR_TX_BEGIN") {int pin=number(2);(void)board.pin(pin);Device d;d.board=boardId;d.type="IR_TX";d.pins={pin};std::vector<std::string> matches;auto probe=board;probe.pinMode(pin,PinMode::Output);probe.digitalWrite(pin,true);auto on=doc.solve({{boardId,&probe}});probe.digitalWrite(pin,false);auto off=doc.solve({{boardId,&probe}});for(const auto& p:doc.parts())if(p.kind==PartKind::InfraredLed){auto a=on.ledCurrent.find(p.id),b=off.ledCurrent.find(p.id);if(a!=on.ledCurrent.end()&&a->second>=.001&&(b==off.ledCurrent.end()||b->second<.0001)&&on.errors.empty())matches.push_back(p.id);}if(matches.size()!=1){answer(0);return true;}d.id=matches.front();devices_[key]=d;answer(1);return true;}
-    auto found=devices_.find(key);if(found==devices_.end())throw std::runtime_error("Peripheral not initialized: check module, supply and bus wiring");auto& d=found->second;if(!ready(d))throw std::runtime_error(d.id+": peripheral supply or bus wiring invalid");
+    auto found=devices_.find(key);if(found==devices_.end())throw std::runtime_error("Peripheral not initialized: check module, supply and bus wiring");auto& d=found->second;if(!ready(d)){if(op=="NFC_TARGET_ACTIVE"){answer(0);return true;}throw std::runtime_error(d.id+": peripheral supply or bus wiring invalid");}
+    if(op.startsWith("NFC_")&&d.type!="NFC")throw std::runtime_error("NFC command requires a PN532 binding");
+    auto selectedMemory=[&](bool writing)->QByteArray*{
+        if(targets_.contains(d.id)||d.card.empty())return nullptr;
+        auto part=std::find_if(doc.parts().begin(),doc.parts().end(),[&](const auto& p){return p.id==d.card;});
+        if(part==doc.parts().end()||!near(*part,doc.part(d.id),320))return nullptr;
+        auto target=targets_.find(d.card);
+        if(target!=targets_.end()){
+            if(target->second.generation!=d.cardGeneration||(writing&&!target->second.writable))return nullptr;
+            return &target->second.memory;
+        }
+        if(d.cardGeneration||part->kind!=PartKind::NfcTestCard||!part->pressed)return nullptr;
+        return &tagMemory_.try_emplace(d.card,tagMemory(*part)).first->second;
+    };
     if(op=="IR_SEND"){if(d.type!="IR_TX")throw std::runtime_error("IR sender not initialized");int address=number(2),command=number(3);if(address<0||address>65535||command<0||command>255)throw std::runtime_error("Invalid NEC frame");auto current=state.ledCurrent.find(d.id);if(current==state.ledCurrent.end()||current->second<.001)throw std::runtime_error("IR LED is not emitting: check GPIO, resistor and polarity");infrared(doc,d.id,address,command,fields.size()>4?number(4):0);answer(1);}
     else if(op=="IR_DECODE"){if(d.held||d.infrared.empty())answer(0);else{d.held=true;answer(1);answer(d.infrared.front().address);answer(d.infrared.front().command);answer(d.infrared.front().flags);}}
     else if(op=="IR_RESUME"){if(d.held&&!d.infrared.empty())d.infrared.pop_front();d.held=false;answer(1);}
-    else if(op=="NFC_POLL"){std::vector<std::string> cards;for(const auto& p:doc.parts())if(p.kind==PartKind::NfcTestCard&&p.pressed&&near(p,doc.part(d.id),320))cards.push_back(p.id);d.card=cards.size()==1?cards.front():"";if(d.card.empty())answer(0);else{auto& card=doc.part(d.card);int len=int(parameter(card,"uidLength",7));const int defaults[]={4,161,178,195,212,229,246};answer(len);for(int i=0;i<len;++i)answer(int(parameter(card,"uid"+std::to_string(i),defaults[i])));}}
-    else if(op=="NFC_PAGE"){int page=number(2);if(page<0||page>39)throw std::runtime_error("Test NFC tag has pages 0..39");if(d.card.empty()||!doc.part(d.card).pressed||!near(doc.part(d.card),doc.part(d.id),320))answer(0);else{answer(4);auto memory=tagMemory(doc.part(d.card));for(int i=0;i<4;++i)answer(static_cast<unsigned char>(memory[page*4+i]));}}
+    else if(op=="NFC_TARGET_BEGIN"){
+        if(fields.size()!=5)throw std::runtime_error("Target emulation needs UID, NDEF text and a writable flag");
+        const auto uidHex=fields[2],uid=QByteArray::fromHex(uidHex);
+        const auto text=fields[3]=="-"?QByteArray{}:QByteArray::fromHex(fields[3]);int writable=number(4);
+        if((uid.size()!=4&&uid.size()!=7)||uidHex.size()!=uid.size()*2||uid.toHex()!=uidHex.toLower()||text.size()>96||(fields[3]!="-"&&(fields[3].size()!=text.size()*2||text.toHex()!=fields[3].toLower()))||QString::fromUtf8(text).toUtf8()!=text||(writable!=0&&writable!=1))throw std::runtime_error("Invalid synthetic NFC target UID, UTF-8 text or writable flag");
+        CircuitPart card;card.kind=PartKind::NfcTestCard;card.model=text.toStdString();card.parameters["uidLength"]=uid.size();for(int i=0;i<uid.size();++i)card.parameters["uid"+std::to_string(i)]=static_cast<unsigned char>(uid[i]);
+        targets_[d.id]={key,uid,tagMemory(card,&text),bool(writable),++targetGeneration_};
+        for(auto& [otherKey,other]:devices_)if(other.id==d.id){other.card.clear();other.cardGeneration=0;}
+        answer(1);
+    }
+    else if(op=="NFC_TARGET_STOP"){targets_.erase(d.id);answer(1);}
+    else if(op=="NFC_TARGET_ACTIVE"){answer(targets_.contains(d.id)?1:0);}
+    else if(op=="NFC_POLL"){
+        d.card.clear();d.cardGeneration=0;
+        if(!targets_.contains(d.id)){
+            std::vector<std::string> cards;
+            for(const auto& part:doc.parts())if(part.kind==PartKind::NfcTestCard&&part.pressed&&near(part,doc.part(d.id),320))cards.push_back(part.id);
+            for(const auto& [id,target]:targets_)if(id!=d.id&&near(doc.part(id),doc.part(d.id),320))cards.push_back(id);
+            if(cards.size()==1)d.card=cards.front();
+        }
+        if(d.card.empty())answer(0);
+        else if(auto target=targets_.find(d.card);target!=targets_.end()){d.cardGeneration=target->second.generation;answer(target->second.uid.size());for(unsigned char byte:target->second.uid)answer(byte);}
+        else{const auto& card=doc.part(d.card);int len=int(parameter(card,"uidLength",7));const int defaults[]={4,161,178,195,212,229,246};answer(len);for(int i=0;i<len;++i)answer(int(parameter(card,"uid"+std::to_string(i),defaults[i])));}
+    }
+    else if(op=="NFC_PAGE"||op=="NFC_TARGET_PAGE"){
+        int page=number(2);if(fields.size()!=3||page<0||page>39)throw std::runtime_error("Test NFC tag has pages 0..39");
+        auto target=targets_.find(d.id);auto* memory=op=="NFC_PAGE"?selectedMemory(false):target!=targets_.end()?&target->second.memory:nullptr;
+        if(!memory)answer(0);else{answer(4);for(int i=0;i<4;++i)answer(static_cast<unsigned char>((*memory)[page*4+i]));}
+    }
+    else if(op=="NFC_WRITE_PAGE"||op=="NFC_TARGET_WRITE"){
+        const int page=number(2);const auto hex=fields.value(3),bytes=QByteArray::fromHex(hex);
+        if(fields.size()!=4||page<4||page>39||hex.size()!=8||bytes.size()!=4||bytes.toHex()!=hex.toLower())throw std::runtime_error("NTAG writes require user page 4..39 and exactly four bytes");
+        auto target=targets_.find(d.id);auto* memory=op=="NFC_WRITE_PAGE"?selectedMemory(true):target!=targets_.end()?&target->second.memory:nullptr;
+        if(!memory)answer(0);else{memory->replace(page*4,4,bytes);answer(1);}
+    }
     else if(op=="RF_CONFIG"){int channel=number(2),rate=number(3),crc=number(4),ack=number(5);if(channel<0||channel>125||(rate!=250&&rate!=1000&&rate!=2000)||crc<0||crc>2||(ack!=0&&ack!=1))throw std::runtime_error("Invalid nRF24 configuration");d.channel=channel;d.rate=rate;d.crc=crc;d.ack=ack;answer(1);}
     else if(op=="RF_PIPE"||op=="RF_DEST"){int i=op=="RF_PIPE"?number(2):-1;auto hex=fields.value(op=="RF_PIPE"?3:2);auto address=QByteArray::fromHex(hex);if(hex.size()!=10||address.size()!=5||address.toHex()!=hex.toLower()||i>5||i< -1)throw std::runtime_error("nRF24 uses a five-byte address and pipes 0..5");if(i<0)d.destination=address;else d.pipes[i]=address;answer(1);}
     else if(op=="RF_LISTEN"){d.listening=number(2)!=0;answer(1);}

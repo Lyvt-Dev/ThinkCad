@@ -10,6 +10,16 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.3.7 — Funk, NFC und Akkus
+
+17 zusätzliche Katalogeinträge: unter anderem CC1101/SX1276-Paketmodelle,
+CAN-Loopback, Offline-Modem-/GNSS-/Fingerabdruck-Testmodelle und wiederaufladbare
+Zellen mit USB-C-/TP4056-Ladeaufbau. PN532 unterstützt Testkarten-Schreibzugriffe
+und synthetische Tag-Emulation zwischen zwei Boards. Drei verdrahtete Beispiele
+zeigen LoRa, NFC-Schreiben und NFC-Tag-Emulation. nRF52840 und SDR-Einträge sind
+**Planungskomponenten ohne Firmware-/RF-Emulation**.
+[Versionshinweise](docs/RELEASE_NOTES_1.3.7.md) · [Modellgrenzen und NFC-API](docs/HARDWARE_MODULES.md)
+
 ## Neu in 1.3.6
 
 Updater-Reparatur, neues Spinnenchip-Logo und optionales Halloween-Theme. Windows-Nutzer von 1.3.5 müssen den neuen Installer einmal manuell über die vorhandene Installation ausführen. [Versionshinweise](docs/RELEASE_NOTES_1.3.6.md).
@@ -280,7 +290,8 @@ Diese Anleitung setzt einen vorhandenen **Gentoo-Desktop auf amd64** mit
 eingerichtetem Gentoo-Repository, funktionierendem Internetzugang und einer X11-
 oder Wayland-Sitzung voraus. Das aktuelle Ebuild benötigt **Qt ≥6.11**,
 **GCC ≥12 mit C++-Unterstützung**, CMake, Ninja und zlib. Die folgenden Befehle
-aktivieren Beispielsketches, beide Anzeige-Backends und die Testsuite.
+aktivieren Beispielsketches und beide Anzeige-Backends. Die Entwicklertests
+sind optional und für eine normale Installation deaktiviert.
 Für die Anwendung muss derzeit die Lizenz `all-rights-reserved` akzeptiert werden;
 der mitgelieferte Adafruit-GFX-Code steht unter BSD. Die Befehle akzeptieren die
 Anwendungslizenz ausdrücklich.
@@ -308,8 +319,9 @@ append_portage_config package.accept_keywords 'media-gfx/thinkcad ~amd64'
 append_portage_config package.accept_keywords 'dev-qt/qtbase ~amd64'
 append_portage_config package.accept_keywords 'dev-qt/qtmultimedia ~amd64'
 append_portage_config package.accept_keywords 'dev-qt/qtserialport ~amd64'
+append_portage_config package.accept_keywords 'dev-qt/qtsvg ~amd64'
 append_portage_config package.use 'dev-qt/qtbase gui network ssl widgets X wayland'
-append_portage_config package.use 'media-gfx/thinkcad examples test X wayland'
+append_portage_config package.use 'media-gfx/thinkcad examples -test X wayland'
 append_portage_config package.use 'sys-libs/zlib minizip'
 append_portage_config package.license 'media-gfx/thinkcad all-rights-reserved'
 
@@ -319,7 +331,8 @@ append_portage_config package.license 'media-gfx/thinkcad all-rights-reserved'
 emerge --noreplace --ask \
     '>=sys-devel/gcc-12[cxx]' '>=dev-build/cmake-3.24' dev-build/ninja \
     '>=dev-qt/qtbase-6.11:6[gui,network,ssl,widgets,X,wayland]' \
-    '>=dev-qt/qtmultimedia-6.11:6' '>=dev-qt/qtserialport-6.11:6' virtual/zlib \
+    '>=dev-qt/qtmultimedia-6.11:6' '>=dev-qt/qtserialport-6.11:6' \
+    '>=dev-qt/qtsvg-6.11:6' virtual/zlib \
     media-fonts/dejavu net-misc/curl app-arch/tar app-arch/xz-utils \
     sys-apps/coreutils </dev/tty
 
@@ -359,10 +372,26 @@ CONF
 chmod 0644 /etc/portage/repos.conf/thinkcad.conf
 
 # Exakt die heruntergeladene Version installieren; Portage löst Abhängigkeiten auf.
-FEATURES="${FEATURES-} test" emerge --ask "=media-gfx/thinkcad-${version}::thinkcad" </dev/tty
+emerge --ask "=media-gfx/thinkcad-${version}::thinkcad" </dev/tty
 portageq best_version / media-gfx/thinkcad
 GENTOO_INSTALL
 ```
+
+Hat eine frühere Anleitung `test` aktiviert und scheitert die Installation erst
+in der Testphase, lässt sich die Anwendung als Root ohne Entwicklertests bauen:
+
+```bash
+USE="${USE-} -test" emerge --ask --oneshot media-gfx/thinkcad
+```
+
+Für zukünftige Updates in der vorhandenen ThinkCad-Zeile unter
+`/etc/portage/package.use` das Flag `test` durch `-test` ersetzen. Das deaktiviert
+nur die Testsuite, keine Simulationsfunktion. Eine fehlgeschlagene Testphase ist
+kein Compilerfehler; sie kann die Installation nach erfolgreichem Build stoppen.
+Die Ursache des Testfehlers bleibt damit offen. Zur Diagnose die Namen und die
+Fehlerausgabe aus dem Portage-Build-Log aufbewahren. Wer die Tests bewusst prüfen
+möchte, verwendet `USE="${USE-} test" FEATURES="${FEATURES-} test" emerge --ask
+--oneshot media-gfx/thinkcad` und meldet fehlgeschlagene Tests mit ihrer Ausgabe.
 
 Falls Portage zusätzliche USE-Änderungen verlangt, die konkret angeforderten
 Änderungen übernehmen und den betroffenen `emerge`-Befehl erneut ausführen.
@@ -655,3 +684,6 @@ explizite Funktionsprototypen bzw. Header verwenden. Das ist kein vollständiger
 für den Arduino-Build-Preprocessor. Die unterstützte API-Teilmenge gilt auch für importierte Projekte.
 
 Architektur, Ausführungspfad, Modellgrenzen und Ausbauplan: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+Weitere Funk-, UART- und Akku-Komponenten sowie ihre Simulationsgrenzen:
+[Hardware-Module](docs/HARDWARE_MODULES.md).

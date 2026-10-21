@@ -76,7 +76,7 @@ CONF
 sudo mkdir -p /etc/portage/package.accept_keywords /etc/portage/package.use \
   /etc/portage/package.license
 printf 'media-gfx/thinkcad ~amd64\n' | sudo tee /etc/portage/package.accept_keywords/thinkcad
-printf 'media-gfx/thinkcad examples test X wayland\n' | sudo tee /etc/portage/package.use/thinkcad
+printf 'media-gfx/thinkcad examples -test X wayland\n' | sudo tee /etc/portage/package.use/thinkcad
 printf 'media-gfx/thinkcad all-rights-reserved\n' | sudo tee /etc/portage/package.license/thinkcad
 sudo emerge --ask media-gfx/thinkcad
 ```

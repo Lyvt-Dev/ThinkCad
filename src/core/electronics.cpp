@@ -105,6 +105,38 @@ std::vector<ElectricalBranch> electronicBranches(const CircuitPart& p,const std:
     if(actuatorBranches(p,voltage,memory,result))return result;
     const auto& model=ModuleRegistry::get(p.model);auto add=[&](const std::string& a,const std::string& b,double r,double offset=0){result.push_back({a,b,std::max(.001,r),offset});};
     auto v=[&](const std::string& name,double fallback=0){return voltage(name).value_or(fallback);};const auto id=p.model;
+    if(model.bus=="uart"){
+        const double supply=v("VCC")-v("GND");
+        if(supply>=model.minVoltage&&supply<=model.maxVoltage){double logic=id=="sim800l"?2.8:3.3;add("TX","GND",100,logic);}
+        return result;
+    }
+    if(id=="li-ion-18650"||id=="lipo-1s"||id=="nimh-aa"){
+        const double soc=std::clamp(parameter(p,"soc",80)/100,0.,1.);
+        double open=id=="nimh-aa"?1.+.4*soc:soc<.1?3.+5*soc:soc<.9?3.5+.5*(soc-.1):3.9+3*(soc-.9);
+        add("+","-",parameter(p,"resistance",.08),open);return result;
+    }
+    if(id=="usb-c-charging"){add("CC1","GND",5100);add("CC2","GND",5100);return result;}
+    if(id=="tp4056"){
+        add("BAT-","GND",.01);add("VCC","GND",100000);
+        const double input=v("VCC")-v("GND"),battery=v("BAT+")-v("BAT-");
+        if(input>=4&&input<=5.5&&battery>=0&&battery<=4.200001){
+            const double current=parameter(p,"current",.5)*(battery<2.9?.1:1);
+            const double resistance=std::max(.2,(4.2-battery)/current);
+            add("BAT+","BAT-",resistance,4.2);
+            const double draw=std::max(0.,(4.2-battery)/resistance);if(draw>0)add("VCC","GND",input/draw);
+            add(battery<4.18?"CHRG":"STDBY","GND",20);
+        }else if(input>=4&&input<=5.5&&battery>=4.2)add("STDBY","GND",20);
+        return result;
+    }
+    if(id=="tja1050"){
+        const double supply=v("VCC")-v("GND");if(supply<4.75||supply>5.25)return result;
+        add("VREF","GND",100,supply/2);
+        const bool dominant=v("TXD",v("VCC"))-v("GND")<.8&&v("S")-v("GND")<.8;
+        add("CANH","GND",dominant?25:30000,dominant?3.5:2.5);
+        add("CANL","GND",dominant?25:30000,dominant?1.5:2.5);
+        add("RXD","GND",50,v("CANH")-v("CANL")>.9?0:supply);
+        return result;
+    }
     if(id.starts_with("battery-")){add("+","-",.15*parameter(p,"cells",double(id.back()-'0')),1.5*parameter(p,"cells",double(id.back()-'0')));return result;}
     if(id=="r2r-dac"){
         // Eliminate seven internal ladder junctions, preserving the complete

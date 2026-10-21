@@ -22,7 +22,7 @@ struct Drawing {
     void pins(){
         for(std::size_t i=0;i<d.pins.size();++i){const auto& name=d.pins[i];QPointF at;auto found=d.pinPositions.find(name);if(found!=d.pinPositions.end())at={found->second.first,found->second.second};else{int half=int((d.pins.size()+1)/2),row=i>=std::size_t(half)?int(i)-half:int(i),count=i>=std::size_t(half)?int(d.pins.size())-half:half;at={i>=std::size_t(half)?d.width:0,d.height*(row+1)/(count+1)};}
             box({at.x()-.75,at.y()-.75,1.5,1.5},ink,.08);box({at.x()-.34,at.y()-.34,.68,.68},gold,.02);
-            if(d.pins.size()<20&&!name.starts_with("NC")){if(at.y()>d.height-1)label({at.x()-1.2,at.y()-3,2.4,1.7},QString::fromStdString(name),.65);else label({at.x()<d.width/2?at.x()+1:at.x()-7,at.y()-.8,6,1.6},QString::fromStdString(name),.75);}
+            if(d.pins.size()<20&&!(d.width<18&&!d.notes.empty())&&!name.starts_with("NC")){if(at.y()>d.height-1)label({at.x()-1.2,at.y()-3,2.4,1.7},QString::fromStdString(name),.65);else label({at.x()<d.width/2?at.x()+1:at.x()-7,at.y()-.8,6,1.6},QString::fromStdString(name),.75);}
         }
     }
     void knob(QPointF at,double radius,const std::string& field,double low,double high,double fallback){
@@ -59,6 +59,47 @@ inline bool paint(QPainter& painter,const CircuitPart& part,const CircuitState& 
         a.disc({w*.45,h*.68},.7,metal);a.disc({w*.7,h*.68},.7,metal);
         a.label({2,h-6,w-4,3},on?"COM → NO":"COM → NC",1.2);a.pins();return true;
     }
+    if(id=="pn532-transmitter"){
+        a.board(QColor("#a34046"));p.setBrush(Qt::NoBrush);p.setPen(QPen(a.gold,.35));for(int i=0;i<5;++i)p.drawRoundedRect(QRectF(3+i,3+i,w-6-i*2,h-6-i*2),1,1);
+        a.chip({w/2-4,h/2-4,8,8},"PN532",16);a.label({8,h-12,w-16,4},"NFC · TX / RX",1.5);a.pins();return true;
+    }
+    if(id=="li-ion-18650"||id=="nimh-aa"){
+        a.box({0,1,w,h-2},id=="nimh-aa"?QColor("#c2ccab"):QColor("#7baf99"),w*.3);
+        a.box({w*.2,0,w*.6,1.5},metal,.2);a.box({w*.14,h-1,w*.72,1},metal,.1);
+        a.label({1,5,w-2,6},"+",3,plastic);a.label({1,h-10,w-2,6},"−",3,plastic);
+        p.save();p.translate(w/2,h/2);p.rotate(-90);a.label({-h*.3,-w*.3,h*.6,w*.6},id=="nimh-aa"?"NiMH · 1.2 V":"18650 · Li-ion",2,plastic);p.restore();return true;
+    }
+    if(id=="lipo-1s"){
+        a.box({1,2,w-2,h-5},QColor("#c7cccb"),1.5);a.box({1,5,w-2,2},QColor("#9aa5a5"),.2);
+        a.box({4,11,w-8,h-21},QColor("#edece0"),.4);a.label({5,13,w-10,9},"LiPo 1S",2,plastic);a.label({5,22,w-10,6},"3.7 V",1.6,plastic);
+        a.line({w/2,0},{w*.65,3},QColor("#c45050"),.8);a.line({w/2,h},{w*.35,h-3},plastic,.8);return true;
+    }
+    if(id=="usb-c-charging"||id=="tp4056"){
+        a.board(QColor("#306d9a"));a.box({w/2-4.5,0,9,7.5},metal,1.2);a.box({w/2-3.6,.4,7.2,2.2},plastic,.8);a.box({w/2-2.5,1.2,5,.5},QColor("#5b6062"),.2);
+        if(id=="tp4056"){a.chip({w/2-2.5,11,5,5},"4056");a.smd({4,10},true);a.smd({w-4,19},true);a.disc({4,17},.7,QColor("#b74d4d"));a.disc({4,20},.7,QColor("#579f63"));}
+        else {a.smd({5,10});a.smd({10,10});}a.pins();return true;
+    }
+    if(id=="fingerprint-uart"){
+        a.box({0,0,w,h},QColor("#58666b"),2);a.box({1,1,w-2,h-2},QColor("#a9b2b5"),1.5);
+        a.box({2,3,w-4,h*.52},plastic,1);a.box({3,4,w-6,h*.48},parameter(part,"finger",0)?QColor("#7f9b91"):QColor("#3e5b62"),.5);
+        for(int i=0;i<6;++i)a.line({4,7+i*3.5},{w-4,7+i*3.5},QColor("#526f75"),.15);
+        a.box({3,h*.66,w-6,h*.26},QColor("#257459"),.5);a.chip({w/2-3,h*.71,6,7},"DSP");a.pins();return true;
+    }
+    if(id=="cc1101"||id=="sx1276"||id=="nrf52840"||id=="sim800l"||id=="sim7600"||id=="neo-6m"||id=="rtl2832u"||id=="ad9361"){
+        a.board(id=="sx1276"?QColor("#254e7a"):pcb,id!="nrf52840");
+        if(id=="neo-6m"){
+            a.box({w*.15,1,w*.7,h*.48},QColor("#c3af79"),.6);a.box({w*.24,2,w*.52,h*.3},QColor("#ded7be"),.4);a.disc({w/2,h*.21},.7,QColor("#9c875e"));a.chip({w*.24,h*.58,w*.52,h*.25},"NEO-6M");
+        }else if(id=="rtl2832u"){
+            a.box({w*.12,0,w*.76,10},metal,.5);a.box({w*.2,1,w*.6,3},plastic,.2);a.chip({w*.2,h*.45,w*.6,12},"RTL2832U");a.box({w*.3,h-6,w*.4,6},metal,.3);
+        }else{
+            const double top=id=="nrf52840"?h*.28:3;
+            a.box({w*.16,top,w*.68,h*.45},metal,.4);a.label({w*.17,top+1,w*.66,h*.4},QString::fromStdString(id).toUpper(),std::min(1.5,w*.07),plastic);
+            if(id=="nrf52840"){for(int i=0;i<4;++i){double x=1+i*2;a.line({x,.7},{x,h*.19},a.gold,.3);if(i<3)a.line({x,h*.19},{x+2,h*.19},a.gold,.3);}}
+            else {a.disc({w-3,h-3},1.4,a.gold);a.disc({w-3,h-3},.7,plastic);for(int i=0;i<3;++i)a.smd({w*.3+i*2.5,h*.76},i==1);}
+        }
+        a.pins();return true;
+    }
+    if(id=="mcp2515"||id=="tja1050"){a.chip({0,0,w,h},id=="mcp2515"?"MCP2515":"TJA1050",int(d.pins.size()));a.pins();return true;}
     if(id=="joystick"){
         a.board(pcb);a.box({4,5,18,18},metal,1.2);a.box({2,8,4,12},QColor("#43866c"),.5);a.box({7,2.6,12,4},QColor("#43866c"),.5);
         for(double y:{7.,20.}){a.line({5,y},{21,y},QColor("#79888b"),.35);a.box({4,y-.6,2,1.2},metal);a.box({20,y-.6,2,1.2},metal);}

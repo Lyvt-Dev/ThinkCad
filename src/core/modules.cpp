@@ -5,6 +5,7 @@
 #include <set>
 #include <stdexcept>
 namespace thinkercad {
+void registerHardwareModules(std::map<std::string,ModuleDefinition>&);
 namespace {
 std::map<std::string,ModuleDefinition>& models(){
     static auto values=[] {
@@ -56,6 +57,7 @@ std::map<std::string,ModuleDefinition>& models(){
         add("vs1053b","VS1053b · SPI audio codec module","spi","vs1053b",{"VCC","GND","SCK","MISO","MOSI","CS","XDCS","DREQ","RESET","OUTL","OUTR","RX","GPIO0","GPIO1"},{{"midi","Real-time MIDI mode","count",0,0,1}},35,45,3,3.6,0,12500000);result.at("vs1053b").pullups={{"CS",10000},{"XDCS",10000},{"RESET",10000}};
         for(const auto& id:{"neopixel-single","neopixel-strip","neopixel-ring","neopixel-matrix"}){auto model=result.at("ws2812");model.id=id;if(std::string(id)=="neopixel-single")model.width=model.height=5;if(std::string(id)=="neopixel-ring")model.width=model.height=44.5;model.label=std::string(id)+" · WS2812B";model.parameters={{"pixels","LED count","count",std::string(id)=="neopixel-single"?1.:std::string(id)=="neopixel-ring"?16.:std::string(id)=="neopixel-strip"?8.:64.,1,256}};if(std::string(id)=="neopixel-ring")model.parameters={{"pixels","LED count","count",16,16,16}};if(std::string(id)=="neopixel-matrix")model.parameters={{"rows","Rows","count",8,1,16},{"columns","Columns","count",8,1,16}};result.emplace(id,model);}
         registerElectronics(result);
+        registerHardwareModules(result);
         return result;
     }();return values;
 }
@@ -71,7 +73,7 @@ void ModuleRegistry::validate(const ModuleDefinition& d){
     for(const auto& [pin,resistance]:d.pullups)if(!pins.contains(pin)||pin==d.power||pin==d.ground||!std::isfinite(resistance)||resistance<330||resistance>100000)throw std::invalid_argument("Invalid module pullup");
     if(!(d.builtin&&d.bus=="electrical"&&d.power.empty()&&d.ground.empty())&&(!pins.contains(d.power)||!pins.contains(d.ground)||d.power==d.ground))throw std::invalid_argument("Module supply pins are missing");
     if(!std::isfinite(d.width)||!std::isfinite(d.height)||d.width<(d.builtin?2.54:3.)||d.width>200||d.height<(d.builtin?2.54:3.)||d.height>200||!std::isfinite(d.minVoltage)||!std::isfinite(d.maxVoltage)||d.minVoltage<=0||d.maxVoltage<d.minVoltage||d.maxVoltage>48)throw std::invalid_argument("Invalid module dimensions or voltage range");
-    if(d.bus!="i2c"&&d.bus!="spi"&&d.bus!="single-wire"&&d.bus!="pulse"&&d.bus!="onewire"&&d.bus!="neopixel"&&d.bus!="bridge"&&d.bus!="i2s"&&!(d.builtin&&d.bus=="electrical"))throw std::invalid_argument("Unsupported module bus");
+    if(d.bus!="i2c"&&d.bus!="spi"&&d.bus!="single-wire"&&d.bus!="pulse"&&d.bus!="onewire"&&d.bus!="neopixel"&&d.bus!="bridge"&&d.bus!="i2s"&&!(d.builtin&&(d.bus=="electrical"||d.bus=="uart")))throw std::invalid_argument("Unsupported module bus");
     if((d.bus=="i2c"&&(!pins.contains("SDA")||!pins.contains("SCL")||d.address<8||d.address>119))||(d.bus=="spi"&&(!pins.contains("SCK")||(!pins.contains("MISO")&&!(d.builtin&&(d.implementation=="mcp4822"||d.implementation=="mcp4922"||d.implementation=="ad9833"||d.implementation=="ad9850")))||!pins.contains("MOSI")||!pins.contains("CS"))))throw std::invalid_argument("Missing bus pins or invalid address");
     if(d.spiMode<0||d.spiMode>3||d.maxClock<1||d.maxClock>80000000||d.parameters.size()>32||d.registers.size()>256)throw std::invalid_argument("Invalid module limits");
     std::set<std::string> parameters;for(const auto& p:d.parameters)if(!identifier(p.name)||!parameters.insert(p.name).second||p.label.empty()||p.label.size()>120||p.unit.size()>20||!std::isfinite(p.initial)||!std::isfinite(p.min)||!std::isfinite(p.max)||p.min>p.initial||p.initial>p.max)throw std::invalid_argument("Invalid module parameter");

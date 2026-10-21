@@ -12,6 +12,7 @@ struct ModuleParameter {
 };
 struct ModuleDefinition {
     std::string id,label,bus,implementation,power="VCC",ground="GND";
+    std::string notes; // Model scope shown in the properties panel.
     std::vector<std::string> pins;
     std::map<std::string,std::pair<double,double>> pinPositions;
     std::vector<ModuleParameter> parameters;

@@ -20,7 +20,10 @@ QList<CircuitExample> ExampleCatalog::entries(){QList<CircuitExample> values{
     {"dj_controller",Language::text("DJ: Encoder, Fader und MIDI-Pad"),Language::text("Uno mit Quadratur-Encoder, analogem Fader und Taster. MIDI-CC und Note On/Off im MIDI-Tab ansehen und übersetzen.")},
     {"ir_remote",Language::text("IR: TV-Fernbedienung testen"),Language::text("ESP32, 38-kHz-Empfänger und NEC-Testfernbedienung. Taste während der Simulation gedrückt halten.")},
     {"ir_loopback",Language::text("IR: Senden und Empfangen"),Language::text("GPIO2 mit 220 Ω und IR-LED; 38-kHz-Empfänger an GPIO4. NEC-Kommandos im seriellen Monitor.")},
+    {"nfc_tag_emulation","NFC: two-board tag emulation", "An ESP32 presents a writable synthetic NFC tag; a second ESP32 reads its UID and exchanges test data."},
+    {"nfc_writer","NFC transmitter: PN532 reader-writer", "Write and read back four bytes on a synthetic NFC test tag."},
     {"nfc_reader",Language::text("NFC: PN532 und Testkarte"),Language::text("ESP32 mit PN532 über I²C. Synthetische UID und NDEF lesen; Karte während der Simulation mit einem Klick entfernen oder auflegen.")},
+    {"lora_packet_sender","LoRa: ESP32 + SX1276", "Two ESP32 boards exchange test packets at 868 MHz using the SPI register interface."},
     {"nrf24_pair",Language::text("Funk: nRF24L01 Sender und Empfänger"),Language::text("Zwei ESP32 mit nRF24L01, eigenen Sketches und ACK-Paketen auf Kanal 76. SPI18/19/23, CSN5, CE16.")},
     {"ask_pair",Language::text("Funk: 433-MHz-ASK-Paar"),Language::text("ESP32: Sender GPIO25, Empfänger GPIO26; rc-switch Protokoll 1 mit 16-Bit-Testnachrichten.")},
     {"lcd_parallel",Language::text("LCD 16×2: LiquidCrystal, 4 Bit"),Language::text("Uno: RS=D12, E=D11, D4…D7=D5,D4,D3,D2. VCC=5V, GND/RW/VO=GND.")},
@@ -67,12 +70,16 @@ SavedProject ExampleCatalog::create(const QString& id){
         doc.part("board").model="esp32";auto receiver=doc.addPart(PartKind::InfraredReceiver,500,30);power("board",receiver);doc.connect({"board","GPIO4"},{receiver,"OUT"});
         if(id=="ir_remote")doc.addPart(PartKind::InfraredRemote,750,30);
         else{auto resistor=doc.addPart(PartKind::Resistor,400,270),ir=doc.addPart(PartKind::InfraredLed,640,270);doc.connect({"board","GPIO2"},{resistor,"1"});doc.connect({resistor,"2"},{ir,"A"});doc.connect({ir,"K"},{"board","GND"});}
-    }else if(id=="nfc_reader"){
-        doc.part("board").model="esp32";auto reader=doc.addPart(PartKind::NfcReader,480,20);power("board",reader);for(const auto& [gpio,pin]:std::vector<std::pair<std::string,std::string>>{{"GPIO21","SDA"},{"GPIO22","SCL"},{"GPIO27","IRQ"},{"GPIO26","RST"}})doc.connect({"board",gpio},{reader,pin});doc.addPart(PartKind::NfcTestCard,680,120);
-    }else if(id=="nrf24_pair"){
+    }else if(id=="nfc_tag_emulation"){
+        doc.part("board").model="esp32";const auto second=doc.addPart(PartKind::Esp8266,1080,80);doc.part(second).model="esp32";
+        for(const auto& b:std::vector<std::string>{"board",second}){const auto pn532=doc.addPart(PartKind::Module,b=="board"?420:700,80);doc.part(pn532).model="pn532-transmitter";power(b,pn532);for(const auto& [gpio,pin]:std::vector<std::pair<std::string,std::string>>{{"GPIO21","SDA"},{"GPIO22","SCL"},{"GPIO27","IRQ"},{"GPIO26","RST"}})doc.connect({b,gpio},{pn532,pin});}
+        QFile rx(AppPaths::examples()+"/nfc_tag_peer.ino");if(!rx.open(QIODevice::ReadOnly))throw std::runtime_error("NFC peer example missing");SketchProject peer;peer.name="nfc_tag_peer";peer.order={"nfc_tag_peer.ino"};peer.files[peer.order.front()]=QString::fromUtf8(rx.readAll());result.boardSketches["board"]=result.sketch;result.boardSketches[QString::fromStdString(second)]=peer;
+    }else if(id=="nfc_reader"||id=="nfc_writer"){
+        doc.part("board").model="esp32";auto reader=doc.addPart(id=="nfc_writer"?PartKind::Module:PartKind::NfcReader,480,20);if(id=="nfc_writer")doc.part(reader).model="pn532-transmitter";power("board",reader);for(const auto& [gpio,pin]:std::vector<std::pair<std::string,std::string>>{{"GPIO21","SDA"},{"GPIO22","SCL"},{"GPIO27","IRQ"},{"GPIO26","RST"}})doc.connect({"board",gpio},{reader,pin});doc.addPart(PartKind::NfcTestCard,680,120);
+    }else if(id=="nrf24_pair"||id=="lora_packet_sender"){
         doc.part("board").model="esp32";auto second=doc.addPart(PartKind::Esp8266,850,0);doc.part(second).model="esp32";
-        for(auto b:std::vector<std::string>{"board",second}){auto radio=doc.addPart(PartKind::RadioTransceiver,b=="board"?420:1270,10);power(b,radio);for(const auto& [gpio,pin]:std::vector<std::pair<std::string,std::string>>{{"GPIO18","SCK"},{"GPIO19","MISO"},{"GPIO23","MOSI"},{"GPIO5","CSN"},{"GPIO16","CE"}})doc.connect({b,gpio},{radio,pin});}
-        QFile rx(AppPaths::examples()+"/nrf24_receiver.ino");if(!rx.open(QIODevice::ReadOnly))throw std::runtime_error("Receiver example missing");auto receiver=result.sketch;receiver.name="nrf24_receiver";receiver.order={"nrf24_receiver.ino"};receiver.files.clear();receiver.files["nrf24_receiver.ino"]=QString::fromUtf8(rx.readAll());result.boardSketches[QString::fromStdString(second)]=receiver;result.boardSketches["board"]=result.sketch;
+        for(auto b:std::vector<std::string>{"board",second}){const bool lora=id=="lora_packet_sender";auto radio=doc.addPart(lora?PartKind::Module:PartKind::RadioTransceiver,b=="board"?420:1270,10);if(lora)doc.part(radio).model="sx1276";power(b,radio);for(const auto& [gpio,pin]:std::vector<std::pair<std::string,std::string>>{{"GPIO18","SCK"},{"GPIO19","MISO"},{"GPIO23","MOSI"},{"GPIO5",lora?"CS":"CSN"}})doc.connect({b,gpio},{radio,pin});if(!lora)doc.connect({b,"GPIO16"},{radio,"CE"});}
+        const QString receiverName=id=="lora_packet_sender"?"lora_packet_receiver":"nrf24_receiver";QFile rx(AppPaths::examples()+"/"+receiverName+".ino");if(!rx.open(QIODevice::ReadOnly))throw std::runtime_error("Receiver example missing");auto receiver=result.sketch;receiver.name=receiverName;receiver.order={receiverName+".ino"};receiver.files.clear();receiver.files[receiverName+".ino"]=QString::fromUtf8(rx.readAll());result.boardSketches[QString::fromStdString(second)]=receiver;result.boardSketches["board"]=result.sketch;
     }else if(id=="ask_pair"){
         doc.part("board").model="esp32";auto tx=doc.addPart(PartKind::RadioTransmitter,430,20),rx=doc.addPart(PartKind::RadioReceiver,700,250);power("board",tx);power("board",rx);doc.connect({"board","GPIO25"},{tx,"DATA"});doc.connect({"board","GPIO26"},{rx,"DATA"});
     }else if(id=="lcd_parallel"||id=="lcd_i2c"){

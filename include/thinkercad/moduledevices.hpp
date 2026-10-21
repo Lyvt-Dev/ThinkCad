@@ -9,7 +9,7 @@ namespace thinkercad {
 // Registers and conversion clocks are independent of the GUI and native SDK.
 class ModuleDevices {
 public:
-    void reset(){states_.clear();cards_.clear();analog_.clear();}
+    void reset(){states_.clear();cards_.clear();analog_.clear();poweredRadios_.clear();}
     void setEmulation(bool value){emulation_=value;}
     void synchronizePower(const CircuitDocument&,const CircuitState&);
     std::vector<std::uint8_t> i2c(const CircuitPart&,const std::vector<std::uint8_t>& data,int count,Microseconds now);
@@ -52,6 +52,10 @@ private:
         std::map<std::uint16_t,std::uint16_t> wram;std::uint16_t wramAddress=0;
         std::vector<std::uint8_t> codecBytes;std::uint64_t generation=0;
         std::uint8_t pointer=0;
+        std::array<std::uint8_t,256> radioFifo{};
+        std::deque<std::uint8_t> radioTx;
+        bool burst=false;
+        std::uint8_t opcode=0;
         int stage=0,adc=0;
         Microseconds ready=0,resetUntil=0,nextSample=0;
     };
@@ -59,6 +63,9 @@ private:
     std::map<std::string,State> states_;
     std::map<std::string,std::vector<std::uint8_t>> cards_;
     std::map<std::string,Analog> analog_;
+    std::map<std::string,CircuitPart> poweredRadios_;
+    std::optional<std::uint8_t> hardwareSpi(State&,const CircuitPart&,std::uint8_t,Microseconds);
+    void transmitRadio(State&,const CircuitPart&);
     bool emulation_=false;std::uint64_t generationCounter_=0;
     State& prepare(const CircuitPart&,Microseconds now);
     void initialize(State&,const ModuleDefinition&);

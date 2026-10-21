@@ -39,7 +39,7 @@ void UartBus::write(const CircuitDocument& doc,const CircuitState& state,const s
             Byte incoming{start,ready,std::uint8_t(byte&((1u<<source.config.dataBits)-1)),{board,number},true};if(emulation)for(auto& pending:receiver.rx)if(pending.source!=incoming.source&&pending.ready>start&&pending.start<ready){if(pending.valid)++receiver.errors.collision;pending.valid=false;incoming.valid=false;}if(!incoming.valid)++receiver.errors.collision;
             if(receiver.rx.size()>=256){++receiver.errors.overrun;continue;}const auto position=std::upper_bound(receiver.rx.begin(),receiver.rx.end(),ready,[](auto at,const auto& pending){return at<pending.ready;});receiver.rx.insert(position,std::move(incoming));
         }start=ready;}
-    source.nextWrite=start;receiveSensors(doc,state,board,number,bytes,start,boards);if(transmitted)transmitted(board,source.config.tx,source.config.baud,bytes,start);
+    source.nextWrite=start;writeModules(doc,state,board,number,bytes,start,emulation,boards);receiveSensors(doc,state,board,number,bytes,start,boards);if(transmitted)transmitted(board,source.config.tx,source.config.baud,bytes,start);
 }
 void UartBus::discardInvalid(Port& port,Microseconds now){while(!port.rx.empty()&&port.rx.front().ready<=now&&!port.rx.front().valid)port.rx.pop_front();}
 unsigned UartBus::available(const std::string& board,int number,Microseconds now){auto& port=require(board,number);discardInvalid(port,now);return unsigned(std::count_if(port.rx.begin(),port.rx.end(),[&](const auto& byte){return byte.ready<=now&&byte.valid;}));}

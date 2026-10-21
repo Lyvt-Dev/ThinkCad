@@ -6,8 +6,8 @@
 #include <stdexcept>
 namespace thinkercad {
 void ModuleDevices::synchronizePower(const CircuitDocument& doc,const CircuitState& state){
-    std::set<std::string> present;
-    for(const auto& part:doc.parts())if(part.kind==PartKind::Module){present.insert(part.id);const auto& d=ModuleRegistry::get(part.model);auto voltage=[&](const std::string& pin)->std::optional<double>{auto it=state.voltage.find({part.id,pin});return it==state.voltage.end()?std::nullopt:it->second;};const auto v=voltage(d.power),g=voltage(d.ground);bool ready=v&&g&&*v-*g>=d.minVoltage&&*v-*g<=d.maxVoltage;if(ready&&(d.implementation=="mfrc522"||d.implementation=="vs1053b"||d.implementation=="ili9341"||d.implementation=="st7735")){const auto reset=voltage(d.implementation=="mfrc522"?"RST":"RESET");ready=reset&&*reset-*g>=.7*(*v-*g);}if(!ready)states_.erase(part.id);}
+    std::set<std::string> present;poweredRadios_.clear();
+    for(const auto& part:doc.parts())if(part.kind==PartKind::Module){present.insert(part.id);const auto& d=ModuleRegistry::get(part.model);auto voltage=[&](const std::string& pin)->std::optional<double>{auto it=state.voltage.find({part.id,pin});return it==state.voltage.end()?std::nullopt:it->second;};const auto v=voltage(d.power),g=voltage(d.ground);bool ready=v&&g&&*v-*g>=d.minVoltage&&*v-*g<=d.maxVoltage;if(ready&&(d.implementation=="mfrc522"||d.implementation=="vs1053b"||d.id=="sx1276"||d.id=="mcp2515"||d.implementation=="ili9341"||d.implementation=="st7735")){const auto reset=voltage(d.implementation=="mfrc522"?"RST":"RESET");ready=reset&&*reset-*g>=.7*(*v-*g);}if(!ready)states_.erase(part.id);else if(d.id=="cc1101"||d.id=="sx1276")poweredRadios_[part.id]=part;}
     std::erase_if(states_,[&](const auto& entry){return !present.contains(entry.first);});
 }
 namespace {
@@ -24,6 +24,9 @@ void ModuleDevices::initialize(State& state,const ModuleDefinition& d){
     if(d.implementation=="ili9341"||d.implementation=="st7735")state.tft=TftController(d.implementation=="ili9341"?240:128,d.implementation=="ili9341"?320:160,d.implementation=="ili9341");
     for(const auto& [reg,value]:d.registers)state.reg[reg]=std::uint8_t(value);
     if(d.implementation=="bme680")state.reg=bme680Calibration();
+    if(d.id=="cc1101"){state.reg[0x30]=0;state.reg[0x31]=0x14;state.reg[0x35]=1;state.reg[6]=0xff;state.reg[7]=4;state.reg[8]=5;state.reg[0x0d]=0x1e;state.reg[0x0e]=0xc4;state.reg[0x0f]=0xec;}
+    if(d.id=="sx1276"){state.reg[0x42]=0x12;state.reg[1]=1;state.reg[0x1d]=0x72;state.reg[0x1e]=0x74;state.reg[0x39]=0x12;state.reg[6]=0x6c;state.reg[7]=0x80;}
+    if(d.id=="mcp2515"){state.reg[0x0e]=state.reg[0x0f]=0x80;}
     if(d.implementation=="wm8731"){state.reg[12]=0x9f;}if(d.implementation=="cs4272"){state.reg[7]=1;state.reg[8]=0xc0;}
     state.midiVolume.fill(127);state.midiPan.fill(64);
     if(d.implementation=="vs1053b"){state.reg[1]=0x08;state.reg[2]=0x40;state.reg[10]=0x45;state.reg[11]=0xac;}
@@ -125,10 +128,11 @@ void ModuleDevices::applyDisplayFrames(const CircuitDocument& doc,CircuitState& 
         if(frame)circuit.colorDisplays.emplace(part.id,std::move(frame));
     }
 }
-void ModuleDevices::select(const CircuitPart& part,bool active){auto& s=states_[part.id];if(s.selected!=active){s.selected=active;s.command=false;s.stage=0;}}
+void ModuleDevices::select(const CircuitPart& part,bool active){auto& s=states_[part.id];if(s.selected!=active){if(!active&&part.model=="mcp2515"&&(s.opcode&0xfc)==0x90)s.reg[0x2c]&=std::uint8_t(~(1<<((s.opcode>>1)&1)));s.selected=active;s.command=false;s.stage=0;}}
 void ModuleDevices::setAnalog(const std::string& id,const std::array<double,8>& volts,double reference){if(!std::isfinite(reference)||reference<=0||reference>5.5)throw std::invalid_argument("Invalid ADC reference");analog_[id]={volts,reference};}
 std::uint8_t ModuleDevices::spi(const CircuitPart& part,std::uint8_t value,Microseconds now){
     auto& s=prepare(part,now);if(!s.selected)return 0xff;const auto& d=ModuleRegistry::get(part.model);
+    if(auto result=hardwareSpi(s,part,value,now))return *result;
     if(d.implementation=="ili9341"||d.implementation=="st7735")return s.tft.transfer(s.dataMode,value,now);
     if(d.implementation=="vs1053b"){
         if(s.dataMode){if(parameter(part,"midi",0)||s.words[7]){if(s.midiPadding){receiveMidi(part,{value},now);s.midiPadding=false;}else s.midiPadding=true;return 0xff;}if(s.codecBytes.size()>=16*1024*1024)throw std::runtime_error("VS1053 input buffer is full");s.codecBytes.push_back(value);return 0xff;}
