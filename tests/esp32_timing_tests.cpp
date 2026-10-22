@@ -7,6 +7,7 @@ std::vector<uint64_t> ticks;
 void tick(){ticks.push_back(thinker::clockUs);}
 void check(bool v,const char* message){if(!v)throw std::runtime_error(message);}
 int main(){thinker::standalone=true;std::ostringstream output;auto* saved=std::cout.rdbuf(output.rdbuf());
+ IRsend rawSender;for(uint16_t duration:{uint16_t(0),uint16_t(60000)}){bool rejected=false;try{rawSender.sendRaw(&duration,1,38);}catch(const std::invalid_argument&){rejected=true;}check(rejected,"Invalid raw IR duration rejected before transmission");}
  check(B11111==31&&B00000101==5,"Arduino binary constants");pinMode(0,INPUT_PULLDOWN);
  check(ledcSetup(0,38000,8)==38000,"LEDC setup");ledcAttachPin(2,0);ledcWrite(0,85);
  check(output.str().find("PWM 2 85 255 38000")!=std::string::npos,"LEDC pin configuration");
