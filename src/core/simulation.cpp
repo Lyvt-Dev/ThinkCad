@@ -80,7 +80,10 @@ const Pin& Esp8266Board::pin(int gpio) const {
 }
 void Esp8266Board::pinMode(int gpio, PinMode mode) {
     (void)pin(gpio);
+    if(mode!=PinMode::Input&&mode!=PinMode::InputPullup&&mode!=PinMode::InputPulldown&&mode!=PinMode::Output)throw std::invalid_argument("Unknown GPIO mode");
+    if(mode==PinMode::InputPulldown&&(profile_.arduino()||profile_.id=="esp8266"))throw std::invalid_argument("This board has no internal GPIO pull-down");
     if ((profile_.id=="esp8266"&&gpio==16&&mode==PinMode::InputPullup)||(mode!=PinMode::Input&&std::find(profile_.inputOnly.begin(),profile_.inputOnly.end(),gpio)!=profile_.inputOnly.end())) throw std::invalid_argument("Pin mode unsupported by selected GPIO");
+    pins_.at(gpio).waveform={};pins_.at(gpio).waveformEdge={};pins_.at(gpio).waveformEnd=0;
     pins_.at(gpio).mode = mode;
     pins_.at(gpio).frequency = 0;
     pins_.at(gpio).pwm = false;
@@ -88,6 +91,7 @@ void Esp8266Board::pinMode(int gpio, PinMode mode) {
 void Esp8266Board::digitalWrite(int gpio, bool high) {
     (void)pin(gpio);
     if (pins_.at(gpio).mode != PinMode::Output) throw std::logic_error("digitalWrite requires OUTPUT in this model");
+    pins_.at(gpio).waveform={};pins_.at(gpio).waveformEdge={};pins_.at(gpio).waveformEnd=0;
     pins_.at(gpio).output = high;
     pins_.at(gpio).frequency = 0;
     pins_.at(gpio).pwm = false;
@@ -101,7 +105,7 @@ void Esp8266Board::tone(int gpio, unsigned frequency) {
 }
 void Esp8266Board::servoWrite(int gpio,unsigned pulse){if(pulse<500||pulse>2500)throw std::invalid_argument("Servo pulse outside 500..2500 us");pinMode(gpio,PinMode::Output);auto& pin=pins_.at(gpio);pin.output=true;pin.pwm=true;pin.duty=double(pulse)/20000;pin.frequency=50;}
 void Esp8266Board::analogWrite(int gpio,unsigned value,unsigned range,unsigned frequency){
-    if(!range||range>65535||value>range||!frequency||frequency>20000)throw std::invalid_argument("Invalid PWM value/range/frequency");
+    if(!range||range>65535||value>range||!frequency||frequency>100000)throw std::invalid_argument("Invalid PWM value/range/frequency");
     pinMode(gpio,PinMode::Output);
     if(profile_.arduino()&&!profile_.supportsPwm(gpio)){digitalWrite(gpio,value*2>=range);return;}
     if(value==0||value==range){digitalWrite(gpio,value!=0);return;}
@@ -110,8 +114,9 @@ void Esp8266Board::analogWrite(int gpio,unsigned value,unsigned range,unsigned f
 Level Esp8266Board::digitalRead(int gpio) const {
     const auto& p = pin(gpio);
     const auto own = p.mode == PinMode::Output ? (p.output ? Level::High : Level::Low) : Level::Floating;
-    return DigitalNet::resolve({own, p.external}, p.mode == PinMode::InputPullup);
+    auto level=DigitalNet::resolve({own, p.external}, p.mode == PinMode::InputPullup);return level==Level::Floating&&p.mode==PinMode::InputPulldown?Level::Low:level;
 }
+void Esp8266Board::scheduleWaveform(int gpio,Microseconds end,unsigned frequency,double duty,std::function<bool(Microseconds)> waveform,std::function<Microseconds(Microseconds)> nextEdge){if(!frequency||frequency>100000||duty<=0||duty>=1||!waveform)throw std::invalid_argument("Invalid scheduled GPIO waveform");pinMode(gpio,PinMode::Output);auto& p=pins_.at(gpio);p.waveform=std::move(waveform);p.waveformEdge=std::move(nextEdge);p.waveformEnd=end;p.frequency=frequency;p.duty=duty;p.output=false;}
 void Esp8266Board::driveInput(int gpio, Level level) { (void)pin(gpio); pins_.at(gpio).external = level; }
 void Esp8266Board::setAdcVoltage(double volts) {
     if (!std::isfinite(volts) || volts < 0 || volts > profile_.adcMax) throw std::invalid_argument("Voltage outside board ADC range");

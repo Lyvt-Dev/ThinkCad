@@ -1,3 +1,3 @@
 #pragma once
 #include "IRremote.hpp"
-// Modern Arduino-IRremote API. Legacy decode_results/raw timing APIs are not modeled.
+// Arduino-IRremote 4.x style API; supported protocol/fidelity details in docs/INFRARED.md.

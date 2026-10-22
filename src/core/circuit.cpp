@@ -190,6 +190,7 @@ void CircuitDocument::validate() const {
         for(const auto& [key,value]:p.parameters){
             if(!std::isfinite(value))throw std::invalid_argument("Non-finite component parameter");
             bool valid=p.kind==PartKind::Breadboard30&&((key=="columns"&&(value==17||value==30||value==63))||(key=="rails"&&(value==0||value==1)));
+            valid|=p.kind==PartKind::Button&&key=="bounceUs"&&value>=0&&value<=20000&&std::floor(value)==value;
             valid|=(p.kind==PartKind::Keypad||p.kind==PartKind::Keyboard)&&key=="keys"&&value>=0&&value<=(p.kind==PartKind::Keypad?65535.:33554431.)&&std::floor(value)==value;
             valid|=p.kind==PartKind::RotaryEncoder&&((key=="phase"&&value>=0&&value<=3&&std::floor(value)==value)||(key=="switch"&&(value==0||value==1)));
             valid|=p.kind==PartKind::Note&&(key=="noteWidth"||key=="noteHeight")&&value>=32&&value<=4096;
@@ -200,6 +201,16 @@ void CircuitDocument::validate() const {
             valid|=p.kind==PartKind::Resistor&&key=="powerRating"&&value>=.01&&value<=1000;
             valid|=p.kind==PartKind::DcMotor&&((key=="loadTorque"&&value>=0&&value<=1)||(key=="inertia"&&value>=1e-7&&value<=1)||(key=="inductance"&&value>=.001&&value<=1000));
             valid|=p.kind>=PartKind::InfraredLed&&p.kind<=PartKind::RadioTransceiver&&key=="channel"&&value>=0&&value<=15&&std::floor(value)==value;
+            if(p.kind==PartKind::InfraredLed||p.kind==PartKind::InfraredReceiver||p.kind==PartKind::InfraredRemote){
+                valid|=key=="irFidelity"&&(value==0||value==1);
+                valid|=key=="irBlocked"&&(value==0||value==1);
+                valid|=key=="irIntensity"&&value>=0&&value<=10;
+                valid|=key=="irRange"&&value>=1&&value<=10000;
+                valid|=key=="irSensitivity"&&value>=0&&value<=10;
+                valid|=key=="irFrequency"&&value>=20000&&value<=60000;
+                valid|=key=="irTolerance"&&value>=.01&&value<=.3;
+                valid|=key=="irAmbient"&&value>=0&&value<=10;
+            }
             valid|=p.kind==PartKind::InfraredRemote&&key=="address"&&value>=0&&value<=65535&&std::floor(value)==value;
             valid|=p.kind==PartKind::NfcTestCard&&((key=="uidLength"&&(value==4||value==7))||(key.size()==4&&key.substr(0,3)=="uid"&&key[3]>='0'&&key[3]<='6'&&value>=0&&value<=255&&std::floor(value)==value));
             if(p.kind==PartKind::Module){const auto& model=ModuleRegistry::get(p.model);for(const auto& field:model.parameters)if(field.name==key&&value>=field.min&&value<=field.max&&(field.unit!="count"||value==std::floor(value)))valid=true;valid|=key=="address"&&model.bus=="i2c"&&value>=(model.builtin?model.address:8)&&value<=(model.builtin?model.address+model.addressCount-1:119)&&std::floor(value)==value;}
@@ -234,11 +245,13 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         const int gpio=board.profile().pinNumber(ep.pin),n=nodes.representative(index);const auto& pin=board.pin(gpio);
         if(pin.mode==PinMode::Output){
             double voltage=pin.output?board.profile().voltage:0;
-            if(pin.frequency&&memory){const double phase=time*pin.frequency-std::floor(time*pin.frequency);voltage=phase<pin.duty?board.profile().voltage:0;}
+            if(pin.waveform)voltage=pin.waveform(Microseconds(std::llround(time*1e6)))?board.profile().voltage:0;
+            else if(pin.frequency&&memory){const double phase=time*pin.frequency-std::floor(time*pin.frequency);voltage=phase<pin.duty?board.profile().voltage:0;}
             else if(pin.pwm)voltage=pin.duty*board.profile().voltage;
             driver(n,voltage);
         }
         else if(pin.mode==PinMode::InputPullup)resistors.push_back({n,nodes.node({id,board.profile().id=="attiny85"?"VCC":board.profile().arduino()?"5V":"3V3"}),47000});
+        else if(pin.mode==PinMode::InputPulldown)resistors.push_back({n,nodes.node({id,"GND"}),47000});
         if(pin.external==Level::High)driver(n,board.profile().voltage);
         if(pin.external==Level::Low)driver(n,0);
         if(pin.external==Level::Contention)result.errors.push_back("GPIO input has conflicting external drivers");
@@ -296,6 +309,7 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
     for(int iteration=0;iteration<(nonlinear?400:124);++iteration) {
         auto branches=resistors;std::set<std::string> activeAmps,activeUltrasonic,activeMotorEncoders;
         for(const auto& p:parts_)if(p.kind==PartKind::Module)for(const auto& branch:electronicDrive[p.id])branches.push_back({nodes.node({p.id,branch.a}),nodes.node({p.id,branch.b}),branch.resistance,branch.offset});
+        for(const auto& p:parts_)if(p.kind==PartKind::InfraredReceiver){const int v=nodes.node({p.id,"VCC"}),g=nodes.node({p.id,"GND"});if(!volts.contains(v)||!volts.contains(g)||volts[v]-volts[g]<2.7||volts[v]-volts[g]>5.5)continue;bool high=true;if(memory){auto found=memory->infrared.find(p.id);if(found!=memory->infrared.end())high=found->second.high(Microseconds(std::llround(time*1e6)));}branches.push_back({nodes.node({p.id,"OUT"}),g,50,high?volts[v]-volts[g]:0});}
         for(const auto& p:parts_)if(p.kind==PartKind::Module&&(p.model=="hcsr04"||p.model=="ping3")){
             const int power=nodes.node({p.id,"VCC"}),ground=nodes.node({p.id,"GND"});if(!volts.contains(power)||!volts.contains(ground)||volts.at(power)-volts.at(ground)<4.5||volts.at(power)-volts.at(ground)>5.5)continue;
             bool high=false;if(memory){const auto it=memory->ultrasonic.find(p.id);if(it!=memory->ultrasonic.end()){const auto at=Microseconds(std::llround(time*1e6));high=it->second.rise&&at>=it->second.rise&&at<it->second.fall;}}
@@ -427,7 +441,10 @@ CircuitState CircuitDocument::solveStep(const std::map<std::string,const Esp8266
         for(std::size_t i=0;i<activeSources.size();++i){const auto& source=activeSources[i];auto& current=sourceCurrents[{source.a,source.b}];current+=alpha*(solved[unknown.size()+i]-current);}
         if(nonlinear&&residualSquared>1e-16)changed=true;
         for(const auto& [n,row]:unknown){const double old=previous.contains(n)?previous.at(n):0;const double next=old+alpha*(solved[row]-old);volts[n]=next;if(nonlinear&&std::abs(next-old)>1e-8)changed=true;}
-        for(const auto& j:junctions){bool on=volts.contains(j.a)&&volts.contains(j.k)&&volts[j.a]-volts[j.k]>j.vf+1e-8;if(conducting[j.id]!=on){conducting[j.id]=on;changed=true;}}
+        for(const auto& j:junctions){// Retain the previous branch state at the diode's knee. A floating
+            // transistor collector can settle at VF with picoamp leakage;
+            // toggling the branch there makes a valid OFF circuit oscillate.
+            bool on=volts.contains(j.a)&&volts.contains(j.k)&&volts[j.a]-volts[j.k]>(conducting[j.id]?j.vf-1e-8:j.vf+1e-8);if(conducting[j.id]!=on){conducting[j.id]=on;changed=true;}}
         // TMP36: ideal high-impedance sensor, 500 mV offset + 10 mV/°C.
         // Wait for the supply network to resolve, including series resistors/switches.
         for(const auto& p:parts_)if(p.kind==PartKind::TemperatureSensor&&!poweredSensors.contains(p.id)){

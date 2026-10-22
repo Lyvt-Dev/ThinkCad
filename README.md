@@ -10,6 +10,25 @@ SSD1306-OLEDs, einen Sketch-Editor und eine compilerbasierte Arduino-API-Teilmen
 
 ![ThinkCad im Dark Mode](docs/desktop-dark-preview.png)
 
+## Neu in 1.3.8 — IR-Wellenformen und ESP32-C3
+
+IRremote-Sendungen erzeugen jetzt mikrosekundengenaue Trägerbursts und Pausen;
+der Empfänger decodiert die optisch gefilterten Pulszeiten. NEC/Extended NEC,
+Samsung, Sony SIRC, RC5, RC6 Mode 0 und Kaseikyo/Panasonic sind modelliert.
+Der neue **IR signal debugger** zeigt Träger, Hüllkurve und aktive LOW-Ausgabe
+mit Zoom und CSV-Export. Ein verdrahtetes ESP32-C3-Beispiel kombiniert vier
+IR-LEDs, vier Taster und ein 16×2-I²C-LCD. Dazu kommen LEDC-/Timer-Adapter,
+Arduino-Binärkonstanten, LCD-Befehlszeiten und optionales Tasterprellen.
+
+Die IR-Engine ist eine deterministische elektrische/optische Hüllkurvennäherung;
+beliebiges GPIO-Bitbanging, vollständige RMT-/CPU-Emulation und kalibrierte
+Empfänger-AGC sind weiterhin nicht implementiert.
+[Versionshinweise](docs/RELEASE_NOTES_1.3.8.md) · [IR-Modell und Grenzen](docs/INFRARED.md)
+
+![ESP32-C3-IR-Labor mit LCD, vier Tastern und IR-Debugger](docs/ir-debugger-preview.png)
+
+[38-kHz-Träger im Mikrosekunden-Zoom](docs/ir-carrier-preview.png)
+
 ## Neu in 1.3.7 — Funk, NFC und Akkus
 
 17 zusätzliche Katalogeinträge: unter anderem CC1101/SX1276-Paketmodelle,

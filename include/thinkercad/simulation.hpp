@@ -11,9 +11,9 @@ namespace thinkercad {
 using Microseconds = std::uint64_t;
 enum class ExecutionMode { Simulation, Emulation };
 inline const char* executionModeName(ExecutionMode mode){return mode==ExecutionMode::Emulation?"emulation":"simulation";}
-enum class PinMode { Input, InputPullup, Output };
+enum class PinMode { Input, InputPullup, Output, InputPulldown };
 enum class Level { Floating, Low, High, Contention };
-struct Pin { PinMode mode = PinMode::Input; bool output = false; Level external = Level::Floating; unsigned frequency = 0; double duty = 0.5; bool pwm = false; };
+struct Pin { PinMode mode = PinMode::Input; bool output = false; Level external = Level::Floating; unsigned frequency = 0; double duty = 0.5; bool pwm = false; std::function<bool(Microseconds)> waveform;std::function<Microseconds(Microseconds)> waveformEdge;Microseconds waveformEnd=0; };
 
 class Component {
 public:
@@ -64,6 +64,7 @@ public:
     void tone(int gpio, unsigned frequency);
     void servoWrite(int gpio,unsigned pulse);
     void analogWrite(int gpio,unsigned value,unsigned range=255,unsigned frequency=1000);
+    void scheduleWaveform(int gpio,Microseconds end,unsigned frequency,double duty,std::function<bool(Microseconds)> waveform,std::function<Microseconds(Microseconds)> nextEdge);
     void driveInput(int gpio, Level level);
     void setAdcVoltage(double volts); // Bare ESP8266 A0: 0..1 V, not NodeMCU divider.
     int analogRead() const;

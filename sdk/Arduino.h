@@ -15,6 +15,7 @@
 #include <map>
 #include <functional>
 #include "pgmspace.h"
+#include "binary.h"
 #include "Print.h"
 #include "Stream.h"
 #ifndef ARDUINO
@@ -29,7 +30,7 @@ constexpr auto constrain(Value value,Lower lower,Upper upper){
     using Result=std::common_type_t<Value,Lower,Upper>;
     return std::clamp<Result>(static_cast<Result>(value),static_cast<Result>(lower),static_cast<Result>(upper));
 }
-constexpr int LOW = 0, HIGH = 1, INPUT = 0, OUTPUT = 1, INPUT_PULLUP = 2;
+constexpr int LOW = 0, HIGH = 1, INPUT = 0, OUTPUT = 1, INPUT_PULLUP = 2, INPUT_PULLDOWN = 3;
 #if defined(THINKERCAD_GENERIC_BOARD)
 constexpr int D0=0,D1=1,D2=2,D3=3,D4=4,D5=5,D6=6,D7=7,D8=8;
 #if defined(THINKERCAD_ATTINY85)
@@ -70,6 +71,8 @@ namespace thinker {
 inline std::uint64_t clockUs = 0;
 inline bool standalone = false;
 inline std::map<const void*,std::function<void()>> timeObservers;
+inline std::map<const void*,std::uint64_t> eventDeadlines;
+inline std::uint64_t waveformStepLimit=50000;
 inline std::array<int,49> modes{};
 inline std::map<int,std::uint64_t> toneDeadlines;
 inline void validatePin(int pin) {
@@ -93,18 +96,20 @@ inline void advance(std::uint64_t us) {
     do {
         const int speed = request("SPEED"); // Speed multiplier in thousandths; refreshed while running.
         if (speed < 100 || speed > 10000) throw std::runtime_error("Invalid simulation speed");
-        auto step = std::min<std::uint64_t>(us, 50ull * speed);
+        auto step = std::min<std::uint64_t>(us, std::min<std::uint64_t>(50ull * speed,waveformStepLimit));
 #ifdef THINKERCAD_EMULATION
         if(interruptsRegistered())step=std::min<std::uint64_t>(step,1000);
 #endif
         for(const auto& [pin,deadline]:toneDeadlines)if(deadline>clockUs)step=std::min(step,deadline-clockUs);
+        for(const auto& [owner,deadline]:eventDeadlines)if(deadline>clockUs)step=std::min(step,deadline-clockUs);
         hostSleep(std::chrono::microseconds(step * 1000 / speed));
         clockUs += step;us -= step;
         std::cout << "TIME " << clockUs << std::endl;
         for(auto it=toneDeadlines.begin();it!=toneDeadlines.end();){
             if(it->second<=clockUs){std::cout << "NOTONE " << it->first << std::endl;it=toneDeadlines.erase(it);}else ++it;
         }
-        for(const auto& observer:timeObservers)observer.second();
+        const auto observers=timeObservers; // Callbacks may destroy timers or displays safely.
+        for(const auto& [owner,callback]:observers)if(timeObservers.contains(owner))callback();
         dispatchInterrupts();
     } while (us);
 }
@@ -118,7 +123,7 @@ inline int request(const std::string& line) {
 }
 inline void pinMode(int pin, int mode) {
     thinker::validatePin(pin);
-    if (mode < INPUT || mode > INPUT_PULLUP || (
+    if (mode < INPUT || mode > INPUT_PULLDOWN || (
 #if defined(THINKERCAD_GENERIC_BOARD)
     mode!=INPUT&&(THINKERCAD_BOARD_INPUT_MASK&(1ull<<pin))
 #elif defined(THINKERCAD_ARDUINO_UNO) || defined(THINKERCAD_ARDUINO_NANO)
@@ -131,6 +136,9 @@ inline void pinMode(int pin, int mode) {
     pin==16&&mode==INPUT_PULLUP
 #endif
     )) throw std::invalid_argument("Unsupported pin mode");
+#if defined(THINKERCAD_ARDUINO_UNO)||defined(THINKERCAD_ARDUINO_NANO)||(!defined(THINKERCAD_GENERIC_BOARD)&&!defined(THINKERCAD_ESP32)&&!defined(THINKERCAD_ESP32_S3))
+    if(mode==INPUT_PULLDOWN)throw std::invalid_argument("This board has no internal GPIO pull-down");
+#endif
     thinker::toneDeadlines.erase(pin);
     thinker::modes.at(pin)=mode;
     std::cout << "MODE " << pin << ' ' << mode << std::endl;
@@ -168,7 +176,7 @@ inline void analogWrite(int pin,int value){
 }
 #if !defined(THINKERCAD_ARDUINO_UNO) && !defined(THINKERCAD_ARDUINO_NANO)
 inline void analogWriteRange(unsigned range){if(!range||range>65535)throw std::invalid_argument("PWM range outside 1..65535");thinker::pwmRange=range;}
-inline void analogWriteFreq(unsigned frequency){if(!frequency||frequency>20000)throw std::invalid_argument("PWM frequency outside 1..20000 Hz");thinker::pwmFrequency=frequency;}
+inline void analogWriteFreq(unsigned frequency){if(!frequency||frequency>100000)throw std::invalid_argument("PWM frequency outside 1..100000 Hz");thinker::pwmFrequency=frequency;}
 #endif
 inline int digitalRead(int pin) { thinker::validatePin(pin);const int value=thinker::request("READ " + std::to_string(pin));thinker::dispatchInterrupts();return value; }
 inline int analogRead(int pin) {
@@ -236,3 +244,5 @@ protected:
     void streamWait(uint64_t us)override{thinker::advance(us);}
 };
 inline SerialPort Serial;
+
+#include "esp32timing.hpp"

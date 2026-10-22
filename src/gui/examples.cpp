@@ -18,6 +18,7 @@ QList<CircuitExample> ExampleCatalog::entries(){QList<CircuitExample> values{
     {"keypad_matrix",Language::text("Keypad: 4×4-Matrix scannen"),Language::text("Uno D2–D5: Zeilen; D6–D9: Spalten. Tastenfenster öffnen und gedrückt halten.")},
     {"midi_keyboard",Language::text("MIDI: 25-Tasten-Keyboard"),Language::text("Elektrische 4×8-Matrix an D2–D13. MIDI-Noten aus dem Sketch im MIDI-Tab; keine direkte MIDI-Injektion nötig.")},
     {"dj_controller",Language::text("DJ: Encoder, Fader und MIDI-Pad"),Language::text("Uno mit Quadratur-Encoder, analogem Fader und Taster. MIDI-CC und Note On/Off im MIDI-Tab ansehen und übersetzen.")},
+    {"esp32_c3_ir_lab","ESP32-C3: IR waveform lab","Four independently wired IR LEDs, 38 kHz receiver, four buttons and a 16×2 I²C LCD. View → IR signal debugger."},
     {"ir_remote",Language::text("IR: TV-Fernbedienung testen"),Language::text("ESP32, 38-kHz-Empfänger und NEC-Testfernbedienung. Taste während der Simulation gedrückt halten.")},
     {"ir_loopback",Language::text("IR: Senden und Empfangen"),Language::text("GPIO2 mit 220 Ω und IR-LED; 38-kHz-Empfänger an GPIO4. NEC-Kommandos im seriellen Monitor.")},
     {"nfc_tag_emulation","NFC: two-board tag emulation", "An ESP32 presents a writable synthetic NFC tag; a second ESP32 reads its UID and exchanges test data."},
@@ -66,6 +67,10 @@ SavedProject ExampleCatalog::create(const QString& id){
         doc.part("board").model="arduino-uno";const auto input=doc.addPart(id=="keypad_matrix"?PartKind::Keypad:PartKind::Keyboard,650,100);for(int r=0;r<4;++r)doc.connect({input,"R"+std::to_string(r+1)},{"board","D"+std::to_string(2+r)});for(int c=0;c<(id=="keypad_matrix"?4:8);++c)doc.connect({input,"C"+std::to_string(c+1)},{"board","D"+std::to_string(6+c)});
     }else if(id=="dj_controller"){
         doc.part("board").model="arduino-uno";auto encoder=doc.addPart(PartKind::RotaryEncoder,650,0),fader=doc.addPart(PartKind::Potentiometer,650,220),pad=doc.addPart(PartKind::Button,650,420);for(const auto& item:std::vector<std::pair<std::string,std::string>>{{"A","D2"},{"B","D3"},{"SW","D4"},{"GND","GND"}})doc.connect({encoder,item.first},{"board",item.second});doc.connect({fader,"1"},{"board","GND"});doc.connect({fader,"2"},{"board","5V"});doc.connect({fader,"W"},{"board","A0"});doc.connect({pad,"1"},{"board","D5"});doc.connect({pad,"2"},{"board","GND"});
+    }else if(id=="esp32_c3_ir_lab"){
+        doc.part("board").model="esp32-c3";const auto rx=doc.addPart(PartKind::InfraredReceiver,600,40);power("board",rx);doc.connect({"board","GPIO7"},{rx,"OUT"});
+        const auto lcd=doc.addPart(PartKind::I2cCharacterLcd,850,40);doc.part(lcd).model="lcd-16x2";power("board",lcd);doc.connect({"board","GPIO8"},{lcd,"SDA"});doc.connect({"board","GPIO9"},{lcd,"SCL"});
+        const int leds[]={2,4,5,6},buttons[]={0,1,3,10};for(int i=0;i<4;++i){auto r=doc.addPart(PartKind::Resistor,400,250+i*100),led=doc.addPart(PartKind::InfraredLed,650,250+i*100),button=doc.addPart(PartKind::Button,850,250+i*100);doc.connect({"board","GPIO"+std::to_string(leds[i])},{r,"1"});doc.connect({r,"2"},{led,"A"});doc.connect({led,"K"},{"board","GND"});doc.connect({"board","GPIO"+std::to_string(buttons[i])},{button,"1"});doc.connect({button,"2"},{"board","GND"});}
     }else if(id=="ir_remote"||id=="ir_loopback"){
         doc.part("board").model="esp32";auto receiver=doc.addPart(PartKind::InfraredReceiver,500,30);power("board",receiver);doc.connect({"board","GPIO4"},{receiver,"OUT"});
         if(id=="ir_remote")doc.addPart(PartKind::InfraredRemote,750,30);
